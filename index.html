@@ -611,7 +611,7 @@ const INITIAL_ANNUAL_HN = {
       kpi: [207700,223200,305100,252200,252200,202220,150600,153500,208000,205100,210900,209300],
       dso: [0,0,0,0,4960,4960,24800,74400,99200,124000,198400,248000],
       end: [0,0,0,0,21490,55260,79820,113590,122800,251740,251740,331560] },
-    { region: '광동', type: '대리상', name: '国药涅宇',
+    { region: '광서', type: '대리상', name: '国药涅宇',
       kpi: [80000,50000,120000,120000,120000,120000,90000,100000,130000,120000,140000,110000],
       dso: [0,0,0,0,0,102900,85300,91500,107400,102900,112900,102900],
       end: [780,17240,60,31000,61700,61700,51200,54900,64400,61700,67700,61700] },
@@ -619,10 +619,6 @@ const INITIAL_ANNUAL_HN = {
       kpi: [100000,50000,150000,50000,50000,50000,50000,50000,50000,150000,150000,100000],
       dso: [0,0,0,0,0,0,0,0,0,0,0,0],
       end: [53568,1147,1447,50000,120000,120000,120000,120000,120000,120000,120000,120000] },
-    { region: '광동', type: '대리상', name: '其他（聚赢）', dsoOnly: true,
-      kpi: [80000,50000,120000,120000,120000,120000,90000,100000,130000,120000,140000,110000],
-      dso: [0,0,0,0,170000,170000,170000,170000,170000,170000,170000,170000],
-      end: [0,0,0,0,0,0,0,0,0,0,0,0] },
     { region: '광서', type: '대리상', name: '广西安樹里',
       kpi: [80000,50000,120000,120000,120000,120000,90000,100000,130000,120000,140000,110000],
       dso: [0,0,0,0,0,0,0,0,0,0,0,0],
@@ -639,6 +635,10 @@ const INITIAL_ANNUAL_HN = {
       kpi: [68900,42400,100700,95400,95400,95400,74200,79500,106000,100700,111300,90100],
       dso: [0,0,0,0,0,0,0,0,0,0,0,0],
       end: [90075,393,70016,50000,100000,100000,100000,100000,106000,100700,111300,90100] },
+    { region: '해남', type: '대리상', name: '海南宏名医疗器械有限公司',
+      kpi: [0,0,0,0,0,0,0,0,0,0,0,0],
+      dso: [0,0,0,0,0,0,0,0,0,0,0,0],
+      end: [0,0,0,0,0,0,0,0,0,0,0,0] },
   ],
 };
 
@@ -700,7 +700,7 @@ const INITIAL_PSI_HN = {
       kpi: [769,827,1130,934,934,749,558,569,770,760,781,775],
       dso: [0,0,0,0,20,20,100,300,400,500,800,1000],
       end: [0,0,0,0,70,180,260,370,400,820,820,1080] },
-    { region: '광동', type: '대리상', name: '国药涅宇',
+    { region: '광서', type: '대리상', name: '国药涅宇',
       kpi: [296,185,444,444,444,444,333,370,481,444,519,407],
       dso: [0,0,0,0,0,0,50,100,100,300,300,300],
       end: [3,56,0,55,55,120,175,300,345,360,495,520] },
@@ -708,10 +708,6 @@ const INITIAL_PSI_HN = {
       kpi: [370,185,556,185,185,185,185,185,185,556,556,370],
       dso: [0,0,0,0,0,0,0,0,0,0,0,0],
       end: [174,4,5,163,391,391,391,391,391,391,391,391] },
-    { region: '광동', type: '대리상', name: '其他（聚赢）', dsoOnly: true,
-      kpi: [0,0,0,0,0,0,0,0,0,0,0,0],
-      dso: [0,0,0,0,0,0,0,0,0,0,0,0],
-      end: [0,0,0,0,0,0,0,0,0,0,0,0] },
     { region: '광서', type: '대리상', name: '广西安樹里',
       kpi: [296,185,444,444,444,444,333,370,481,444,519,407],
       dso: [0,0,0,0,0,0,0,0,0,0,0,0],
@@ -728,6 +724,10 @@ const INITIAL_PSI_HN = {
       kpi: [255,157,373,353,353,353,275,294,393,373,412,334],
       dso: [0,0,0,0,0,0,0,0,0,0,0,0],
       end: [293,1,228,163,326,326,326,326,345,328,363,293] },
+    { region: '해남', type: '대리상', name: '海南宏名医疗器械有限公司',
+      kpi: [0,0,0,0,0,0,0,0,0,0,0,0],
+      dso: [0,0,0,0,0,0,0,0,0,0,0,0],
+      end: [0,0,0,0,0,0,0,0,0,0,0,0] },
   ],
 };
 const _psiEmptyDealers = (regions) => regions.map((r, i) => ({
@@ -3377,10 +3377,8 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
     const rateTotal = goalTotal !== 0 ? Math.round(actualTotal / goalTotal * 100) : 0;
     return { goal, actual, rate, goalTotal, actualTotal, rateTotal };
   };
-  const cumData = computeHqBlock('_cum', psiData.hqCumulative);
-  const monData = computeHqBlock('_mon', psiData.hqMonthly);
 
-  // 대리상 계산
+  // 대리상 계산 (먼저 계산해야 본부 실적합계가 대리상 실적 합계로 자동 계산됨)
   const computeEntity = (ent) => {
     const kpi = ent.kpi.map((d, mi) => getCell(ent.name, 'kpi', mi, d));
     // 실적 = 사용자 입력 우선, 없으면 초기 dso+end (마이그레이션)
@@ -3397,6 +3395,22 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
     return { kpi, actual, rate, kpiTotal, actualTotal, rateTotal };
   };
   let dealersData = psiData.dealers.map(d => ({ ent: d, calc: computeEntity(d) }));
+
+  // 본부 실적합계 (_cum): 목표(KPI)는 사용자 입력, 실적은 대리상 실적의 월별 합계로 자동
+  const cumData = (() => {
+    const src = psiData.hqCumulative;
+    const goal = src.goal.map((d, mi) => getCell('_cum', 'goal', mi, d));
+    // 실적 자동 합계 (각 월의 모든 대리상 실적 합)
+    const actual = Array(12).fill(0).map((_, mi) =>
+      dealersData.reduce((acc, { calc }) => acc + (calc.actual[mi] || 0), 0)
+    );
+    const rate = goal.map((g, mi) => g !== 0 ? Math.round(actual[mi] / g * 100) : 0);
+    const goalTotal = sum(goal), actualTotal = sum(actual);
+    const rateTotal = goalTotal !== 0 ? Math.round(actualTotal / goalTotal * 100) : 0;
+    return { goal, actual, rate, goalTotal, actualTotal, rateTotal };
+  })();
+  const monData = computeHqBlock('_mon', psiData.hqMonthly);
+
   if (sortConfig) {
     dealersData = [...dealersData].sort((a, b) => {
       const va = a.ent[sortConfig.key] || '', vb = b.ent[sortConfig.key] || '';
@@ -3539,9 +3553,9 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
                       <td style={cellH} className="px-2 text-right font-bold bg-slate-100">{fmt(c.goalTotal)}</td>
                     </tr>
                     <tr className={rowBase} style={stickyRow(1)}>
-                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 bg-white">실적</td>
-                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-1 border-r border-slate-300 bg-white"><EditCell name="_cum" field="actual" mi={mi} value={c.actual[mi]} /></td>)}
-                      <td style={cellH} className="px-2 text-right bg-slate-50">{fmt(c.actualTotal)}</td>
+                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 bg-white" title="대리상 실적의 월별 합계 (자동)">실적</td>
+                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-2 border-r border-slate-300 bg-slate-50 text-right font-semibold text-slate-800" title="대리상 실적 합계 (자동)">{fmt(c.actual[mi])}</td>)}
+                      <td style={cellH} className="px-2 text-right font-bold bg-slate-100">{fmt(c.actualTotal)}</td>
                     </tr>
                     <tr className={rowBase} style={stickyRow(2)}>
                       <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">KPI달성율</td>
@@ -3631,6 +3645,247 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
           </div>
         );
       })()}
+    </div>
+  );
+}
+
+/* ============================================================
+   [전체 대시보드용] 법인 매출 관리
+   - 탭: 금액(만RMB) / 수량(개)
+   - 각 탭에 위표(KPI/실적/달성율) + 아래표(전년도25/성장율)
+   - 저장: weeklyEntries (기존 시스템 통합)
+   ============================================================ */
+const CORP_AMOUNT_ROWS = [
+  { corp:'영파', region:'화동지역', name:'절강본부',
+    kpi:[428,263,625,593,593,461,494,658,625,691,560,0], y25:[437,410,674,554,534,437,359,483,456,366,447,0] },
+  { corp:'영파', region:'화동지역', name:'화동본부',
+    kpi:[493,303,720,683,683,531,569,758,720,796,645,0], y25:[429,439,589,510,615,433,425,580,446,566,449,0] },
+  { corp:'영파', region:'화중지역', name:'화중본부',
+    kpi:[472,291,691,654,654,509,545,727,691,763,618,0], y25:[453,448,589,492,626,460,488,566,401,370,341,0] },
+  { corp:'영파', region:'화서지역', name:'화서본부',
+    kpi:[308,190,451,427,427,332,356,475,451,498,403,0], y25:[305,294,392,354,441,169,288,354,326,363,190,0] },
+  { corp:'영파', region:'화남지역', name:'화남본부',
+    kpi:[167,103,244,231,231,180,193,257,244,218,0,0], y25:[71,96,193,141,151,148,98,192,130,103,0,0] },
+  { corp:'북경', region:'북경지역', name:'북경법인합계',
+    kpi:[398,245,582,551,551,429,459,612,582,643,521,0], y25:[293,333,471,431,416,329,326,507,271,386,155,0] },
+];
+const CORP_QTY_ROWS = [
+  { corp:'영파', region:'화동지역', name:'절강본부',
+    kpi:[14569,8966,21295,20174,20174,20174,15690,16810,22415,21295,23536,19052], y25:[11298,10676,17828,17457,13432,15648,15354,13928,12763,15838,13045,14690] },
+  { corp:'영파', region:'화동지역', name:'화동본부',
+    kpi:[16770,10320,24510,23220,23220,23220,18060,19350,25800,27090,21930,0], y25:[11339,11492,17809,16352,14799,16548,14784,12193,16083,16802,15657,0] },
+  { corp:'영파', region:'화중지역', name:'화중본부',
+    kpi:[16074,9892,23494,22257,22257,22257,17311,18547,24730,23494,25967,21020], y25:[12090,12436,16206,16050,13607,17876,13041,14072,15873,11107,12239,15141] },
+  { corp:'영파', region:'화서지역', name:'화서본부',
+    kpi:[10488,6454,15326,14521,14521,14521,11293,12100,16134,15326,13714,0], y25:[7747,7810,11281,9827,9090,12323,5419,8219,9329,9406,7228,0] },
+  { corp:'영파', region:'화남지역', name:'화남본부',
+    kpi:[5675,3492,8293,7857,7857,7857,6111,6548,9166,7420,0,0], y25:[1571,2516,3762,4078,4743,4180,3329,5950,4822,3592,0,0] },
+  { corp:'북경', region:'북경지역', name:'북경법인합계',
+    kpi:[14300,8801,20900,19800,19800,19800,15400,16499,22001,20900,23099,0], y25:[9237,10858,15546,16989,13177,14654,12238,13374,17421,10585,13574,18700] },
+];
+const CORP_DATA_MAP = { amount: CORP_AMOUNT_ROWS, qty: CORP_QTY_ROWS };
+
+function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChange, visibleMonths, sortConfig, onSort }) {
+  const rows = CORP_DATA_MAP[tab];
+  const tabKey = tab === 'amount' ? 'AMT' : 'QTY';
+
+  const fmtCorp = (v) => { if (v===0) return ''; const s=Math.abs(Math.round(v)).toLocaleString(); return v<0?`(${s})`:s; };
+  const sum12 = (arr) => arr.reduce((a,b)=>a+b,0);
+
+  const getCell = (name, field, mi, defaultVal) => {
+    const key = `corp${tabKey}|${name}|${field}|${mi}`;
+    const stored = weeklyEntries[key];
+    if (stored !== undefined && stored !== null && stored !== '') return stored;
+    return defaultVal;
+  };
+  const setCell = (name, field, mi, value) => {
+    const key = `corp${tabKey}|${name}|${field}|${mi}`;
+    const v = parseFloat(value);
+    setWeeklyEntries(prev => ({ ...prev, [key]: isNaN(v) ? 0 : v }));
+    logChange(`법인매출(${tab==='amount'?'금액':'수량'}) ${name}`, `${MONTH_LABELS[mi]} ${field} 수정`);
+  };
+
+  const computeEntity = (ent) => {
+    const kpi = ent.kpi.map((d, mi) => getCell(ent.name, 'kpi', mi, d));
+    const act = ent.kpi.map((_, mi) => getCell(ent.name, 'act', mi, 0));
+    const y25 = ent.y25.map((d, mi) => getCell(ent.name, 'y25', mi, d));
+    const rate = act.map((v, mi) => kpi[mi] !== 0 ? Math.round(v / kpi[mi] * 100) : 0);
+    const grow = act.map((v, mi) => y25[mi] !== 0 ? Math.round((v - y25[mi]) / y25[mi] * 100) : 0);
+    const kpiT=sum12(kpi), actT=sum12(act), y25T=sum12(y25);
+    return { kpi, act, y25, rate, grow, kpiT, actT, y25T,
+      rateT: kpiT!==0?Math.round(actT/kpiT*100):0, growT: y25T!==0?Math.round((actT-y25T)/y25T*100):0 };
+  };
+
+  let dataRows = rows.map(r => ({ ent:r, calc:computeEntity(r) }));
+  if (sortConfig) {
+    dataRows = [...dataRows].sort((a,b)=>{
+      const va=a.ent[sortConfig.key]||'', vb=b.ent[sortConfig.key]||'';
+      const cmp=String(va).localeCompare(String(vb),'ko');
+      return sortConfig.dir==='asc'?cmp:-cmp;
+    });
+  }
+
+  const totals = (() => {
+    const z=()=>Array(12).fill(0); const kpi=z(),act=z(),y25=z();
+    dataRows.forEach(({calc})=>{ for(let mi=0;mi<12;mi++){ kpi[mi]+=calc.kpi[mi]; act[mi]+=calc.act[mi]; y25[mi]+=calc.y25[mi]; }});
+    const rate=act.map((v,mi)=>kpi[mi]!==0?Math.round(v/kpi[mi]*100):0);
+    const grow=act.map((v,mi)=>y25[mi]!==0?Math.round((v-y25[mi])/y25[mi]*100):0);
+    const kpiT=sum12(kpi),actT=sum12(act),y25T=sum12(y25);
+    return { kpi,act,y25,rate,grow,kpiT,actT,y25T,
+      rateT:kpiT!==0?Math.round(actT/kpiT*100):0, growT:y25T!==0?Math.round((actT-y25T)/y25T*100):0 };
+  })();
+
+  const visMonthIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
+  const pctCls = (v) => v<0 ? 'text-rose-600 font-bold' : 'text-slate-800';
+
+  const EditCell = ({ name, field, mi, value }) => {
+    const [editing,setEditing] = React.useState(false);
+    const [temp,setTemp] = React.useState(value);
+    React.useEffect(()=>{setTemp(value);},[value]);
+    const save = () => { setCell(name,field,mi,temp); setEditing(false); };
+    if (editing) return <input type="number" value={temp} autoFocus
+      onChange={e=>setTemp(e.target.value)} onBlur={save}
+      onKeyDown={e=>{ if(e.key==='Enter')save(); if(e.key==='Escape')setEditing(false); }}
+      className="w-full px-1 py-0.5 border border-blue-400 rounded outline-none text-right text-sm" />;
+    return <div onClick={()=>setEditing(true)} title="클릭하여 수정"
+      className="cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded text-right min-h-[22px]">{fmtCorp(value)}</div>;
+  };
+
+  const mainFields = [
+    { label:'KPI',   render:(name,c)=> (mi)=> <EditCell name={name} field="kpi" mi={mi} value={c.kpi[mi]} />, total:c=>fmtCorp(c.kpiT) },
+    { label:'실적',  render:(name,c)=> (mi)=> <EditCell name={name} field="act" mi={mi} value={c.act[mi]} />, total:c=>fmtCorp(c.actT) },
+    { label:'달성율',isPct:true, render:(name,c)=> (mi)=> <span className={pctCls(c.rate[mi])}>{c.rate[mi]}%</span>, total:c=> <span className={pctCls(c.rateT)}>{c.rateT}%</span> },
+  ];
+  const prevFields = [
+    { label:'전년도실적', render:(name,c)=> (mi)=> <EditCell name={name} field="y25" mi={mi} value={c.y25[mi]} />, total:c=>fmtCorp(c.y25T) },
+    { label:'성장율', isPct:true, render:(name,c)=> (mi)=> <span className={pctCls(c.grow[mi])}>{c.grow[mi]}%</span>, total:c=> <span className={pctCls(c.growT)}>{c.growT}%</span> },
+  ];
+  const fields = variant==='main' ? mainFields : prevFields;
+  const rowCount = fields.length;
+
+  const arrow = (key) => sortConfig?.key===key ? (sortConfig.dir==='asc'?'▲':'▼') : '⇅';
+
+  return (
+    <div className="overflow-x-auto border border-slate-300 rounded">
+      <table className="text-sm border-collapse" style={{ minWidth:'100%' }}>
+        <thead>
+          <tr className="bg-slate-100 border-b border-slate-300">
+            <th onClick={()=>onSort('corp')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth:'70px' }}>법인 {arrow('corp')}</th>
+            <th onClick={()=>onSort('region')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth:'84px' }}>지역 {arrow('region')}</th>
+            <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth:'110px' }}>본부</th>
+            <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth:'90px' }}>구분</th>
+            {visMonthIdxs.map(mi => (
+              <th key={mi} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right" style={{ minWidth:'80px' }}>{MONTH_LABELS[mi]}</th>
+            ))}
+            <th className="px-2 py-2 font-semibold text-slate-700 text-right bg-slate-200" style={{ minWidth:'90px' }}>합계</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dataRows.map(({ent, calc:c})=>(
+            <React.Fragment key={ent.name}>
+              {fields.map((f, ri)=>(
+                <tr key={f.label} className="border-b border-slate-200">
+                  {ri===0 && <td rowSpan={rowCount} className="px-2 py-1 border-r border-slate-300 text-center font-semibold align-middle bg-white">{ent.corp}</td>}
+                  {ri===0 && <td rowSpan={rowCount} className="px-2 py-1 border-r border-slate-300 text-center align-middle bg-white">{ent.region}</td>}
+                  {ri===0 && <td rowSpan={rowCount} className="px-2 py-1 border-r border-slate-300 text-center font-medium align-middle bg-white">{ent.name}</td>}
+                  <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">{f.label}</td>
+                  {visMonthIdxs.map(mi=>(
+                    <td key={mi} className={`px-1 py-0.5 border-r border-slate-300 bg-white ${f.isPct?'text-right px-2 py-1':''}`}>{f.render(ent.name, c)(mi)}</td>
+                  ))}
+                  <td className="px-2 py-1 text-right font-bold bg-white">{f.total(c)}</td>
+                </tr>
+              ))}
+            </React.Fragment>
+          ))}
+          {/* 총계 */}
+          {fields.map((f, ri)=>(
+            <tr key={'tot_'+f.label} className={"border-b border-slate-200 "+(ri===0?'border-t-2 border-slate-400':'')}>
+              {ri===0 && <td rowSpan={rowCount} colSpan={3} className="px-2 py-1 border-r border-slate-300 text-center font-bold align-middle bg-slate-50">총계</td>}
+              <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-700 font-semibold bg-slate-50">{f.label}</td>
+              {visMonthIdxs.map(mi=>(
+                <td key={mi} className="px-2 py-1 border-r border-slate-300 text-right font-semibold bg-slate-50">
+                  {f.isPct ? f.render('총계', totals)(mi) : fmtCorp(variant==='main' ? (f.label==='KPI'?totals.kpi[mi]:totals.act[mi]) : totals.y25[mi])}
+                </td>
+              ))}
+              <td className="px-2 py-1 text-right font-bold bg-slate-100">{f.total(totals)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange }) {
+  const [tab, setTab] = React.useState('amount');
+  const [collapsed, setCollapsed] = React.useState(false);
+  const [visibleMonths, setVisibleMonths] = React.useState(() => {
+    try { const s = localStorage.getItem('corpSales_visMonths_v1'); if (s) return JSON.parse(s); } catch(e){}
+    return Array(12).fill(true);
+  });
+  const [pickerOpen, setPickerOpen] = React.useState(false);
+  const [sortConfig, setSortConfig] = React.useState(null);
+
+  React.useEffect(()=>{ try{ localStorage.setItem('corpSales_visMonths_v1', JSON.stringify(visibleMonths)); }catch(e){} }, [visibleMonths]);
+
+  const onSort = (key) => setSortConfig(prev => {
+    if (!prev || prev.key !== key) return { key, dir:'asc' };
+    if (prev.dir === 'asc') return { key, dir:'desc' };
+    return null;
+  });
+
+  const visCount = visibleMonths.filter(Boolean).length;
+  const unit = tab === 'amount' ? '단위: 만 RMB' : '단위: 수량(개)';
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-md p-4">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          <button onClick={()=>setCollapsed(!collapsed)} className="text-slate-500 hover:text-slate-700 w-6 text-sm">{collapsed?'▶':'▼'}</button>
+          <h3 className="text-base font-bold text-slate-900">법인 매출 관리</h3>
+          <span className="text-xs text-slate-500">{unit}</span>
+        </div>
+        {!collapsed && (
+          <div className="flex items-center gap-2 relative">
+            <div className="flex rounded overflow-hidden border border-slate-300 text-xs">
+              <button onClick={()=>setTab('amount')} className={"px-3 py-1 "+(tab==='amount'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>금액(만RMB)</button>
+              <button onClick={()=>setTab('qty')} className={"px-3 py-1 "+(tab==='qty'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>수량</button>
+            </div>
+            <button onClick={()=>setVisibleMonths(Array(12).fill(true))} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+            <button onClick={()=>setPickerOpen(!pickerOpen)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">월 표시 ({visCount}/12) ▼</button>
+            {pickerOpen && (
+              <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
+                {MONTH_LABELS.map((m,i)=>(
+                  <label key={i} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                    <input type="checkbox" checked={visibleMonths[i]} onChange={()=>setVisibleMonths(prev=>prev.map((v,idx)=>idx===i?!v:v))} />{m}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {!collapsed && (
+        <div className="space-y-4">
+          {/* 위 표 */}
+          <div>
+            <div className="text-sm font-semibold text-slate-700 mb-1">▶ KPI · 실적 · 달성율</div>
+            <CorpSalesTable tab={tab} variant="main"
+              weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} logChange={logChange}
+              visibleMonths={visibleMonths} sortConfig={sortConfig} onSort={onSort} />
+            <div className="mt-1 text-[11px] text-slate-500">* 달성율 = 실적 ÷ KPI × 100 (자동) · 합계 = 1~12월 합산 (자동) · KPI/실적 클릭하여 수정</div>
+          </div>
+          {/* 아래 표 */}
+          <div>
+            <div className="text-sm font-semibold text-slate-700 mb-1">▶ 전년도(25년) 실적 · 성장율</div>
+            <CorpSalesTable tab={tab} variant="prev"
+              weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} logChange={logChange}
+              visibleMonths={visibleMonths} sortConfig={sortConfig} onSort={onSort} />
+            <div className="mt-1 text-[11px] text-slate-500">* 성장율 = (실적 − 전년도실적) ÷ 전년도실적 × 100 (자동) · 합계 = 1~12월 합산 (자동) · 전년도실적 클릭하여 수정</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -5214,33 +5469,12 @@ function App() {
           })}
         </div>
 
-        {/* ③ 본부별 차트 한 줄 (5개, 축소) — 패키지 판매인원 차트 삭제 */}
-        <div className="grid grid-cols-5 gap-3">
-          {[
-            { title: '매출 목표 달성률', subtitle: '(%)', key: 'goalRate', color: BRAND_BLUE, suffix: '%' },
-            { title: 'M/S', subtitle: '(%)', key: 'ms', color: '#10b981', suffix: '%' },
-            { title: 'DSO 진행률', subtitle: '(일)', key: 'dso', color: '#f59e0b', suffix: '일' },
-            { title: 'BD 진입률', subtitle: '(%)', key: 'bdRate', color: '#8b5cf6', suffix: '%' },
-            { title: '하부고객 확대율', subtitle: '(%)', key: 'subCustRate', color: '#06b6d4', suffix: '%' },
-          ].map(c => (
-            <div key={c.key} className="bg-white border border-slate-200 rounded-md p-3">
-              <div className="flex items-baseline justify-between mb-2">
-                <h4 className="text-xs font-semibold text-slate-700">{c.title}</h4>
-                <span className="text-[10px] text-slate-400">{c.subtitle}</span>
-              </div>
-              <ResponsiveContainer width="100%" height={110}>
-                <BarChart data={make(c.key)} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 9 }} axisLine={false} tickLine={false} width={30} />
-                  <Tooltip formatter={(v) => `${typeof v === 'number' && v % 1 !== 0 ? v.toFixed(1) : formatNumber(v)}${c.suffix}`}
-                    contentStyle={{ fontSize: 11, padding: '4px 8px' }} />
-                  <Bar dataKey="value" fill={c.color} radius={[3, 3, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          ))}
-        </div>
+        {/* ③ 법인 매출 관리 (금액·수량 탭, KPI/실적/달성율 + 전년도/성장율) */}
+        <CorpSalesBlock
+          weeklyEntries={weeklyEntries}
+          setWeeklyEntries={setWeeklyEntries}
+          logChange={logChange}
+        />
       </div>
     );
   };
