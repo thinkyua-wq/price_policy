@@ -307,15 +307,13 @@ function Sidebar({ activeMenu, setActiveMenu }) {
       key: 'policy', title: '정책관리', icon: '📋',
       items: [
         { key: 'export', label: '수출가 정책' },
-        { key: 'history', label: '수출가 변경이력' },
       ]
     },
     {
       key: 'simulation', title: '가격 시뮬레이션', icon: '🧮',
       items: [
-        { key: 'sim-main', label: '시뮬레이션 중심 계산기' },
-        { key: 'sim-history', label: '시뮬레이션 이력' },
-        { key: 'sim-nego', label: '네고 시뮬레이션' },
+        { key: 'sim-main', label: '대리상가격' },
+        { key: 'cost-sim', label: '원가 시뮬레이션' },
       ]
     },
   ];
@@ -1796,7 +1794,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
   const [dealerGrade, setDealerGrade] = useState('A');
   const [dsoGrade, setDsoGrade] = useState('S');
   const [showDetail, setShowDetail] = useState(true);
-  const [leftCollapsed, setLeftCollapsed] = useState(false);   // 좌측 접기/펼치기
+  const [leftCollapsed, setLeftCollapsed] = useState(true);   // 좌측 접기/펼치기 (기본 접힘)
   const [showFormulas, setShowFormulas] = useState(false);     // 참고 계산식 표시
   const [showStKitConversion, setShowStKitConversion] = useState(false);  // ST KIT 전환 참고표
 
@@ -3396,10 +3394,415 @@ function SimPolicyRow({ policy, enabled, rate, productGroup, compact, onToggle, 
 
 
 /* ========================================
+   원가 시뮬레이션 (Cost Simulation)
+======================================== */
+const COST_SYSTEMS = ["ARi","BD","BDC","AR","EZ","EV","ST"];
+const COST_LS = 'costsim_state_v1';
+const COST_HIST_LS = 'costsim_history_v1';
+
+const costDefaultSys = () => ({ impExport:24.5, makeCost:4.28, kitMakeCost:336, basePrice:650 });
+const costDefaultData = () => {
+  const sys = {};
+  COST_SYSTEMS.forEach(s => sys[s] = costDefaultSys());
+  return { cnyUsd:7.2, krwUsd:1450.0, freeBonus:2, kitDivisor:80, lossCost:0.9, systems:sys, selectedSystem:"ARi" };
+};
+function costLoad() {
+  try {
+    const raw = localStorage.getItem(COST_LS);
+    if (!raw) return costDefaultData();
+    const p = JSON.parse(raw); const base = costDefaultData();
+    const m = { ...base, ...p }; m.systems = { ...base.systems, ...(p.systems||{}) };
+    COST_SYSTEMS.forEach(s => { m.systems[s] = { ...costDefaultSys(), ...(m.systems[s]||{}) }; });
+    return m;
+  } catch(e) { return costDefaultData(); }
+}
+function costLoadHist() {
+  try { const raw = localStorage.getItem(COST_HIST_LS); return raw ? JSON.parse(raw) : []; } catch(e) { return []; }
+}
+function costPushSheets(record) {
+  if (!GAS_URL) return;
+  try {
+    fetch(GAS_URL, { method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({ action:"saveCostSim", record }) }).catch(()=>{});
+  } catch(e){}
+}
+
+function costCompute(d) {
+  const cur = d.systems[d.selectedSystem];
+  const impExport = Number(cur.impExport)||0;
+  const impMakeCost = Number(cur.makeCost)||0;
+  const kitMakeCost = Number(cur.kitMakeCost)||0;
+  const basePrice = Number(cur.basePrice)||0;
+  const cnyUsd = Number(d.cnyUsd)||0, krwUsd = Number(d.krwUsd)||0;
+  const N = Number(d.freeBonus)||0, kitDivisor = Number(d.kitDivisor)||80, loss = Number(d.lossCost)||0;
+  const corpCoef = 1.14, freeFactor = 1 + N/10;
+  const kitExport = kitMakeCost;
+  const kitPerUSD = kitExport / kitDivisor;
+  const kitMakePerUSD = kitMakeCost / kitDivisor;
+  const makeCost = impMakeCost + kitMakePerUSD;
+  const exportPrice = impExport + kitPerUSD;
+  const hqGP = exportPrice>0 ? (1 - makeCost/exportPrice) : 0;
+  const corpBuyUnit = exportPrice * cnyUsd * corpCoef;
+  const dealerSellUnit = freeFactor>0 ? (basePrice / freeFactor * loss) : 0;
+  const corpGP = dealerSellUnit>0 ? (1 - corpBuyUnit/dealerSellUnit) : 0;
+  const dentalUnit = basePrice * loss;
+  const dealerGP = dentalUnit>0 ? (1 - dealerSellUnit/dentalUnit) : 0;
+  const kitCostRatio = exportPrice>0 ? (kitPerUSD/exportPrice*100) : 0;
+  const paidQty = 100, freeQty = paidQty * N / 10;
+  const totalFixture = paidQty + freeQty, kitQty = totalFixture / kitDivisor, totalQty = totalFixture + kitQty;
+  return {
+    system:d.selectedSystem, impExport, kitExport, makeCost, basePrice,
+    exportPrice, hqGP, corpBuyUnit, dealerSellUnit, corpGP, dentalUnit, dealerGP,
+    kitCostRatio, paidQty, freeQty, kitQty, totalQty, N,
+    metrics: [
+      { key:"제조원가", u:"USD/개", v:fmt(makeCost,2), f:"임플란트 제조원가 + (키트 제조원가 ÷ "+kitDivisor+")", cls:"font-bold text-slate-800" },
+      { key:"키트 제조원가", u:"USD/개", v:fmt(kitMakeCost,0), f:"입력값", cls:"text-slate-500" },
+      { key:"임플란트 수출가", u:"USD/개", v:fmt(impExport,2), f:"입력값", cls:"text-slate-700" },
+      { key:"키트 수출가", u:"USD/개", v:fmt(kitExport,0), f:"키트 제조원가와 동일", cls:"text-slate-500" },
+      { key:"본사 GP", u:"%", v:fmt(hqGP*100,1), f:"1 − 제조원가 ÷ 수출가", cls:"font-bold text-slate-800" },
+      { key:"법인매입단가", u:"RMB/개", v:fmt(corpBuyUnit,1), f:"수출가 × "+fmt(cnyUsd,2)+" × 1.14", cls:"text-slate-700" },
+      { key:"대리상판매단가", u:"RMB/개", v:fmt(dealerSellUnit,0), f:"기본단가 ÷ "+fmt(freeFactor,1)+" × "+fmt(loss,2), cls:"text-blue-600 font-bold" },
+      { key:"법인 GP", u:"%", v:fmt(corpGP*100,1), f:"1 − 법인매입단가 ÷ 대리상판매단가", cls:"text-emerald-600 font-bold" },
+      { key:"기본단가", u:"RMB/개", v:fmt(basePrice,0), f:"입력값", cls:"text-slate-700" },
+      { key:"치과판매단가", u:"RMB/개", v:fmt(dentalUnit,0), f:"기본단가 × "+fmt(loss,2), cls:"text-slate-700" },
+      { key:"대리상 GP", u:"%", v:fmt(dealerGP*100,1), f:"1 − 대리상판매단가 ÷ 치과판매단가", cls:"text-purple-600 font-bold" },
+    ],
+  };
+}
+
+function CostDonut({ data }) {
+  const total = data.reduce((s,d)=>s+d.value,0) || 1;
+  let acc = 0; const R=70, r=45, cx=90, cy=90;
+  const arcs = data.map(d=>{
+    const a0 = acc/total*2*Math.PI - Math.PI/2; acc += d.value;
+    const a1 = acc/total*2*Math.PI - Math.PI/2;
+    const large = (a1-a0) > Math.PI ? 1 : 0;
+    const x0=cx+R*Math.cos(a0), y0=cy+R*Math.sin(a0), x1=cx+R*Math.cos(a1), y1=cy+R*Math.sin(a1);
+    const xi1=cx+r*Math.cos(a1), yi1=cy+r*Math.sin(a1), xi0=cx+r*Math.cos(a0), yi0=cy+r*Math.sin(a0);
+    return { d:`M ${x0} ${y0} A ${R} ${R} 0 ${large} 1 ${x1} ${y1} L ${xi1} ${yi1} A ${r} ${r} 0 ${large} 0 ${xi0} ${yi0} Z`, fill:d.fill };
+  });
+  return (
+    <div className="flex items-center gap-4">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        {arcs.map((a,i)=><path key={i} d={a.d} fill={a.fill}/>)}
+        <text x="90" y="86" textAnchor="middle" className="fill-slate-400" fontSize="11">총 수량</text>
+        <text x="90" y="106" textAnchor="middle" className="fill-slate-800" fontSize="16" fontWeight="bold">{fmt(total,1)} EA</text>
+      </svg>
+      <div className="space-y-1.5 text-sm">
+        {data.map((d,i)=>(
+          <div key={i} className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-sm inline-block" style={{background:d.fill}}></span>
+            <span className="text-slate-600">{d.name}</span>
+            <span className="font-semibold text-slate-800">{fmt(d.value,1)} EA</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CostLine({ data, series, xKey, w=420, h=240, refX }) {
+  const pad = { t:20, r:14, b:30, l:36 };
+  const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+  const allVals = data.flatMap(d=>series.map(s=>d[s.key])).filter(v=>v!=null);
+  const maxV = Math.max(...allVals, 10), minV = Math.min(...allVals, 0);
+  const yMax = Math.ceil(maxV/10)*10, yMin = Math.floor(minV/10)*10;
+  const xN = data.length;
+  const xPos = i => pad.l + (xN<=1?innerW/2:innerW*i/(xN-1));
+  const yPos = v => pad.t + innerH*(1-(v-yMin)/((yMax-yMin)||1));
+  const ticks = []; for(let v=yMin; v<=yMax; v+=Math.max(10,Math.round((yMax-yMin)/4/10)*10)) ticks.push(v);
+  return (
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`}>
+      {ticks.map((t,i)=>(
+        <g key={i}>
+          <line x1={pad.l} y1={yPos(t)} x2={w-pad.r} y2={yPos(t)} stroke="#e2e8f0" strokeDasharray="3 3"/>
+          <text x={pad.l-6} y={yPos(t)+3} textAnchor="end" className="fill-slate-400" fontSize="9">{t}%</text>
+        </g>
+      ))}
+      {data.map((d,i)=>(
+        <text key={i} x={xPos(i)} y={h-12} textAnchor="middle" className="fill-slate-400" fontSize="9">{d[xKey]}</text>
+      ))}
+      {refX!=null && (()=>{ const idx=data.findIndex(d=>String(d[xKey])===String(refX)); if(idx<0) return null;
+        return <line x1={xPos(idx)} y1={pad.t} x2={xPos(idx)} y2={pad.t+innerH} stroke="#94a3b8" strokeDasharray="4 4"/>; })()}
+      {series.map((s,si)=>{
+        const pts = data.map((d,i)=> d[s.key]==null?null:`${xPos(i)},${yPos(d[s.key])}`).filter(Boolean).join(" ");
+        return (
+          <g key={si}>
+            <polyline points={pts} fill="none" stroke={s.color} strokeWidth="2"/>
+            {data.map((d,i)=> d[s.key]==null?null:<circle key={i} cx={xPos(i)} cy={yPos(d[s.key])} r="2.5" fill={s.color}/>)}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function CostField({ label, value, onChange, suffix, type="number", step }) {
+  return (
+    <div className="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2">
+      <span className="text-sm font-bold text-slate-800">{label}</span>
+      <div className="flex items-center gap-1">
+        <input type={type} step={step} value={value}
+          onChange={e=>onChange(type==="number"? (e.target.value===""?"":Number(e.target.value)) : e.target.value)}
+          className="w-20 text-right text-sm font-semibold text-slate-800 outline-none bg-transparent" />
+        {suffix && <span className="text-xs text-slate-400">{suffix}</span>}
+      </div>
+    </div>
+  );
+}
+
+function CostSimPage() {
+  const [d, setD] = useState(costLoad);
+  const [showFormula, setShowFormula] = useState(false);
+  const [history, setHistory] = useState(costLoadHist);
+  const [sub, setSub] = useState('calc');
+  const [histTab, setHistTab] = useState('ARi');
+  const [toast, setToast] = useState('');
+
+  useEffect(()=>{ try{ localStorage.setItem(COST_LS, JSON.stringify(d)); }catch(e){} }, [d]);
+
+  const c = costCompute(d);
+  const cur = d.systems[d.selectedSystem];
+  const setCommon = (k,v)=> setD(p=>({...p,[k]:v}));
+  const setSys = (k,v)=> setD(p=>({...p, systems:{...p.systems, [p.selectedSystem]:{...p.systems[p.selectedSystem],[k]:v}}}));
+
+  const trend = (()=>{
+    const arr=[]; const base=Number(cur.impExport)||24.5;
+    const start=Math.max(1,base*0.6), end=base*1.4, step=(end-start)/9;
+    for(let i=0;i<=9;i++){ const p=+(start+step*i).toFixed(2);
+      const tmp=JSON.parse(JSON.stringify(d)); tmp.systems[tmp.selectedSystem].impExport=p;
+      const cc=costCompute(tmp);
+      arr.push({ price:p.toFixed(1), corp:+(cc.corpGP*100).toFixed(1), dealer:+(cc.dealerGP*100).toFixed(1) }); }
+    return arr;
+  })();
+  const donut = [
+    { name:"유상 판매", value:+c.paidQty.toFixed(1), fill:"#3b82f6" },
+    { name:"무상 증정", value:+c.freeQty.toFixed(1), fill:"#22c55e" },
+    { name:"KIT 증정", value:+c.kitQty.toFixed(1), fill:"#f59e0b" },
+  ];
+
+  const saveSnapshot = () => {
+    const now = new Date();
+    const record = {
+      id: now.getTime(), date: now.toISOString(),
+      dateLabel: now.toLocaleString("ko-KR",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}),
+      system: d.selectedSystem,
+      cnyUsd:d.cnyUsd, krwUsd:d.krwUsd, freeBonus:d.freeBonus, kitDivisor:d.kitDivisor, lossCost:d.lossCost,
+      impExport:cur.impExport, makeCost:cur.makeCost, kitMakeCost:cur.kitMakeCost, basePrice:cur.basePrice,
+      exportPrice:c.exportPrice, hqGP:c.hqGP, corpBuyUnit:c.corpBuyUnit, dealerSellUnit:c.dealerSellUnit,
+      corpGP:c.corpGP, dentalUnit:c.dentalUnit, dealerGP:c.dealerGP,
+    };
+    const next = [record, ...history];
+    setHistory(next);
+    try{ localStorage.setItem(COST_HIST_LS, JSON.stringify(next)); }catch(e){}
+    costPushSheets(record);
+    setToast(d.selectedSystem+" 이력이 저장되었습니다");
+    setTimeout(()=>setToast(''), 2000);
+  };
+  const delSnap = (id) => { const next=history.filter(h=>h.id!==id); setHistory(next); try{localStorage.setItem(COST_HIST_LS,JSON.stringify(next));}catch(e){} };
+  const restoreSnap = (r) => {
+    setD(p=>{ const np={...p,cnyUsd:r.cnyUsd,krwUsd:r.krwUsd,freeBonus:r.freeBonus,kitDivisor:r.kitDivisor,lossCost:r.lossCost,selectedSystem:r.system};
+      np.systems={...p.systems,[r.system]:{...p.systems[r.system],impExport:r.impExport,makeCost:r.makeCost,kitMakeCost:r.kitMakeCost,basePrice:r.basePrice}};
+      return np; });
+    setSub('calc');
+  };
+
+  const histList = history.filter(h=>h.system===histTab).sort((a,b)=>b.id-a.id);
+  const histChart = [...histList].reverse().map(r=>({ date:r.dateLabel.slice(5,10), 본사:+(r.hqGP*100).toFixed(1), 법인:+(r.corpGP*100).toFixed(1), 대리상:+(r.dealerGP*100).toFixed(1) }));
+
+  return (
+    <div className="p-6">
+      {/* 상단 탭 (수출가 정책/대리상가격과 동일 위치·스타일) */}
+      <div className="mb-4 border-b border-slate-200 flex gap-2">
+        {[['calc','원가 시뮬레이션'],['history','시뮬레이션 이력']].map(([k,label])=>(
+          <button key={k} onClick={()=>setSub(k)}
+            className={"px-4 py-2 text-sm font-semibold border-b-2 -mb-px "+(sub===k?"border-blue-600 text-blue-700":"border-transparent text-slate-500")}>
+            {label}{k==='history'&&history.length>0?" ("+history.length+")":""}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">{sub==='history'?'시뮬레이션 이력':'원가 시뮬레이션'}</h1>
+          <p className="text-sm text-slate-500 mt-1">{sub==='history'?'시스템별 저장된 원가 시뮬레이션 이력':'수출가 및 조건에 따른 GP(%) 시뮬레이션'}</p>
+        </div>
+        {sub==='calc' && (
+          <button onClick={saveSnapshot} className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold">＋ 이력저장</button>
+        )}
+      </div>
+
+      {toast && <div className="mb-3 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm inline-block">✓ {toast}</div>}
+
+      {sub==='history' ? (
+        <div>
+          <div className="flex gap-2 mb-5 flex-wrap">
+            {COST_SYSTEMS.map(s=>{ const cnt=history.filter(h=>h.system===s).length;
+              return <button key={s} onClick={()=>setHistTab(s)}
+                className={"px-4 py-2 rounded-lg text-sm font-semibold "+(histTab===s?"bg-blue-600 text-white":"bg-white border border-slate-200 text-slate-500")}>{s}{cnt>0?" ("+cnt+")":""}</button>; })}
+          </div>
+          {histList.length===0 ? (
+            <div className="bg-white border border-slate-200 rounded-xl p-16 text-center text-slate-400">{histTab} 시스템의 저장된 이력이 없습니다. "＋ 이력저장"을 눌러보세요.</div>
+          ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-5">
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="font-bold text-slate-800 mb-3">{histTab} 일자별 이력 <span className="text-xs text-slate-400 font-normal">({histList.length}건)</span></div>
+              <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead><tr className="bg-slate-50 text-slate-700">
+                  <th className="border border-slate-200 px-2 py-2 text-left">일자</th>
+                  <th className="border border-slate-200 px-2 py-2 text-right">수출가</th>
+                  <th className="border border-slate-200 px-2 py-2 text-right">본사GP</th>
+                  <th className="border border-slate-200 px-2 py-2 text-right">법인GP</th>
+                  <th className="border border-slate-200 px-2 py-2 text-right">대리상GP</th>
+                  <th className="border border-slate-200 px-2 py-2 text-center">관리</th>
+                </tr></thead>
+                <tbody>
+                  {histList.map(r=>(
+                    <tr key={r.id}>
+                      <td className="border border-slate-200 px-2 py-2 text-xs">{r.dateLabel}</td>
+                      <td className="border border-slate-200 px-2 py-2 text-right">{fmt(r.exportPrice,2)}</td>
+                      <td className="border border-slate-200 px-2 py-2 text-right text-blue-600 font-semibold">{fmt(r.hqGP*100,1)}%</td>
+                      <td className="border border-slate-200 px-2 py-2 text-right text-emerald-600 font-semibold">{fmt(r.corpGP*100,1)}%</td>
+                      <td className="border border-slate-200 px-2 py-2 text-right text-purple-600 font-semibold">{fmt(r.dealerGP*100,1)}%</td>
+                      <td className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap">
+                        <button onClick={()=>restoreSnap(r)} className="text-xs text-blue-600 mr-2">불러오기</button>
+                        <button onClick={()=>delSnap(r.id)} className="text-xs text-red-500">삭제</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              </div>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="font-bold text-slate-800 mb-3">{histTab} GP 변화 추이 <span className="text-xs text-slate-400 font-normal">(저장 일자별)</span></div>
+              <CostLine data={histChart} xKey="date" series={[{key:"본사",color:"#3b82f6"},{key:"법인",color:"#22c55e"},{key:"대리상",color:"#8b5cf6"}]} />
+              <div className="flex gap-4 text-xs mt-2 justify-center">
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-blue-500 inline-block"></span>본사</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-green-500 inline-block"></span>법인</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-purple-500 inline-block"></span>대리상</span>
+              </div>
+            </div>
+          </div>
+          )}
+        </div>
+      ) : (
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5">
+        <div className="space-y-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-4">
+            <div className="font-bold text-slate-700 mb-3 text-sm">🔁 환율 설정</div>
+            <div className="space-y-2">
+              <CostField label="CNY / USD" value={d.cnyUsd} onChange={v=>setCommon("cnyUsd",v)} step="0.01" />
+              <CostField label="KRW / USD" value={d.krwUsd} onChange={v=>setCommon("krwUsd",v)} step="0.1" />
+            </div>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-4">
+            <div className="font-bold text-slate-700 mb-3 text-sm">⚙️ 시뮬레이션 조건</div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2">
+                <span className="text-sm font-bold text-slate-800">임플란트 시스템</span>
+                <select value={d.selectedSystem} onChange={e=>setCommon("selectedSystem",e.target.value)}
+                  className="text-sm font-semibold text-slate-800 outline-none bg-transparent" style={{textAlignLast:"center"}}>
+                  {COST_SYSTEMS.map(s=><option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <CostField label="임플란트 제조원가 (USD/개)" value={cur.makeCost} onChange={v=>setSys("makeCost",v)} step="0.01" />
+              <CostField label="임플란트 수출가 (USD/개)" value={cur.impExport} onChange={v=>setSys("impExport",v)} step="0.1" />
+              <div className="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2">
+                <span className="text-sm font-bold text-slate-800">무상 증정 기준</span>
+                <select value={d.freeBonus} onChange={e=>setCommon("freeBonus",Number(e.target.value))}
+                  className="text-sm font-semibold text-slate-800 outline-none bg-transparent" style={{textAlignLast:"center"}}>
+                  {Array.from({length:10},(_,i)=>i+1).map(n=><option key={n} value={n}>10 + {n}</option>)}
+                </select>
+              </div>
+              <CostField label="키트 제조원가 (USD/개)" value={cur.kitMakeCost} onChange={v=>setSys("kitMakeCost",v)} step="1" />
+              <CostField label="KIT 증정" value={d.kitDivisor} onChange={v=>setCommon("kitDivisor",v)} suffix="개당 1" />
+              <div className="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2">
+                <span className="text-sm font-bold" style={{color:"#7f1d1d"}}>손실비용</span>
+                <input type="number" step="0.01" value={d.lossCost} onChange={e=>setCommon("lossCost", e.target.value===""?"":Number(e.target.value))}
+                  className="w-20 text-right text-sm font-semibold outline-none bg-transparent" style={{color:"#7f1d1d"}} />
+              </div>
+              <CostField label="기본단가 (RMB/개)" value={cur.basePrice} onChange={v=>setSys("basePrice",v)} />
+            </div>
+            <button onClick={()=>{ const nd=costDefaultData(); nd.selectedSystem=d.selectedSystem; setD(nd); }}
+              className="w-full mt-3 py-2.5 border border-slate-300 text-slate-600 rounded-lg font-semibold text-sm">🔄 초기화</button>
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          <div className="bg-white border border-slate-200 rounded-xl p-5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="font-bold text-slate-800">시뮬레이션 결과 <span className="text-xs text-slate-400 font-normal">(1개당 단가 기준, {d.selectedSystem})</span></div>
+              <button onClick={()=>setShowFormula(v=>!v)} className="text-xs px-2.5 py-1 border border-slate-300 rounded-lg text-slate-600">계산식 {showFormula?"숨기기":"보기"}</button>
+            </div>
+            <p className="text-sm text-slate-700 mb-3">계산 결과 <b>수출가</b>는 <b className="text-blue-600">{fmt(c.exportPrice,2)} USD/개</b>, 이 중 <b>키트 분산분</b>은 <b className="text-blue-600">{fmt(c.kitCostRatio,1)}%</b> 입니다.</p>
+            <table className="w-full text-sm border-collapse">
+              <tbody>
+                <tr className="bg-slate-50 text-slate-700">
+                  <th className="border border-slate-200 px-3 py-2 text-left font-bold">항목</th>
+                  <th className="border border-slate-200 px-3 py-2 text-center font-bold">단위</th>
+                  <th className="border border-slate-200 px-3 py-2 text-right font-bold">결과</th>
+                  {showFormula && <th className="border border-slate-200 px-3 py-2 text-left font-bold">계산식</th>}
+                </tr>
+                <tr className="bg-slate-50">
+                  <td className="border border-slate-200 px-3 py-2 font-bold text-slate-800">시스템</td>
+                  <td className="border border-slate-200 px-3 py-2 text-center text-slate-400">-</td>
+                  <td className="border border-slate-200 px-3 py-2 text-right font-bold text-slate-800">{d.selectedSystem}</td>
+                  {showFormula && <td className="border border-slate-200 px-3 py-2 text-xs text-slate-500">적용된 임플란트 시스템</td>}
+                </tr>
+                {c.metrics.map((m,i)=>(
+                  <tr key={i}>
+                    <td className="border border-slate-200 px-3 py-2 text-slate-700">{m.key}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-center text-xs text-slate-500">{m.u}</td>
+                    <td className={"border border-slate-200 px-3 py-2 text-right "+m.cls}>{m.v}</td>
+                    {showFormula && <td className="border border-slate-200 px-3 py-2 text-xs text-slate-500">{m.f}</td>}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-xl p-5">
+            <div className="font-bold text-slate-800 mb-4">결과 요약 <span className="text-xs text-slate-400 font-normal">· {d.selectedSystem}</span></div>
+            <div className="grid grid-cols-3 gap-x-6 gap-y-5">
+              <div><div className="text-sm text-slate-800">수출가</div><div className="text-3xl font-bold text-slate-800">{fmt(c.exportPrice,2)}</div><div className="text-xs text-slate-400">USD/개</div></div>
+              <div><div className="text-sm text-slate-800">대리상판매단가</div><div className="text-3xl font-bold text-slate-800">{fmt(c.dealerSellUnit)}</div><div className="text-xs text-slate-400">RMB/개</div></div>
+              <div><div className="text-sm text-slate-800">치과판매단가</div><div className="text-3xl font-bold text-slate-800">{fmt(c.dentalUnit)}</div><div className="text-xs text-slate-400">RMB/개</div></div>
+              <div><div className="text-sm text-slate-800">법인 GP</div><div className="text-3xl font-bold text-emerald-600">{fmt(c.corpGP*100,1)}%</div></div>
+              <div><div className="text-sm text-slate-800">본사 GP</div><div className="text-3xl font-bold text-blue-600">{fmt(c.hqGP*100,1)}%</div></div>
+              <div><div className="text-sm text-slate-800">대리상 GP</div><div className="text-3xl font-bold text-purple-600">{fmt(c.dealerGP*100,1)}%</div></div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="bg-white border border-slate-200 rounded-xl p-4">
+              <div className="font-bold text-slate-800 mb-2 text-sm">수량 구성 <span className="text-xs text-slate-400 font-normal">(총 {fmt(c.totalQty,1)} EA)</span></div>
+              <CostDonut data={donut} />
+            </div>
+            <div className="bg-white border border-slate-200 rounded-xl p-4">
+              <div className="font-bold text-slate-800 mb-2 text-sm">GP 변화 추이 <span className="text-xs text-slate-400 font-normal">(수출가별)</span></div>
+              <CostLine data={trend} xKey="price" refX={Number(c.impExport).toFixed(1)} series={[{key:"corp",color:"#22c55e"},{key:"dealer",color:"#8b5cf6"}]} />
+              <div className="flex gap-4 text-xs mt-1 justify-center">
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-green-500 inline-block"></span>법인→대리상</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-purple-500 inline-block"></span>대리상→치과</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      )}
+    </div>
+  );
+}
+
+/* ========================================
    App
 ======================================== */
 function App() {
   const [activeMenu, setActiveMenu] = useState('export');
+  const [policyTab, setPolicyTab] = useState('export');   // 수출가 정책 / 수출가 변경이력
+  const [simTab, setSimTab] = useState('sim-main');        // 대리상가격 / 이력 / 네고
   const [exportPrices, setExportPrices] = useState(INITIAL_EXPORT_PRICES);
   const [exchangeRate, setExchangeRate] = useState(DEFAULT_EXCHANGE_RATE);
   const [dentalPrices, setDentalPrices] = useState(DENTAL_RECOMMENDED_PRICES);
@@ -3547,24 +3950,45 @@ function App() {
           </div>
         )}
         {activeMenu === 'export' && (
-          <ExportPricePage
-            data={exportPrices} setData={setExportPrices}
-            exchangeRate={exchangeRate} setExchangeRate={setExchangeRate}
-            onSave={saveToSheets}
-            onSaveSnapshot={saveSnapshot}
-            latestSnapshot={latestSnapshot}
-          />
+          <div className="p-6">
+            <div className="mb-4 border-b border-slate-200 flex gap-2">
+              {[['export','수출가 정책'],['history','수출가 변경이력']].map(([k,label])=>(
+                <button key={k} onClick={()=>setPolicyTab(k)}
+                  className={"px-4 py-2 text-sm font-semibold border-b-2 -mb-px "+(policyTab===k?"border-blue-600 text-blue-700":"border-transparent text-slate-500")}>{label}</button>
+              ))}
+            </div>
+            <div className="-mx-6 -mb-6">
+              {policyTab === 'export' && (
+                <ExportPricePage
+                  data={exportPrices} setData={setExportPrices}
+                  exchangeRate={exchangeRate} setExchangeRate={setExchangeRate}
+                  onSave={saveToSheets}
+                  onSaveSnapshot={saveSnapshot}
+                  latestSnapshot={latestSnapshot}
+                />
+              )}
+              {policyTab === 'history' && (
+                <HistoryPage history={history} setHistory={setHistory} onRestore={restoreSnapshot} />
+              )}
+            </div>
+          </div>
         )}
-        {activeMenu === 'history' && (
-          <HistoryPage
-            history={history}
-            setHistory={setHistory}
-            onRestore={restoreSnapshot}
-          />
+        {activeMenu === 'sim-main' && (
+          <div className="p-6">
+            <div className="mb-4 border-b border-slate-200 flex gap-2">
+              {[['sim-main','대리상가격'],['sim-history','시뮬레이션 이력'],['sim-nego','네고 시뮬레이션']].map(([k,label])=>(
+                <button key={k} onClick={()=>setSimTab(k)}
+                  className={"px-4 py-2 text-sm font-semibold border-b-2 -mb-px "+(simTab===k?"border-blue-600 text-blue-700":"border-transparent text-slate-500")}>{label}</button>
+              ))}
+            </div>
+            <div className="-mx-6 -mb-6">
+              {simTab === 'sim-main' && <SimulationPage exportPrices={exportPrices} exchangeRate={exchangeRate} dentalPrices={dentalPrices} setDentalPrices={setDentalPrices} simHistory={simHistory} setSimHistory={setSimHistory} setActiveMenu={(k)=>{setActiveMenu('sim-main'); setSimTab(k);}} setNegoSource={setNegoSource} />}
+              {simTab === 'sim-history' && <SimulationHistoryPage simHistory={simHistory} setSimHistory={setSimHistory} />}
+              {simTab === 'sim-nego' && <NegoSimulationPage simHistory={simHistory} negoSource={negoSource} setNegoSource={setNegoSource} />}
+            </div>
+          </div>
         )}
-        {activeMenu === 'sim-main' && <SimulationPage exportPrices={exportPrices} exchangeRate={exchangeRate} dentalPrices={dentalPrices} setDentalPrices={setDentalPrices} simHistory={simHistory} setSimHistory={setSimHistory} setActiveMenu={setActiveMenu} setNegoSource={setNegoSource} />}
-        {activeMenu === 'sim-history' && <SimulationHistoryPage simHistory={simHistory} setSimHistory={setSimHistory} />}
-        {activeMenu === 'sim-nego' && <NegoSimulationPage simHistory={simHistory} negoSource={negoSource} setNegoSource={setNegoSource} />}
+        {activeMenu === 'cost-sim' && <CostSimPage />}
       </main>
     </div>
   );
