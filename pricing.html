@@ -3427,45 +3427,73 @@ function costPushSheets(record) {
   } catch(e){}
 }
 
+// GP 적정성 3단계 판정 (적정/양호/주의)
+function costGrade(v, good, ok) {
+  // v: 비율(0~1), ok: 적정 임계, good: 양호 임계
+  const pct = v*100;
+  const okP = ok*100, goodP = good*100;
+  const tip = `적정: ${okP}% 이상\n양호: ${goodP}~${okP}% 미만\n주의: ${goodP}% 미만`;
+  if (v >= ok) return { grade:"적정", tip };
+  if (v >= good) return { grade:"양호", tip };
+  return { grade:"주의", tip };
+}
+
 function costCompute(d) {
   const cur = d.systems[d.selectedSystem];
-  const impExport = Number(cur.impExport)||0;
-  const impMakeCost = Number(cur.makeCost)||0;
-  const kitMakeCost = Number(cur.kitMakeCost)||0;
-  const basePrice = Number(cur.basePrice)||0;
+  const impMakeCost = Number(cur.makeCost)||0;         // 임플란트 제조원가 입력
+  const kitMakeCost = Number(cur.kitMakeCost)||0;      // 키트 제조원가 입력
+  const basePrice = Number(cur.basePrice)||0;          // 치과 판매금액(기본단가)
+  const impExport = Number(cur.impExport)||24.5;       // 수출단가 (임의, 기본 24.5)
   const cnyUsd = Number(d.cnyUsd)||0, krwUsd = Number(d.krwUsd)||0;
   const N = Number(d.freeBonus)||0, kitDivisor = Number(d.kitDivisor)||80, loss = Number(d.lossCost)||0;
-  const corpCoef = 1.14, freeFactor = 1 + N/10;
-  const kitExport = kitMakeCost;
-  const kitPerUSD = kitExport / kitDivisor;
-  const kitMakePerUSD = kitMakeCost / kitDivisor;
-  const makeCost = impMakeCost + kitMakePerUSD;
-  const exportPrice = impExport + kitPerUSD;
-  const hqGP = exportPrice>0 ? (1 - makeCost/exportPrice) : 0;
+  const corpCoef = 1.14;
+  const paid = 10, total = 10 + N;                     // 유상 10, 총 10+N
+
+  // 수량적용 임플란트 제조원가 = (제조원가 × (10+N)) / 10
+  const qtyMakeCost = (impMakeCost * total) / paid;
+  // 키트 개당분산 = 키트 제조원가 ÷ 키트 증정기준
+  const kitContrib = kitMakeCost / kitDivisor;
+  // 키트적용 임플란트 제조원가 = 수량적용 + 키트분산
+  const makeCost = qtyMakeCost + kitContrib;
+
+  const exportPrice = impExport;                       // 수출단가 (임의 24.5)
+  const hqGP = exportPrice>0 ? (1 - makeCost/exportPrice) : 0; // 본사 GP
+
+  // 법인매입단가 = 수출단가 × 환율 × 1.14
   const corpBuyUnit = exportPrice * cnyUsd * corpCoef;
-  const dealerSellUnit = freeFactor>0 ? (basePrice / freeFactor * loss) : 0;
-  const corpGP = dealerSellUnit>0 ? (1 - corpBuyUnit/dealerSellUnit) : 0;
+  // 대리상판매단가 = 치과판매금액 × (10/(10+N)) × 손실
+  const dealerSellUnit = total>0 ? (basePrice * (paid/total) * loss) : 0;
+  const corpGP = dealerSellUnit>0 ? (1 - corpBuyUnit/dealerSellUnit) : 0; // 법인 GP
+
+  // 치과판매금액 → 실치과판매금액 = 치과 × 손실
   const dentalUnit = basePrice * loss;
-  const dealerGP = dentalUnit>0 ? (1 - dealerSellUnit/dentalUnit) : 0;
-  const kitCostRatio = exportPrice>0 ? (kitPerUSD/exportPrice*100) : 0;
+  const dealerGP = dentalUnit>0 ? (1 - dealerSellUnit/dentalUnit) : 0; // 대리상 GP
+
+  // KIT 매입단가 개당 = 키트제조원가 ÷ 증정수량(총수량÷증정기준)
+  const kitGiftQty = total / kitDivisor;
+  const kitBuyPer = kitGiftQty>0 ? (kitMakeCost / kitGiftQty) : 0;
+
   const paidQty = 100, freeQty = paidQty * N / 10;
-  const totalFixture = paidQty + freeQty, kitQty = totalFixture / kitDivisor, totalQty = totalFixture + kitQty;
+  const totalFixture = paidQty + freeQty, donutKitQty = totalFixture / kitDivisor, totalQty = totalFixture + donutKitQty;
+
   return {
-    system:d.selectedSystem, impExport, kitExport, makeCost, basePrice,
-    exportPrice, hqGP, corpBuyUnit, dealerSellUnit, corpGP, dentalUnit, dealerGP,
-    kitCostRatio, paidQty, freeQty, kitQty, totalQty, N,
+    system:d.selectedSystem, impExport, exportPrice, makeCost, qtyMakeCost, basePrice,
+    hqGP, corpBuyUnit, dealerSellUnit, corpGP, dentalUnit, dealerGP,
+    kitBuyPer, N,
+    paidQty, freeQty, kitQty:donutKitQty, totalQty,
     metrics: [
-      { key:"제조원가", u:"USD/개", v:fmt(makeCost,2), f:"임플란트 제조원가 + (키트 제조원가 ÷ "+kitDivisor+")", cls:"font-bold text-slate-800" },
-      { key:"키트 제조원가", u:"USD/개", v:fmt(kitMakeCost,0), f:"입력값", cls:"text-slate-500" },
-      { key:"임플란트 수출가", u:"USD/개", v:fmt(impExport,2), f:"입력값", cls:"text-slate-700" },
-      { key:"키트 수출가", u:"USD/개", v:fmt(kitExport,0), f:"키트 제조원가와 동일", cls:"text-slate-500" },
-      { key:"본사 GP", u:"%", v:fmt(hqGP*100,1), f:"1 − 제조원가 ÷ 수출가", cls:"font-bold text-slate-800" },
-      { key:"법인매입단가", u:"RMB/개", v:fmt(corpBuyUnit,1), f:"수출가 × "+fmt(cnyUsd,2)+" × 1.14", cls:"text-slate-700" },
-      { key:"대리상판매단가", u:"RMB/개", v:fmt(dealerSellUnit,0), f:"기본단가 ÷ "+fmt(freeFactor,1)+" × "+fmt(loss,2), cls:"text-blue-600 font-bold" },
-      { key:"법인 GP", u:"%", v:fmt(corpGP*100,1), f:"1 − 법인매입단가 ÷ 대리상판매단가", cls:"text-emerald-600 font-bold" },
-      { key:"기본단가", u:"RMB/개", v:fmt(basePrice,0), f:"입력값", cls:"text-slate-700" },
-      { key:"치과판매단가", u:"RMB/개", v:fmt(dentalUnit,0), f:"기본단가 × "+fmt(loss,2), cls:"text-slate-700" },
-      { key:"대리상 GP", u:"%", v:fmt(dealerGP*100,1), f:"1 − 대리상판매단가 ÷ 치과판매단가", cls:"text-purple-600 font-bold" },
+      { key:"임플란트 제조원가", u:"USD/개", v:fmt(impMakeCost,1), f:"입력값", cls:"text-slate-700", chk:null },
+      { key:"키트 제조원가", u:"USD/개", v:fmt(kitMakeCost,1), f:"입력값", cls:"text-slate-500", chk:null },
+      { key:"수량적용 제조원가", u:"USD/개", v:fmt(qtyMakeCost,1), f:"(제조원가 × "+total+") ÷ 10", cls:"text-slate-700", chk:null },
+      { key:"키트적용 제조원가", u:"USD/개", v:fmt(makeCost,1), f:"수량적용 제조원가 + (키트 제조원가 ÷ "+kitDivisor+")", cls:"font-bold text-slate-800", chk:null },
+      { key:"수출단가", u:"USD/개", v:fmt(exportPrice,1), f:"입력값(임의 산정)", cls:"text-red-600 font-bold", chk:null },
+      { key:"본사 GP", u:"%", v:fmt(hqGP*100,1), f:"1 − 키트적용 제조원가 ÷ 수출단가", cls:"font-bold text-slate-800", chk: costGrade(hqGP, 0.50, 0.70) },
+      { key:"법인매입단가", u:"RMB/개", v:fmt(corpBuyUnit,1), f:"수출단가 × "+fmt(cnyUsd,1)+" × 1.14", cls:"text-slate-700", chk:null },
+      { key:"대리상판매단가", u:"RMB/개", v:fmt(dealerSellUnit,1), f:"치과판매금액 × (10 ÷ "+total+") × "+fmt(loss,1), cls:"text-blue-600 font-bold", chk:null },
+      { key:"법인 GP", u:"%", v:fmt(corpGP*100,1), f:"1 − 법인매입단가 ÷ 대리상판매단가", cls:"text-emerald-600 font-bold", chk: costGrade(corpGP, 0.30, 0.45) },
+      { key:"치과판매금액", u:"RMB/개", v:fmt(basePrice,1), f:"입력값", cls:"text-slate-700", chk:null },
+      { key:"실치과판매금액", u:"RMB/개", v:fmt(dentalUnit,1), f:"치과판매금액 × "+fmt(loss,1), cls:"text-slate-700", chk:null },
+      { key:"대리상 GP", u:"%", v:fmt(dealerGP*100,1), f:"1 − 대리상판매단가 ÷ 실치과판매금액", cls:"text-purple-600 font-bold", chk: costGrade(dealerGP, 0.15, 0.30) },
     ],
   };
 }
@@ -3558,6 +3586,7 @@ function CostSimPage() {
   const [sub, setSub] = useState('calc');
   const [histTab, setHistTab] = useState('ARi');
   const [toast, setToast] = useState('');
+  const [chkPopup, setChkPopup] = useState(null);   // {key, grade, tip} 또는 null
 
   useEffect(()=>{ try{ localStorage.setItem(COST_LS, JSON.stringify(d)); }catch(e){} }, [d]);
 
@@ -3634,6 +3663,28 @@ function CostSimPage() {
 
       {toast && <div className="mb-3 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm inline-block">✓ {toast}</div>}
 
+      {chkPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={()=>setChkPopup(null)}>
+          <div className="bg-white rounded-xl shadow-xl p-5 w-80" onClick={e=>e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-bold text-slate-800">{chkPopup.key} 적정성 기준</div>
+              <button onClick={()=>setChkPopup(null)} className="text-slate-400 text-lg leading-none">×</button>
+            </div>
+            <div className="mb-3 text-sm">
+              현재 판정: <span className={"font-bold "+(chkPopup.grade==="적정"?"text-emerald-600":chkPopup.grade==="양호"?"text-blue-600":"text-amber-600")}>{chkPopup.grade}</span>
+            </div>
+            <div className="space-y-1.5 text-sm text-slate-600">
+              {chkPopup.tip.split("\n").map((line,i)=>(
+                <div key={i} className="flex items-center gap-2">
+                  <span className={"w-2 h-2 rounded-full inline-block "+(line.startsWith("적정")?"bg-emerald-500":line.startsWith("양호")?"bg-blue-500":"bg-amber-500")}></span>
+                  {line}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {sub==='history' ? (
         <div>
           <div className="flex gap-2 mb-5 flex-wrap">
@@ -3708,12 +3759,11 @@ function CostSimPage() {
                 </select>
               </div>
               <CostField label="임플란트 제조원가 (USD/개)" value={cur.makeCost} onChange={v=>setSys("makeCost",v)} step="0.01" />
-              <CostField label="임플란트 수출가 (USD/개)" value={cur.impExport} onChange={v=>setSys("impExport",v)} step="0.1" />
               <div className="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2">
                 <span className="text-sm font-bold text-slate-800">무상 증정 기준</span>
                 <select value={d.freeBonus} onChange={e=>setCommon("freeBonus",Number(e.target.value))}
                   className="text-sm font-semibold text-slate-800 outline-none bg-transparent" style={{textAlignLast:"center"}}>
-                  {Array.from({length:10},(_,i)=>i+1).map(n=><option key={n} value={n}>10 + {n}</option>)}
+                  {Array.from({length:11},(_,i)=>i).map(n=><option key={n} value={n}>10 + {n}</option>)}
                 </select>
               </div>
               <CostField label="키트 제조원가 (USD/개)" value={cur.kitMakeCost} onChange={v=>setSys("kitMakeCost",v)} step="1" />
@@ -3723,10 +3773,34 @@ function CostSimPage() {
                 <input type="number" step="0.01" value={d.lossCost} onChange={e=>setCommon("lossCost", e.target.value===""?"":Number(e.target.value))}
                   className="w-20 text-right text-sm font-semibold outline-none bg-transparent" style={{color:"#7f1d1d"}} />
               </div>
-              <CostField label="기본단가 (RMB/개)" value={cur.basePrice} onChange={v=>setSys("basePrice",v)} />
             </div>
             <button onClick={()=>{ const nd=costDefaultData(); nd.selectedSystem=d.selectedSystem; setD(nd); }}
               className="w-full mt-3 py-2.5 border border-slate-300 text-slate-600 rounded-lg font-semibold text-sm">🔄 초기화</button>
+          </div>
+
+          {/* 가격 조정 (선택된 시스템에 반영) */}
+          <div className="bg-white border border-slate-200 rounded-xl p-4">
+            <div className="font-bold text-slate-700 mb-1 text-sm">💲 가격 조정</div>
+            <p className="text-xs text-slate-400 mb-3">아래 값을 바꾸면 <b className="text-slate-600">{d.selectedSystem}</b> 시스템 계산에 즉시 반영됩니다.</p>
+            <div className="space-y-2">
+              <CostField label="수출단가 (USD/개)" value={cur.impExport} onChange={v=>setSys("impExport",v)} step="0.1" />
+              <CostField label="치과판매금액 (RMB/개)" value={cur.basePrice} onChange={v=>setSys("basePrice",v)} />
+            </div>
+          </div>
+
+          {/* KIT 정보 */}
+          <div className="bg-white border border-slate-200 rounded-xl p-4">
+            <div className="font-bold text-slate-700 mb-3 text-sm">📦 KIT 정보</div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2">
+                <span className="text-slate-600">KIT 매입단가/개당</span>
+                <span className="font-bold text-slate-800">{fmt(c.kitBuyPer,1)} <span className="text-xs font-normal text-slate-400">USD</span></span>
+              </div>
+              <div className="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2">
+                <span className="text-slate-600">KIT 원가비중</span>
+                <span className="font-bold text-slate-400">- <span className="text-xs font-normal text-slate-400">(미정)</span></span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -3736,19 +3810,21 @@ function CostSimPage() {
               <div className="font-bold text-slate-800">시뮬레이션 결과 <span className="text-xs text-slate-400 font-normal">(1개당 단가 기준, {d.selectedSystem})</span></div>
               <button onClick={()=>setShowFormula(v=>!v)} className="text-xs px-2.5 py-1 border border-slate-300 rounded-lg text-slate-600">계산식 {showFormula?"숨기기":"보기"}</button>
             </div>
-            <p className="text-sm text-slate-700 mb-3">계산 결과 <b>수출가</b>는 <b className="text-blue-600">{fmt(c.exportPrice,2)} USD/개</b>, 이 중 <b>키트 분산분</b>은 <b className="text-blue-600">{fmt(c.kitCostRatio,1)}%</b> 입니다.</p>
+            <p className="text-sm text-slate-700 mb-3">계산 결과 <b>키트적용 제조원가</b>는 <b className="text-blue-600">{fmt(c.makeCost,2)} USD/개</b>, <b>수출단가</b> <b className="text-blue-600">{fmt(c.exportPrice,2)} USD</b> 기준 <b>본사 GP</b>는 <b className="text-blue-600">{fmt(c.hqGP*100,1)}%</b> 입니다.</p>
             <table className="w-full text-sm border-collapse">
               <tbody>
                 <tr className="bg-slate-50 text-slate-700">
                   <th className="border border-slate-200 px-3 py-2 text-left font-bold">항목</th>
                   <th className="border border-slate-200 px-3 py-2 text-center font-bold">단위</th>
                   <th className="border border-slate-200 px-3 py-2 text-right font-bold">결과</th>
+                  <th className="border border-slate-200 px-3 py-2 text-center font-bold">적정성 검증</th>
                   {showFormula && <th className="border border-slate-200 px-3 py-2 text-left font-bold">계산식</th>}
                 </tr>
                 <tr className="bg-slate-50">
                   <td className="border border-slate-200 px-3 py-2 font-bold text-slate-800">시스템</td>
                   <td className="border border-slate-200 px-3 py-2 text-center text-slate-400">-</td>
                   <td className="border border-slate-200 px-3 py-2 text-right font-bold text-slate-800">{d.selectedSystem}</td>
+                  <td className="border border-slate-200 px-3 py-2 text-center text-slate-400">-</td>
                   {showFormula && <td className="border border-slate-200 px-3 py-2 text-xs text-slate-500">적용된 임플란트 시스템</td>}
                 </tr>
                 {c.metrics.map((m,i)=>(
@@ -3756,6 +3832,14 @@ function CostSimPage() {
                     <td className="border border-slate-200 px-3 py-2 text-slate-700">{m.key}</td>
                     <td className="border border-slate-200 px-3 py-2 text-center text-xs text-slate-500">{m.u}</td>
                     <td className={"border border-slate-200 px-3 py-2 text-right "+m.cls}>{m.v}</td>
+                    <td className="border border-slate-200 px-3 py-2 text-center">
+                      {!m.chk ? <span className="text-slate-300">-</span> :
+                       <button onClick={()=>setChkPopup({key:m.key, grade:m.chk.grade, tip:m.chk.tip})}
+                         className={"text-xs px-2 py-0.5 rounded-full font-semibold cursor-pointer "+(
+                         m.chk.grade==="적정"?"bg-emerald-50 text-emerald-700":
+                         m.chk.grade==="양호"?"bg-blue-50 text-blue-700":
+                         "bg-amber-50 text-amber-700")}>{m.chk.grade}</button>}
+                    </td>
                     {showFormula && <td className="border border-slate-200 px-3 py-2 text-xs text-slate-500">{m.f}</td>}
                   </tr>
                 ))}
@@ -3766,12 +3850,30 @@ function CostSimPage() {
           <div className="bg-white border border-slate-200 rounded-xl p-5">
             <div className="font-bold text-slate-800 mb-4">결과 요약 <span className="text-xs text-slate-400 font-normal">· {d.selectedSystem}</span></div>
             <div className="grid grid-cols-3 gap-x-6 gap-y-5">
-              <div><div className="text-sm text-slate-800">수출가</div><div className="text-3xl font-bold text-slate-800">{fmt(c.exportPrice,2)}</div><div className="text-xs text-slate-400">USD/개</div></div>
-              <div><div className="text-sm text-slate-800">대리상판매단가</div><div className="text-3xl font-bold text-slate-800">{fmt(c.dealerSellUnit)}</div><div className="text-xs text-slate-400">RMB/개</div></div>
-              <div><div className="text-sm text-slate-800">치과판매단가</div><div className="text-3xl font-bold text-slate-800">{fmt(c.dentalUnit)}</div><div className="text-xs text-slate-400">RMB/개</div></div>
-              <div><div className="text-sm text-slate-800">법인 GP</div><div className="text-3xl font-bold text-emerald-600">{fmt(c.corpGP*100,1)}%</div></div>
-              <div><div className="text-sm text-slate-800">본사 GP</div><div className="text-3xl font-bold text-blue-600">{fmt(c.hqGP*100,1)}%</div></div>
-              <div><div className="text-sm text-slate-800">대리상 GP</div><div className="text-3xl font-bold text-purple-600">{fmt(c.dealerGP*100,1)}%</div></div>
+              <div>
+                <div className="text-sm text-slate-800">수출가</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-slate-800">{fmt(c.exportPrice,1)}</span>
+                  <span className="text-xs font-semibold text-blue-600">본사 GP {fmt(c.hqGP*100,1)}%</span>
+                </div>
+                <div className="text-xs text-slate-400">USD/개</div>
+              </div>
+              <div>
+                <div className="text-sm text-slate-800">대리상판매단가</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-slate-800">{fmt(c.dealerSellUnit,1)}</span>
+                  <span className="text-xs font-semibold text-emerald-600">법인 GP {fmt(c.corpGP*100,1)}%</span>
+                </div>
+                <div className="text-xs text-slate-400">RMB/개</div>
+              </div>
+              <div>
+                <div className="text-sm text-slate-800">실치과판매금액</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-slate-800">{fmt(c.dentalUnit,1)}</span>
+                  <span className="text-xs font-semibold text-purple-600">대리상 GP {fmt(c.dealerGP*100,1)}%</span>
+                </div>
+                <div className="text-xs text-slate-400">RMB/개</div>
+              </div>
             </div>
           </div>
 
