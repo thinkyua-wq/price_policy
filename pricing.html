@@ -94,8 +94,43 @@ const { useState, useEffect, useMemo, useCallback } = React;
 /* ========================================
    설정값
 ======================================== */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyd1IAT6p78Mu9oxZtdfrDdGdzvT5AcvRxzi4OLDPACOBRMezfwbUg1Tz-8B9X47e5Lxw/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwjMEou92nRuPu7o5tZtuB9oILA2ymY-jLCtCQwgh2NGqxdcZiKxzBGX2w7iuUbI76tBA/exec';
 const STORAGE_KEY = 'pricePolicy_v1';
+
+// ── Google Sheets 연동 (index.html과 동일한 JSONP 읽기 + POST 쓰기) ──
+// 읽기: JSONP (CORS 우회) — ?action=loadPricing&callback=...
+function gasLoadPricing() {
+  return new Promise((resolve, reject) => {
+    if (!GAS_URL) { reject(new Error('GAS_URL 미설정')); return; }
+    const cbName = '__pricingCb_' + Date.now();
+    const script = document.createElement('script');
+    let timer;
+    window[cbName] = (data) => {
+      clearTimeout(timer); delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      if (data && data.error) reject(new Error(data.error));
+      else resolve(data);
+    };
+    timer = setTimeout(() => {
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('Sheets 요청 타임아웃'));
+    }, 30000);
+    const sep = GAS_URL.includes('?') ? '&' : '?';
+    script.src = `${GAS_URL}${sep}action=loadPricing&callback=${cbName}`;
+    script.onerror = () => { clearTimeout(timer); delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); reject(new Error('Sheets 연결 실패')); };
+    document.head.appendChild(script);
+  });
+}
+// 쓰기: POST (text/plain 단순요청으로 CORS preflight 회피)
+function gasSavePricing(payload) {
+  if (!GAS_URL) return Promise.resolve(false);
+  return fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'savePricing', data: payload }),
+  }).then(()=>true).catch(()=>false);
+}
 const DEFAULT_EXCHANGE_RATE = 7.3;       // USD → CNY 기본 환율 (수정 가능)
 const IMPORT_MARGIN = 1.14;              // 입고가 마진 (변경가 × 환율 × 1.14)
 const EXCHANGE_RATE_CNY_TO_KRW = 203.9;
@@ -4076,6 +4111,7 @@ function App() {
   const [simHistory, setSimHistory] = useState([]);  // 시뮬레이션 이력 (최신순)
   const [saveStatus, setSaveStatus] = useState('');
   const [negoSource, setNegoSource] = useState(null);  // 네고 시뮬레이션 - 가격시뮬레이션에서 직접 전달
+  const [loaded, setLoaded] = useState(false);  // localStorage 불러오기 완료 여부 (저장 가드)
 
   // 로컬스토리지 불러오기 (옛 용어 자동 마이그레이션 + ARi 자동 추가)
   useEffect(() => {
@@ -4138,14 +4174,32 @@ function App() {
         // ⚠️ 이전 버전의 대리상 가격정책 데이터는 더 이상 로드되지 않으며 다음 저장 시 자동 제거됨
       }
     } catch (e) { console.error(e); }
+
+    // Sheets에서 최신 데이터 읽어와 갱신 (실패해도 위 localStorage 캐시 유지)
+    gasLoadPricing().then(remote => {
+      if (remote && remote.exportPrices) {
+        if (Array.isArray(remote.exportPrices)) setExportPrices(remote.exportPrices);
+        if (remote.exchangeRate) setExchangeRate(remote.exchangeRate);
+        if (remote.dentalPrices) setDentalPrices({ ...DENTAL_RECOMMENDED_PRICES, ...remote.dentalPrices });
+        if (Array.isArray(remote.history)) setHistory(remote.history);
+        if (Array.isArray(remote.simHistory)) setSimHistory(remote.simHistory);
+        setSaveStatus('☁ 클라우드 동기화됨');
+        setTimeout(()=>setSaveStatus(''), 2000);
+      }
+    }).catch(()=>{ /* 오프라인이면 캐시 유지 */ });
+
+    setLoaded(true);   // 불러오기 완료 → 이제부터 자동저장 허용
   }, []);
 
-  // 자동 저장
+  // 자동 저장 (불러오기 완료 후에만 — 초기 빈값 덮어쓰기 방지) → localStorage + Sheets
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ exportPrices, exchangeRate, dentalPrices, history, simHistory }));
-    } catch (e) { console.error(e); }
-  }, [exportPrices, exchangeRate, dentalPrices, history, simHistory]);
+    if (!loaded) return;
+    const payload = { exportPrices, exchangeRate, dentalPrices, history, simHistory };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (e) { console.error(e); }
+    // Sheets에도 저장 (디바운스)
+    if (window.__pricingSaveTimer) clearTimeout(window.__pricingSaveTimer);
+    window.__pricingSaveTimer = setTimeout(() => { gasSavePricing(payload); }, 1200);
+  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory]);
 
   // 변경이력 저장 (스냅샷 생성)
   const saveSnapshot = (note) => {
