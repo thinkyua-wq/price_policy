@@ -3404,7 +3404,7 @@ const costDefaultSys = () => ({ impExport:24.5, makeCost:4.28, kitMakeCost:336, 
 const costDefaultData = () => {
   const sys = {};
   COST_SYSTEMS.forEach(s => sys[s] = costDefaultSys());
-  return { cnyUsd:7.2, krwUsd:1450.0, freeBonus:2, kitDivisor:80, lossCost:0.9, systems:sys, selectedSystem:"ARi" };
+  return { cnyUsd:7.2, krwUsd:1450.0, freeBonus:2, kitDivisor:80, lossCost:0.9, dealerBaseMargin:10, systems:sys, selectedSystem:"ARi" };
 };
 function costLoad() {
   try {
@@ -3446,15 +3446,16 @@ function costCompute(d) {
   const impExport = Number(cur.impExport)||24.5;       // 수출단가 (임의, 기본 24.5)
   const cnyUsd = Number(d.cnyUsd)||0, krwUsd = Number(d.krwUsd)||0;
   const N = Number(d.freeBonus)||0, kitDivisor = Number(d.kitDivisor)||80, loss = Number(d.lossCost)||0;
+  const baseMargin = (Number(d.dealerBaseMargin)||0)/100;   // 기본 대리상 마진율 %→비율
   const corpCoef = 1.14;
   const paid = 10, total = 10 + N;                     // 유상 10, 총 10+N
 
-  // 수량적용 임플란트 제조원가 = (제조원가 × (10+N)) / 10
-  const qtyMakeCost = (impMakeCost * total) / paid;
-  // 키트 개당분산 = 키트 제조원가 ÷ 키트 증정기준
-  const kitContrib = kitMakeCost / kitDivisor;
-  // 키트적용 임플란트 제조원가 = 수량적용 + 키트분산
-  const makeCost = qtyMakeCost + kitContrib;
+  // KIT 배분 포함 실질 제조원가 (개당)
+  // 총원가 = (제조원가 × (기본+추가)) + (((기본+추가) ÷ KIT비율) × KIT원가)
+  // 개당 실질원가 = 총원가 ÷ (기본+추가)
+  const baseQty = 10, addQty = N;                      // 기본수량 10, 추가수량 N
+  const totalCost = (impMakeCost * (baseQty + addQty)) + (((baseQty + addQty) / kitDivisor) * kitMakeCost);
+  const makeCost = (baseQty + addQty) > 0 ? totalCost / (baseQty + addQty) : 0;
 
   const exportPrice = impExport;                       // 수출단가 (임의 24.5)
   const hqGP = exportPrice>0 ? (1 - makeCost/exportPrice) : 0; // 본사 GP
@@ -3462,11 +3463,10 @@ function costCompute(d) {
   // 법인매입단가 = 수출단가 × 환율 × 1.14
   const corpBuyUnit = exportPrice * cnyUsd * corpCoef;
   // 대리상판매단가 = 치과판매금액 × (10/(10+N)) × 손실
-  const dealerSellUnit = total>0 ? (basePrice * (paid/total) * loss) : 0;
+  const dentalUnit = basePrice * loss;                       // 실치과판매금액
+  const dealerSellUnit = total>0 ? (dentalUnit * (paid/total) * (1-baseMargin)) : 0; // 무상할인 + 기본마진
   const corpGP = dealerSellUnit>0 ? (1 - corpBuyUnit/dealerSellUnit) : 0; // 법인 GP
 
-  // 치과판매금액 → 실치과판매금액 = 치과 × 손실
-  const dentalUnit = basePrice * loss;
   const dealerGP = dentalUnit>0 ? (1 - dealerSellUnit/dentalUnit) : 0; // 대리상 GP
 
   // KIT 매입단가 개당 = 키트제조원가 ÷ 증정수량(총수량÷증정기준)
@@ -3477,19 +3477,18 @@ function costCompute(d) {
   const totalFixture = paidQty + freeQty, donutKitQty = totalFixture / kitDivisor, totalQty = totalFixture + donutKitQty;
 
   return {
-    system:d.selectedSystem, impExport, exportPrice, makeCost, qtyMakeCost, basePrice,
+    system:d.selectedSystem, impExport, exportPrice, makeCost, basePrice,
     hqGP, corpBuyUnit, dealerSellUnit, corpGP, dentalUnit, dealerGP,
     kitBuyPer, N,
     paidQty, freeQty, kitQty:donutKitQty, totalQty,
     metrics: [
       { key:"임플란트 제조원가", u:"USD/개", v:fmt(impMakeCost,1), f:"입력값", cls:"text-slate-700", chk:null },
       { key:"키트 제조원가", u:"USD/개", v:fmt(kitMakeCost,1), f:"입력값", cls:"text-slate-500", chk:null },
-      { key:"수량적용 제조원가", u:"USD/개", v:fmt(qtyMakeCost,1), f:"(제조원가 × "+total+") ÷ 10", cls:"text-slate-700", chk:null },
-      { key:"키트적용 제조원가", u:"USD/개", v:fmt(makeCost,1), f:"수량적용 제조원가 + (키트 제조원가 ÷ "+kitDivisor+")", cls:"font-bold text-slate-800", chk:null },
+      { key:"KIT 배분 포함 실질 제조원가", u:"USD/개", v:fmt(makeCost,1), f:"[(제조원가 × (10+"+N+")) + (((10+"+N+") ÷ "+kitDivisor+") × 키트원가)] ÷ (10+"+N+")", cls:"font-bold text-slate-800", chk:null },
       { key:"수출단가", u:"USD/개", v:fmt(exportPrice,1), f:"입력값(임의 산정)", cls:"text-red-600 font-bold", chk:null },
-      { key:"본사 GP", u:"%", v:fmt(hqGP*100,1), f:"1 − 키트적용 제조원가 ÷ 수출단가", cls:"font-bold text-slate-800", chk: costGrade(hqGP, 0.50, 0.70) },
+      { key:"본사 GP", u:"%", v:fmt(hqGP*100,1), f:"1 − 실질 제조원가 ÷ 수출단가", cls:"font-bold text-slate-800", chk: costGrade(hqGP, 0.50, 0.70) },
       { key:"법인매입단가", u:"RMB/개", v:fmt(corpBuyUnit,1), f:"수출단가 × "+fmt(cnyUsd,1)+" × 1.14", cls:"text-slate-700", chk:null },
-      { key:"대리상판매단가", u:"RMB/개", v:fmt(dealerSellUnit,1), f:"치과판매금액 × (10 ÷ "+total+") × "+fmt(loss,1), cls:"text-blue-600 font-bold", chk:null },
+      { key:"대리상판매단가", u:"RMB/개", v:fmt(dealerSellUnit,1), f:"실치과판매금액 × (10 ÷ "+total+") × (1 − 기본마진 "+(baseMargin*100).toFixed(0)+"%)", cls:"text-blue-600 font-bold", chk:null },
       { key:"법인 GP", u:"%", v:fmt(corpGP*100,1), f:"1 − 법인매입단가 ÷ 대리상판매단가", cls:"text-emerald-600 font-bold", chk: costGrade(corpGP, 0.30, 0.45) },
       { key:"치과판매금액", u:"RMB/개", v:fmt(basePrice,1), f:"입력값", cls:"text-slate-700", chk:null },
       { key:"실치과판매금액", u:"RMB/개", v:fmt(dentalUnit,1), f:"치과판매금액 × "+fmt(loss,1), cls:"text-slate-700", chk:null },
@@ -3616,7 +3615,7 @@ function CostSimPage() {
       id: now.getTime(), date: now.toISOString(),
       dateLabel: now.toLocaleString("ko-KR",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}),
       system: d.selectedSystem,
-      cnyUsd:d.cnyUsd, krwUsd:d.krwUsd, freeBonus:d.freeBonus, kitDivisor:d.kitDivisor, lossCost:d.lossCost,
+      cnyUsd:d.cnyUsd, krwUsd:d.krwUsd, freeBonus:d.freeBonus, kitDivisor:d.kitDivisor, lossCost:d.lossCost, dealerBaseMargin:d.dealerBaseMargin,
       impExport:cur.impExport, makeCost:cur.makeCost, kitMakeCost:cur.kitMakeCost, basePrice:cur.basePrice,
       exportPrice:c.exportPrice, hqGP:c.hqGP, corpBuyUnit:c.corpBuyUnit, dealerSellUnit:c.dealerSellUnit,
       corpGP:c.corpGP, dentalUnit:c.dentalUnit, dealerGP:c.dealerGP,
@@ -3630,7 +3629,7 @@ function CostSimPage() {
   };
   const delSnap = (id) => { const next=history.filter(h=>h.id!==id); setHistory(next); try{localStorage.setItem(COST_HIST_LS,JSON.stringify(next));}catch(e){} };
   const restoreSnap = (r) => {
-    setD(p=>{ const np={...p,cnyUsd:r.cnyUsd,krwUsd:r.krwUsd,freeBonus:r.freeBonus,kitDivisor:r.kitDivisor,lossCost:r.lossCost,selectedSystem:r.system};
+    setD(p=>{ const np={...p,cnyUsd:r.cnyUsd,krwUsd:r.krwUsd,freeBonus:r.freeBonus,kitDivisor:r.kitDivisor,lossCost:r.lossCost,dealerBaseMargin:r.dealerBaseMargin!=null?r.dealerBaseMargin:p.dealerBaseMargin,selectedSystem:r.system};
       np.systems={...p.systems,[r.system]:{...p.systems[r.system],impExport:r.impExport,makeCost:r.makeCost,kitMakeCost:r.kitMakeCost,basePrice:r.basePrice}};
       return np; });
     setSub('calc');
@@ -3785,6 +3784,7 @@ function CostSimPage() {
             <div className="space-y-2">
               <CostField label="수출단가 (USD/개)" value={cur.impExport} onChange={v=>setSys("impExport",v)} step="0.1" />
               <CostField label="치과판매금액 (RMB/개)" value={cur.basePrice} onChange={v=>setSys("basePrice",v)} />
+              <CostField label="기본 대리상 마진율 (%)" value={d.dealerBaseMargin} onChange={v=>setCommon("dealerBaseMargin",v)} step="1" />
             </div>
           </div>
 
@@ -3810,7 +3810,7 @@ function CostSimPage() {
               <div className="font-bold text-slate-800">시뮬레이션 결과 <span className="text-xs text-slate-400 font-normal">(1개당 단가 기준, {d.selectedSystem})</span></div>
               <button onClick={()=>setShowFormula(v=>!v)} className="text-xs px-2.5 py-1 border border-slate-300 rounded-lg text-slate-600">계산식 {showFormula?"숨기기":"보기"}</button>
             </div>
-            <p className="text-sm text-slate-700 mb-3">계산 결과 <b>키트적용 제조원가</b>는 <b className="text-blue-600">{fmt(c.makeCost,2)} USD/개</b>, <b>수출단가</b> <b className="text-blue-600">{fmt(c.exportPrice,2)} USD</b> 기준 <b>본사 GP</b>는 <b className="text-blue-600">{fmt(c.hqGP*100,1)}%</b> 입니다.</p>
+            <p className="text-sm text-slate-700 mb-3">계산 결과 <b>KIT 배분 포함 실질 제조원가</b>는 <b className="text-blue-600">{fmt(c.makeCost,2)} USD/개</b>, <b>수출단가</b> <b className="text-blue-600">{fmt(c.exportPrice,2)} USD</b> 기준 <b>본사 GP</b>는 <b className="text-blue-600">{fmt(c.hqGP*100,1)}%</b> 입니다.</p>
             <table className="w-full text-sm border-collapse">
               <tbody>
                 <tr className="bg-slate-50 text-slate-700">
