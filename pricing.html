@@ -3458,14 +3458,24 @@ function costCompute(d) {
   const makeCost = (baseQty + addQty) > 0 ? totalCost / (baseQty + addQty) : 0;
 
   const exportPrice = impExport;                       // 수출단가 (임의 24.5)
-  const hqGP = exportPrice>0 ? (1 - makeCost/exportPrice) : 0; // 본사 GP
 
-  // 법인매입단가 = 수출단가 × 환율 × 1.14
+  // ── 합산 방식 GP ──
+  const kitQtyGift = total / kitDivisor;               // 키트 증정수량 = 총수량 ÷ 증정기준
+  // 본사 GP = 1 − (제조원가×총수량 + 키트원가×키트수량) ÷ (수출가×총수량 + 키트원가×키트수량)
+  const costSum = impMakeCost*total + kitMakeCost*kitQtyGift;
+  const expSum  = exportPrice*total + kitMakeCost*kitQtyGift;
+  const hqGP = expSum>0 ? (1 - costSum/expSum) : 0;
+
+  // 법인매입단가(개당) = 수출단가 × 환율 × 1.14
   const corpBuyUnit = exportPrice * cnyUsd * corpCoef;
-  // 대리상판매단가 = 치과판매금액 × (10/(10+N)) × 손실
-  const dentalUnit = basePrice * loss;                       // 실치과판매금액
-  const dealerSellUnit = total>0 ? (dentalUnit * (paid/total) * (1-baseMargin)) : 0; // 무상할인 + 기본마진
-  const corpGP = dealerSellUnit>0 ? (1 - corpBuyUnit/dealerSellUnit) : 0; // 법인 GP
+  // 실치과판매금액 / 대리상판매단가(개당) = 실치과 × (10/총) × (1−기본마진)
+  const dentalUnit = basePrice * loss;
+  const dealerSellUnit = total>0 ? (dentalUnit * (paid/total) * (1-baseMargin)) : 0;
+  // 법인 GP = 1 − (법인매입×총 + 키트법인매입×키트수량) ÷ (대리상판매가×총)
+  const corpBuyKit = kitMakeCost * cnyUsd * corpCoef;
+  const corpSum = corpBuyUnit*total + corpBuyKit*kitQtyGift;
+  const dealerAmt = dealerSellUnit*total;
+  const corpGP = dealerAmt>0 ? (1 - corpSum/dealerAmt) : 0;
 
   const dealerGP = dentalUnit>0 ? (1 - dealerSellUnit/dentalUnit) : 0; // 대리상 GP
 
@@ -3486,10 +3496,10 @@ function costCompute(d) {
       { key:"키트 제조원가", u:"USD/개", v:fmt(kitMakeCost,1), f:"입력값", cls:"text-slate-500", chk:null },
       { key:"KIT 배분 포함 실질 제조원가", u:"USD/개", v:fmt(makeCost,1), f:"[(제조원가 × (10+"+N+")) + (((10+"+N+") ÷ "+kitDivisor+") × 키트원가)] ÷ (10+"+N+")", cls:"font-bold text-slate-800", chk:null },
       { key:"수출단가", u:"USD/개", v:fmt(exportPrice,1), f:"입력값(임의 산정)", cls:"text-red-600 font-bold", chk:null },
-      { key:"본사 GP", u:"%", v:fmt(hqGP*100,1), f:"1 − 실질 제조원가 ÷ 수출단가", cls:"font-bold text-slate-800", chk: costGrade(hqGP, 0.50, 0.70) },
+      { key:"본사 GP", u:"%", v:fmt(hqGP*100,1), f:"1 − (제조원가×총 + 키트원가×키트수량) ÷ (수출단가×총 + 키트원가×키트수량)", cls:"font-bold text-slate-800", chk: costGrade(hqGP, 0.50, 0.70) },
       { key:"법인매입단가", u:"RMB/개", v:fmt(corpBuyUnit,1), f:"수출단가 × "+fmt(cnyUsd,1)+" × 1.14", cls:"text-slate-700", chk:null },
       { key:"대리상판매단가", u:"RMB/개", v:fmt(dealerSellUnit,1), f:"실치과판매금액 × (10 ÷ "+total+") × (1 − 기본마진 "+(baseMargin*100).toFixed(0)+"%)", cls:"text-blue-600 font-bold", chk:null },
-      { key:"법인 GP", u:"%", v:fmt(corpGP*100,1), f:"1 − 법인매입단가 ÷ 대리상판매단가", cls:"text-emerald-600 font-bold", chk: costGrade(corpGP, 0.30, 0.45) },
+      { key:"법인 GP", u:"%", v:fmt(corpGP*100,1), f:"1 − (법인매입×총 + 키트법인매입×키트수량) ÷ (대리상판매가×총)", cls:"text-emerald-600 font-bold", chk: costGrade(corpGP, 0.30, 0.45) },
       { key:"치과판매금액", u:"RMB/개", v:fmt(basePrice,1), f:"입력값", cls:"text-slate-700", chk:null },
       { key:"실치과판매금액", u:"RMB/개", v:fmt(dentalUnit,1), f:"치과판매금액 × "+fmt(loss,1), cls:"text-slate-700", chk:null },
       { key:"대리상 GP", u:"%", v:fmt(dealerGP*100,1), f:"1 − 대리상판매단가 ÷ 실치과판매금액", cls:"text-purple-600 font-bold", chk: costGrade(dealerGP, 0.15, 0.30) },
