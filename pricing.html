@@ -307,6 +307,7 @@ function Sidebar({ activeMenu, setActiveMenu }) {
       key: 'policy', title: '정책관리', icon: '📋',
       items: [
         { key: 'export', label: '수출가 정책' },
+        { key: 'gp-analysis', label: '제품별 영업 정책 수익성(GP) 분석' },
       ]
     },
     {
@@ -3909,6 +3910,159 @@ function CostSimPage() {
 }
 
 /* ========================================
+   제품별 영업 정책 수익성(GP) 분석
+======================================== */
+const GP_FREE_COLS = []; for(let _x=2; _x<=9.5; _x+=0.5) GP_FREE_COLS.push(_x);
+
+function gpCalcCell(p, x, bm){
+  const tot=10+x, kq=tot/p.kitDiv;
+  const costSum=p.make*tot + p.kit*kq, expSum=p.exp*tot + p.kit*kq;
+  const hqGP = expSum>0?1-costSum/expSum:0;
+  const realD=p.base*0.9, ds= tot>0?realD*(10/tot)*(1-bm):0;
+  const corpSum=(p.exp*7.2*1.14)*tot+(p.kit*7.2*1.14)*kq, corpGP= ds*tot>0?1-corpSum/(ds*tot):0;
+  return { ds, hqGP, corpGP };
+}
+function gpColorOf(g){ if(g==='적정')return{bg:'#E1F5EE',fg:'#0F6E56'}; if(g==='양호')return{bg:'#FAEEDA',fg:'#854F0B'}; return{bg:'#FAECE7',fg:'#993C1D'}; }
+function gpGrade(v,good,ok){ if(v>=ok)return'적정'; if(v>=good)return'양호'; return'주의'; }
+
+// 키트명 → 분류
+function gpKitType(name){
+  const n=(name||'').toLowerCase();
+  if(n.includes('full')) return '풀키트';
+  if(n.includes('standard')||n.includes('stand')) return '표준키트';
+  return '기타키트';
+}
+
+const GP_SAMPLE = [
+  { id:'s1', sys:'AriE', kitName:'Stand Kit',         make:4.28, kit:336, exp:24.5, base:650, kitDiv:80 },
+  { id:'s2', sys:'AriE', kitName:'R2 One2 Guide Kit', make:4.28, kit:276, exp:25.0, base:650, kitDiv:100 },
+  { id:'s3', sys:'BD',   kitName:'Full Kit',          make:4.28, kit:618, exp:24.5, base:650, kitDiv:160 },
+  { id:'s4', sys:'BD',   kitName:'Standard Kit',      make:4.28, kit:358, exp:24.5, base:650, kitDiv:80 },
+  { id:'s5', sys:'AR',   kitName:'Full Kit',          make:4.0,  kit:496, exp:23.0, base:567, kitDiv:160 },
+  { id:'s6', sys:'AO',   kitName:'Full Kit',          make:3.0,  kit:468, exp:16.5, base:431, kitDiv:160 },
+  { id:'s7', sys:'AO',   kitName:'Standard Kit',      make:3.0,  kit:259, exp:16.5, base:431, kitDiv:100 },
+  { id:'s8', sys:'ST',   kitName:'Full Kit',          make:3.5,  kit:496, exp:13.5, base:390, kitDiv:200 },
+  { id:'s9', sys:'ST',   kitName:'Standard Kit',      make:3.5,  kit:274, exp:13.5, base:390, kitDiv:120 },
+  { id:'s10',sys:'EV',   kitName:'Standard Kit',      make:2.0,  kit:528, exp:5.6,  base:150, kitDiv:100 },
+];
+const GP_METRICS = [ {key:'ds',label:'대리상판매가'}, {key:'hqGP',label:'본사 GP'}, {key:'corpGP',label:'법인 GP'} ];
+
+function GpAnalysisPage(){
+  // 기본 내장 품목 + 원가 시뮬레이션에서 저장한 품목을 추가
+  const fromHistory = (()=>{
+    try {
+      const raw = localStorage.getItem('costsim_history_v1');
+      const hist = raw? JSON.parse(raw):[];
+      const seen={}, out=[];
+      hist.forEach(r=>{
+        const key = r.system+'|'+r.kitMakeCost+'|'+r.basePrice+'|'+r.impExport+'|'+r.kitDivisor;
+        if(seen[key]) return; seen[key]=1;
+        out.push({ id:'h'+r.id, sys:r.system, kitName:(r.kitName||'Kit'),
+          make:r.makeCost, kit:r.kitMakeCost, exp:r.impExport, base:r.basePrice, kitDiv:r.kitDivisor });
+      });
+      return out;
+    } catch(e){ return []; }
+  })();
+  // 기본 샘플(전체) + 저장 이력 합치기
+  const data = [...GP_SAMPLE, ...fromHistory];
+
+  const [baseMargin, setBaseMargin] = useState(0);
+  const [selSys, setSelSys] = useState('전체');
+  const [selKit, setSelKit] = useState('전체');
+  const [selRatio, setSelRatio] = useState('전체');
+  const [selFree, setSelFree] = useState('전체');
+
+  const sysList = ['전체', ...Array.from(new Set(data.map(i=>i.sys)))];
+  const kitList = ['전체','표준키트','풀키트','기타키트'];
+  const ratioList = ['전체', ...Array.from(new Set(data.map(i=>i.kitDiv))).sort((a,b)=>a-b).map(r=>r+'대1')];
+  const freeList = ['전체', ...GP_FREE_COLS.map(x=>'10+'+x)];
+  const shown = data.filter(it=> (selSys==='전체'||it.sys===selSys) && (selKit==='전체'||gpKitType(it.kitName)===selKit) && (selRatio==='전체'||it.kitDiv+'대1'===selRatio));
+  const cols = selFree==='전체' ? GP_FREE_COLS : GP_FREE_COLS.filter(x=>'10+'+x===selFree);
+  const cell="px-2 py-2 border border-slate-300";
+  const TH="px-2 py-2 border border-slate-300 font-bold text-center bg-slate-100";
+  const blk={color:'#000'};
+
+  return (
+    <div className="p-6" style={{fontSize:'14px',color:'#000'}}>
+      <h1 className="font-bold mb-3" style={{fontSize:'24px',color:'#000'}}>제품별 영업 정책 수익성(GP) 분석</h1>
+
+      <div className="flex gap-4 mb-2 items-center flex-wrap" style={{fontSize:'13px',color:'#000'}}>
+        <span className="font-bold">색상 기준</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{background:'#E1F5EE'}}></span>적정 (본사≥70%/법인≥45%)</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{background:'#FAEEDA'}}></span>양호 (본사 50~70%/법인 30~45%)</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm inline-block" style={{background:'#FAECE7'}}></span>주의 (미만)</span>
+      </div>
+      <p className="mb-3" style={blk}>품목·키트·KIT비율·무상조건을 선택해 비교하세요.</p>
+
+      <div className="bg-white border border-slate-200 rounded-xl p-4 mb-4 flex items-center gap-3 flex-wrap" style={blk}>
+        <span className="font-bold">품목</span>
+        <select value={selSys} onChange={e=>setSelSys(e.target.value)} className="border border-slate-300 rounded-lg px-3 py-1.5" style={blk}>
+          {sysList.map(s=><option key={s} value={s}>{s==='전체'?'시스템 전체':s}</option>)}
+        </select>
+        <span className="font-bold ml-1">키트</span>
+        <select value={selKit} onChange={e=>setSelKit(e.target.value)} className="border border-slate-300 rounded-lg px-3 py-1.5" style={blk}>
+          {kitList.map(k=><option key={k} value={k}>{k}</option>)}
+        </select>
+        <span className="font-bold ml-1">KIT비율</span>
+        <select value={selRatio} onChange={e=>setSelRatio(e.target.value)} className="border border-slate-300 rounded-lg px-3 py-1.5" style={blk}>
+          {ratioList.map(r=><option key={r} value={r}>{r}</option>)}
+        </select>
+        <span className="font-bold ml-1">무상조건</span>
+        <select value={selFree} onChange={e=>setSelFree(e.target.value)} className="border border-slate-300 rounded-lg px-3 py-1.5" style={blk}>
+          {freeList.map(f=><option key={f} value={f}>{f}</option>)}
+        </select>
+        <span className="w-px h-5 bg-slate-200 mx-1"></span>
+        <span className="font-bold">기본 대리상 마진율</span>
+        <input type="number" value={baseMargin} onChange={e=>setBaseMargin(Number(e.target.value)||0)} className="w-16 border border-slate-300 rounded-lg px-2 py-1.5 text-right" style={blk} />
+        <span style={{fontSize:'13px'}}>%</span>
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-xl" style={{overflowX:'auto'}}>
+        <table style={{fontSize:'14px',color:'#000',borderCollapse:'collapse',width:'100%'}}>
+          <thead>
+            <tr>
+              <th className={TH+" text-left"} style={{...blk,minWidth:140}}>품목</th>
+              <th className={TH} style={{...blk,minWidth:64}}>수출가</th>
+              <th className={TH} style={{...blk,minWidth:64}}>기준가</th>
+              <th className={TH} style={{...blk,minWidth:64}}>KIT비율</th>
+              <th className={TH+" text-left"} style={{...blk,minWidth:104}}>지표</th>
+              {cols.map(x=><th key={x} className={TH+" whitespace-nowrap"} style={{...blk,minWidth:66}}>10+{x}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {shown.length===0 && <tr><td colSpan={5+cols.length} className="text-center py-10" style={blk}>해당 조건의 품목이 없습니다.</td></tr>}
+            {shown.map(it=>(
+              GP_METRICS.map((m,mi)=>(
+                <tr key={it.id+'-'+m.key}>
+                  {mi===0 && <td rowSpan={3} className={cell+" align-middle"} style={blk}>
+                    <div className="font-bold">{it.sys}</div><div>+ {it.kitName}</div>
+                  </td>}
+                  {mi===0 && <td rowSpan={3} className={cell+" text-right align-middle"} style={blk}>{fmt(it.exp,1)}</td>}
+                  {mi===0 && <td rowSpan={3} className={cell+" text-right align-middle"} style={blk}>{fmt(it.base)}</td>}
+                  {mi===0 && <td rowSpan={3} className={cell+" text-center align-middle"} style={blk}>
+                    <div>{it.kitDiv}</div><div style={{fontSize:'12px'}}>대 1</div>
+                  </td>}
+                  <td className={cell+" whitespace-nowrap"} style={blk}>{m.label}</td>
+                  {cols.map(x=>{
+                    const c=gpCalcCell(it,x,baseMargin/100);
+                    if(m.key==='ds') return <td key={x} className={cell+" text-center"} style={blk}>{fmt(c.ds)}</td>;
+                    const v=c[m.key], g= m.key==='hqGP'?gpGrade(v,0.5,0.7):gpGrade(v,0.3,0.45), col=gpColorOf(g);
+                    return <td key={x} className={cell+" text-center font-bold"} style={{background:col.bg,color:col.fg}}>{fmt(v*100,1)}%</td>;
+                  })}
+                </tr>
+              ))
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-3" style={{fontSize:'13px',color:'#000'}}>
+        ※ 전체 품목 기준입니다. 원가 시뮬레이션에서 이력저장하면 해당 품목이 표에 추가됩니다. 무상조건이 많으면 표를 좌우로 스크롤하세요.
+      </p>
+    </div>
+  );
+}
+
+/* ========================================
    App
 ======================================== */
 function App() {
@@ -4101,6 +4255,7 @@ function App() {
           </div>
         )}
         {activeMenu === 'cost-sim' && <CostSimPage />}
+        {activeMenu === 'gp-analysis' && <GpAnalysisPage />}
       </main>
     </div>
   );
