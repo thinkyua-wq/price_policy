@@ -3064,14 +3064,14 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
   // 한 업체의 12개월 데이터 계산
   const computeEntity = (ent) => {
     const kpi = ent.kpi.map((d, mi) => getCell(ent.name, 'kpi', mi, d));
+    const actual = (ent.kpi).map((_, mi) => getCell(ent.name, 'actual', mi, 0));  // 실적 (새 입력 필드)
     const dso = ent.dso.map((d, mi) => getCell(ent.name, 'dso', mi, d));
     const end = ent.end.map((d, mi) => getCell(ent.name, 'end', mi, d));
-    const subtotal = dso.map((v, mi) => v + end[mi]);              // 소계 = dso + end
-    const rate = subtotal.map((v, mi) => kpi[mi] !== 0 ? Math.round(v / kpi[mi] * 100) : 0); // 달성율
+    const rate = actual.map((v, mi) => kpi[mi] !== 0 ? Math.round(v / kpi[mi] * 100) : 0); // 달성율 = 실적 ÷ 목표
     const sum = (arr) => arr.reduce((a, b) => a + b, 0);
-    const kpiTotal = sum(kpi), dsoTotal = sum(dso), endTotal = sum(end), subTotal = sum(subtotal);
-    const rateTotal = kpiTotal !== 0 ? Math.round(subTotal / kpiTotal * 100) : 0;
-    return { kpi, dso, end, subtotal, rate, kpiTotal, dsoTotal, endTotal, subTotal, rateTotal };
+    const kpiTotal = sum(kpi), actualTotal = sum(actual), dsoTotal = sum(dso), endTotal = sum(end);
+    const rateTotal = kpiTotal !== 0 ? Math.round(actualTotal / kpiTotal * 100) : 0;
+    return { kpi, actual, dso, end, rate, kpiTotal, actualTotal, dsoTotal, endTotal, rateTotal };
   };
 
   const hqData = computeEntity(annualData.headquarter);
@@ -3189,7 +3189,7 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                 return (
                   <>
                     <tr className={rowBase} style={stickyRow(0)}>
-                      <td rowSpan={5} style={cellH} className="px-2 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-20">{ent.region}</td>
+                      <td rowSpan={5} style={{...cellH, background: ent.region==='화남지역' ? '#FBEAF0' : undefined}} className="px-2 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-20">{ent.region}</td>
                       <td rowSpan={5} style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-700 align-middle bg-white">{ent.type}</td>
                       <td rowSpan={5} style={cellH} className="px-2 border-r border-slate-300 text-center font-medium text-slate-800 align-middle bg-white">{ent.name}</td>
                       <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">목표(KPI)</td>
@@ -3198,23 +3198,23 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                     </tr>
                     <tr className={rowBase} style={stickyRow(1)}>
                       <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 bg-white">실적</td>
-                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-1 border-r border-slate-300 bg-white"><EditCell name={ent.name} field="dso" mi={mi} value={c.dso[mi]} /></td>)}
-                      <td style={cellH} className="px-2 text-right bg-slate-50">{fmt(c.dsoTotal)}</td>
+                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-1 border-r border-slate-300 bg-white"><EditCell name={ent.name} field="actual" mi={mi} value={c.actual[mi]} /></td>)}
+                      <td style={cellH} className="px-2 text-right bg-slate-50">{fmt(c.actualTotal)}</td>
                     </tr>
                     <tr className={rowBase} style={stickyRow(2)}>
-                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 bg-white">하부고객</td>
-                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-1 border-r border-slate-300 bg-white"><EditCell name={ent.name} field="end" mi={mi} value={c.end[mi]} /></td>)}
-                      <td style={cellH} className="px-2 text-right bg-slate-50">{fmt(c.endTotal)}</td>
-                    </tr>
-                    <tr className={rowBase} style={stickyRow(3)}>
-                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-700 font-semibold bg-slate-50">소계</td>
-                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-2 border-r border-slate-300 text-right font-semibold text-slate-800 bg-slate-50">{fmt(c.subtotal[mi])}</td>)}
-                      <td style={cellH} className="px-2 text-right font-bold bg-slate-100">{fmt(c.subTotal)}</td>
-                    </tr>
-                    <tr className={rowBase} style={stickyRow(4)}>
                       <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">KPI달성율</td>
                       {visMonthIdxs.map(mi => <td key={mi} style={cellH} className={`px-2 border-r border-slate-300 text-right bg-white ${rateColor(c.rate[mi])}`}>{c.rate[mi]}%</td>)}
                       <td style={cellH} className={`px-2 text-right font-bold bg-slate-100 ${rateColor(c.rateTotal)}`}>{c.rateTotal}%</td>
+                    </tr>
+                    <tr className={rowBase} style={stickyRow(3)}>
+                      <td style={{...cellH, background:'#F1F5F9'}} className="px-2 border-r border-slate-300 text-center text-slate-600">하부고객</td>
+                      {visMonthIdxs.map(mi => <td key={mi} style={{...cellH, background:'#F1F5F9'}} className="px-1 border-r border-slate-300"><EditCell name={ent.name} field="end" mi={mi} value={c.end[mi]} /></td>)}
+                      <td style={{...cellH, background:'#E2E8F0'}} className="px-2 text-right">{fmt(c.endTotal)}</td>
+                    </tr>
+                    <tr className={rowBase} style={stickyRow(4)}>
+                      <td style={{...cellH, background:'#CBD5E1'}} className="px-2 border-r border-slate-300 text-center text-slate-700">DSO고객</td>
+                      {visMonthIdxs.map(mi => <td key={mi} style={{...cellH, background:'#CBD5E1'}} className="px-1 border-r border-slate-300"><EditCell name={ent.name} field="dso" mi={mi} value={c.dso[mi]} /></td>)}
+                      <td style={{...cellH, background:'#94A3B8'}} className="px-2 text-right text-white font-semibold">{fmt(c.dsoTotal)}</td>
                     </tr>
                   </>
                 );
@@ -3239,8 +3239,8 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                       </tr>
                       <tr className={rowBase}>
                         <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">실적</td>
-                        {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="dso" mi={mi} value={c.dso[mi]} /></td>)}
-                        <td className="px-2 py-1 text-right bg-slate-50">{fmt(c.dsoTotal)}</td>
+                        {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="actual" mi={mi} value={c.actual[mi]} /></td>)}
+                        <td className="px-2 py-1 text-right bg-slate-50">{fmt(c.actualTotal)}</td>
                       </tr>
                       <tr className={rowBase}>
                         <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI달성율</td>
@@ -3253,7 +3253,7 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                 return (
                   <React.Fragment key={ent.name}>
                     <tr className={rowBase}>
-                      <td rowSpan={5} className="px-2 py-1 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-10">{ent.region}</td>
+                      <td rowSpan={5} style={ent.region==='화남지역' ? {background:'#FBEAF0'} : undefined} className="px-2 py-1 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-10">{ent.region}</td>
                       <td rowSpan={5} className="px-2 py-1 border-r border-slate-300 text-center text-slate-700 align-middle">{ent.type}</td>
                       <td rowSpan={5} className={`px-2 py-1 border-r border-slate-300 text-center font-medium align-middle ${nameColor}`}>{ent.name}</td>
                       <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI</td>
@@ -3262,23 +3262,23 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                     </tr>
                     <tr className={rowBase}>
                       <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600">실적</td>
-                      {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="dso" mi={mi} value={c.dso[mi]} /></td>)}
-                      <td className="px-2 py-1 text-right bg-slate-50">{fmt(c.dsoTotal)}</td>
-                    </tr>
-                    <tr className={rowBase}>
-                      <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600">하부고객</td>
-                      {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="end" mi={mi} value={c.end[mi]} /></td>)}
-                      <td className="px-2 py-1 text-right bg-slate-50">{fmt(c.endTotal)}</td>
-                    </tr>
-                    <tr className={rowBase + " bg-slate-50/50"}>
-                      <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-700 font-semibold">소계</td>
-                      {visMonthIdxs.map(mi => <td key={mi} className="px-2 py-1 border-r border-slate-300 text-right font-semibold text-slate-800">{fmt(c.subtotal[mi])}</td>)}
-                      <td className="px-2 py-1 text-right font-bold bg-slate-100">{fmt(c.subTotal)}</td>
+                      {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="actual" mi={mi} value={c.actual[mi]} /></td>)}
+                      <td className="px-2 py-1 text-right bg-slate-50">{fmt(c.actualTotal)}</td>
                     </tr>
                     <tr className={rowBase}>
                       <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI달성율</td>
                       {visMonthIdxs.map(mi => <td key={mi} className={`px-2 py-1 border-r border-slate-300 text-right ${rateColor(c.rate[mi])}`}>{c.rate[mi]}%</td>)}
                       <td className={`px-2 py-1 text-right font-bold bg-slate-100 ${rateColor(c.rateTotal)}`}>{c.rateTotal}%</td>
+                    </tr>
+                    <tr className={rowBase}>
+                      <td style={{background:'#F1F5F9'}} className="px-2 py-1 border-r border-slate-300 text-center text-slate-600">하부고객</td>
+                      {visMonthIdxs.map(mi => <td key={mi} style={{background:'#F1F5F9'}} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="end" mi={mi} value={c.end[mi]} /></td>)}
+                      <td style={{background:'#E2E8F0'}} className="px-2 py-1 text-right">{fmt(c.endTotal)}</td>
+                    </tr>
+                    <tr className={rowBase}>
+                      <td style={{background:'#CBD5E1'}} className="px-2 py-1 border-r border-slate-300 text-center text-slate-700">DSO고객</td>
+                      {visMonthIdxs.map(mi => <td key={mi} style={{background:'#CBD5E1'}} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="dso" mi={mi} value={c.dso[mi]} /></td>)}
+                      <td style={{background:'#94A3B8'}} className="px-2 py-1 text-right text-white font-semibold">{fmt(c.dsoTotal)}</td>
                     </tr>
                   </React.Fragment>
                 );
@@ -3289,7 +3289,7 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
       )}
       {!tableCollapsed && (
         <div className="mt-2 text-[11px] text-slate-500">
-          * 소계 = DSO + 하부고객 (자동) · KPI달성율 = 소계 ÷ KPI × 100 (자동) · 合计 = 1~12월 합산 (자동) · KPI/DSO/하부고객 숫자 클릭하여 수정 · 월별 표시 토글 가능
+          * KPI달성율 = 실적 ÷ KPI × 100 (자동) · 合计 = 1~12월 합산 (자동) · 목표/실적/하부고객/DSO고객 숫자 클릭하여 수정 · 월별 표시 토글 가능
         </div>
       )}
 
@@ -3524,7 +3524,7 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
                 <div className="flex gap-2">
                   <label className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-sm border rounded cursor-pointer ${copyField === 'goal' ? 'bg-blue-50 border-blue-400 text-blue-700 font-semibold' : 'border-slate-300 hover:bg-slate-50'}`}>
                     <input type="radio" name="copyField" value="goal" checked={copyField === 'goal'} onChange={() => setCopyField('goal')} className="hidden" />
-                    목표(KPI)
+                    계약금액
                   </label>
                   <label className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-sm border rounded cursor-pointer ${copyField === 'actual' ? 'bg-blue-50 border-blue-400 text-blue-700 font-semibold' : 'border-slate-300 hover:bg-slate-50'}`}>
                     <input type="radio" name="copyField" value="actual" checked={copyField === 'actual'} onChange={() => setCopyField('actual')} className="hidden" />
@@ -3569,7 +3569,7 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
                       <td rowSpan={3} style={cellH} className="px-2 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-20">{hqRegionName}</td>
                       <td rowSpan={3} style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-700 align-middle bg-white">본부</td>
                       <td rowSpan={3} style={cellH} className="px-2 border-r border-slate-300 text-center font-medium text-slate-800 align-middle bg-white">실적합계</td>
-                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">목표(KPI)</td>
+                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">계약금액</td>
                       {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-1 border-r border-slate-300 font-bold text-slate-900 bg-white"><EditCell name="_cum" field="goal" mi={mi} value={c.goal[mi]} /></td>)}
                       <td style={cellH} className="px-2 text-right font-bold bg-slate-100">{fmt(c.goalTotal)}</td>
                     </tr>
@@ -3677,29 +3677,29 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
    - 저장: weeklyEntries (기존 시스템 통합)
    ============================================================ */
 const CORP_AMOUNT_ROWS = [
-  { corp:'영파', region:'화동지역', name:'절강본부',
+  { corp:'닝보', region:'절강지역', name:'절강본부',
     kpi:[428,263,625,593,593,461,494,658,625,691,560,0], y25:[437,410,674,554,534,437,359,483,456,366,447,0] },
-  { corp:'영파', region:'화동지역', name:'화동본부',
+  { corp:'닝보', region:'화동지역', name:'화동본부',
     kpi:[493,303,720,683,683,531,569,758,720,796,645,0], y25:[429,439,589,510,615,433,425,580,446,566,449,0] },
-  { corp:'영파', region:'화중지역', name:'화중본부',
+  { corp:'닝보', region:'화중지역', name:'화중본부',
     kpi:[472,291,691,654,654,509,545,727,691,763,618,0], y25:[453,448,589,492,626,460,488,566,401,370,341,0] },
-  { corp:'영파', region:'화서지역', name:'화서본부',
+  { corp:'닝보', region:'화서지역', name:'화서본부',
     kpi:[308,190,451,427,427,332,356,475,451,498,403,0], y25:[305,294,392,354,441,169,288,354,326,363,190,0] },
-  { corp:'영파', region:'화남지역', name:'화남본부',
+  { corp:'닝보', region:'화남지역', name:'화남본부',
     kpi:[167,103,244,231,231,180,193,257,244,218,0,0], y25:[71,96,193,141,151,148,98,192,130,103,0,0] },
   { corp:'북경', region:'북경지역', name:'북경법인합계',
     kpi:[398,245,582,551,551,429,459,612,582,643,521,0], y25:[293,333,471,431,416,329,326,507,271,386,155,0] },
 ];
 const CORP_QTY_ROWS = [
-  { corp:'영파', region:'화동지역', name:'절강본부',
+  { corp:'닝보', region:'절강지역', name:'절강본부',
     kpi:[14569,8966,21295,20174,20174,20174,15690,16810,22415,21295,23536,19052], y25:[11298,10676,17828,17457,13432,15648,15354,13928,12763,15838,13045,14690] },
-  { corp:'영파', region:'화동지역', name:'화동본부',
+  { corp:'닝보', region:'화동지역', name:'화동본부',
     kpi:[16770,10320,24510,23220,23220,23220,18060,19350,25800,27090,21930,0], y25:[11339,11492,17809,16352,14799,16548,14784,12193,16083,16802,15657,0] },
-  { corp:'영파', region:'화중지역', name:'화중본부',
+  { corp:'닝보', region:'화중지역', name:'화중본부',
     kpi:[16074,9892,23494,22257,22257,22257,17311,18547,24730,23494,25967,21020], y25:[12090,12436,16206,16050,13607,17876,13041,14072,15873,11107,12239,15141] },
-  { corp:'영파', region:'화서지역', name:'화서본부',
+  { corp:'닝보', region:'화서지역', name:'화서본부',
     kpi:[10488,6454,15326,14521,14521,14521,11293,12100,16134,15326,13714,0], y25:[7747,7810,11281,9827,9090,12323,5419,8219,9329,9406,7228,0] },
-  { corp:'영파', region:'화남지역', name:'화남본부',
+  { corp:'닝보', region:'화남지역', name:'화남본부',
     kpi:[5675,3492,8293,7857,7857,7857,6111,6548,9166,7420,0,0], y25:[1571,2516,3762,4078,4743,4180,3329,5950,4822,3592,0,0] },
   { corp:'북경', region:'북경지역', name:'북경법인합계',
     kpi:[14300,8801,20900,19800,19800,19800,15400,16499,22001,20900,23099,0], y25:[9237,10858,15546,16989,13177,14654,12238,13374,17421,10585,13574,18700] },
@@ -3920,6 +3920,8 @@ function App() {
   const [selectedHQ, setSelectedHQ] = useState('overview');
   const [selectedSubmenu, setSelectedSubmenu] = useState(1);
   const [hqExpanded, setHqExpanded] = useState(true);
+  const [hideHX, setHideHX] = useState(() => { try { return localStorage.getItem('dashboard_hideHX_v1') === '1'; } catch(e) { return false; } });
+  React.useEffect(() => { try { localStorage.setItem('dashboard_hideHX_v1', hideHX ? '1' : '0'); } catch(e) {} }, [hideHX]);
   // 사이드바 접기/펼치기 (모바일은 자동 접힘)
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     // 화면 너비가 768px 미만이면 자동 접힘
@@ -5157,12 +5159,19 @@ function App() {
         </button>
         {hqExpanded && (
           <div className="mt-1 space-y-0.5">
-            {HQ_LIST.map(hq => (
-              <button key={hq} onClick={() => setSelectedHQ(hq)}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded ${selectedHQ === hq ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
-                <Icon name="building" className="w-4 h-4" /><span>{hq}</span>
-              </button>
-            ))}
+            {['화남본부', '화동본부', '화서본부'].map(hq => {
+              if (hq === '화서본부' && hideHX) return null;
+              return (
+                <button key={hq} onClick={() => setSelectedHQ(hq)}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded ${selectedHQ === hq ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
+                  <Icon name="building" className="w-4 h-4" /><span>{hq}</span>
+                </button>
+              );
+            })}
+            <button onClick={() => { setHideHX(v => { const nv = !v; if (nv && selectedHQ === '화서본부') setSelectedHQ('화남본부'); return nv; }); }}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-slate-500 hover:text-slate-300">
+              <span>{hideHX ? '＋ 화서본부 표시' : '－ 화서본부 숨기기'}</span>
+            </button>
           </div>
         )}
       </div>
@@ -6683,7 +6692,6 @@ function App() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-[10px] text-amber-600 mt-2">예측 달성률 {r1.forecastRate !== null ? r1.forecastRate + '%' : '-'}</div>
                 </div>
 
                 {/* 당월 누적판매 */}
@@ -6746,7 +6754,6 @@ function App() {
                         <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[100px]">당월 달성률</th>
                         <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">상태</th>
                         <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[100px]">당월 예측</th>
-                        <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[100px]">예측 달성률</th>
                         <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[100px]">누계 실적</th>
                         <th className="px-3 py-2 font-semibold text-slate-700 w-[100px]">누계 달성률</th>
                       </tr>
@@ -6816,16 +6823,6 @@ function App() {
                           </td>
                           <td className="px-2 py-1 border-r border-slate-300 text-right">
                             <EditableCell value={row.monthForecast} type="number" align="right" onSave={(v) => setTaskField(row.id, 'monthForecast', v)} />
-                          </td>
-                          <td className={`px-3 py-2 border-r border-slate-300 text-right ${rateColorClass(row.forecastRate)}`}>
-                            {row.forecastRate !== null ? (
-                              <div className="flex items-center justify-end gap-2">
-                                <span>{row.forecastRate}%</span>
-                                <div className="w-12 h-1.5 bg-slate-100 rounded-full overflow-hidden flex-shrink-0">
-                                  <div className={`h-full ${barColor(row.forecastRate)}`} style={{ width: `${Math.min(100, row.forecastRate)}%` }}></div>
-                                </div>
-                              </div>
-                            ) : <span className="text-slate-400">-</span>}
                           </td>
                           <td className="px-2 py-1 border-r border-slate-300 text-right">
                             <EditableCell value={row.cumActual} type="number" align="right" onSave={(v) => setTaskField(row.id, 'cumActual', v)} />
@@ -7083,14 +7080,6 @@ function App() {
               </div>
             </div>
 
-          {/* 예측 달성률 */}
-          <div className="bg-white border border-slate-200 rounded-md p-3">
-              <div className="text-xs text-slate-500 mb-1 line-clamp-1">예측 달성률</div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-slate-900">{forecastRate}</span>
-                <span className="text-xs text-slate-500">%</span>
-              </div>
-            </div>
         </div>
 
         {/* === 인사이트 안내 박스 === */}
