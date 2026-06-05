@@ -341,7 +341,6 @@ function Sidebar({ activeMenu, setActiveMenu }) {
     {
       key: 'policy', title: '정책관리', icon: '📋',
       items: [
-        { key: 'export', label: '수출가 정책' },
         { key: 'gp-analysis', label: '제품별 영업 정책 수익성(GP) 분석' },
       ]
     },
@@ -4296,7 +4295,7 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
    App
 ======================================== */
 function App() {
-  const [activeMenu, setActiveMenu] = useState('export');
+  const [activeMenu, setActiveMenu] = useState('gp-analysis');
   const [policyTab, setPolicyTab] = useState('export');   // 수출가 정책 / 수출가 변경이력
   const [simTab, setSimTab] = useState('sim-main');        // 대리상가격 / 이력 / 네고
   const [exportPrices, setExportPrices] = useState(INITIAL_EXPORT_PRICES);
@@ -4535,30 +4534,6 @@ function App() {
           <button onClick={onCloudLoad} className="px-3 py-1 rounded-lg text-sm font-semibold text-white" style={{background:'#7c3aed'}}>☁ 클라우드 불러오기</button>
           <button onClick={onReset} className="px-3 py-1 border border-red-300 rounded-lg text-sm text-red-600 bg-white hover:bg-red-50">🗑 초기화</button>
         </div>
-        {activeMenu === 'export' && (
-          <div className="p-6">
-            <div className="mb-4 border-b border-slate-200 flex gap-2">
-              {[['export','수출가 정책'],['history','수출가 변경이력']].map(([k,label])=>(
-                <button key={k} onClick={()=>setPolicyTab(k)}
-                  className={"px-4 py-2 text-sm font-semibold border-b-2 -mb-px "+(policyTab===k?"border-blue-600 text-blue-700":"border-transparent text-slate-500")}>{label}</button>
-              ))}
-            </div>
-            <div className="-mx-6 -mb-6">
-              {policyTab === 'export' && (
-                <ExportPricePage
-                  data={exportPrices} setData={setExportPrices}
-                  exchangeRate={exchangeRate} setExchangeRate={setExchangeRate}
-                  onSave={saveToSheets}
-                  onSaveSnapshot={saveSnapshot}
-                  latestSnapshot={latestSnapshot}
-                />
-              )}
-              {policyTab === 'history' && (
-                <HistoryPage history={history} setHistory={setHistory} onRestore={restoreSnapshot} />
-              )}
-            </div>
-          </div>
-        )}
         {activeMenu === 'sim-main' && (
           <div className="p-6">
             <div className="mb-4 border-b border-slate-200 flex gap-2">
