@@ -263,28 +263,28 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   #error-box { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 16px 24px; border-radius: 8px; max-width: 600px; font-family: system-ui, sans-serif; z-index: 10000; }
 
-  /* === 표 첫 컬럼 sticky (가로 스크롤 시 고정) === */
-  table[data-table-id] thead th:first-child,
-  table[data-table-id] tfoot td:first-child {
+  /* === 표 첫 컬럼 sticky (가로 스크롤 시 고정) — 대리상 PSI 관리 표는 제외 === */
+  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) thead th:first-child,
+  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tfoot td:first-child {
     position: sticky;
     left: 0;
     z-index: 5;
     background-color: #f1f5f9; /* slate-100 (헤더 회색과 동일) */
   }
-  table[data-table-id] tbody td:first-child {
+  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tbody td:first-child {
     position: sticky;
     left: 0;
     z-index: 4;
     background-color: #ffffff; /* 흰색 */
   }
   /* 호버 시 첫 컬럼도 살짝 강조 */
-  table[data-table-id] tbody tr:hover td:first-child {
+  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tbody tr:hover td:first-child {
     background-color: #f8fafc; /* slate-50 */
   }
   /* 첫 컬럼 오른쪽 그림자 (구분감) */
-  table[data-table-id] thead th:first-child,
-  table[data-table-id] tbody td:first-child,
-  table[data-table-id] tfoot td:first-child {
+  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) thead th:first-child,
+  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tbody td:first-child,
+  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tfoot td:first-child {
     box-shadow: 1px 0 0 0 #e2e8f0;
   }
 
@@ -306,15 +306,15 @@
     vertical-align: middle;
   }
   table[data-table-id] thead th.sortable-header.sort-asc .sort-icon::after {
-    content: '▲';
+    content: '';
     color: #2563eb; /* blue-600 */
   }
   table[data-table-id] thead th.sortable-header.sort-desc .sort-icon::after {
-    content: '▼';
+    content: '';
     color: #2563eb; /* blue-600 */
   }
   table[data-table-id] thead th.sortable-header:not(.sort-asc):not(.sort-desc) .sort-icon::after {
-    content: '↕';
+    content: '';
     opacity: 0.5;
   }
 </style>
@@ -477,6 +477,7 @@
       tables.forEach(function(table) {
         // React ResizableHeader를 쓰는 표는 제외 (자체 너비 저장 사용)
         if (table.getAttribute('data-table-id') === 'bd_customers') return;
+        if (table.getAttribute('data-table-id') === 'dealer_psi_summary') return;
         if (table.querySelector('thead .cursor-col-resize')) return;
         var tableId = getTableId(table);
         // 모든 헤더 행을 한 번에 처리 (rowSpan으로 1단에만 있는 셀도 포함)
@@ -1536,289 +1537,40 @@ const initialPSI = {
 //       5월(구매목표, 구매실적, 판매목표, 판매실적, 월말재고, 판매평균재고비, 합동임무기준, 5월 재고I, 5월 판매평균재고비, 합동임무기준)
 const initialPSIFocus = {
   '화남본부': [
-    // 광동
-    { id: 1, dealer: '국약산순(汕头)생물과기', region: '광동', stockYE: 202, monthlyAvg: 324,
-      ytdP: 242, ytdS: 830, apr_P: 109, apr_S: 250, apr_I: -336, apr_ratio: -2.6, apr_base: -1.0,
-      mayPurchaseGoal: 301, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 301, maySalesActual: 50, maySalesRate: 17,
-      mayEndStock: -336, mayRatio: -2.2, mayBase: -1.0,
-      stock_I: -386, turnoverRatio: -2.5, contractBase: -1.2,
-      issue: '재고 음수 및 판매 부진' },
-    { id: 2, dealer: '광동 흥아의료과기(26년 취소)', region: '광동', stockYE: 221, monthlyAvg: 0,
-      ytdP: 0, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 221, apr_ratio: 4.0, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 221, mayRatio: 5.5, mayBase: 0,
-      stock_I: 221, turnoverRatio: 5.5, contractBase: 0,
-      issue: '26년 협력 취소' },
-    { id: 3, dealer: '불산시 의로송백 의료기계', region: '광동', stockYE: 2763, monthlyAvg: 4213,
-      ytdP: 14482, ytdS: 14499, apr_P: 5759, apr_S: 4800, apr_I: 3477, apr_ratio: 1.7, apr_base: 0.8,
-      mayPurchaseGoal: 3840, mayPurchaseActual: 489, mayPurchaseRate: 13,
-      maySalesGoal: 3840, maySalesActual: 1220, maySalesRate: 32,
-      mayEndStock: 3477, mayRatio: 1.3, mayBase: 0.8,
-      stock_I: 2746, turnoverRatio: 1.0, contractBase: 0.7,
-      issue: '핵심 대리상, 안정 운영' },
-    { id: 4, dealer: '광주 의로정밀 의료기계', region: '광동', stockYE: 2454, monthlyAvg: 0,
-      ytdP: 389, ytdS: 1912, apr_P: 0, apr_S: 0, apr_I: 931, apr_ratio: 0.5, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 931, mayRatio: 0.4, mayBase: 0,
-      stock_I: 931, turnoverRatio: 0.4, contractBase: 0,
-      issue: '재고 유지 양호' },
-    { id: 5, dealer: '취영치과(상해)·광주(26년 취소)', region: '광동', stockYE: 76, monthlyAvg: 0,
-      ytdP: 0, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 76, apr_ratio: 0.8, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 76, mayRatio: 1.1, mayBase: 0,
-      stock_I: 76, turnoverRatio: 1.1, contractBase: 0,
-      issue: '26년 협력 취소' },
-    { id: 6, dealer: '상해창연 의료기계·광동(26년 취소)', region: '광동', stockYE: 662, monthlyAvg: 0,
-      ytdP: 0, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 662, apr_ratio: 20.4, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 662, mayRatio: 24.8, mayBase: 0,
-      stock_I: 662, turnoverRatio: 24.8, contractBase: 0,
-      issue: '26년 협력 취소, 재고비 과다' },
-    { id: 7, dealer: '심천 펑성의료기계상무/인미', region: '광동', stockYE: 760, monthlyAvg: 1296,
-      ytdP: 1331, ytdS: 775, apr_P: 404, apr_S: 400, apr_I: 1391, apr_ratio: 13.9, apr_base: 1.1,
-      mayPurchaseGoal: 1169, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 1169, maySalesActual: 75, maySalesRate: 6,
-      mayEndStock: 1391, mayRatio: 9.3, mayBase: 1.1,
-      stock_I: 1316, turnoverRatio: 8.8, contractBase: 1.0,
-      issue: '재고비 과다, 판매 전환 필요' },
-    { id: 8, dealer: '신규 대리상 (광주 제즉미생물기술)', region: '광동', stockYE: 0, monthlyAvg: 0,
-      ytdP: 0, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 0, apr_ratio: 0, apr_base: 0,
-      mayPurchaseGoal: 668, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 668, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 0, mayRatio: 0, mayBase: 0,
-      stock_I: 0, turnoverRatio: 0, contractBase: 0,
-      issue: '신규, 계약 조건 확정 필요', isNew: true },
-    // 광시
-    { id: 9, dealer: '광서 안수리아 과기술', region: '광시', stockYE: 1109, monthlyAvg: 530,
-      ytdP: 955, ytdS: 1053, apr_P: 406, apr_S: 250, apr_I: 997, apr_ratio: 3.8, apr_base: 1.9,
-      mayPurchaseGoal: 401, mayPurchaseActual: 54, mayPurchaseRate: 13,
-      maySalesGoal: 401, maySalesActual: 40, maySalesRate: 10,
-      mayEndStock: 997, mayRatio: 3.8, mayBase: 1.9,
-      stock_I: 1011, turnoverRatio: 3.9, contractBase: 1.9,
-      issue: '재고 부담 높음' },
-    { id: 10, dealer: '광서 력진 의료기계', region: '광시', stockYE: 144, monthlyAvg: 0,
-      ytdP: 33, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 177, apr_ratio: 17.7, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 177, mayRatio: 0, mayBase: 0,
-      stock_I: 177, turnoverRatio: 0, contractBase: 0,
-      issue: '판매 정체, 재고비 과다' },
-    { id: 11, dealer: '북해 아박사 구강진료부', region: '광시', stockYE: 933, monthlyAvg: 0,
-      ytdP: 1066, ytdS: 1038, apr_P: 371, apr_S: 380, apr_I: 961, apr_ratio: 4.4, apr_base: 0,
-      mayPurchaseGoal: 501, mayPurchaseActual: 26, mayPurchaseRate: 5,
-      maySalesGoal: 501, maySalesActual: 26, maySalesRate: 5,
-      mayEndStock: 961, mayRatio: 3.9, mayBase: 0,
-      stock_I: 961, turnoverRatio: 3.9, contractBase: 0,
-      issue: '판매 진도 저조' },
-    { id: 12, dealer: '동보 구강진료부', region: '광시', stockYE: 238, monthlyAvg: 0,
-      ytdP: -129, ytdS: 0, apr_P: -50, apr_S: 0, apr_I: 109, apr_ratio: 4.7, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 109, mayRatio: 7.3, mayBase: 0,
-      stock_I: 109, turnoverRatio: 7.3, contractBase: 0,
-      issue: '재고 반품 발생, 재고비 높음' },
-    { id: 13, dealer: '국약열우 구강의료기계(광서)', region: '광시', stockYE: 338, monthlyAvg: 612,
-      ytdP: 200, ytdS: 278, apr_P: 156, apr_S: 60, apr_I: 280, apr_ratio: 3.8, apr_base: 0.5,
-      mayPurchaseGoal: 501, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 501, maySalesActual: 20, maySalesRate: 4,
-      mayEndStock: 280, mayRatio: 4.1, mayBase: 0.5,
-      stock_I: 260, turnoverRatio: 3.8, contractBase: 0.4,
-      issue: '판매 가속화 필요' },
-    // 해남
-    { id: 14, dealer: '해남 삼해 무역', region: '해남', stockYE: 157, monthlyAvg: 300,
-      ytdP: 718, ytdS: 641, apr_P: 141, apr_S: 160, apr_I: 207, apr_ratio: 1.5, apr_base: 0.7,
-      mayPurchaseGoal: 319, mayPurchaseActual: 108, mayPurchaseRate: 34,
-      maySalesGoal: 319, maySalesActual: 81, maySalesRate: 25,
-      mayEndStock: 207, mayRatio: 1.4, mayBase: 0.7,
-      stock_I: 234, turnoverRatio: 1.6, contractBase: 0.8,
-      issue: '비교적 안정적' },
-    { id: 15, dealer: '해남 굉명 의료기계', region: '해남', stockYE: 208, monthlyAvg: 0,
-      ytdP: 11, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 219, apr_ratio: 0, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 219, mayRatio: 0, mayBase: 0,
-      stock_I: 219, turnoverRatio: 0, contractBase: 0,
-      issue: '판매 정체' },
-  ],
-  '화서본부': [
-    // === 8大区 (8대구) === (이미지 5월 3주차 시점)
-    { id: 1, dealer: '成都晋瑞博司 (성도진예박사)', region: '사천', stockYE: 14473, monthlyAvg: 7917,
-      ytdP: 27568, ytdS: 30597, apr_P: 8682, apr_S: 948, apr_I: 13838, apr_ratio: 2.1, apr_base: 1.7,
-      mayPurchaseGoal: 8682, mayPurchaseActual: 948, mayPurchaseRate: 11,
-      maySalesGoal: 8500, maySalesActual: 3160, maySalesRate: 37,
-      mayEndStock: 13838, mayRatio: 2.1, mayBase: 1.7,
-      stock_I: 11444, turnoverRatio: 1.7, contractBase: 1.4,
-      issue: '재고 매우 높음, 판매 37%' },
-    { id: 2, dealer: '사천 기타', region: '사천', stockYE: 56, monthlyAvg: 0,
-      ytdP: 0, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 56, apr_ratio: 0, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 56, mayRatio: 0, mayBase: 0,
-      stock_I: 56, turnoverRatio: 0, contractBase: 0,
-      issue: '기타 대리상 재고' },
-    { id: 3, dealer: '蘭州惠达 (란주혜다)', region: '감숙', stockYE: 257, monthlyAvg: 395,
-      ytdP: 1520, ytdS: 1474, apr_P: 534, apr_S: 119, apr_I: 539, apr_ratio: 2.0, apr_base: 1.4,
-      mayPurchaseGoal: 534, mayPurchaseActual: 119, mayPurchaseRate: 22,
-      maySalesGoal: 405, maySalesActual: 226, maySalesRate: 56,
-      mayEndStock: 539, mayRatio: 2.0, mayBase: 1.4,
-      stock_I: 303, turnoverRatio: 1.1, contractBase: 0.8,
-      issue: '판매 56% 양호' },
-    { id: 4, dealer: '兰州连联荣光 (란주련련영광)', region: '감숙', stockYE: 727, monthlyAvg: 439,
-      ytdP: 598, ytdS: 798, apr_P: 167, apr_S: 0, apr_I: 494, apr_ratio: 2.9, apr_base: 1.1,
-      mayPurchaseGoal: 167, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 304, maySalesActual: 104, maySalesRate: 34,
-      mayEndStock: 494, mayRatio: 2.9, mayBase: 1.1,
-      stock_I: 527, turnoverRatio: 3.1, contractBase: 1.2,
-      issue: '구매 0% / 판매 34%' },
-    { id: 5, dealer: '감숙 기타', region: '감숙', stockYE: 28, monthlyAvg: 0,
-      ytdP: 34, ytdS: 0, apr_P: 0, apr_S: 6, apr_I: 28, apr_ratio: 0, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 6, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 28, mayRatio: 0, mayBase: 0,
-      stock_I: 34, turnoverRatio: 0, contractBase: 0,
-      issue: '기타 대리상' },
-    { id: 6, dealer: '青海登士达 (청해등사달)', region: '청해', stockYE: 80, monthlyAvg: 58,
-      ytdP: 16, ytdS: 35, apr_P: 67, apr_S: 13, apr_I: 115, apr_ratio: 7.7, apr_base: 2.0,
-      mayPurchaseGoal: 67, mayPurchaseActual: 13, mayPurchaseRate: 19,
-      maySalesGoal: 10, maySalesActual: 10, maySalesRate: 100,
-      mayEndStock: 115, mayRatio: 7.7, mayBase: 2.0,
-      stock_I: 61, turnoverRatio: 4.1, contractBase: 1.0,
-      issue: '판매 100% 달성 / 재고 회전 느림' },
-    { id: 7, dealer: '新疆乌鲁木齐鑫精良 (신장오로목제흠정량)', region: '신장', stockYE: 853, monthlyAvg: 725,
-      ytdP: 1127, ytdS: 1237, apr_P: 668, apr_S: 20, apr_I: 835, apr_ratio: 2.9, apr_base: 1.2,
-      mayPurchaseGoal: 668, mayPurchaseActual: 20, mayPurchaseRate: 3,
-      maySalesGoal: 783, maySalesActual: 227, maySalesRate: 29,
-      mayEndStock: 835, mayRatio: 2.9, mayBase: 1.2,
-      stock_I: 743, turnoverRatio: 2.6, contractBase: 1.0,
-      issue: '구매 3% 저조, 판매 29%' },
-
-    // === 9大区 (9대구) ===
-    { id: 8, dealer: '山西康美雅泰 (산서강미아태)', region: '산서', stockYE: 1146, monthlyAvg: 1477,
-      ytdP: 5190, ytdS: 5655, apr_P: 1670, apr_S: 319, apr_I: 1036, apr_ratio: 0.8, apr_base: 0.7,
-      mayPurchaseGoal: 1670, mayPurchaseActual: 319, mayPurchaseRate: 19,
-      maySalesGoal: 1566, maySalesActual: 570, maySalesRate: 36,
-      mayEndStock: 1036, mayRatio: 0.8, mayBase: 0.7,
-      stock_I: 681, turnoverRatio: 0.5, contractBase: 0.5,
-      issue: '재고 회전 양호, 판매 36%' },
-    { id: 9, dealer: '山西卡卡医疗 (산서카카의료)', region: '산서', stockYE: 1983, monthlyAvg: 940,
-      ytdP: 2634, ytdS: 3975, apr_P: 1035, apr_S: 44, apr_I: 979, apr_ratio: 1.0, apr_base: 1.0,
-      mayPurchaseGoal: 1035, mayPurchaseActual: 44, mayPurchaseRate: 4,
-      maySalesGoal: 1044, maySalesActual: 390, maySalesRate: 37,
-      mayEndStock: 979, mayRatio: 1.0, mayBase: 1.0,
-      stock_I: 642, turnoverRatio: 0.7, contractBase: 0.7,
-      issue: '판매 37%, 구매 저조' },
-    { id: 10, dealer: '陕西璟珑医疗 (섬서경롱의료)', region: '섬서', stockYE: 1033, monthlyAvg: 1250,
-      ytdP: 2199, ytdS: 1864, apr_P: 1002, apr_S: 137, apr_I: 1654, apr_ratio: 5.8, apr_base: 1.3,
-      mayPurchaseGoal: 1002, mayPurchaseActual: 137, mayPurchaseRate: 14,
-      maySalesGoal: 900, maySalesActual: 321, maySalesRate: 36,
-      mayEndStock: 1654, mayRatio: 5.8, mayBase: 1.3,
-      stock_I: 1368, turnoverRatio: 4.8, contractBase: 1.1,
-      issue: '재고 매우 높음, 판매 36% 진척' },
-    { id: 11, dealer: '섬서 기타 (보계/안강/한중)', region: '섬서', stockYE: 0, monthlyAvg: 0,
-      ytdP: 0, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 0, apr_ratio: 0, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 0, mayRatio: 0, mayBase: 0,
-      stock_I: 0, turnoverRatio: 0, contractBase: 0,
-      issue: '기타 대리상' },
-    { id: 12, dealer: '银川德诺联康 (은천덕낙련강)', region: '닝샤', stockYE: 12, monthlyAvg: 105,
-      ytdP: 263, ytdS: 189, apr_P: 100, apr_S: 0, apr_I: 91, apr_ratio: 2.1, apr_base: 0.9,
-      mayPurchaseGoal: 100, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 115, maySalesActual: 20, maySalesRate: 17,
-      mayEndStock: 91, mayRatio: 2.1, mayBase: 0.9,
-      stock_I: 86, turnoverRatio: 2.0, contractBase: 0.8,
-      issue: '구매 0% / 판매 17%' },
-    { id: 13, dealer: '银川思瑞达 (은천사서달)', region: '닝샤', stockYE: 576, monthlyAvg: 140,
-      ytdP: 654, ytdS: 791, apr_P: 334, apr_S: 0, apr_I: 723, apr_ratio: 5.2, apr_base: 5.2,
-      mayPurchaseGoal: 334, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 150, maySalesActual: 100, maySalesRate: 67,
-      mayEndStock: 723, mayRatio: 5.2, mayBase: 5.2,
-      stock_I: 439, turnoverRatio: 3.2, contractBase: 3.1,
-      issue: '판매 67% 양호 / 재고 매우 높음' },
+    { id:1, dealer:'国药山顺(汕头)生物科技有限公司', region:'광동', stockY25:202, targetQty:324, purchaseQtyManual:null, salesQtyManual:null, m1_P:129, m1_S:200, m1_I:131, m1_R:0, m2_P:4, m2_S:95, m2_I:40, m2_R:0, m3_P:0, m3_S:235, m3_I:-195, m3_R:0, m4_P:109, m4_S:250, m4_I:-336, m4_R:0, m5_P:28, m5_S:200, m5_I:-508, m5_R:0, m6_P:41, m6_S:20, m6_I:-637, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:2, dealer:'佛山市医路松佰医疗器械有限公司', region:'광동', stockY25:5217, targetQty:4213, purchaseQtyManual:null, salesQtyManual:null, m1_P:2537, m1_S:4338, m1_I:3416, m1_R:0, m2_P:2020, m2_S:1522, m2_I:3914, m2_R:0, m3_P:4066, m3_S:4531, m3_I:3449, m3_R:0, m4_P:5759, m4_S:4800, m4_I:4408, m4_R:0, m5_P:710, m5_S:4593, m5_I:525, m5_R:0, m6_P:2329, m6_S:2779, m6_I:2182, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:3, dealer:'深圳市鹏生医疗器械商贸有限公司', region:'광동', stockY25:760, targetQty:1296, purchaseQtyManual:null, salesQtyManual:null, m1_P:566, m1_S:150, m1_I:1176, m1_R:0, m2_P:104, m2_S:50, m2_I:1230, m2_R:0, m3_P:257, m3_S:100, m3_I:1387, m3_R:0, m4_P:404, m4_S:400, m4_I:1391, m4_R:0, m5_P:0, m5_S:234, m5_I:1157, m5_R:0, m6_P:0, m6_S:40, m6_I:1019, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:4, dealer:'广西安榭里牙科技术有限责任公司', region:'광동', stockY25:1109, targetQty:530, purchaseQtyManual:null, salesQtyManual:null, m1_P:0, m1_S:300, m1_I:809, m1_R:0, m2_P:144, m2_S:63, m2_I:890, m2_R:0, m3_P:351, m3_S:400, m3_I:841, m3_R:0, m4_P:406, m4_S:250, m4_I:997, m4_R:0, m5_P:388, m5_S:260, m5_I:1125, m5_R:0, m6_P:5, m6_S:20, m6_I:1137, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:5, dealer:'北海牙博士口腔门诊部', region:'광서', stockY25:933, targetQty:422, purchaseQtyManual:null, salesQtyManual:null, m1_P:161, m1_S:130, m1_I:964, m1_R:0, m2_P:200, m2_S:194, m2_I:970, m2_R:0, m3_P:308, m3_S:308, m3_I:970, m3_R:0, m4_P:371, m4_S:380, m4_I:961, m4_R:0, m5_P:125, m5_S:125, m5_I:961, m5_R:0, m6_P:75, m6_S:100, m6_I:847, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:6, dealer:'国药涅宇口腔医疗器械有限公司(广西)有限公司', region:'광서', stockY25:338, targetQty:612, purchaseQtyManual:null, salesQtyManual:null, m1_P:0, m1_S:60, m1_I:278, m1_R:0, m2_P:44, m2_S:50, m2_I:272, m2_R:0, m3_P:199, m3_S:160, m3_I:226, m3_R:0, m4_P:156, m4_S:60, m4_I:280, m4_R:0, m5_P:0, m5_S:60, m5_I:220, m5_R:0, m6_P:0, m6_S:0, m6_I:131, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:7, dealer:'海南杉海贸易有限公司', region:'해남', stockY25:157, targetQty:300, purchaseQtyManual:null, salesQtyManual:null, m1_P:270, m1_S:150, m1_I:277, m1_R:0, m2_P:0, m2_S:90, m2_I:187, m2_R:0, m3_P:199, m3_S:160, m3_I:226, m3_R:0, m4_P:141, m4_S:160, m4_I:280, m4_R:0, m5_P:243, m5_S:171, m5_I:279, m5_R:0, m6_P:54, m6_S:50, m6_I:288, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
   ],
   '화동본부': [
-    { id: 1, dealer: '上海保贞 (상해보정)', region: '상해', stockYE: 3149, monthlyAvg: 3200,
-      ytdP: 1133, ytdS: 2815, apr_P: 1102, apr_S: 720, apr_I: 3688, apr_ratio: 5.6, apr_base: 3.3,
-      mayPurchaseGoal: 1336, mayPurchaseActual: 151, mayPurchaseRate: 11,
-      maySalesGoal: 800, maySalesActual: 305, maySalesRate: 38,
-      mayEndStock: 4224, mayRatio: 6.7, mayBase: 3.7,
-      stock_I: 3534, turnoverRatio: 5.6, contractBase: 3.1,
-      issue: '재고 과다' },
-    { id: 2, dealer: '上海贺中 (상해하중)', region: '상해', stockYE: 1604, monthlyAvg: 3762,
-      ytdP: 1417, ytdS: 4966, apr_P: 363, apr_S: 1068, apr_I: 531, apr_ratio: 0.5, apr_base: 0.4,
-      mayPurchaseGoal: 1503, mayPurchaseActual: 319, mayPurchaseRate: 21,
-      maySalesGoal: 1200, maySalesActual: 450, maySalesRate: 38,
-      mayEndStock: 834, mayRatio: 0.8, mayBase: 0.4,
-      stock_I: 400, turnoverRatio: 0.4, contractBase: 0.3,
-      issue: '판매 안정적' },
-    { id: 3, dealer: '上海习亮 (상해습량)', region: '상해', stockYE: 2465, monthlyAvg: 10885,
-      ytdP: 1700, ytdS: 11225, apr_P: 3073, apr_S: 3080, apr_I: 2802, apr_ratio: 1.4, apr_base: 1.6,
-      mayPurchaseGoal: 3373, mayPurchaseActual: 623, mayPurchaseRate: 18,
-      maySalesGoal: 2300, maySalesActual: 1300, maySalesRate: 57,
-      mayEndStock: 3875, mayRatio: 1.7, mayBase: 2.3,
-      stock_I: 2125, turnoverRatio: 0.9, contractBase: 1.3,
-      issue: '판매 활발' },
-    { id: 4, dealer: '上海圣捷 (상해성첩)', region: '상해', stockYE: 457, monthlyAvg: 587,
-      ytdP: 1417, ytdS: 587, apr_P: 0, apr_S: 200, apr_I: 544, apr_ratio: 4.0, apr_base: 1.0,
-      mayPurchaseGoal: 1503, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 80, maySalesActual: 16, maySalesRate: 0,
-      mayEndStock: 1547, mayRatio: 10.5, mayBase: 1.1,
-      stock_I: 464, turnoverRatio: 3.2, contractBase: 0.3,
-      issue: '재고비 매우 높음' },
-    { id: 5, dealer: '南京康睿达 (남경강예달)', region: '강소', stockYE: 18887, monthlyAvg: 22868,
-      ytdP: 7549, ytdS: 22334, apr_P: 4269, apr_S: 5111, apr_I: 20861, apr_ratio: 4.2, apr_base: 2.8,
-      mayPurchaseGoal: 6745, mayPurchaseActual: 889, mayPurchaseRate: 13,
-      maySalesGoal: 7000, maySalesActual: 2329, maySalesRate: 33,
-      mayEndStock: 20606, mayRatio: 4.1, mayBase: 2.7,
-      stock_I: 19421, turnoverRatio: 3.8, contractBase: 2.6,
-      issue: '재고 과다' },
-    { id: 6, dealer: '南京康尔诺 (남경강이낙)', region: '강소', stockYE: 4405, monthlyAvg: 2441,
-      ytdP: 1618, ytdS: 3523, apr_P: 819, apr_S: 1098, apr_I: 3673, apr_ratio: 4.6, apr_base: 2.2,
-      mayPurchaseGoal: 1436, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 1000, maySalesActual: 350, maySalesRate: 35,
-      mayEndStock: 4109, mayRatio: 4.7, mayBase: 2.7,
-      stock_I: 3323, turnoverRatio: 3.8, contractBase: 2.1,
-      issue: '재고비 높음' },
-    { id: 7, dealer: '山东贝力 (산동패력)', region: '산동', stockYE: 713, monthlyAvg: 1805,
-      ytdP: 613, ytdS: 1324, apr_P: 622, apr_S: 451, apr_I: 1344, apr_ratio: 3.7, apr_base: 1.4,
-      mayPurchaseGoal: 701, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 300, maySalesActual: 150, maySalesRate: 50,
-      mayEndStock: 1745, mayRatio: 4.9, mayBase: 2.8,
-      stock_I: 1194, turnoverRatio: 3.3, contractBase: 1.9,
-      issue: '재고비 높음' },
-    { id: 8, dealer: '山东锦驰 (산동금치)', region: '산동', stockYE: 337, monthlyAvg: 2377,
-      ytdP: 693, ytdS: 2021, apr_P: 774, apr_S: 725, apr_I: 993, apr_ratio: 1.8, apr_base: 1.4,
-      mayPurchaseGoal: 768, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 300, maySalesActual: 300, maySalesRate: 50,
-      mayEndStock: 1261, mayRatio: 2.4, mayBase: 1.7,
-      stock_I: 693, turnoverRatio: 1.3, contractBase: 1.0,
-      issue: '안정적 운영' },
-    { id: 9, dealer: '济南辰帆 (제남신범)', region: '산동', stockYE: 1595, monthlyAvg: 2862,
-      ytdP: 693, ytdS: 2476, apr_P: 718, apr_S: 580, apr_I: 1631, apr_ratio: 2.9, apr_base: 2.4,
-      mayPurchaseGoal: 768, mayPurchaseActual: 650, mayPurchaseRate: 85,
-      maySalesGoal: 1000, maySalesActual: 600, maySalesRate: 60,
-      mayEndStock: 1799, mayRatio: 3.2, mayBase: 2.6,
-      stock_I: 1981, turnoverRatio: 3.5, contractBase: 2.9,
-      issue: '안정적' },
-    { id: 10, dealer: '济南泽康商德 (제남택강상덕)', region: '산동', stockYE: 2803, monthlyAvg: 5331,
-      ytdP: 1067, ytdS: 5600, apr_P: 1621, apr_S: 1000, apr_I: 2929, apr_ratio: 2.0, apr_base: 2.7,
-      mayPurchaseGoal: 1202, mayPurchaseActual: 5, mayPurchaseRate: 0,
-      maySalesGoal: 1000, maySalesActual: 400, maySalesRate: 40,
-      mayEndStock: 3131, mayRatio: 2.3, mayBase: 2.9,
-      stock_I: 2534, turnoverRatio: 1.7, contractBase: 1.4,
-      issue: '판매 부진' },
-    { id: 11, dealer: '青岛振全嘉泰 (청도진전가태)', region: '산동', stockYE: 6865, monthlyAvg: 13575,
-      ytdP: 3600, ytdS: 15425, apr_P: 3870, apr_S: 4362, apr_I: 5531, apr_ratio: 1.8, apr_base: 1.5,
-      mayPurchaseGoal: 4040, mayPurchaseActual: 984, mayPurchaseRate: 24,
-      maySalesGoal: 3000, maySalesActual: 1500, maySalesRate: 50,
-      mayEndStock: 6571, mayRatio: 2.6, mayBase: 1.4,
-      stock_I: 5015, turnoverRatio: 1.5, contractBase: 1.4,
-      issue: '판매 활발' },
+    { id:8, dealer:'上海保贞医疗器械有限公司', region:'상해', stockY25:3149, targetQty:1133, purchaseQtyManual:null, salesQtyManual:null, m1_P:541, m1_S:510, m1_I:3180, m1_R:0, m2_P:552, m2_S:420, m2_I:3312, m2_R:0, m3_P:854, m3_S:860, m3_I:3306, m3_R:0, m4_P:1102, m4_S:720, m4_I:3688, m4_R:0, m5_P:1175, m5_S:760, m5_I:4103, m5_R:0, m6_P:13, m6_S:120, m6_I:5121, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:9, dealer:'海蔓医疗科技(苏州)股份有限公司(上海贺中)', region:'상해', stockY25:1604, targetQty:1417, purchaseQtyManual:null, salesQtyManual:null, m1_P:897, m1_S:1128, m1_I:1373, m1_R:0, m2_P:580, m2_S:635, m2_I:1318, m2_R:0, m3_P:1603, m3_S:1685, m3_I:1236, m3_R:0, m4_P:363, m4_S:1068, m4_I:531, m4_R:0, m5_P:683, m5_S:1210, m5_I:4, m5_R:0, m6_P:59, m6_S:63, m6_I:41, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:10, dealer:'上海习亮贸易有限公司', region:'상해', stockY25:2465, targetQty:1700, purchaseQtyManual:null, salesQtyManual:null, m1_P:2925, m1_S:2020, m1_I:3370, m1_R:0, m2_P:1074, m2_S:1175, m2_I:3269, m2_R:0, m3_P:3190, m3_S:3650, m3_I:2809, m3_R:0, m4_P:3073, m4_S:3080, m4_I:2802, m4_R:0, m5_P:3711, m5_S:3200, m5_I:3313, m5_R:0, m6_P:939, m6_S:900, m6_I:3493, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:11, dealer:'上海圣捷医疗器材有限公司', region:'상해', stockY25:457, targetQty:1417, purchaseQtyManual:null, salesQtyManual:null, m1_P:210, m1_S:100, m1_I:567, m1_R:0, m2_P:296, m2_S:50, m2_I:813, m2_R:0, m3_P:81, m3_S:150, m3_I:744, m3_R:0, m4_P:0, m4_S:200, m4_I:544, m4_R:0, m5_P:0, m5_S:80, m5_I:464, m5_R:0, m6_P:0, m6_S:20, m6_I:414, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:12, dealer:'南京康睿达医疗科技有限公司(江苏澍康医疗科技)', region:'강소', stockY25:18887, targetQty:7549, purchaseQtyManual:null, salesQtyManual:null, m1_P:5380, m1_S:4901, m1_I:19366, m1_R:0, m2_P:4181, m2_S:3059, m2_I:20488, m2_R:0, m3_P:8149, m3_S:6934, m3_I:21703, m3_R:0, m4_P:4269, m4_S:5111, m4_I:20861, m4_R:0, m5_P:3992, m5_S:3914, m5_I:20939, m5_R:0, m6_P:60, m6_S:1600, m6_I:20665, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:13, dealer:'南京康尔诺医疗器械有限公司(国药康尔诺口腔医疗)', region:'강소', stockY25:4405, targetQty:1618, purchaseQtyManual:null, salesQtyManual:null, m1_P:407, m1_S:863, m1_I:3949, m1_R:0, m2_P:213, m2_S:272, m2_I:3890, m2_R:0, m3_P:1002, m3_S:940, m3_I:3952, m3_R:0, m4_P:819, m4_S:1098, m4_I:3673, m4_R:0, m5_P:379, m5_S:773, m5_I:3279, m5_R:0, m6_P:3, m6_S:600, m6_I:3531, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:14, dealer:'山东贝力医疗器械有限公司', region:'산동', stockY25:713, targetQty:613, purchaseQtyManual:null, salesQtyManual:null, m1_P:299, m1_S:241, m1_I:771, m1_R:0, m2_P:236, m2_S:142, m2_I:865, m2_R:0, m3_P:648, m3_S:340, m3_I:1173, m3_R:0, m4_P:622, m4_S:451, m4_I:1344, m4_R:0, m5_P:647, m5_S:470, m5_I:1521, m5_R:0, m6_P:0, m6_S:100, m6_I:1942, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:15, dealer:'山东锦驰医疗器械有限公司', region:'산동', stockY25:337, targetQty:693, purchaseQtyManual:null, salesQtyManual:null, m1_P:396, m1_S:426, m1_I:307, m1_R:0, m2_P:423, m2_S:220, m2_I:510, m2_R:0, m3_P:784, m3_S:350, m3_I:944, m3_R:0, m4_P:774, m4_S:725, m4_I:993, m4_R:0, m5_P:657, m5_S:757, m5_I:893, m5_R:0, m6_P:18, m6_S:200, m6_I:1180, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:16, dealer:'济南辰帆医疗器械有限公司', region:'산동', stockY25:1595, targetQty:693, purchaseQtyManual:null, salesQtyManual:null, m1_P:482, m1_S:550, m1_I:1527, m1_R:0, m2_P:239, m2_S:295, m2_I:1471, m2_R:0, m3_P:773, m3_S:751, m3_I:1493, m3_R:0, m4_P:718, m4_S:580, m4_I:1631, m4_R:0, m5_P:651, m5_S:502, m5_I:1780, m5_R:0, m6_P:-9, m6_S:150, m6_I:2170, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:17, dealer:'济南泽康商德医疗设备有限公司', region:'산동', stockY25:2803, targetQty:1067, purchaseQtyManual:null, salesQtyManual:null, m1_P:1428, m1_S:1800, m1_I:2431, m1_R:0, m2_P:594, m2_S:1000, m2_I:2025, m2_R:0, m3_P:1683, m3_S:1400, m3_I:2308, m3_R:0, m4_P:1621, m4_S:1000, m4_I:2929, m4_R:0, m5_P:1170, m5_S:1000, m5_I:3099, m5_R:0, m6_P:0, m6_S:300, m6_I:2836, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:18, dealer:'青岛振全嘉泰医疗器械有限公司', region:'산동', stockY25:6865, targetQty:3600, purchaseQtyManual:null, salesQtyManual:null, m1_P:2946, m1_S:2883, m1_I:6928, m1_R:0, m2_P:1664, m2_S:2026, m2_I:6566, m2_R:0, m3_P:4111, m3_S:4654, m3_I:6023, m3_R:0, m4_P:3870, m4_S:4362, m4_I:5531, m4_R:0, m5_P:3942, m5_S:3241, m5_I:6232, m5_R:0, m6_P:1228, m6_S:580, m6_I:7389, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+  ],
+  '화서본부': [
+    { id:19, dealer:'成都普瑞赛司医疗器械有限公司', region:'사천', stockY25:14473, targetQty:7917, purchaseQtyManual:null, salesQtyManual:null, m1_P:5889, m1_S:6753, m1_I:13609, m1_R:0, m2_P:4219, m2_S:4056, m2_I:13772, m2_R:0, m3_P:8399, m3_S:8368, m3_I:13803, m3_R:0, m4_P:8113, m4_S:8260, m4_I:13947, m4_R:0, m5_P:7554, m5_S:7263, m5_I:13947, m5_R:0, m6_P:1439, m6_S:2683, m6_I:14207, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:20, dealer:'成都普瑞赛司医疗器械有限公司(兰州惠达齿科科技)', region:'감숙', stockY25:257, targetQty:395, purchaseQtyManual:null, salesQtyManual:null, m1_P:255, m1_S:277, m1_I:235, m1_R:0, m2_P:20, m2_S:199, m2_I:56, m2_R:0, m3_P:726, m3_S:472, m3_I:310, m3_R:0, m4_P:400, m4_S:300, m4_I:410, m4_R:0, m5_P:305, m5_S:393, m5_I:322, m5_R:0, m6_P:0, m6_S:120, m6_I:432, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:21, dealer:'兰州连联荣光商贸有限公司', region:'감숙', stockY25:727, targetQty:439, purchaseQtyManual:null, salesQtyManual:null, m1_P:60, m1_S:210, m1_I:577, m1_R:0, m2_P:0, m2_S:200, m2_I:377, m2_R:0, m3_P:16, m3_S:156, m3_I:237, m3_R:0, m4_P:522, m4_S:128, m4_I:631, m4_R:0, m5_P:0, m5_S:297, m5_I:334, m5_R:0, m6_P:0, m6_S:0, m6_I:111, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:22, dealer:'青海登士达医疗器械有限公司', region:'청해', stockY25:80, targetQty:58, purchaseQtyManual:null, salesQtyManual:null, m1_P:3, m1_S:0, m1_I:83, m1_R:0, m2_P:0, m2_S:10, m2_I:73, m2_R:0, m3_P:0, m3_S:5, m3_I:68, m3_R:0, m4_P:0, m4_S:10, m4_I:58, m4_R:0, m5_P:0, m5_S:0, m5_I:0, m5_R:0, m6_P:0, m6_S:0, m6_I:130, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:23, dealer:'成都普瑞赛司医疗器械有限公司(乌鲁木齐鑫精良)', region:'신강', stockY25:853, targetQty:725, purchaseQtyManual:null, salesQtyManual:null, m1_P:498, m1_S:280, m1_I:1071, m1_R:0, m2_P:0, m2_S:150, m2_I:921, m2_R:0, m3_P:604, m3_S:304, m3_I:1221, m3_R:0, m4_P:5, m4_S:276, m4_I:950, m4_R:0, m5_P:36, m5_S:316, m5_I:670, m5_R:0, m6_P:65, m6_S:0, m6_I:760, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:24, dealer:'成都普瑞赛司医疗器械有限公司(云南骅光医疗器械)', region:'운남', stockY25:1113, targetQty:1021, purchaseQtyManual:null, salesQtyManual:null, m1_P:1048, m1_S:159, m1_I:2002, m1_R:0, m2_P:208, m2_S:200, m2_I:2010, m2_R:0, m3_P:1605, m3_S:1100, m3_I:2515, m3_R:0, m4_P:284, m4_S:800, m4_I:1999, m4_R:0, m5_P:790, m5_S:900, m5_I:1889, m5_R:0, m6_P:80, m6_S:0, m6_I:1099, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:25, dealer:'云南东幸医疗器械有限公司', region:'운남', stockY25:0, targetQty:587, purchaseQtyManual:null, salesQtyManual:null, m1_P:0, m1_S:0, m1_I:0, m1_R:0, m2_P:0, m2_S:0, m2_I:0, m2_R:0, m3_P:0, m3_S:0, m3_I:0, m3_R:0, m4_P:0, m4_S:0, m4_I:0, m4_R:0, m5_P:0, m5_S:0, m5_I:0, m5_R:0, m6_P:291, m6_S:100, m6_I:84, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:26, dealer:'山西康美雅泰医疗器械有限公司', region:'산서', stockY25:1146, targetQty:1477, purchaseQtyManual:null, salesQtyManual:null, m1_P:1126, m1_S:1386, m1_I:886, m1_R:0, m2_P:699, m2_S:759, m2_I:826, m2_R:0, m3_P:1662, m3_S:1820, m3_I:668, m3_R:0, m4_P:1384, m4_S:1120, m4_I:932, m4_R:0, m5_P:384, m5_S:786, m5_I:530, m5_R:0, m6_P:210, m6_S:0, m6_I:498, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:27, dealer:'山西卡卡医疗科技有限公司(山西麦驰医疗科技)', region:'산서', stockY25:1983, targetQty:940, purchaseQtyManual:null, salesQtyManual:null, m1_P:886, m1_S:1184, m1_I:1685, m1_R:0, m2_P:44, m2_S:493, m2_I:1236, m2_R:0, m3_P:675, m3_S:820, m3_I:1091, m3_R:0, m4_P:985, m4_S:1088, m4_I:988, m4_R:0, m5_P:57, m5_S:863, m5_I:182, m5_R:0, m6_P:41, m6_S:0, m6_I:249, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:28, dealer:'陕西璐玟医疗器械有限公司', region:'섬서', stockY25:1033, targetQty:1250, purchaseQtyManual:null, salesQtyManual:null, m1_P:456, m1_S:213, m1_I:1276, m1_R:0, m2_P:284, m2_S:175, m2_I:1385, m2_R:0, m3_P:872, m3_S:612, m3_I:1645, m3_R:0, m4_P:450, m4_S:543, m4_I:1552, m4_R:0, m5_P:617, m5_S:578, m5_I:1591, m5_R:0, m6_P:247, m6_S:0, m6_I:1778, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:29, dealer:'银川德诺联康科技有限公司', region:'녕하', stockY25:12, targetQty:105, purchaseQtyManual:null, salesQtyManual:null, m1_P:143, m1_S:45, m1_I:110, m1_R:0, m2_P:67, m2_S:20, m2_I:157, m2_R:0, m3_P:27, m3_S:60, m3_I:124, m3_R:0, m4_P:26, m4_S:44, m4_I:106, m4_R:0, m5_P:33, m5_S:30, m5_I:109, m5_R:0, m6_P:0, m6_S:0, m6_I:112, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
+    { id:30, dealer:'银川思瑞达医疗器械有限公司', region:'녕하', stockY25:576, targetQty:140, purchaseQtyManual:null, salesQtyManual:null, m1_P:185, m1_S:90, m1_I:671, m1_R:0, m2_P:181, m2_S:108, m2_I:744, m2_R:0, m3_P:288, m3_S:193, m3_I:839, m3_R:0, m4_P:0, m4_S:300, m4_I:539, m4_R:0, m5_P:33, m5_S:140, m5_I:412, m5_R:0, m6_P:0, m6_S:6, m6_I:419, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
   ],
 };
 
@@ -3021,7 +2773,7 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
   // 월별 숨김 (12개 boolean, true=보임)
   const [visibleMonths, setVisibleMonths] = React.useState(() => {
     try {
-      const s = localStorage.getItem(`dashboard_annual${hqKey}_visMonths_v1`);
+      const s = localStorage.getItem(`dashboard_annual${hqKey}_m${month}_visMonths_v1`);
       if (s) return JSON.parse(s);
     } catch (e) {}
     return Array(12).fill(true);
@@ -3054,17 +2806,17 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
     });
   };
 
-  // 금액/수량(hqKey) 전환 시 해당 탭의 월표시 설정 재로드
+  // 금액/수량(hqKey) 또는 보는 월(month) 전환 시 해당 설정 재로드
   React.useEffect(() => {
     try {
-      const s = localStorage.getItem(`dashboard_annual${hqKey}_visMonths_v1`);
+      const s = localStorage.getItem(`dashboard_annual${hqKey}_m${month}_visMonths_v1`);
       setVisibleMonths(s ? JSON.parse(s) : Array(12).fill(true));
     } catch (e) { setVisibleMonths(Array(12).fill(true)); }
-  }, [hqKey]);
+  }, [hqKey, month]);
 
   React.useEffect(() => {
-    try { localStorage.setItem(`dashboard_annual${hqKey}_visMonths_v1`, JSON.stringify(visibleMonths)); } catch (e) {}
-  }, [visibleMonths, hqKey]);
+    try { localStorage.setItem(`dashboard_annual${hqKey}_m${month}_visMonths_v1`, JSON.stringify(visibleMonths)); } catch (e) {}
+  }, [visibleMonths, hqKey, month]);
 
   // 저장 키: annual{hqKey}|{name}|{field}|{monthIndex}  (field: kpi/dso/end)
   const getCell = (name, field, mi, defaultVal) => {
@@ -3209,11 +2961,11 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
               <tr className="bg-slate-100 border-b border-slate-300" style={{ height: '39px' }}>
                 <th onClick={() => handleSort('name')}
                   className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 sticky left-0 bg-slate-100 z-30 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '110px' }}>
-                  업체명 {sortConfig?.key === 'name' ? (sortConfig.dir === 'asc' ? '▲' : '▼') : '⇅'}
+                  업체명
                 </th>
                 <th onClick={() => handleSort('region')}
                   className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '80px' }}>
-                  지역 {sortConfig?.key === 'region' ? (sortConfig.dir === 'asc' ? '▲' : '▼') : '⇅'}
+                  지역
                 </th>
                 <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth: '75px' }}>구분상세</th>
                 {visMonthIdxs.map(mi => (
@@ -3381,7 +3133,7 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
   const hqRegionName = hq === '화서본부' ? '화서지역' : hq === '화동본부' ? '화동지역' : '화남지역';
   const [tableCollapsed, setTableCollapsed] = React.useState(false);
   const [visibleMonths, setVisibleMonths] = React.useState(() => {
-    try { const s = localStorage.getItem(`dashboard_${psiKey}_visMonths_v1`); if (s) return JSON.parse(s); } catch (e) {}
+    try { const s = localStorage.getItem(`dashboard_${psiKey}_m${month}_visMonths_v1`); if (s) return JSON.parse(s); } catch (e) {}
     return Array(12).fill(true);
   });
   const [monthPickerOpen, setMonthPickerOpen] = React.useState(false);
@@ -3416,9 +3168,17 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
     });
   };
 
+  // 보는 월(month) 변경 시 해당 월 설정 재로드
   React.useEffect(() => {
-    try { localStorage.setItem(`dashboard_${psiKey}_visMonths_v1`, JSON.stringify(visibleMonths)); } catch (e) {}
-  }, [visibleMonths, psiKey]);
+    try {
+      const s = localStorage.getItem(`dashboard_${psiKey}_m${month}_visMonths_v1`);
+      setVisibleMonths(s ? JSON.parse(s) : Array(12).fill(true));
+    } catch (e) { setVisibleMonths(Array(12).fill(true)); }
+  }, [psiKey, month]);
+
+  React.useEffect(() => {
+    try { localStorage.setItem(`dashboard_${psiKey}_m${month}_visMonths_v1`, JSON.stringify(visibleMonths)); } catch (e) {}
+  }, [visibleMonths, psiKey, month]);
 
   // 데이터 없는 본부는 안내만
   if (!psiData) {
@@ -3606,8 +3366,8 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
           <table className="text-sm border-collapse" style={{ minWidth: '100%' }}>
             <thead className="sticky top-0 z-20">
               <tr className="bg-slate-100 border-b border-slate-300" style={{ height: '39px' }}>
-                <th onClick={() => handleSort('region')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 sticky left-0 bg-slate-100 z-30 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '80px' }}>지역 {sortConfig?.key === 'region' ? (sortConfig.dir === 'asc' ? '▲' : '▼') : '⇅'}</th>
-                <th onClick={() => handleSort('type')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '60px' }}>구분 {sortConfig?.key === 'type' ? (sortConfig.dir === 'asc' ? '▲' : '▼') : '⇅'}</th>
+                <th onClick={() => handleSort('region')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 sticky left-0 bg-slate-100 z-30 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '80px' }}>지역</th>
+                <th onClick={() => handleSort('type')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '60px' }}>구분</th>
                 <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth: '95px' }}>업체명</th>
                 <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth: '75px' }}>구분상세</th>
                 {visMonthIdxs.map(mi => <th key={mi} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right" style={{ minWidth: '80px' }}>{MONTH_LABELS[mi]}</th>)}
@@ -3900,7 +3660,7 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
   const fields = variant==='main' ? mainFields : prevFields;
   const rowCount = fields.length;
 
-  const arrow = (key) => sortConfig?.key===key ? (sortConfig.dir==='asc'?'▲':'▼') : '⇅';
+  const arrow = (key) => '';
 
   return (
     <div className="overflow-x-auto border border-slate-300 rounded">
@@ -4122,6 +3882,26 @@ function App() {
   const [overviewTab, setOverviewTab] = useState('all');
   // 대리상 PSI 관리 표 숨김 토글
   const [psiMgmtCollapsed, setPsiMgmtCollapsed] = useState(false);
+  // 대리상 PSI 관리 - 탭 (annual: 연간월별표 / manage: 대리상 PSI 관리 / focus: 중점관리)
+  const [psiTab, setPsiTab] = useState('manage');
+  // 대리상 PSI 관리 - 컬럼 그룹 표시 토글 (보고 싶은 컬럼만)
+  const [psiCols, setPsiCols] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_psiCols_v1'); if (s) return JSON.parse(s); } catch(e){}
+    return { months:true, selSum:true, stockY25:true, target:true, purchaseQty:true, salesQty:true, status:true };
+  });
+  const [psiColPickerOpen, setPsiColPickerOpen] = useState(false);
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_psiCols_v1', JSON.stringify(psiCols)); }catch(e){} }, [psiCols]);
+  // 대리상 PSI 관리 - 지역 필터 ('전체' 또는 특정 지역)
+  const [psiRegionFilter, setPsiRegionFilter] = useState('전체');
+  // 대리상 PSI 관리 - 월 표시 토글 (연도별 저장)
+  const [psiVisMonthsByYear, setPsiVisMonthsByYear] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_psiVisMonthsByYear_v1'); if (s) return JSON.parse(s); } catch(e){}
+    // 옛 단일 설정이 있으면 마이그레이션
+    try { const old = localStorage.getItem('dashboard_psiVisMonths_v1'); if (old) return { '2026': JSON.parse(old) }; } catch(e){}
+    return {};
+  });
+  const [psiMonthPickerOpen, setPsiMonthPickerOpen] = useState(false);
+  React.useEffect(() => { try { localStorage.setItem('dashboard_psiVisMonthsByYear_v1', JSON.stringify(psiVisMonthsByYear)); } catch(e){} }, [psiVisMonthsByYear]);
   const [filterRegion, setFilterRegion] = useState('전체');
   const [filterPeriod, setFilterPeriod] = useState('2026년 1주차');
   const [filterPeriodType, setFilterPeriodType] = useState('주간');
@@ -4149,7 +3929,7 @@ function App() {
     try { const s = localStorage.getItem('dashboard_psi_v2'); return s ? JSON.parse(s) : initialPSI; } catch (e) { return initialPSI; }
   });
   const [psiFocus, setPSIFocus] = useState(() => {
-    try { const s = localStorage.getItem('dashboard_psiFocus_v2'); return s ? JSON.parse(s) : initialPSIFocus; } catch (e) { return initialPSIFocus; }
+    try { const s = localStorage.getItem('dashboard_psiFocus_v4'); return s ? JSON.parse(s) : initialPSIFocus; } catch (e) { return initialPSIFocus; }
   });
   const [salesPerson, setSalesPerson] = useState(() => {
     try { const s = localStorage.getItem('dashboard_salesPerson_v1'); return s ? JSON.parse(s) : initialSalesPerson; } catch (e) { return initialSalesPerson; }
@@ -4307,15 +4087,17 @@ function App() {
   const [bdTypeFilter, setBDTypeFilter] = useState('전체');
   const [bdSearch, setBDSearch] = useState('');
   const [bdPage, setBDPage] = useState(1);
-  // BD 목표고객 상세 - 월 표시 토글
-  const [bdVisibleMonths, setBDVisibleMonths] = useState(() => {
-    try { const s = localStorage.getItem('dashboard_bdVisMonths_v1'); if (s) return JSON.parse(s); } catch (e) {}
-    return Array(12).fill(true);
+  // BD 목표고객 상세 - 월 표시 토글 (보는 월별 저장)
+  const [bdVisMonthsByMonth, setBDVisMonthsByMonth] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_bdVisMonthsByMonth_v1'); if (s) return JSON.parse(s); } catch (e) {}
+    // 옛 단일 설정 마이그레이션
+    try { const old = localStorage.getItem('dashboard_bdVisMonths_v1'); if (old) return { '2026-5': JSON.parse(old) }; } catch(e){}
+    return {};
   });
   const [bdMonthPickerOpen, setBDMonthPickerOpen] = useState(false);
   useEffect(() => {
-    try { localStorage.setItem('dashboard_bdVisMonths_v1', JSON.stringify(bdVisibleMonths)); } catch (e) {}
-  }, [bdVisibleMonths]);
+    try { localStorage.setItem('dashboard_bdVisMonthsByMonth_v1', JSON.stringify(bdVisMonthsByMonth)); } catch (e) {}
+  }, [bdVisMonthsByMonth]);
   const [subCustomer, setSubCustomer] = useState(() => {
     try { const s = localStorage.getItem('dashboard_subCustomer_v1'); return s ? JSON.parse(s) : initialSubCustomer; } catch (e) { return initialSubCustomer; }
   });
@@ -4481,7 +4263,7 @@ function App() {
     try { const s = localStorage.getItem('dashboard_psiMonth_v1'); return s ? JSON.parse(s) : {}; } catch (e) { return {}; }
   });
   const [psiFocusMonth, setPSIFocusMonth] = useState(() => {
-    try { const s = localStorage.getItem('dashboard_psiFocusMonth_v1'); return s ? JSON.parse(s) : {}; } catch (e) { return {}; }
+    try { const s = localStorage.getItem('dashboard_psiFocusMonth_v2'); return s ? JSON.parse(s) : {}; } catch (e) { return {}; }
   });
 
   // === 5번 메뉴 월별 데이터 (salesPerson의 월별 분리) ===
@@ -4592,7 +4374,7 @@ function App() {
   React.useEffect(() => { try { localStorage.setItem('dashboard_dealers_v1', JSON.stringify(dealers)); } catch (e) {} }, [dealers]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_dealerInsights_v1', JSON.stringify(dealerInsights)); } catch (e) {} }, [dealerInsights]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_psi_v2', JSON.stringify(psi)); } catch (e) {} }, [psi]);
-  React.useEffect(() => { try { localStorage.setItem('dashboard_psiFocus_v2', JSON.stringify(psiFocus)); } catch (e) {} }, [psiFocus]);
+  React.useEffect(() => { try { localStorage.setItem('dashboard_psiFocus_v4', JSON.stringify(psiFocus)); } catch (e) {} }, [psiFocus]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_salesPerson_v1', JSON.stringify(salesPerson)); } catch (e) {} }, [salesPerson]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_dso_v1', JSON.stringify(dso)); } catch (e) {} }, [dso]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_dsoPipeline_v1', JSON.stringify(dsoPipeline)); } catch (e) {} }, [dsoPipeline]);
@@ -4936,7 +4718,7 @@ function App() {
   React.useEffect(() => { try { localStorage.setItem('dashboard_dsoDetailMonth_v1', JSON.stringify(dsoDetailMonth)); } catch (e) {} }, [dsoDetailMonth]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_dealersMonth_v1', JSON.stringify(dealersMonth)); } catch (e) {} }, [dealersMonth]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_psiMonth_v1', JSON.stringify(psiMonth)); } catch (e) {} }, [psiMonth]);
-  React.useEffect(() => { try { localStorage.setItem('dashboard_psiFocusMonth_v1', JSON.stringify(psiFocusMonth)); } catch (e) {} }, [psiFocusMonth]);
+  React.useEffect(() => { try { localStorage.setItem('dashboard_psiFocusMonth_v2', JSON.stringify(psiFocusMonth)); } catch (e) {} }, [psiFocusMonth]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_salesPersonMonth_v1', JSON.stringify(salesPersonMonth)); } catch (e) {} }, [salesPersonMonth]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_dsoMonth_v1', JSON.stringify(dsoMonth)); } catch (e) {} }, [dsoMonth]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_dsoEnterMonth_v1', JSON.stringify(dsoEnterMonth)); } catch (e) {} }, [dsoEnterMonth]);
@@ -7798,6 +7580,17 @@ function App() {
     const monthLabelP = `${displayMonthP}월`;
     const is5월P = displayMonthP === 5;
 
+    // 대리상 PSI 관리 - "보고 있는 월(yearMonthP)"마다 선택 세트를 따로 저장
+    // 예: 6월 화면에서 선택한 것과 5월 화면에서 선택한 것이 각각 독립 저장됨
+    const psiVisibleMonths = psiVisMonthsByYear[yearMonthP] || Array(12).fill(true);
+    const setPsiVisibleMonths = (updater) => {
+      setPsiVisMonthsByYear(prev => {
+        const cur = prev[yearMonthP] || Array(12).fill(true);
+        const next = typeof updater === 'function' ? updater(cur) : updater;
+        return { ...prev, [yearMonthP]: next };
+      });
+    };
+
     // 주요 문제 / 달성방안 / 다음 액션 관련 (3번 메뉴에서 이관)
     const insights = dealerInsights[hq] || { problems: [], plans: [], nextActions: [] };
 
@@ -7842,24 +7635,19 @@ function App() {
       id: d.id, dealerName: d.dealerName, region: d.region,
       purchaseGoal: 0, purchaseActual: 0, salesGoal: 0, salesActual: 0, currentStock: 0,
     }));
-    const emptyFocus = (psiFocus[hq] || []).map(d => ({
-      id: d.id, dealer: d.dealer, region: d.region,
-      stockYE: 0, monthlyAvg: 0,
-      ytdP: 0, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 0, apr_ratio: 0, apr_base: 0,
-      mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-      maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-      mayEndStock: 0, mayRatio: 0, mayBase: 0,
-      stock_I: 0, turnoverRatio: 0, contractBase: 0,
-      issue: '',
-    }));
+    const emptyFocus = (psiFocus[hq] || []).map(d => {
+      const row = { id: d.id, dealer: d.dealer, region: d.region,
+        stockY25: 0, targetQty: 0, purchaseQtyManual: null, salesQtyManual: null };
+      for (let m=1; m<=12; m++) { row[`m${m}_P`]=0; row[`m${m}_S`]=0; row[`m${m}_I`]=0; row[`m${m}_R`]=0; }
+      return row;
+    });
 
     // 월별 데이터 조회 (5월만 기본, 다른 월은 빈)
     const data = (psiMonth[hq] && psiMonth[hq][yearMonthP])
       ? psiMonth[hq][yearMonthP]
       : (is5월P ? (psi[hq] || []) : emptyPSI);
-    const focusData = (psiFocusMonth[hq] && psiFocusMonth[hq][yearMonthP])
-      ? psiFocusMonth[hq][yearMonthP]
-      : (is5월P ? (psiFocus[hq] || []) : emptyFocus);
+    // 대리상 PSI 관리 표: 1~12월을 한 행에 담는 단일 데이터 (월 무관, psiFocus 사용)
+    const focusData = (psiFocus[hq] || []);
 
     // 지역 필터 적용
     const filteredData = filterRegion === '전체' ? data : data.filter(d => d.region === filterRegion);
@@ -7957,24 +7745,12 @@ function App() {
     };
 
     const updateFocus = (id, key, value) => {
-      setPSIFocusMonth(prev => {
-        const hqData = prev[hq] || {};
-        const monthData = hqData[yearMonthP]
-          ? hqData[yearMonthP]
-          : (is5월P
-              ? JSON.parse(JSON.stringify(psiFocus[hq] || []))
-              : JSON.parse(JSON.stringify(emptyFocus)));
-        const updated = monthData.map(d => d.id === id ? { ...d, [key]: value } : d);
-        return { ...prev, [hq]: { ...hqData, [yearMonthP]: updated } };
-      });
-      // 5월일 때는 원본 psiFocus도 동기화 (대리상 PSI 관리 표가 psiFocus[hq] 사용)
-      if (is5월P) {
-        setPSIFocus(prev => ({
-          ...prev,
-          [hq]: (prev[hq] || []).map(d => d.id === id ? { ...d, [key]: value } : d)
-        }));
-      }
-      logChange(`${hq} - 중점 관리 (${monthLabelP})`, `${key} 수정`);
+      // 대리상 PSI 관리 표는 1~12월을 한 행에 담으므로 psiFocus를 단일 소스로 직접 수정
+      setPSIFocus(prev => ({
+        ...prev,
+        [hq]: (prev[hq] || []).map(d => d.id === id ? { ...d, [key]: value } : d)
+      }));
+      logChange(`${hq} - 대리상 PSI 관리`, `${key} 수정`);
     };
 
     // 이전월 데이터 복사
@@ -8157,7 +7933,24 @@ function App() {
           );
         })()}
 
+        {/* === PSI 탭 === */}
+        <div className="flex items-center gap-1 border-b border-slate-200 mb-3">
+          {[
+            { key:'annual', label:'본부 대리상 PSI 연간 월별표' },
+            { key:'manage', label:'대리상 PSI 관리' },
+            { key:'focus',  label:'중점 관리 대리상' },
+          ].map(t => (
+            <button key={t.key} onClick={() => setPsiTab(t.key)}
+              className={"px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition "+(psiTab===t.key
+                ? 'border-blue-600 text-blue-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300')}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
         {/* === 3번 대리상 PSI 연간 월별표 === */}
+        {psiTab === 'annual' && (
         <PsiAnnualTable
           hq={hq}
           year={curYearP}
@@ -8166,18 +7959,23 @@ function App() {
           setWeeklyEntries={setWeeklyEntries}
           logChange={logChange}
         />
+        )}
 
         {/* === 대리상 PSI 관리 (편집 가능 + 자동 계산) === */}
-        {(() => {
+        {psiTab === 'manage' && (() => {
           const focusForSum = filteredFocus.filter(r => !hiddenIds.includes(r.id));
 
           // 3번 표 (대리상 PSI 관리) - 숨김 행 적용 + 정렬
           const psiHiddenIds = hiddenPSIRows[hq] || [];
           const isShowingHiddenPSI = showHiddenPSI[hq] || false;
           // 숨김 처리된 행만 / 또는 숨김 아닌 행만
-          const psiVisibleAll = isShowingHiddenPSI
+          const psiVisibleAllBase = isShowingHiddenPSI
             ? focusForSum.filter(r => psiHiddenIds.includes(r.id))
             : focusForSum.filter(r => !psiHiddenIds.includes(r.id));
+          // 지역 필터 적용
+          const psiVisibleAll = psiRegionFilter === '전체'
+            ? psiVisibleAllBase
+            : psiVisibleAllBase.filter(r => r.region === psiRegionFilter);
           // 정렬 적용
           const psiSortedRows = psiSortKey ? [...psiVisibleAll].sort((a, b) => {
             // 지역/대리상명 문자열 정렬만 지원
@@ -8214,25 +8012,13 @@ function App() {
               id: Date.now(),
               dealer: '신규 대리상',
               region: REGIONS[hq][0],
-              stockYE: 0, contractTotal: 0, monthlyAvg: 0,
-              issue: '', turnoverRatio: 0,
-              ytdP: 0, ytdS: 0, apr_P: 0, apr_S: 0, apr_I: 0, apr_ratio: 0, apr_base: 0,
-              mayPurchaseGoal: 0, mayPurchaseActual: 0, mayPurchaseRate: 0,
-              maySalesGoal: 0, maySalesActual: 0, maySalesRate: 0,
-              mayEndStock: 0, mayRatio: 0, mayBase: 0,
-              stock_I: 0, contractBase: 0,
+              stockY25: 0, targetQty: 0,
+              purchaseQtyManual: null, salesQtyManual: null,
             };
-            setPSIFocusMonth(prev => {
-              const hqData = prev[hq] || {};
-              const monthData = hqData[yearMonthP]
-                ? hqData[yearMonthP]
-                : (is5월P ? JSON.parse(JSON.stringify(psiFocus[hq] || [])) : JSON.parse(JSON.stringify(emptyFocus)));
-              return { ...prev, [hq]: { ...hqData, [yearMonthP]: [...monthData, newRow] } };
-            });
-            if (is5월P) {
-              setPSIFocus(prev => ({ ...prev, [hq]: [...(prev[hq] || []), newRow] }));
-            }
-            logChange(`${hq} - 대리상 PSI 관리 (${monthLabelP})`, '신규 대리상 추가');
+            // 1~12월 구매/판매/재고/비율 0으로 초기화
+            for (let m=1; m<=12; m++) { newRow[`m${m}_P`]=0; newRow[`m${m}_S`]=0; newRow[`m${m}_I`]=0; newRow[`m${m}_R`]=0; }
+            setPSIFocus(prev => ({ ...prev, [hq]: [...(prev[hq] || []), newRow] }));
+            logChange(`${hq} - 대리상 PSI 관리`, '신규 대리상 추가');
           };
 
           return (
@@ -8248,169 +8034,353 @@ function App() {
                 <span className="text-xs text-slate-500">단위: 개 · 모든 셀 클릭 편집 가능 · 자동 저장</span>
               </div>
               {!psiMgmtCollapsed && (
+              <div className="flex items-center gap-2 mb-2 relative flex-wrap">
+                <span className="text-xs font-semibold text-slate-600">{curYearP}년 {displayMonthP}월 화면 — 표시 월:</span>
+                <button onClick={() => setPsiVisibleMonths(Array(12).fill(true))}
+                  className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+                <div className="relative inline-block">
+                  <button onClick={() => setPsiMonthPickerOpen(!psiMonthPickerOpen)}
+                    className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">
+                    선택 월만 보기 ({psiVisibleMonths.filter(Boolean).length}/12) ▼
+                  </button>
+                  {psiMonthPickerOpen && (
+                    <div className="absolute left-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
+                      {[1,2,3,4,5,6,7,8,9,10,11,12].map((m,i) => (
+                        <label key={m} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                          <input type="checkbox" checked={psiVisibleMonths[i]}
+                            onChange={() => setPsiVisibleMonths(prev => prev.map((v,idx)=>idx===i?!v:v))} />{m}월
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <span className="mx-1 text-slate-300">|</span>
+                {/* 지역 필터 */}
+                <span className="text-xs font-semibold text-slate-600">지역:</span>
+                <select value={psiRegionFilter} onChange={(e)=>setPsiRegionFilter(e.target.value)}
+                  className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 bg-white">
+                  <option value="전체">전체 지역</option>
+                  {REGIONS[hq]?.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+                {/* 컬럼 선택기 */}
+                <div className="relative inline-block">
+                  <button onClick={() => setPsiColPickerOpen(!psiColPickerOpen)}
+                    className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">
+                    표시 컬럼 ▼
+                  </button>
+                  {psiColPickerOpen && (
+                    <div className="absolute left-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 flex flex-col gap-1 w-44">
+                      {[
+                        { key:'months', label:'월별(구매/판매/재고/비율)' },
+                        { key:'selSum', label:'선택합계' },
+                        { key:'stockY25', label:'25년재고' },
+                        { key:'target', label:'목표수량' },
+                        { key:'purchaseQty', label:'구매수량(연간)' },
+                        { key:'salesQty', label:'판매수량(연간)' },
+                        { key:'status', label:'상태' },
+                      ].map(c => (
+                        <label key={c.key} className="flex items-center gap-1.5 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                          <input type="checkbox" checked={psiCols[c.key]}
+                            onChange={() => setPsiCols(prev => ({ ...prev, [c.key]: !prev[c.key] }))} />{c.label}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <span className="text-[11px] text-slate-400">월 선택은 이 화면 전용 저장</span>
+              </div>
+              )}
+              {!psiMgmtCollapsed && (() => {
+                // KPI 집계 (지역 필터 적용된 psiVisibleAll 기준)
+                const rows = psiVisibleAll;
+                const selMonths = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]);
+                let totP=0, totS=0, totI=0, totTarget=0, totPurchaseQty=0;
+                rows.forEach(r => {
+                  selMonths.forEach(m => { totP+=Number(r[`m${m}_P`])||0; totS+=Number(r[`m${m}_S`])||0; });
+                  // 재고는 선택 월 중 마지막 월의 월말재고
+                  const lastM = selMonths.length ? selMonths[selMonths.length-1] : 0;
+                  if (lastM) totI += Number(r[`m${lastM}_I`])||0;
+                  totTarget += Number(r.targetQty)||0;
+                  const autoP=[1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(Number(r[`m${m}_P`])||0),0);
+                  totPurchaseQty += (r.purchaseQtyManual!==undefined&&r.purchaseQtyManual!==null&&r.purchaseQtyManual!=='')?Number(r.purchaseQtyManual):autoP;
+                });
+                const avgRatio = totTarget>0 ? (totI/totTarget) : 0;
+                // 목표 달성(구매수량 ≥ 목표*월수 비율) 대리상 수 — 간단히 구매수량/연간목표 환산
+                const achievers = rows.filter(r => {
+                  const tgt = (Number(r.targetQty)||0);
+                  const autoP=[1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(Number(r[`m${m}_P`])||0),0);
+                  const pq = (r.purchaseQtyManual!==undefined&&r.purchaseQtyManual!==null&&r.purchaseQtyManual!=='')?Number(r.purchaseQtyManual):autoP;
+                  return tgt>0 && pq >= tgt; // 구매수량이 목표월평균 이상
+                }).length;
+                const selLabel = selMonths.length===12 ? '연간' : (selMonths.length===0 ? '-' : selMonths.join('·')+'월');
+                const cards = [
+                  { label:`구매 (${selLabel})`, value: formatNumber(totP), unit:'개', color:'text-blue-600' },
+                  { label:`판매 (${selLabel})`, value: formatNumber(totS), unit:'개', color:'text-emerald-600' },
+                  { label:'기말 재고', value: formatNumber(totI), unit:'개', color:'text-amber-600' },
+                  { label:'평균 재고비율', value: avgRatio.toFixed(1), unit:'배', color: avgRatio>=5?'text-rose-600':'text-slate-900' },
+                  { label:'목표달성 대리상', value: `${achievers}`, unit:`/${rows.length}`, color:'text-indigo-600' },
+                ];
+                return (
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
+                    {cards.map((c,i) => (
+                      <div key={i} className="bg-white border border-slate-200 rounded-lg p-3">
+                        <div className="text-xs text-slate-500 mb-1">{c.label}</div>
+                        <div className="flex items-baseline gap-1">
+                          <span className={`text-xl font-bold ${c.color}`}>{c.value}</span>
+                          <span className="text-xs text-slate-400">{c.unit}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+              {!psiMgmtCollapsed && (
               <div className="border border-slate-300 rounded overflow-x-auto">
-                <table className="text-sm" data-table-id="dealer_psi_summary" style={{ minWidth: '1320px', width: '100%', tableLayout: 'auto' }}>
+                <table className="text-sm" data-table-id="dealer_psi_summary" style={{ minWidth: (210 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*52 : 0) + (psiCols.selSum?3*64:0) + (psiCols.stockY25?90:0)+(psiCols.target?90:0)+(psiCols.purchaseQty?100:0)+(psiCols.salesQty?100:0)+(psiCols.status?70:0)+60) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
+                  <colgroup>
+                    <col style={{ width: '60px' }} />
+                    <col style={{ width: '150px' }} />
+                    {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
+                      <React.Fragment key={m}>
+                        <col style={{ width: '52px' }} />
+                        <col style={{ width: '52px' }} />
+                        <col style={{ width: '52px' }} />
+                        <col style={{ width: '52px' }} />
+                      </React.Fragment>
+                    ))}
+                    {psiCols.selSum && <><col style={{ width: '64px' }} /><col style={{ width: '64px' }} /><col style={{ width: '64px' }} /></>}
+                    {psiCols.stockY25 && <col style={{ width: '90px' }} />}
+                    {psiCols.target && <col style={{ width: '90px' }} />}
+                    {psiCols.purchaseQty && <col style={{ width: '100px' }} />}
+                    {psiCols.salesQty && <col style={{ width: '100px' }} />}
+                    {psiCols.status && <col style={{ width: '70px' }} />}
+                    <col style={{ width: '60px' }} />
+                  </colgroup>
                   <thead>
                     {/* 1단: 그룹 헤더 */}
                     <tr className="bg-slate-200 border-b border-slate-300">
-                      <th rowSpan={2} onClick={() => togglePsiSort('region')}
-                          className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 w-[80px] align-middle cursor-pointer hover:bg-slate-300 select-none" title="클릭하여 정렬">
-                        지역 {psiSortKey === 'region' ? (psiSortDir === 'asc' ? '↑' : '↓') : <span className="text-slate-400">↕</span>}
-                      </th>
-                      <th rowSpan={2} onClick={() => togglePsiSort('name')}
-                          className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left min-w-[200px] align-middle cursor-pointer hover:bg-slate-300 select-none" title="클릭하여 정렬">
-                        대리상명 {psiSortKey === 'name' ? (psiSortDir === 'asc' ? '↑' : '↓') : <span className="text-slate-400">↕</span>}
-                      </th>
-                      <th colSpan={2} className="px-2 py-1.5 border-r border-slate-300 font-bold text-slate-800 bg-slate-200 text-center">1-5월</th>
-                      <th colSpan={6} className="px-2 py-1.5 font-bold text-slate-800 bg-slate-200 text-center">당월 (5월)</th>
+                      <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200">지역</th>
+                      <th rowSpan={2} className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left align-middle bg-slate-200">대리상명</th>
+                      {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
+                        <th key={m} colSpan={4} className="px-1 py-1.5 border-r border-slate-400 font-bold text-slate-800 bg-slate-200 text-center">{m}월</th>
+                      ))}
+                      {psiCols.selSum && <th colSpan={3} className="px-1 py-1.5 border-r border-slate-400 font-bold text-indigo-800 bg-indigo-100 text-center">선택합계</th>}
+                      {psiCols.stockY25 && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-amber-100 whitespace-nowrap">25년<br/>재고</th>}
+                      {psiCols.target && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-blue-50 whitespace-nowrap">목표<br/>수량</th>}
+                      {psiCols.purchaseQty && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-emerald-50 whitespace-nowrap">구매수량<br/>(연간)</th>}
+                      {psiCols.salesQty && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-emerald-50 whitespace-nowrap">판매수량<br/>(연간)</th>}
+                      {psiCols.status && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle">상태</th>}
+                      <th rowSpan={2} className="px-1 py-1.5 font-semibold text-slate-700 align-middle">관리</th>
                     </tr>
-                    {/* 2단: 컬럼 헤더 */}
+                    {/* 2단: 월별 P/S/I/R + 선택합계 P/S/I */}
                     <tr className="bg-slate-100 border-b border-slate-300">
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[90px] bg-slate-100 whitespace-nowrap">구매(P)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[90px] bg-slate-100 whitespace-nowrap">판매(S)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[95px] bg-slate-100 whitespace-nowrap">구매(P)<br/>목표</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[95px] bg-slate-100 whitespace-nowrap">구매(P)<br/>실적</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[90px] bg-slate-100 whitespace-nowrap">판매(S)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[90px] bg-slate-100 whitespace-nowrap">재고(I)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[110px] bg-slate-100 whitespace-nowrap">평균판매<br/>기준</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100 whitespace-nowrap">구매(P)<br/>달성률</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[80px] bg-slate-100 whitespace-nowrap">상태</th>
-                      <th className="px-2 py-1.5 font-semibold text-slate-900 w-[70px] bg-slate-100 whitespace-nowrap">관리</th>
+                      {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
+                        <React.Fragment key={m}>
+                          <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">구매</th>
+                          <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">판매</th>
+                          <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">재고</th>
+                          <th className="px-0.5 py-1 border-r border-slate-400 font-semibold text-slate-600 bg-slate-100 text-sm">비율</th>
+                        </React.Fragment>
+                      ))}
+                      {psiCols.selSum && <>
+                      <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-indigo-700 bg-indigo-50 text-sm">구매</th>
+                      <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-indigo-700 bg-indigo-50 text-sm">판매</th>
+                      <th className="px-0.5 py-1 border-r border-slate-400 font-semibold text-indigo-700 bg-indigo-50 text-sm">재고</th>
+                      </>}
                     </tr>
                   </thead>
                   <tbody>
                     {psiSortedRows.length === 0 ? (
-                      <tr><td colSpan={12} className="px-2 py-4 text-center text-slate-400">
+                      <tr><td colSpan={3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.purchaseQty?1:0)+(psiCols.salesQty?1:0)+(psiCols.status?1:0)} className="px-2 py-4 text-center text-slate-400">
                         {isShowingHiddenPSI ? '숨김 처리된 행이 없습니다.' : '표시할 데이터가 없습니다. 아래 [대리상 추가] 버튼을 눌러주세요.'}
                       </td></tr>
-                    ) : psiSortedRows.map(row => (
-                      <tr key={row.id} className="border-b border-slate-200 hover:bg-slate-50 group">
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-center">
+                    ) : psiSortedRows.map(row => {
+                      // 1~12월 구매/판매 합계 (수동값 우선)
+                      const sumPurchase = [1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(Number(row[`m${m}_P`])||0),0);
+                      const sumSales = [1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(Number(row[`m${m}_S`])||0),0);
+                      const purchaseQty = (row.purchaseQtyManual!==undefined && row.purchaseQtyManual!==null && row.purchaseQtyManual!=='') ? Number(row.purchaseQtyManual) : sumPurchase;
+                      const salesQty = (row.salesQtyManual!==undefined && row.salesQtyManual!==null && row.salesQtyManual!=='') ? Number(row.salesQtyManual) : sumSales;
+                      // 선택합계: 체크된 월(psiVisibleMonths)만 합산
+                      const selMonths = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]);
+                      const selP = selMonths.reduce((s,m)=>s+(Number(row[`m${m}_P`])||0),0);
+                      const selS = selMonths.reduce((s,m)=>s+(Number(row[`m${m}_S`])||0),0);
+                      const selI = selMonths.reduce((s,m)=>s+(Number(row[`m${m}_I`])||0),0);
+                      return (
+                      <React.Fragment key={row.id}>
+                      <tr className="border-b border-slate-200 hover:bg-slate-50 group">
+                        <td className="px-1 py-1.5 border-r border-slate-300 text-center bg-white">
                           <select value={row.region} onChange={(e) => updateFocus(row.id, 'region', e.target.value)}
-                            className="px-1 py-0.5 text-sm border-0 bg-transparent outline-none cursor-pointer hover:bg-white rounded">
+                            className="px-0.5 py-0.5 text-xs border-0 bg-transparent outline-none cursor-pointer hover:bg-slate-100 rounded w-full">
                             {REGIONS[hq]?.map(r => <option key={r} value={r}>{r}</option>)}
                           </select>
                         </td>
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-slate-800">
-                          <EditableCell value={row.dealer} onSave={(v) => updateFocus(row.id, 'dealer', v)} />
+                        <td className="px-2 py-1.5 border-r border-slate-300 text-slate-800 bg-white" title={row.dealer}>
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => setPSIExpandedRow(psiExpandedRow === row.id ? null : row.id)}
+                              className="flex-shrink-0 text-slate-400 hover:text-blue-600 text-xs" title="월별 추세 차트 보기">
+                              {psiExpandedRow === row.id ? '📉' : '📈'}
+                            </button>
+                            <div className="truncate flex-1"><EditableCell value={row.dealer} onSave={(v) => updateFocus(row.id, 'dealer', v)} /></div>
+                          </div>
                         </td>
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900 font-medium bg-white">
-                          <EditableCell value={row.ytdP ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'ytdP', v)} />
-                        </td>
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900 font-medium bg-white">
-                          <EditableCell value={row.ytdS ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'ytdS', v)} />
-                        </td>
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-white">
-                          <EditableCell value={row.mayPurchaseGoal ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'mayPurchaseGoal', v)} />
-                        </td>
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900 font-semibold bg-white">
-                          <EditableCell value={row.mayPurchaseActual ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'mayPurchaseActual', v)} />
-                        </td>
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900 font-semibold bg-white">
-                          <EditableCell value={row.maySalesActual ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'maySalesActual', v)} />
-                        </td>
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900 font-semibold bg-white">
-                          <EditableCell value={row.mayEndStock ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'mayEndStock', v)} />
-                        </td>
-                        <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900 bg-white relative group" title="자동 계산: 재고(I) ÷ (누적판매(S) ÷ 5) · 셀 클릭하여 수동 수정 · 더블클릭하여 자동값으로 복귀">
+                        {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => {
+                          // 库存比 = 월말재고 ÷ 목표월평균(合同任务月平均销量=targetQty) — 첨부표 검증 공식
+                          const mI = Number(row[`m${m}_I`]) || 0;
+                          const tgtAvg = Number(row.targetQty) || 0;
+                          const ratio = tgtAvg > 0 ? (mI / tgtAvg) : 0;
+                          return (
+                          <React.Fragment key={m}>
+                            <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-white">
+                              <EditableCell value={row[`m${m}_P`] ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, `m${m}_P`, v)} />
+                            </td>
+                            <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-white">
+                              <EditableCell value={row[`m${m}_S`] ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, `m${m}_S`, v)} />
+                            </td>
+                            <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-white">
+                              <EditableCell value={row[`m${m}_I`] ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, `m${m}_I`, v)} />
+                            </td>
+                            <td className="px-0.5 py-0.5 border-r border-slate-400 text-right bg-slate-50 text-slate-600 text-sm" title="월말재고 ÷ 목표월평균 (자동)">
+                              {tgtAvg > 0 ? ratio.toFixed(1) : '-'}
+                            </td>
+                          </React.Fragment>
+                        );})}
+                        {/* 선택합계 (구매/판매/재고) */}
+                        {psiCols.selSum && <>
+                        <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-indigo-50 font-semibold text-indigo-800 text-sm">{formatNumber(selP)}</td>
+                        <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-indigo-50 font-semibold text-indigo-800 text-sm">{formatNumber(selS)}</td>
+                        <td className="px-0.5 py-0.5 border-r border-slate-400 text-right bg-indigo-50 font-semibold text-indigo-800 text-sm">{formatNumber(selI)}</td>
+                        </>}
+                        {/* 25년 재고 */}
+                        {psiCols.stockY25 && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-amber-50">
+                          <EditableCell value={row.stockY25 ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'stockY25', v)} />
+                        </td>}
+                        {/* 목표 수량 */}
+                        {psiCols.target && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-blue-50">
+                          <EditableCell value={row.targetQty ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'targetQty', v)} />
+                        </td>}
+                        {/* 구매수량 (1~12월 구매 합, 수정 가능) */}
+                        {psiCols.purchaseQty && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-emerald-50 font-semibold relative group" title="1~12월 구매 합계 (자동) · 클릭하여 수동 수정 · ↻로 자동 복귀">
+                          <div className="flex items-center justify-end gap-1">
+                            <EditableCell value={purchaseQty} type="number" align="right" onSave={(v) => updateFocus(row.id, 'purchaseQtyManual', parseFloat(v) || 0)} />
+                            {row.purchaseQtyManual!==undefined && row.purchaseQtyManual!==null && row.purchaseQtyManual!=='' && (
+                              <button onClick={() => updateFocus(row.id, 'purchaseQtyManual', null)} className="text-[10px] text-slate-400 hover:text-blue-600 flex-shrink-0" title="자동(합계)으로 복귀">↻</button>
+                            )}
+                          </div>
+                        </td>}
+                        {/* 판매수량 (1~12월 판매 합, 수정 가능) */}
+                        {psiCols.salesQty && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-emerald-50 font-semibold relative group" title="1~12월 판매 합계 (자동) · 클릭하여 수동 수정 · ↻로 자동 복귀">
+                          <div className="flex items-center justify-end gap-1">
+                            <EditableCell value={salesQty} type="number" align="right" onSave={(v) => updateFocus(row.id, 'salesQtyManual', parseFloat(v) || 0)} />
+                            {row.salesQtyManual!==undefined && row.salesQtyManual!==null && row.salesQtyManual!=='' && (
+                              <button onClick={() => updateFocus(row.id, 'salesQtyManual', null)} className="text-[10px] text-slate-400 hover:text-blue-600 flex-shrink-0" title="자동(합계)으로 복귀">↻</button>
+                            )}
+                          </div>
+                        </td>}
+                        {/* 상태: 목표 대비 구매수량 */}
+                        {psiCols.status && <td className="px-2 py-1.5 border-r border-slate-200 text-center bg-white">
                           {(() => {
-                            const stock = Number(row.mayEndStock) || 0;
-                            const cumSales = Number(row.ytdS) || 0;
-                            const monthlyAvg = cumSales / 5;
-                            const autoBase = monthlyAvg > 0 ? +(stock / monthlyAvg).toFixed(1) : 0;
-                            // 수동값 존재 여부 (mayBaseManual이 있고 0이 아님)
-                            const hasManual = row.mayBaseManual !== undefined && row.mayBaseManual !== null && row.mayBaseManual !== '';
-                            const displayValue = hasManual ? Number(row.mayBaseManual) : autoBase;
-                            return (
-                              <div className="flex items-center justify-end gap-1">
-                                <EditableCell
-                                  value={displayValue.toFixed(1)}
-                                  type="number"
-                                  align="right"
-                                  onSave={(v) => updateFocus(row.id, 'mayBaseManual', parseFloat(v) || 0)}
-                                />
-                                {hasManual && (
-                                  <button
-                                    onClick={() => updateFocus(row.id, 'mayBaseManual', null)}
-                                    className="text-[10px] text-slate-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition flex-shrink-0"
-                                    title="자동 계산으로 복귀"
-                                  >↻</button>
-                                )}
-                                {hasManual && (
-                                  <span className="text-[9px] text-amber-500 flex-shrink-0" title="수동 입력값 (자동값과 다름)">✎</span>
-                                )}
-                              </div>
-                            );
-                          })()}
-                        </td>
-                        <td className="px-2 py-1.5 text-right text-slate-900 font-semibold bg-white">
-                          {(() => {
-                            const goal = Number(row.mayPurchaseGoal) || 0;
-                            const actual = Number(row.mayPurchaseActual) || 0;
-                            const rate = goal > 0 ? (actual / goal * 100) : 0;
-                            return <span>{rate.toFixed(1)}%</span>;
-                          })()}
-                        </td>
-                        <td className="px-2 py-1.5 border-l border-slate-300 text-center bg-white">
-                          {(() => {
-                            // 상태 자동: 평균판매기준 ≥5 위험, ≥2.5 주의, <2.5 정상
-                            const stock = Number(row.mayEndStock) || 0;
-                            const cumSales = Number(row.ytdS) || 0;
-                            const monthlyAvg = cumSales / 5;
-                            const autoBase = monthlyAvg > 0 ? +(stock / monthlyAvg).toFixed(1) : 0;
-                            const hasManual = row.mayBaseManual !== undefined && row.mayBaseManual !== null && row.mayBaseManual !== '';
-                            const base = hasManual ? Number(row.mayBaseManual) : autoBase;
-                            let status = '정상', cls = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                            if (base >= 5) { status = '위험'; cls = 'bg-rose-50 text-rose-700 border-rose-200'; }
-                            else if (base >= 2.5) { status = '주의'; cls = 'bg-amber-50 text-amber-700 border-amber-200'; }
+                            const tgt = Number(row.targetQty) || 0;
+                            const rate = tgt > 0 ? (purchaseQty / tgt * 100) : 0;
+                            let status='정상', cls='bg-emerald-50 text-emerald-700 border-emerald-200';
+                            if (tgt===0) { status='-'; cls='bg-slate-50 text-slate-400 border-slate-200'; }
+                            else if (rate < 80) { status='주의'; cls='bg-rose-50 text-rose-700 border-rose-200'; }
                             return <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded border ${cls}`}>{status}</span>;
                           })()}
-                        </td>
-                        <td className="px-2 py-1.5 border-l border-slate-200 text-center bg-white">
+                        </td>}
+                        <td className="px-2 py-1.5 text-center bg-white">
                           {isShowingHiddenPSI ? (
-                            <button onClick={() => togglePsiHide(row.id)}
-                              className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold"
-                              title="숨김 해제">↶ 복원</button>
+                            <button onClick={() => togglePsiHide(row.id)} className="text-sm text-blue-600 hover:text-blue-800 font-semibold" title="숨김 해제">↶ 복원</button>
                           ) : (
-                            <button onClick={() => togglePsiHide(row.id)}
-                              className="text-[11px] text-slate-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
-                              title="이 행 숨기기">숨김</button>
+                            <button onClick={() => togglePsiHide(row.id)} className="text-sm text-slate-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition" title="이 행 숨기기">숨김</button>
                           )}
                         </td>
                       </tr>
-                    ))}
+                      {psiExpandedRow === row.id && (() => {
+                        const tgtAvg = Number(row.targetQty) || 0;
+                        const chartData = [1,2,3,4,5,6,7,8,9,10,11,12].map(m => {
+                          const mI = Number(row[`m${m}_I`])||0;
+                          return {
+                            월: `${m}월`,
+                            구매: Number(row[`m${m}_P`])||0,
+                            판매: Number(row[`m${m}_S`])||0,
+                            재고: mI,
+                            비율: tgtAvg>0 ? +(mI/tgtAvg).toFixed(1) : 0,
+                          };
+                        });
+                        const totalCols = 3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.purchaseQty?1:0)+(psiCols.salesQty?1:0)+(psiCols.status?1:0);
+                        // X축 아래에 "N월" + 그 달 비율 숫자 함께 표기
+                        const renderMonthTick = ({ x, y, payload }) => {
+                          const d = chartData.find(c => c.월 === payload.value);
+                          const ratioTxt = d && tgtAvg>0 ? d.비율 : null;
+                          return (
+                            <g transform={`translate(${x},${y})`}>
+                              <text x={0} y={0} dy={12} textAnchor="middle" fontSize={12} fill="#475569">{payload.value}</text>
+                              {ratioTxt!==null && <text x={0} y={0} dy={26} textAnchor="middle" fontSize={11} fill="#7c3aed" fontWeight="600">{ratioTxt}</text>}
+                            </g>
+                          );
+                        };
+                        return (
+                          <tr className="bg-slate-50 border-b border-slate-300">
+                            <td colSpan={totalCols} className="px-4 py-3">
+                              <div className="text-xs font-semibold text-slate-700 mb-2">📈 {row.dealer} — 1~12월 추세 (구매 / 판매 / 월말재고) · <span className="text-purple-600">보라색 숫자 = 월별 비율(배)</span></div>
+                              <div style={{ width: '100%', height: 240 }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <LineChart data={chartData} margin={{ top: 8, right: 20, left: 0, bottom: 16 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                    <XAxis dataKey="월" tick={renderMonthTick} height={40} />
+                                    <YAxis tick={{ fontSize: 12 }} />
+                                    <Tooltip formatter={(v,name)=> name==='비율' ? v+'배' : formatNumber(v)} />
+                                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                                    <Line type="monotone" dataKey="구매" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+                                    <Line type="monotone" dataKey="판매" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} />
+                                    <Line type="monotone" dataKey="재고" stroke="#d97706" strokeWidth={2} dot={{ r: 3 }} />
+                                  </LineChart>
+                                </ResponsiveContainer>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })()}
+                      </React.Fragment>
+                    );})}
                   </tbody>
                   {focusForSum.length > 0 && (() => {
-                    const sumP = focusForSum.reduce((s, r) => s + (Number(r.ytdP) || 0), 0);
-                    const sumS = focusForSum.reduce((s, r) => s + (Number(r.ytdS) || 0), 0);
-                    const sumMPG = focusForSum.reduce((s, r) => s + (Number(r.mayPurchaseGoal) || 0), 0);
-                    const sumMPA = focusForSum.reduce((s, r) => s + (Number(r.mayPurchaseActual) || 0), 0);
-                    const sumMSA = focusForSum.reduce((s, r) => s + (Number(r.maySalesActual) || 0), 0);
-                    const sumStock = focusForSum.reduce((s, r) => s + (Number(r.mayEndStock) || 0), 0);
-                    // 전체 평균판매기준 = 전체 재고 ÷ (전체 누적판매 ÷ 5)
-                    // 단, 개별 행에 수동값이 있으면 가중평균에 그 수동값을 반영
-                    const totalMonthlyAvg = sumS / 5;
-                    const autoTotalBase = totalMonthlyAvg > 0 ? (sumStock / totalMonthlyAvg) : 0;
-                    // 수동값 있는 행이 있는 경우 표시 (참고용)
-                    const manualCount = focusForSum.filter(r => r.mayBaseManual !== undefined && r.mayBaseManual !== null && r.mayBaseManual !== '').length;
-                    // 전체 구매달성률 = 전체 구매실적 ÷ 전체 구매목표 × 100
-                    const totalPurchaseRate = sumMPG > 0 ? (sumMPA / sumMPG * 100) : 0;
+                    const monthSum = (field) => focusForSum.reduce((s,r)=> s + [1,2,3,4,5,6,7,8,9,10,11,12].reduce((ss,m)=>ss+(Number(r[`m${m}_${field}`])||0),0), 0);
+                    const sumByMonth = (m, field) => focusForSum.reduce((s,r)=>s+(Number(r[`m${m}_${field}`])||0),0);
+                    const sumStockY25 = focusForSum.reduce((s,r)=>s+(Number(r.stockY25)||0),0);
+                    const sumTarget = focusForSum.reduce((s,r)=>s+(Number(r.targetQty)||0),0);
+                    const sumPurchaseTot = focusForSum.reduce((s,r)=>{
+                      const auto=[1,2,3,4,5,6,7,8,9,10,11,12].reduce((ss,m)=>ss+(Number(r[`m${m}_P`])||0),0);
+                      const v=(r.purchaseQtyManual!==undefined&&r.purchaseQtyManual!==null&&r.purchaseQtyManual!=='')?Number(r.purchaseQtyManual):auto;
+                      return s+v;},0);
+                    const sumSalesTot = focusForSum.reduce((s,r)=>{
+                      const auto=[1,2,3,4,5,6,7,8,9,10,11,12].reduce((ss,m)=>ss+(Number(r[`m${m}_S`])||0),0);
+                      const v=(r.salesQtyManual!==undefined&&r.salesQtyManual!==null&&r.salesQtyManual!=='')?Number(r.salesQtyManual):auto;
+                      return s+v;},0);
                     return (
                       <tfoot>
                         <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-center" colSpan={2}>합계 / 평균</td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900">{formatNumber(sumP)}</td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900">{formatNumber(sumS)}</td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-right">{formatNumber(sumMPG)}</td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900">{formatNumber(sumMPA)}</td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900">{formatNumber(sumMSA)}</td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900">{formatNumber(sumStock)}</td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900" title={`전체 재고 ÷ (전체 누적판매 ÷ 5)${manualCount > 0 ? ` · ${manualCount}개 행에 수동값 있음` : ''}`}>
-                            {autoTotalBase.toFixed(1)}
-                            {manualCount > 0 && <span className="text-[9px] text-amber-500 ml-1" title={`${manualCount}개 행에 수동 입력 존재`}>✎</span>}
-                          </td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-right text-slate-900">{totalPurchaseRate.toFixed(1)}%</td>
-                          <td className="px-2 py-1.5 border-r border-slate-300 text-center text-slate-500">-</td>
+                          <td className="px-1 py-1.5 border-r border-slate-300 text-center bg-slate-100">합계</td>
+                          <td className="px-1 py-1.5 border-r border-slate-300 text-center bg-slate-100"></td>
+                          {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
+                            <React.Fragment key={m}>
+                              <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm">{formatNumber(sumByMonth(m,'P'))}</td>
+                              <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm">{formatNumber(sumByMonth(m,'S'))}</td>
+                              <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm">{formatNumber(sumByMonth(m,'I'))}</td>
+                              <td className="px-0.5 py-1.5 border-r border-slate-400 text-right text-sm text-slate-400">-</td>
+                            </React.Fragment>
+                          ))}
+                          {/* 선택합계 */}
+                          {psiCols.selSum && <>
+                          <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm bg-indigo-100 text-indigo-800">{formatNumber([1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).reduce((s,m)=>s+sumByMonth(m,'P'),0))}</td>
+                          <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm bg-indigo-100 text-indigo-800">{formatNumber([1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).reduce((s,m)=>s+sumByMonth(m,'S'),0))}</td>
+                          <td className="px-0.5 py-1.5 border-r border-slate-400 text-right text-sm bg-indigo-100 text-indigo-800">{formatNumber([1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).reduce((s,m)=>s+sumByMonth(m,'I'),0))}</td>
+                          </>}
+                          {psiCols.stockY25 && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-amber-100">{formatNumber(sumStockY25)}</td>}
+                          {psiCols.target && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-blue-100">{formatNumber(sumTarget)}</td>}
+                          {psiCols.purchaseQty && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-emerald-100">{formatNumber(sumPurchaseTot)}</td>}
+                          {psiCols.salesQty && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-emerald-100">{formatNumber(sumSalesTot)}</td>}
+                          {psiCols.status && <td className="px-2 py-1.5 border-r border-slate-200 text-center text-slate-500">-</td>}
                           <td className="px-2 py-1.5 text-center text-slate-500">-</td>
                         </tr>
                       </tfoot>
@@ -8451,6 +8421,7 @@ function App() {
         })()}
 
         {/* === 중점 관리 대리상 === */}
+        {psiTab === 'focus' && (
         <div className="bg-white border border-slate-200 rounded-md p-4">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
             <div className="flex items-center gap-3">
@@ -8766,6 +8737,7 @@ function App() {
           </>
           )}
         </div>
+        )}
 
 
 
@@ -10496,6 +10468,16 @@ function App() {
     const monthLabelBD = `${displayMonthBD}월`;
     const is5월BD = displayMonthBD === 5;
 
+    // BD 월 표시 - 보고 있는 월(yearMonthBD)별로 따로 저장
+    const bdVisibleMonths = bdVisMonthsByMonth[yearMonthBD] || Array(12).fill(true);
+    const setBDVisibleMonths = (updater) => {
+      setBDVisMonthsByMonth(prev => {
+        const cur = prev[yearMonthBD] || Array(12).fill(true);
+        const next = typeof updater === 'function' ? updater(cur) : updater;
+        return { ...prev, [yearMonthBD]: next };
+      });
+    };
+
     // 빈 템플릿
     const emptyBD = (bd[hq] || []).map(d => ({
       ...d,
@@ -11530,8 +11512,8 @@ function App() {
       }
     };
     const sortIcon = (key) => {
-      if (pkgSortKey !== key) return '↕';
-      return pkgSortOrder === 'asc' ? '↑' : '↓';
+      if (pkgSortKey !== key) return '';
+      return '';
     };
 
     // === KPI 합계 (당월) ===
