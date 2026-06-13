@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>3개 본부 통합 관리 시스템</title>
+<title>메가젠 중국지역</title>
 <script>
   // === 다중 CDN 폴백 시스템 ===
   // CDN이 차단되거나 느릴 경우 자동으로 다음 CDN을 시도합니다.
@@ -263,28 +263,28 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   #error-box { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 16px 24px; border-radius: 8px; max-width: 600px; font-family: system-ui, sans-serif; z-index: 10000; }
 
-  /* === 표 첫 컬럼 sticky (가로 스크롤 시 고정) — 대리상 PSI 관리 표는 제외 === */
-  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) thead th:first-child,
-  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tfoot td:first-child {
+  /* === 표 첫 컬럼 sticky (가로 스크롤 시 고정) — data-sticky-first="off" 표는 제외 === */
+  table[data-table-id]:not([data-sticky-first="off"]) thead th:first-child,
+  table[data-table-id]:not([data-sticky-first="off"]) tfoot td:first-child {
     position: sticky;
     left: 0;
     z-index: 5;
     background-color: #f1f5f9; /* slate-100 (헤더 회색과 동일) */
   }
-  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tbody td:first-child {
+  table[data-table-id]:not([data-sticky-first="off"]) tbody td:first-child {
     position: sticky;
     left: 0;
     z-index: 4;
     background-color: #ffffff; /* 흰색 */
   }
   /* 호버 시 첫 컬럼도 살짝 강조 */
-  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tbody tr:hover td:first-child {
+  table[data-table-id]:not([data-sticky-first="off"]) tbody tr:hover td:first-child {
     background-color: #f8fafc; /* slate-50 */
   }
   /* 첫 컬럼 오른쪽 그림자 (구분감) */
-  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) thead th:first-child,
-  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tbody td:first-child,
-  table[data-table-id]:not([data-table-id="dealer_psi_summary"]) tfoot td:first-child {
+  table[data-table-id]:not([data-sticky-first="off"]) thead th:first-child,
+  table[data-table-id]:not([data-sticky-first="off"]) tbody td:first-child,
+  table[data-table-id]:not([data-sticky-first="off"]) tfoot td:first-child {
     box-shadow: 1px 0 0 0 #e2e8f0;
   }
 
@@ -383,7 +383,12 @@
 
     // 저장된 너비 불러오기
     function loadWidths() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+      try {
+        var w = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        // PSI 연간표(psiAnnual_*)는 colgroup 고정 — 저장된 너비 무시
+        Object.keys(w).forEach(function(k){ if (k.indexOf('psiAnnual_') === 0 || k.indexOf('sales_emp_progress') === 0 || k.indexOf('bd_entry_status') === 0 || k.indexOf('dso_progress') === 0 || k.indexOf('dso_entry_status') === 0 || k.indexOf('dso_sales_status') === 0) delete w[k]; });
+        return w;
+      }
       catch (e) { return {}; }
     }
 
@@ -478,6 +483,14 @@
         // React ResizableHeader를 쓰는 표는 제외 (자체 너비 저장 사용)
         if (table.getAttribute('data-table-id') === 'bd_customers') return;
         if (table.getAttribute('data-table-id') === 'dealer_psi_summary') return;
+        // PSI 연간표(대리상별 계약실적현황)는 colgroup으로 고정 — 제외
+        var _tid = table.getAttribute('data-table-id') || '';
+        if (_tid.indexOf('psiAnnual_') === 0) return;
+        if (_tid === 'sales_emp_progress') return;
+        if (_tid === 'bd_entry_status') return;
+        if (_tid === 'dso_progress') return;
+        if (_tid === 'dso_entry_status') return;
+        if (_tid === 'dso_sales_status') return;
         if (table.querySelector('thead .cursor-col-resize')) return;
         var tableId = getTableId(table);
         // 모든 헤더 행을 한 번에 처리 (rowSpan으로 1단에만 있는 셀도 포함)
@@ -747,6 +760,42 @@ const INITIAL_PSI_HD = {
   hqMonthly: { goal: _zero12(), actual: _zero12() },
   dealers: _psiEmptyDealers(['상해', '강소', '산동']),
 };
+// DSO 진입현황 기본 데이터 (첨부 기준) — 본부/대구/지역/문진수/연종식량/DSO수량/진입수량/S합계/S진입/A합계/A진입/기타합계/기타진입
+const DSO_ENTRY_DATA = [
+  { hq:'화동', region:'상해', clinic:196, implant:511000, dso:25, enter:13, sT:4, sE:1, aT:5, aE:3, oT:16, oE:9 },
+  { hq:'화동', region:'강소', clinic:303, implant:827000, dso:40, enter:12, sT:7, sE:2, aT:5, aE:2, oT:28, oE:8 },
+  { hq:'화동', region:'산동', clinic:168, implant:403500, dso:33, enter:20, sT:7, sE:1, aT:0, aE:0, oT:26, oE:19 },
+  { hq:'화서', region:'사천', clinic:306, implant:240700, dso:13, enter:11, sT:1, sE:1, aT:0, aE:0, oT:12, oE:10 },
+  { hq:'화서', region:'감숙', clinic:41, implant:60000, dso:5, enter:2, sT:0, sE:0, aT:0, aE:0, oT:5, oE:2 },
+  { hq:'화서', region:'청해', clinic:0, implant:0, dso:0, enter:0, sT:0, sE:0, aT:0, aE:0, oT:0, oE:0 },
+  { hq:'화서', region:'신장', clinic:25, implant:20800, dso:5, enter:2, sT:0, sE:0, aT:0, aE:0, oT:5, oE:2 },
+  { hq:'화서', region:'운남', clinic:36, implant:140500, dso:9, enter:4, sT:1, sE:0, aT:1, aE:1, oT:7, oE:3 },
+  { hq:'화서', region:'산서', clinic:61, implant:55000, dso:11, enter:8, sT:0, sE:0, aT:1, aE:1, oT:10, oE:7 },
+  { hq:'화서', region:'섬서', clinic:75, implant:177500, dso:13, enter:3, sT:3, sE:0, aT:0, aE:0, oT:10, oE:3 },
+  { hq:'화서', region:'녕하', clinic:7, implant:16000, dso:2, enter:1, sT:0, sE:0, aT:0, aE:0, oT:2, oE:1 },
+  { hq:'화남', region:'광동', clinic:283, implant:479500, dso:29, enter:11, sT:4, sE:1, aT:5, aE:2, oT:20, oE:8 },
+  { hq:'화남', region:'광서', clinic:51, implant:50000, dso:6, enter:2, sT:0, sE:0, aT:1, aE:1, oT:5, oE:1 },
+  { hq:'화남', region:'해남', clinic:8, implant:23000, dso:5, enter:0, sT:0, sE:0, aT:0, aE:0, oT:5, oE:0 },
+];
+
+// DSO 판매현황 기본 데이터 (첨부 기준) — 지역/문진수/연종식량/진입수량/26년누계목표/월목표/월업적
+const DSO_SALES_DATA = [
+  { hq:'화동', region:'상해', clinic:196, implant:511000, enter:13, yearTarget:50000, monthTarget:4167, monthActual:1251 },
+  { hq:'화동', region:'강소', clinic:303, implant:827000, enter:12, yearTarget:64500, monthTarget:5292, monthActual:1330 },
+  { hq:'화동', region:'산동', clinic:168, implant:403500, enter:20, yearTarget:39000, monthTarget:3243, monthActual:860 },
+  { hq:'화서', region:'사천', clinic:306, implant:240700, enter:11, yearTarget:51000, monthTarget:4127, monthActual:1071 },
+  { hq:'화서', region:'감숙', clinic:41, implant:60000, enter:2, yearTarget:6500, monthTarget:542, monthActual:60 },
+  { hq:'화서', region:'청해', clinic:0, implant:0, enter:0, yearTarget:0, monthTarget:0, monthActual:0 },
+  { hq:'화서', region:'신장', clinic:25, implant:20800, enter:2, yearTarget:5500, monthTarget:417, monthActual:26 },
+  { hq:'화서', region:'운남', clinic:36, implant:140500, enter:4, yearTarget:14000, monthTarget:1167, monthActual:75 },
+  { hq:'화서', region:'산서', clinic:61, implant:55000, enter:8, yearTarget:17900, monthTarget:1492, monthActual:94 },
+  { hq:'화서', region:'섬서', clinic:75, implant:177500, enter:3, yearTarget:4000, monthTarget:333, monthActual:177 },
+  { hq:'화서', region:'녕하', clinic:7, implant:16000, enter:1, yearTarget:1500, monthTarget:125, monthActual:4 },
+  { hq:'화남', region:'광동', clinic:283, implant:479500, enter:11, yearTarget:59614, monthTarget:3792, monthActual:902 },
+  { hq:'화남', region:'광서', clinic:51, implant:50000, enter:2, yearTarget:5500, monthTarget:458, monthActual:120 },
+  { hq:'화남', region:'해남', clinic:8, implant:23000, enter:0, yearTarget:0, monthTarget:0, monthActual:0 },
+];
+
 const PSI_DATA_MAP = {
   '화남본부': INITIAL_PSI_HN,
   '화서본부': INITIAL_PSI_HX,
@@ -1535,6 +1584,59 @@ const initialPSI = {
 // 컬럼: 2025년 연말재고, 2026년 합동임무 월평균, 1-5월누계(구매P, 판매S),
 //       4월(구매P, 판매S, 재고I, 판매평균재고비, 합동임무기준),
 //       5월(구매목표, 구매실적, 판매목표, 판매실적, 월말재고, 판매평균재고비, 합동임무기준, 5월 재고I, 5월 판매평균재고비, 합동임무기준)
+const PSI_ANNUAL_DATA = {
+  '화동본부': [
+    { region:'상해', name:'上海保贞医疗器械有限公司', con:[20.0,10.0,30.0,40.0,40.0,40.0,40.0,45.0,35.0,30.0,30.0,40.0], act:[20.0,19.3,30.0,40.1,43.8,0.0,0,0,0,0,0,0] },
+    { region:'상해', name:'海蔓医疗科技(苏州)股份有限公司(上海贺中)', con:[30.0,20.0,45.0,45.0,45.0,45.0,35.0,45.0,55.0,45.0,45.0,45.0], act:[32.9,20.1,45.5,12.2,17.2,2.6,0,0,0,0,0,0] },
+    { region:'상해', name:'上海舰涵医疗科技有限公司(铮欣)', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'상해', name:'上海习亮贸易有限公司', con:[70.0,15.0,60.0,55.0,55.0,55.0,40.0,40.0,55.0,50.0,50.0,45.0], act:[70.0,25.1,81.0,82.8,104.8,0.7,0,0,0,0,0,0] },
+    { region:'상해', name:'上海创连医疗器械有限公司', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'상해', name:'上海圣捷医疗器材有限公司', con:[25.0,15.0,35.0,35.0,40.0,50.0,40.0,40.0,60.0,55.0,55.0,50.0], act:[10.3,18.3,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'강소', name:'南京康睿达医疗科技有限公司(江苏澍康医疗科技)', con:[182.0,112.0,266.0,252.0,252.0,252.0,196.0,210.0,280.0,266.0,294.0,238.0], act:[183.3,112.1,266.1,78.4,15.2,0.0,0,0,0,0,0,0] },
+    { region:'강소', name:'南京康尔诺医疗器械有限公司(国药康尔诺口腔医疗)', con:[10.0,10.0,40.0,54.0,54.0,64.0,52.0,55.0,70.0,57.0,73.0,61.0], act:[14.9,9.9,40.5,31.6,11.2,0.1,0,0,0,0,0,0] },
+    { region:'산동', name:'山东贝力医疗器械有限公司', con:[12.0,11.0,22.0,21.0,21.0,21.0,16.0,17.0,23.0,22.0,24.0,20.0], act:[12.5,11.3,22.3,21.0,21.1,0.0,0,0,0,0,0,0] },
+    { region:'산동', name:'山东锦驰医疗器械有限公司', con:[13.0,15.0,25.0,23.0,23.0,23.0,18.0,20.0,26.0,25.0,27.0,22.0], act:[13.2,15.2,27.5,26.5,23.6,0.1,0,0,0,0,0,0] },
+    { region:'산동', name:'济南辰帆医疗器械有限公司', con:[17.0,11.0,25.0,23.0,23.0,23.0,18.0,20.0,26.0,25.0,27.0,22.0], act:[17.1,11.6,25.0,23.2,23.8,-0.4,0,0,0,0,0,0] },
+    { region:'산동', name:'济南泽康商德医疗设备有限公司', con:[30.0,12.0,38.0,36.0,36.0,36.0,28.0,30.0,40.0,38.0,42.0,34.0], act:[31.8,13.6,38.6,22.1,22.7,0.1,0,0,0,0,0,0] },
+    { region:'산동', name:'青岛振全嘉泰医疗器械有限公司', con:[90.0,52.0,128.0,121.0,121.0,121.0,95.0,101.0,135.0,130.0,141.0,115.0], act:[90.5,52.7,128.7,121.3,121.1,37.3,0,0,0,0,0,0] },
+  ],
+  '화서본부': [
+    { region:'사천', name:'成都普瑞赛司医疗器械有限公司', con:[200.0,140.0,270.0,260.0,260.0,255.0,215.0,240.0,280.0,280.0,320.0,280.0], act:[218.4,149.4,275.0,260.5,261.8,21.7,0,0,0,0,0,0] },
+    { region:'감숙', name:'成都普瑞赛司医疗器械有限公司(兰州惠达齿科科技)', con:[11.0,8.0,17.0,16.0,16.0,16.0,13.0,13.0,18.0,17.0,18.0,17.0], act:[8.2,1.1,24.4,17.1,8.7,0.0,0,0,0,0,0,0] },
+    { region:'감숙', name:'兰州连联荣光商贸有限公司', con:[14.0,10.0,16.0,18.0,18.0,18.0,15.0,15.0,19.0,19.0,19.0,19.0], act:[0.0,0.0,0.7,16.9,0.0,0.0,0,0,0,0,0,0] },
+    { region:'청해', name:'青海登士达医疗器械有限公司', con:[2.0,1.0,2.0,2.0,2.0,2.0,1.0,1.0,1.0,2.0,2.0,2.0], act:[0.2,0.0,0.0,0.0,0.8,0.0,0,0,0,0,0,0] },
+    { region:'신강', name:'成都普瑞赛司医疗器械有限公司(乌鲁木齐鑫精良)', con:[14.0,11.0,19.0,20.0,20.0,20.0,16.0,19.0,18.0,20.0,20.0,23.0], act:[0.0,0.0,20.6,0.2,1.3,0.0,0,0,0,0,0,0] },
+    { region:'운남', name:'成都普瑞赛司医疗器械有限公司(云南骅光医疗器械)', con:[24.0,14.0,34.0,33.0,33.0,33.0,26.0,26.0,35.0,34.0,38.0,30.0], act:[22.7,6.9,43.1,5.2,21.3,0.0,0,0,0,0,0,0] },
+    { region:'운남', name:'云南东幸医疗器械有限公司', con:[14.0,9.0,19.0,18.0,18.0,19.0,15.0,16.0,20.0,18.0,20.0,21.0], act:[0.0,0.0,0.0,0.0,9.7,0.0,0,0,0,0,0,0] },
+    { region:'산서', name:'山西康美雅泰医疗器械有限公司', con:[35.0,22.0,53.0,50.0,50.0,50.0,38.0,41.0,55.0,52.0,57.0,47.0], act:[36.3,22.2,53.1,51.9,3.7,0.0,0,0,0,0,0,0] },
+    { region:'산서', name:'山西卡卡医疗科技有限公司(山西麦驰医疗科技)', con:[23.0,14.0,33.0,32.0,31.0,32.0,25.0,26.0,35.0,33.0,36.0,30.0], act:[24.6,0.6,16.7,32.9,0.5,0.1,0,0,0,0,0,0] },
+    { region:'섬서', name:'陕西璐玟医疗器械有限公司', con:[7.0,4.0,9.0,9.0,9.0,9.0,7.0,8.0,10.0,10.0,10.0,8.0], act:[18.4,5.8,23.0,17.1,10.0,0.0,0,0,0,0,0,0] },
+    { region:'섬서', name:'国药口腔丹特医疗器械(西安)有限公司', con:[23.0,14.0,33.0,32.0,31.0,32.0,25.0,26.0,35.0,33.0,36.0,30.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'녕하', name:'银川德诺联康科技有限公司', con:[4.0,2.0,6.0,5.0,5.0,6.0,4.0,5.0,6.0,6.0,6.0,5.0], act:[5.9,2.4,1.0,1.2,1.2,0.0,0,0,0,0,0,0] },
+    { region:'녕하', name:'银川思瑞达医疗器械有限公司', con:[6.0,3.0,7.0,7.0,7.0,7.0,6.0,6.0,8.0,8.0,8.0,7.0], act:[6.1,0.0,7.8,0.0,0.3,0.0,0,0,0,0,0,0] },
+  ],
+  '화남본부': [
+    { region:'광동', name:'国药信益城医疗器械(广东)有限公司', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광동', name:'国药山顺(汕头)生物科技有限公司', con:[5.0,10.0,5.0,9.0,9.0,9.0,8.0,8.0,8.0,9.0,10.0,10.0], act:[5.4,0.1,0.1,4.2,1.1,1.5,0,0,0,0,0,0] },
+    { region:'광동', name:'科诺欧医疗科技(深圳)有限公司', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광동', name:'广东兴雅医疗科技有限公司', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광동', name:'佛山市医路松佰医疗器械有限公司', con:[90.0,50.0,120.0,115.0,115.0,121.0,106.0,106.0,106.0,110.0,125.0,136.0], act:[57.6,65.9,138.0,115.3,26.0,91.7,0,0,0,0,0,0] },
+    { region:'광동', name:'广州医路精密医疗器械有限公司', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광동', name:'聚赢齿科技术(上海)有限公司(广州)', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광동', name:'深圳市尔瑞医疗器械有限公司', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광동', name:'上海创连医疗器械有限公司(广东)', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광동', name:'深圳市鹏生医疗器械商贸有限公司', con:[20.0,10.0,50.0,30.0,35.0,40.0,30.0,30.0,35.0,40.0,40.0,40.0], act:[18.2,3.9,4.9,10.4,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광동', name:'广州齐即美生物技术有限公司', con:[0.0,0.0,20.0,20.0,20.0,20.0,15.0,15.0,20.0,20.0,20.0,30.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광서', name:'广西安榭里牙科技术有限责任公司', con:[10.0,5.0,11.0,11.0,12.0,12.0,10.0,11.0,11.0,12.0,12.0,13.0], act:[0.0,0.2,11.1,13.1,12.6,0.0,0,0,0,0,0,0] },
+    { region:'광서', name:'广西励臻医疗器械有限公司', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,6.5,0.0,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광서', name:'北海牙博士口腔门诊部', con:[10.0,5.0,15.0,15.0,15.0,10.0,10.0,11.0,15.0,14.0,15.0,15.0], act:[6.7,8.6,12.5,14.9,5.0,2.9,0,0,0,0,0,0] },
+    { region:'광서', name:'同步口腔门诊部有限公司', con:[1.0,1.0,2.0,1.0,2.0,2.0,2.0,1.0,2.0,2.0,2.0,2.0], act:[-3.7,0.0,-0.6,-2.6,0.0,0.0,0,0,0,0,0,0] },
+    { region:'광서', name:'国药涅宇口腔医疗器械(广西)有限公司', con:[10.0,5.0,15.0,13.0,14.0,14.0,12.0,12.0,13.0,14.0,14.0,14.0], act:[0.1,1.7,0.0,5.2,0.0,0.0,0,0,0,0,0,0] },
+    { region:'해남', name:'海南杉海贸易有限公司', con:[9.0,4.0,7.0,8.0,9.0,9.0,7.0,8.0,9.0,10.0,10.0,10.0], act:[9.0,0.0,7.0,4.4,7.9,1.7,0,0,0,0,0,0] },
+    { region:'해남', name:'海南宏名医疗器械有限公司', con:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0], act:[0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0] },
+  ],
+};
+
 const initialPSIFocus = {
   '화남본부': [
     { id:1, dealer:'国药山顺(汕头)生物科技有限公司', region:'광동', stockY25:202, targetQty:324, purchaseQtyManual:null, salesQtyManual:null, m1_P:129, m1_S:200, m1_I:131, m1_R:0, m2_P:4, m2_S:95, m2_I:40, m2_R:0, m3_P:0, m3_S:235, m3_I:-195, m3_R:0, m4_P:109, m4_S:250, m4_I:-336, m4_R:0, m5_P:28, m5_S:200, m5_I:-508, m5_R:0, m6_P:41, m6_S:20, m6_I:-637, m6_R:0, m7_P:0, m7_S:0, m7_I:0, m7_R:0, m8_P:0, m8_S:0, m8_I:0, m8_R:0, m9_P:0, m9_S:0, m9_I:0, m9_R:0, m10_P:0, m10_S:0, m10_I:0, m10_R:0, m11_P:0, m11_S:0, m11_I:0, m11_R:0, m12_P:0, m12_S:0, m12_I:0, m12_R:0 },
@@ -3127,371 +3229,6 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
 }
 
 /* ================ 3번 메뉴 - 대리상 PSI 연간 월별표 ================ */
-function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logChange }) {
-  const psiData = PSI_DATA_MAP[hq];
-  const psiKey = hq === '화서본부' ? 'psiHX' : hq === '화동본부' ? 'psiHD' : 'psiHN';
-  const hqRegionName = hq === '화서본부' ? '화서지역' : hq === '화동본부' ? '화동지역' : '화남지역';
-  const [tableCollapsed, setTableCollapsed] = React.useState(false);
-  const [visibleMonths, setVisibleMonths] = React.useState(() => {
-    try { const s = localStorage.getItem(`dashboard_${psiKey}_m${month}_visMonths_v1`); if (s) return JSON.parse(s); } catch (e) {}
-    return Array(12).fill(true);
-  });
-  const [monthPickerOpen, setMonthPickerOpen] = React.useState(false);
-  const [sortConfig, setSortConfig] = React.useState(null);
-  // 카피 모달: 본부 실적합계의 목표/실적을 월간 카피
-  const [copyModalOpen, setCopyModalOpen] = React.useState(false);
-  const [copySrcMonth, setCopySrcMonth] = React.useState(5);    // 소스 월 (1~12)
-  const [copyDstMonth, setCopyDstMonth] = React.useState(6);    // 타겟 월 (1~12)
-  const [copyField, setCopyField] = React.useState('goal');     // 'goal' | 'actual' | 'both'
-
-  const handleCopyExecute = () => {
-    const srcMi = copySrcMonth - 1;
-    const dstMi = copyDstMonth - 1;
-    if (srcMi === dstMi) { alert('같은 월은 카피할 수 없습니다.'); return; }
-    const fields = copyField === 'both' ? ['goal', 'actual'] : [copyField];
-    const updates = {};
-    fields.forEach(f => {
-      // 실적합계(_cum) 블록만 카피 (26년도합계는 삭제됨)
-      const srcVal = getCell('_cum', f, srcMi, psiData.hqCumulative[f][srcMi]);
-      updates[`${psiKey}|_cum|${f}|${dstMi}`] = srcVal;
-    });
-    setWeeklyEntries(prev => ({ ...prev, ...updates }));
-    logChange(`PSI연간표 ${hq}`, `${copySrcMonth}월 → ${copyDstMonth}월 카피 (${copyField === 'both' ? '목표+실적' : copyField === 'goal' ? '목표' : '실적'})`);
-    setCopyModalOpen(false);
-  };
-
-  const handleSort = (key) => {
-    setSortConfig(prev => {
-      if (!prev || prev.key !== key) return { key, dir: 'asc' };
-      if (prev.dir === 'asc') return { key, dir: 'desc' };
-      return null;
-    });
-  };
-
-  // 보는 월(month) 변경 시 해당 월 설정 재로드
-  React.useEffect(() => {
-    try {
-      const s = localStorage.getItem(`dashboard_${psiKey}_m${month}_visMonths_v1`);
-      setVisibleMonths(s ? JSON.parse(s) : Array(12).fill(true));
-    } catch (e) { setVisibleMonths(Array(12).fill(true)); }
-  }, [psiKey, month]);
-
-  React.useEffect(() => {
-    try { localStorage.setItem(`dashboard_${psiKey}_m${month}_visMonths_v1`, JSON.stringify(visibleMonths)); } catch (e) {}
-  }, [visibleMonths, psiKey, month]);
-
-  // 데이터 없는 본부는 안내만
-  if (!psiData) {
-    return (
-      <div className="bg-white border border-slate-200 rounded-md p-4 mt-3">
-        <h3 className="text-base font-bold text-slate-900">{hq} 대리상 PSI 연간 월별표 ({year}년)</h3>
-        <div className="text-sm text-slate-500 mt-2">이 본부의 PSI 연간표 데이터는 준비 중입니다.</div>
-      </div>
-    );
-  }
-
-  const getCell = (name, field, mi, defaultVal) => {
-    const key = `${psiKey}|${name}|${field}|${mi}`;
-    const stored = weeklyEntries[key];
-    if (stored !== undefined && stored !== null && stored !== '') return stored;
-    return defaultVal;
-  };
-  const setCell = (name, field, mi, value) => {
-    const key = `${psiKey}|${name}|${field}|${mi}`;
-    const v = parseFloat(value);
-    setWeeklyEntries(prev => ({ ...prev, [key]: isNaN(v) ? 0 : v }));
-    logChange(`PSI연간표 ${hq} ${name}`, `${MONTH_LABELS[mi]} ${field} 수정`);
-  };
-
-  const sum = (arr) => arr.reduce((a, b) => a + b, 0);
-
-  // 본부 블록 계산 (목표/실적 + 달성율 자동)
-  const computeHqBlock = (blockName, src) => {
-    const goal = src.goal.map((d, mi) => getCell(blockName, 'goal', mi, d));
-    const actual = src.actual.map((d, mi) => getCell(blockName, 'actual', mi, d));
-    const rate = goal.map((g, mi) => g !== 0 ? Math.round(actual[mi] / g * 100) : 0);
-    const goalTotal = sum(goal), actualTotal = sum(actual);
-    const rateTotal = goalTotal !== 0 ? Math.round(actualTotal / goalTotal * 100) : 0;
-    return { goal, actual, rate, goalTotal, actualTotal, rateTotal };
-  };
-
-  // 대리상 계산 (먼저 계산해야 본부 실적합계가 대리상 실적 합계로 자동 계산됨)
-  const computeEntity = (ent) => {
-    const kpi = ent.kpi.map((d, mi) => getCell(ent.name, 'kpi', mi, d));
-    // 실적 = 사용자 입력 우선, 없으면 초기 dso+end (마이그레이션)
-    const actual = (ent.kpi).map((_, mi) => {
-      const stored = getCell(ent.name, 'actual', mi, null);
-      if (stored !== null) return stored;
-      const initDso = (ent.dso && ent.dso[mi]) || 0;
-      const initEnd = (ent.end && ent.end[mi]) || 0;
-      return initDso + initEnd;
-    });
-    const rate = actual.map((v, mi) => kpi[mi] !== 0 ? Math.round(v / kpi[mi] * 100) : 0);
-    const kpiTotal = sum(kpi), actualTotal = sum(actual);
-    const rateTotal = kpiTotal !== 0 ? Math.round(actualTotal / kpiTotal * 100) : 0;
-    return { kpi, actual, rate, kpiTotal, actualTotal, rateTotal };
-  };
-  let dealersData = psiData.dealers.map(d => ({ ent: d, calc: computeEntity(d) }));
-
-  // 본부 실적합계 (_cum): 목표(KPI)는 사용자 입력, 실적은 대리상 실적의 월별 합계로 자동
-  const cumData = (() => {
-    const src = psiData.hqCumulative;
-    const goal = src.goal.map((d, mi) => getCell('_cum', 'goal', mi, d));
-    // 실적 자동 합계 (각 월의 모든 대리상 실적 합)
-    const actual = Array(12).fill(0).map((_, mi) =>
-      dealersData.reduce((acc, { calc }) => acc + (calc.actual[mi] || 0), 0)
-    );
-    const rate = goal.map((g, mi) => g !== 0 ? Math.round(actual[mi] / g * 100) : 0);
-    const goalTotal = sum(goal), actualTotal = sum(actual);
-    const rateTotal = goalTotal !== 0 ? Math.round(actualTotal / goalTotal * 100) : 0;
-    return { goal, actual, rate, goalTotal, actualTotal, rateTotal };
-  })();
-  const monData = computeHqBlock('_mon', psiData.hqMonthly);
-
-  if (sortConfig) {
-    dealersData = [...dealersData].sort((a, b) => {
-      const va = a.ent[sortConfig.key] || '', vb = b.ent[sortConfig.key] || '';
-      const cmp = va.localeCompare(vb, 'ko');
-      return sortConfig.dir === 'asc' ? cmp : -cmp;
-    });
-  }
-
-  const fmt = (v) => { if (v === 0) return ''; const s = Math.abs(v).toLocaleString(); return v < 0 ? `(${s})` : s; };
-  const rateColor = (r) => r >= 100 ? 'text-blue-600 font-bold' : r >= 70 ? 'text-emerald-600' : r >= 50 ? 'text-amber-600' : r < 0 ? 'text-rose-600 font-bold' : 'text-rose-500';
-
-  const visMonthIdxs = visibleMonths.map((v, i) => v ? i : -1).filter(i => i >= 0);
-  const visCount = visMonthIdxs.length;
-
-  const EditCell = ({ name, field, mi, value }) => {
-    const [editing, setEditing] = React.useState(false);
-    const [temp, setTemp] = React.useState(value);
-    React.useEffect(() => { setTemp(value); }, [value]);
-    const save = () => { setCell(name, field, mi, temp); setEditing(false); };
-    if (editing) {
-      return <input type="number" value={temp} autoFocus
-        onChange={(e) => setTemp(e.target.value)} onBlur={save}
-        onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }}
-        className="w-full px-1 py-0.5 border border-blue-400 rounded outline-none text-right text-sm" />;
-    }
-    return <div onClick={() => setEditing(true)}
-      className="cursor-pointer hover:bg-blue-50 px-1 py-0.5 rounded text-right min-h-[22px]" title="클릭하여 수정">
-      {fmt(value)}</div>;
-  };
-
-  const ROW_H = 33, HEADER_H = 39;
-  const stickyRow = (i) => ({ position: 'sticky', top: `${HEADER_H + i * ROW_H}px`, height: `${ROW_H}px`, zIndex: 15 });
-  const cellH = { height: `${ROW_H}px` };
-
-  return (
-    <div className="bg-white border border-slate-200 rounded-md p-4 mt-3">
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <button onClick={() => setTableCollapsed(!tableCollapsed)} className="text-slate-500 hover:text-slate-700 w-6 text-sm">{tableCollapsed ? '▶' : '▼'}</button>
-          <h3 className="text-base font-bold text-slate-900">{hq} 대리상 PSI 연간 월별표 ({year}년)</h3>
-        </div>
-        {!tableCollapsed && (
-          <div className="flex items-center gap-2 relative">
-            <button onClick={() => setCopyModalOpen(true)}
-              className="px-2 py-1 text-xs border border-purple-300 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 font-semibold flex items-center gap-1">
-              📋 월간 카피
-            </button>
-            <button onClick={() => setVisibleMonths(Array(12).fill(true))} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
-            <button onClick={() => setMonthPickerOpen(!monthPickerOpen)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">월 선택 ({visCount}/12) ▼</button>
-            {monthPickerOpen && (
-              <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
-                {MONTH_LABELS.map((m, i) => (
-                  <label key={i} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
-                    <input type="checkbox" checked={visibleMonths[i]} onChange={() => setVisibleMonths(prev => prev.map((v, idx) => idx === i ? !v : v))} />{m}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* 카피 모달 */}
-      {copyModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40" onClick={() => setCopyModalOpen(false)}>
-          <div className="bg-white rounded-lg shadow-2xl p-6 w-96 max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-base font-bold text-slate-900">📋 본부 실적합계 월간 카피</h4>
-              <button onClick={() => setCopyModalOpen(false)} className="text-slate-400 hover:text-slate-700 text-xl leading-none">×</button>
-            </div>
-            <div className="text-xs text-slate-500 mb-4">{hq} 실적합계 행의 값을 다른 월로 복사합니다.</div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">소스 월 (복사 원본)</label>
-                <select value={copySrcMonth} onChange={(e) => setCopySrcMonth(parseInt(e.target.value))}
-                  className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded">
-                  {MONTH_LABELS.map((m, i) => <option key={i} value={i+1}>{m}</option>)}
-                </select>
-              </div>
-              <div className="flex items-center justify-center text-slate-400">↓</div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">타겟 월 (붙여넣기 대상)</label>
-                <select value={copyDstMonth} onChange={(e) => setCopyDstMonth(parseInt(e.target.value))}
-                  className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded">
-                  {MONTH_LABELS.map((m, i) => <option key={i} value={i+1}>{m}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">카피 항목</label>
-                <div className="flex gap-2">
-                  <label className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-sm border rounded cursor-pointer ${copyField === 'goal' ? 'bg-blue-50 border-blue-400 text-blue-700 font-semibold' : 'border-slate-300 hover:bg-slate-50'}`}>
-                    <input type="radio" name="copyField" value="goal" checked={copyField === 'goal'} onChange={() => setCopyField('goal')} className="hidden" />
-                    계약금액
-                  </label>
-                  <label className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-sm border rounded cursor-pointer ${copyField === 'actual' ? 'bg-blue-50 border-blue-400 text-blue-700 font-semibold' : 'border-slate-300 hover:bg-slate-50'}`}>
-                    <input type="radio" name="copyField" value="actual" checked={copyField === 'actual'} onChange={() => setCopyField('actual')} className="hidden" />
-                    실적
-                  </label>
-                  <label className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-sm border rounded cursor-pointer ${copyField === 'both' ? 'bg-blue-50 border-blue-400 text-blue-700 font-semibold' : 'border-slate-300 hover:bg-slate-50'}`}>
-                    <input type="radio" name="copyField" value="both" checked={copyField === 'both'} onChange={() => setCopyField('both')} className="hidden" />
-                    둘 다
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2 mt-5">
-              <button onClick={() => setCopyModalOpen(false)} className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded hover:bg-slate-50">취소</button>
-              <button onClick={handleCopyExecute} className="flex-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold">카피 실행</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!tableCollapsed && (
-        <div className="overflow-x-auto border border-slate-300 rounded" style={{ maxHeight: '85vh', overflowY: 'auto' }}>
-          <table className="text-sm border-collapse" style={{ minWidth: '100%' }}>
-            <thead className="sticky top-0 z-20">
-              <tr className="bg-slate-100 border-b border-slate-300" style={{ height: '39px' }}>
-                <th onClick={() => handleSort('region')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 sticky left-0 bg-slate-100 z-30 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '80px' }}>지역</th>
-                <th onClick={() => handleSort('type')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '60px' }}>구분</th>
-                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth: '95px' }}>업체명</th>
-                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth: '75px' }}>구분상세</th>
-                {visMonthIdxs.map(mi => <th key={mi} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right" style={{ minWidth: '80px' }}>{MONTH_LABELS[mi]}</th>)}
-                <th className="px-2 py-2 font-semibold text-slate-700 text-right bg-slate-200" style={{ minWidth: '90px' }}>合计</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* 본부 - 누적실적 (3행 고정) */}
-              {(() => {
-                const c = cumData;
-                const rowBase = "border-b border-slate-200";
-                return (
-                  <>
-                    <tr className={rowBase} style={stickyRow(0)}>
-                      <td rowSpan={3} style={cellH} className="px-2 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-20">{hqRegionName}</td>
-                      <td rowSpan={3} style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-700 align-middle bg-white">본부</td>
-                      <td rowSpan={3} style={cellH} className="px-2 border-r border-slate-300 text-center font-medium text-slate-800 align-middle bg-white">실적합계</td>
-                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">계약금액</td>
-                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-1 border-r border-slate-300 font-bold text-slate-900 bg-white"><EditCell name="_cum" field="goal" mi={mi} value={c.goal[mi]} /></td>)}
-                      <td style={cellH} className="px-2 text-right font-bold bg-slate-100">{fmt(c.goalTotal)}</td>
-                    </tr>
-                    <tr className={rowBase} style={stickyRow(1)}>
-                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 bg-white" title="대리상 실적의 월별 합계 (자동)">실적</td>
-                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-2 border-r border-slate-300 bg-slate-50 text-right font-semibold text-slate-800" title="대리상 실적 합계 (자동)">{fmt(c.actual[mi])}</td>)}
-                      <td style={cellH} className="px-2 text-right font-bold bg-slate-100">{fmt(c.actualTotal)}</td>
-                    </tr>
-                    <tr className={rowBase} style={stickyRow(2)}>
-                      <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">KPI달성율</td>
-                      {visMonthIdxs.map(mi => <td key={mi} style={cellH} className={`px-2 border-r border-slate-300 text-right bg-white ${rateColor(c.rate[mi])}`}>{c.rate[mi]}%</td>)}
-                      <td style={cellH} className={`px-2 text-right font-bold bg-slate-100 ${rateColor(c.rateTotal)}`}>{c.rateTotal}%</td>
-                    </tr>
-                  </>
-                );
-              })()}
-              {/* 대리상/DSO 행 그룹들 */}
-              {dealersData.map(({ ent, calc: c }) => {
-                const rowBase = "border-b border-slate-200";
-                const nameColor = ent.type === 'DSO' ? 'text-rose-600' : 'text-slate-800';
-                if (ent.dsoOnly) {
-                  return (
-                    <React.Fragment key={ent.name}>
-                      <tr className={rowBase}>
-                        <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-10">{ent.region}</td>
-                        <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-center text-slate-700 align-middle">{ent.type}</td>
-                        <td rowSpan={3} className={`px-2 py-1 border-r border-slate-300 text-center font-medium align-middle ${nameColor}`}>{ent.name}</td>
-                        <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI</td>
-                        {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300 font-bold text-slate-900"><EditCell name={ent.name} field="kpi" mi={mi} value={c.kpi[mi]} /></td>)}
-                        <td className="px-2 py-1 text-right font-bold bg-slate-100">{fmt(c.kpiTotal)}</td>
-                      </tr>
-                      <tr className={rowBase}>
-                        <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">실적</td>
-                        {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="actual" mi={mi} value={c.actual[mi]} /></td>)}
-                        <td className="px-2 py-1 text-right bg-slate-50">{fmt(c.actualTotal)}</td>
-                      </tr>
-                      <tr className={rowBase}>
-                        <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI달성율</td>
-                        {visMonthIdxs.map(mi => <td key={mi} className={`px-2 py-1 border-r border-slate-300 text-right ${rateColor(c.rate[mi])}`}>{c.rate[mi]}%</td>)}
-                        <td className={`px-2 py-1 text-right font-bold bg-slate-100 ${rateColor(c.rateTotal)}`}>{c.rateTotal}%</td>
-                      </tr>
-                    </React.Fragment>
-                  );
-                }
-                return (
-                  <React.Fragment key={ent.name}>
-                    <tr className={rowBase}>
-                      <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-10">{ent.region}</td>
-                      <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-center text-slate-700 align-middle">{ent.type}</td>
-                      <td rowSpan={3} className={`px-2 py-1 border-r border-slate-300 text-center font-medium align-middle ${nameColor}`}>{ent.name}</td>
-                      <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI</td>
-                      {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300 font-bold text-slate-900"><EditCell name={ent.name} field="kpi" mi={mi} value={c.kpi[mi]} /></td>)}
-                      <td className="px-2 py-1 text-right font-bold bg-slate-100">{fmt(c.kpiTotal)}</td>
-                    </tr>
-                    <tr className={rowBase}>
-                      <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">실적</td>
-                      {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300"><EditCell name={ent.name} field="actual" mi={mi} value={c.actual[mi]} /></td>)}
-                      <td className="px-2 py-1 text-right bg-slate-50">{fmt(c.actualTotal)}</td>
-                    </tr>
-                    <tr className={rowBase}>
-                      <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI달성율</td>
-                      {visMonthIdxs.map(mi => <td key={mi} className={`px-2 py-1 border-r border-slate-300 text-right ${rateColor(c.rate[mi])}`}>{c.rate[mi]}%</td>)}
-                      <td className={`px-2 py-1 text-right font-bold bg-slate-100 ${rateColor(c.rateTotal)}`}>{c.rateTotal}%</td>
-                    </tr>
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {!tableCollapsed && (
-        <div className="mt-2 text-[11px] text-slate-500">
-          * KPI달성율 = 실적 ÷ KPI × 100 (자동) · 合计 = 1~12월 합산 (자동) · KPI·실적 클릭하여 수정 · 월별 표시 토글 가능
-        </div>
-      )}
-
-      {/* 비고 (매월 구분) */}
-      {!tableCollapsed && (() => {
-        const bigoKey = `${psiKey}_bigo|${year}-${month}`;
-        const currentBigo = weeklyEntries[bigoKey] ?? '';
-        return (
-          <div className="bg-white border border-slate-200 rounded-md overflow-hidden mt-3">
-            <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-              <h4 className="text-sm font-bold text-slate-900">비고</h4>
-              <span className="text-xs text-slate-700">{hq} {year}년 {month}월 PSI 메모 · 자동 저장</span>
-            </div>
-            <div className="p-3">
-              <textarea value={currentBigo}
-                onChange={(e) => setWeeklyEntries(prev => ({ ...prev, [bigoKey]: e.target.value }))}
-                placeholder={`${month}월 대리상 PSI 관련 비고, 분석, 특이사항 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다. (우측 하단을 드래그하여 높이 조절 가능)`}
-                className="w-full min-h-[160px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y" />
-            </div>
-          </div>
-        );
-      })()}
-    </div>
-  );
-}
-
-/* ============================================================
-   [전체 대시보드용] 법인 매출 관리
-   - 탭: 금액(만RMB) / 수량(개)
-   - 각 탭에 위표(KPI/실적/달성율) + 아래표(전년도25/성장율)
-   - 저장: weeklyEntries (기존 시스템 통합)
-   ============================================================ */
 const CORP_AMOUNT_ROWS = [
   { corp:'닝보', region:'절강지역', name:'절강본부',
     kpi:[428,263,625,593,593,593,461,494,658,625,691,560], act:[496,286,639,461,564,86,0,0,0,0,0,0], y25:[437,410,674,554,417,534,437,359,483,456,366,447] },
@@ -3508,6 +3245,7 @@ const CORP_AMOUNT_ROWS = [
   { corp:'-', region:'기타', name:'기타',
     kpi:[0,0,0,0,0,0,0,0,0,0,0,0], act:[3,3,10,3,3,5,0,0,0,0,0,0], y25:[0,0,0,0,0,0,0,0,0,0,0,0] },
 ];
+
 const CORP_QTY_ROWS = [
   { corp:'닝보', region:'절강지역', name:'절강본부',
     kpi:[14569,8966,21295,20174,20174,20174,15690,16810,22415,21295,23536,19052], act:[15439,12073,22570,15690,19704,3470,0,0,0,0,0,0], y25:[11298,10676,17828,17457,13432,15648,15354,13928,12763,15838,13045,14690] },
@@ -3524,9 +3262,9 @@ const CORP_QTY_ROWS = [
   { corp:'-', region:'기타', name:'기타',
     kpi:[0,0,0,0,0,0,0,0,0,0,0,0], act:[154,113,339,97,206,232,0,0,0,0,0,0], y25:[0,0,0,0,0,0,0,0,0,0,0,0] },
 ];
+
 const CORP_DATA_MAP = { amount: CORP_AMOUNT_ROWS, qty: CORP_QTY_ROWS };
 
-// 법인매출 집계 계산 (탭별 총 KPI/실적/달성율/전년도/성장율) - 카드와 표에서 공용
 function computeCorpTotals(tab, weeklyEntries, storeKey) {
   const rows = CORP_DATA_MAP[tab];
   const tabKey = tab === 'amount' ? 'AMT' : 'QTY';
@@ -3541,12 +3279,11 @@ function computeCorpTotals(tab, weeklyEntries, storeKey) {
   rows.forEach(ent=>{
     for(let mi=0;mi<12;mi++){
       kpi[mi]+=gc(ent.name,'kpi',mi,ent.kpi[mi]);
-      act[mi]+=gc(ent.name,'act',mi,(ent.act?ent.act[mi]:0));
+      act[mi]+=gc(ent.name,'act',mi,ent.act[mi]);
       y25[mi]+=gc(ent.name,'y25',mi,ent.y25[mi]);
     }
   });
   const kpiT=sum12(kpi), actT=sum12(act), y25T=sum12(y25);
-  // 누계 성장율: 실적 입력된 월만 25년과 비교 (미입력 월 제외)
   const am=act.map((v,mi)=>v!==0?mi:-1).filter(i=>i>=0);
   const aS=am.reduce((s,mi)=>s+act[mi],0), yS=am.reduce((s,mi)=>s+y25[mi],0);
   return {
@@ -3555,6 +3292,701 @@ function computeCorpTotals(tab, weeklyEntries, storeKey) {
     growT: yS!==0?Math.round((aS-yS)/yS*100):null,
   };
 }
+
+// 항목별 메모 보드 (체크리스트 · 핀 고정 · 간단 서식)
+// 본부별 연간 KPI 목표 배너 (모든 메뉴 상단 공통)
+function KpiGoalBanner({ hq, year, weeklyEntries, setWeeklyEntries }) {
+  const amtKey = `kpiGoal_amt|${hq}|${year}`;
+  const qtyKey = `kpiGoal_qty|${hq}|${year}`;
+  const defAmt = hq === '화남본부' ? 95074 : 0;
+  const defQty = hq === '화남본부' ? 9.5 : 0;
+  const amt = (weeklyEntries[amtKey] !== undefined && weeklyEntries[amtKey] !== '') ? weeklyEntries[amtKey] : defAmt;
+  const qty = (weeklyEntries[qtyKey] !== undefined && weeklyEntries[qtyKey] !== '') ? weeklyEntries[qtyKey] : defQty;
+  return (
+    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4 text-white shadow-sm mb-4">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <Icon name="target" className="w-5 h-5 text-blue-100" />
+          <span className="text-sm font-semibold text-blue-50">{hq} · {year}년 KPI 목표</span>
+        </div>
+        <div className="flex items-center gap-6">
+          <div className="flex items-baseline gap-1.5">
+            <EditableCell value={amt} type="number" align="right" className="text-2xl font-bold text-white bg-transparent"
+              onSave={(v) => setWeeklyEntries(prev => ({ ...prev, [amtKey]: v }))} />
+            <span className="text-sm text-blue-100">만 위안</span>
+          </div>
+          <div className="w-px h-8 bg-blue-400/50"></div>
+          <div className="flex items-baseline gap-1.5">
+            <EditableCell value={qty} type="number" align="right" className="text-2xl font-bold text-white bg-transparent"
+              onSave={(v) => setWeeklyEntries(prev => ({ ...prev, [qtyKey]: v }))} />
+            <span className="text-sm text-blue-100">만 개</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// 메뉴 헤더 직후에 들어갈 NOTE + KPI 배너 묶음
+function MenuNoteBanner({ noteKey, monthLabel, hq, year, weeklyEntries, setWeeklyEntries }) {
+  return (
+    <>
+      <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
+        <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
+          <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
+          <span className="text-xs text-slate-700">{monthLabel} 메모 · 자동 저장</span>
+        </div>
+        <div className="p-3">
+          <NoteBoard noteKey={noteKey} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
+        </div>
+      </div>
+      <KpiGoalBanner hq={hq} year={year} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
+    </>
+  );
+}
+
+function NoteBoard({ noteKey, weeklyEntries, setWeeklyEntries, label }) {
+  // 접기 상태 (메모별 저장)
+  const collapseKey = 'dashboard_noteCollapse|' + noteKey;
+  const [collapsed, setCollapsed] = React.useState(() => {
+    try { const v = localStorage.getItem(collapseKey); if (v !== null) return v === '1'; } catch(e){}
+    return true; // 기본 접힘
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem(collapseKey, collapsed?'1':'0'); }catch(e){} }, [collapsed, collapseKey]);
+  // 저장값: JSON 배열. 기존 단일 텍스트가 있으면 첫 항목으로 마이그레이션.
+  const raw = weeklyEntries[noteKey];
+  const items = React.useMemo(() => {
+    if (raw === undefined || raw === null || raw === '') return [];
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch(e) {}
+    // 옛 단일 텍스트 → 항목 1개로 변환
+    return [{ id: 'mig'+Date.now(), type:'note', text: String(raw), done:false, pinned:false, color:'', bold:false }];
+  }, [raw]);
+
+  const save = (next) => setWeeklyEntries(prev => ({ ...prev, [noteKey]: JSON.stringify(next) }));
+  const add = (type) => {
+    const it = { id: 'n'+Date.now()+Math.random().toString(36).slice(2,5), type, text:'', done:false, pinned:false, color:'', bold:false };
+    save([...items, it]);
+  };
+  const upd = (id, patch) => save(items.map(it => it.id===id ? {...it, ...patch} : it));
+  const del = (id) => save(items.filter(it => it.id!==id));
+
+  // 핀 우선 정렬
+  const sorted = [...items].sort((a,b)=> (b.pinned?1:0)-(a.pinned?1:0));
+
+  const colors = [
+    { key:'', label:'기본', cls:'bg-white' },
+    { key:'amber', label:'주황', cls:'bg-amber-50 border-amber-200' },
+    { key:'rose', label:'빨강', cls:'bg-rose-50 border-rose-200' },
+    { key:'blue', label:'파랑', cls:'bg-blue-50 border-blue-200' },
+    { key:'green', label:'초록', cls:'bg-emerald-50 border-emerald-200' },
+  ];
+  const colorCls = (c) => (colors.find(x=>x.key===c)||colors[0]).cls;
+
+  const AutoText = ({ value, onSave, bold, placeholder }) => {
+    const [t, setT] = React.useState(value);
+    React.useEffect(()=>setT(value),[value]);
+    const ref = React.useRef(null);
+    const fit = (el) => { if(el){ el.style.height='auto'; el.style.height=Math.max(28, el.scrollHeight)+'px'; } };
+    return <textarea ref={(el)=>{ref.current=el; fit(el);}} value={t}
+      onChange={e=>{ setT(e.target.value); fit(e.target); }}
+      onBlur={()=>onSave(t)}
+      placeholder={placeholder}
+      className={"w-full bg-transparent outline-none resize-none text-sm leading-relaxed "+(bold?'font-bold':'')}
+      style={{minHeight:'28px', overflow:'hidden'}} />;
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <button onClick={()=>setCollapsed(!collapsed)} className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900">
+          <span className="inline-block w-3 text-center">{collapsed ? '▶' : '▼'}</span>
+          메모 / 할 일
+          {items.length>0 && <span className="text-slate-400 font-normal">({items.length})</span>}
+        </button>
+        {!collapsed && (<>
+          <button onClick={()=>add('note')} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">+ 메모</button>
+          <button onClick={()=>add('todo')} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">+ 할 일</button>
+        </>)}
+        {items.filter(i=>i.type==='todo'&&!i.done).length>0 && <span className="text-[11px] text-amber-600">미완료 할 일 {items.filter(i=>i.type==='todo'&&!i.done).length}개</span>}
+      </div>
+      {!collapsed && (sorted.length===0 ? (
+        <div className="text-sm text-slate-400 py-4 text-center border border-dashed border-slate-200 rounded-md">메모나 할 일을 추가하세요.</div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {sorted.map(it => (
+            <div key={it.id} className={"border rounded-md p-2 flex items-start gap-2 "+colorCls(it.color)+(it.pinned?' border-l-4':'')}>
+              {it.type==='todo' && (
+                <input type="checkbox" checked={!!it.done} onChange={()=>upd(it.id,{done:!it.done})} className="mt-1.5 cursor-pointer flex-shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className={it.done?'line-through text-slate-400':''}>
+                  <AutoText value={it.text} bold={it.bold} placeholder={it.type==='todo'?'할 일 입력...':'메모 입력...'} onSave={(v)=>upd(it.id,{text:v})} />
+                </div>
+              </div>
+              <div className="flex items-center gap-0.5 flex-shrink-0">
+                <button onClick={()=>upd(it.id,{pinned:!it.pinned})} title="고정" className={"text-xs px-1 rounded hover:bg-slate-100 "+(it.pinned?'text-amber-500':'text-slate-300')}>📌</button>
+                <button onClick={()=>upd(it.id,{bold:!it.bold})} title="굵게" className={"text-xs px-1 rounded hover:bg-slate-100 font-bold "+(it.bold?'text-slate-900':'text-slate-300')}>B</button>
+                <select value={it.color} onChange={e=>upd(it.id,{color:e.target.value})} title="색상" className="text-xs border-0 bg-transparent cursor-pointer text-slate-400 hover:text-slate-700 w-7">
+                  {colors.map(c=><option key={c.key} value={c.key}>{c.key===''?'○':'●'}</option>)}
+                </select>
+                <button onClick={()=>del(it.id)} title="삭제" className="text-xs px-1 rounded hover:bg-slate-100 text-slate-300 hover:text-rose-600">✕</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
+function DealerMasterTab({ hq, weeklyEntries, setWeeklyEntries, logChange }) {
+  const psiKey = 'psiAnnual_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
+  const extraKey = 'psiExtra_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
+  const extraDealers = (() => { try { const v = weeklyEntries[extraKey]; if (v) return JSON.parse(v); } catch(e){} return []; })();
+  const rows = [...(PSI_ANNUAL_DATA[hq] || []), ...extraDealers];
+  const mkey = 'dealerMaster_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
+
+  // 계약 합계(만RMB) — 계약실적현황과 동일 로직 (weeklyEntries 우선)
+  const getConCell = (name, mi, def) => {
+    const v = weeklyEntries[`${psiKey}|${name}|con|${mi}`];
+    return (v !== undefined && v !== null && v !== '') ? Number(v) : def;
+  };
+  const dealers = rows.map(r => {
+    const conT = r.con.reduce((s,d,mi)=>s+getConCell(r.name,mi,d),0);
+    const grade = conT >= 1500 ? 'A' : conT >= 1000 ? 'B' : conT >= 500 ? 'C' : 'D';
+    return { name: r.name, region: r.region, conT, grade };
+  });
+
+  // 마스터 데이터 저장소 (대리상별 객체) — weeklyEntries에 JSON으로
+  const getMaster = (name) => {
+    try { const v = weeklyEntries[`${mkey}|${name}`]; if (v) return JSON.parse(v); } catch(e){}
+    return null;
+  };
+  const setMaster = (name, obj) => {
+    setWeeklyEntries(prev => ({ ...prev, [`${mkey}|${name}`]: JSON.stringify(obj) }));
+  };
+  const defaultMaster = () => ({ photo:'', years:'', since:'', ceo:'', staff:'', products:'', priceHistory:[], dso:[], subCust:[], marketing:[] });
+
+  const [selected, setSelected] = React.useState(dealers[0] ? dealers[0].name : null);
+  const [tab, setTab] = React.useState('price'); // price | supply | marketing
+  const [editBasic, setEditBasic] = React.useState(false);
+
+  const cur = dealers.find(d => d.name === selected) || dealers[0];
+  const m = (cur && getMaster(cur.name)) || defaultMaster();
+  const updateM = (patch) => setMaster(cur.name, { ...m, ...patch });
+
+  const fmt = (v) => Number(v||0).toLocaleString();
+  const gradeCls = (g) => g==='A' ? 'bg-emerald-100 text-emerald-700' : g==='B' ? 'bg-blue-100 text-blue-700' : g==='C' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500';
+
+  // 사진 업로드 (리사이즈 후 base64)
+  const onPhoto = (e) => {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas'); const sz=120;
+        c.width=sz; c.height=sz; const ctx=c.getContext('2d');
+        const s=Math.min(img.width,img.height); const sx=(img.width-s)/2, sy=(img.height-s)/2;
+        ctx.drawImage(img, sx,sy,s,s, 0,0,sz,sz);
+        updateM({ photo: c.toDataURL('image/jpeg',0.7) });
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // 마케팅 한도 = 계약합계(만RMB) → RMB 환산 × 2%
+  const limit = Math.round(cur ? cur.conT * 10000 * 0.02 : 0);
+  const mkSum = (status) => (m.marketing||[]).filter(x=>status?x.status===status:true).reduce((s,x)=>s+(Number(x.amount)||0),0);
+  const usedConfirmed = mkSum('발생');
+  const usedPending = mkSum('신청중');
+  const remain = limit - usedConfirmed - usedPending;
+
+  const EC = ({ value, onSave, placeholder, type }) => {
+    const [ed,setEd]=React.useState(false); const [t,setT]=React.useState(value);
+    React.useEffect(()=>setT(value),[value]);
+    if (ed) return <input type={type||'text'} value={t} autoFocus onChange={e=>setT(e.target.value)} onBlur={()=>{onSave(t);setEd(false);}} onKeyDown={e=>{if(e.key==='Enter'){onSave(t);setEd(false);}if(e.key==='Escape')setEd(false);}} className="w-full px-1 py-0.5 border border-blue-400 rounded outline-none text-sm" />;
+    return <span onClick={()=>setEd(true)} className="cursor-pointer hover:bg-slate-100 rounded px-1 inline-block min-w-[40px] min-h-[20px]">{value || <span className="text-slate-300">{placeholder||'입력'}</span>}</span>;
+  };
+
+  if (!cur) return <div className="bg-white border border-slate-200 rounded-md p-4 text-slate-400">대리상 데이터가 없습니다.</div>;
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-md p-4">
+      {/* 대리상 선택 */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <span className="text-xs font-semibold text-slate-600">대리상:</span>
+        <select value={selected} onChange={e=>{setSelected(e.target.value);}} className="px-2 py-1 text-sm border border-slate-300 rounded bg-white max-w-xs">
+          {dealers.map(d => <option key={d.name} value={d.name}>[{d.grade}] {d.name}</option>)}
+        </select>
+        <button onClick={() => {
+          const name = prompt('추가할 대리상명을 입력하세요 (중국어 회사명):');
+          if (!name || !name.trim()) return;
+          const region = prompt('지역을 입력하세요 (예: 상해, 광동 등):') || '';
+          const nd = { region: region.trim(), name: name.trim(), con: Array(12).fill(0), act: Array(12).fill(0) };
+          const next = [...extraDealers, nd];
+          setWeeklyEntries(prev => ({ ...prev, [extraKey]: JSON.stringify(next) }));
+          logChange(`대리상 마스터 ${hq}`, `대리상 추가: ${name}`);
+          setSelected(name.trim());
+        }} className="px-2 py-1 text-xs border border-blue-300 text-blue-700 rounded hover:bg-blue-50 font-semibold">+ 대리상 추가</button>
+        <span className="text-[11px] text-slate-400">추가하면 계약실적현황·PSI 관리에도 함께 반영됩니다</span>
+      </div>
+
+      {/* 기본현황 (상단 고정) */}
+      <div className="flex items-center gap-4 mb-4">
+        <label className="cursor-pointer flex-shrink-0" title="사장 사진 업로드">
+          {m.photo
+            ? <img src={m.photo} className="w-16 h-16 rounded-full object-cover border border-slate-200" />
+            : <div className="w-16 h-16 rounded-full bg-slate-50 border border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400"><span className="text-lg">+</span><span className="text-[9px]">사진</span></div>}
+          <input type="file" accept="image/*" onChange={onPhoto} className="hidden" />
+        </label>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-base text-slate-900">{cur.name}</span>
+            <span className={`inline-block px-2 py-0.5 text-xs font-bold rounded ${gradeCls(cur.grade)}`}>{cur.region} · {cur.grade}등급</span>
+          </div>
+          <div className="text-xs text-slate-500 mt-0.5">계약 {fmt(cur.conT)}만 RMB · 마케팅 한도(2%) ¥{fmt(limit)}</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+        {[
+          {label:'업력', key:'years', ph:'예: 8년'},
+          {label:'협력시간', key:'since', ph:'예: 2021.03~'},
+          {label:'사장', key:'ceo', ph:'이름'},
+          {label:'직원수', key:'staff', ph:'예: 24명'},
+          {label:'취급제품', key:'products', ph:'예: 임플란트 외'},
+        ].map(f => (
+          <div key={f.key} className="bg-slate-50 border border-slate-200 rounded-md p-2">
+            <div className="text-[11px] text-slate-500">{f.label}</div>
+            <div className="text-sm font-semibold text-slate-800"><EC value={m[f.key]} placeholder={f.ph} onSave={v=>updateM({[f.key]:v})} /></div>
+          </div>
+        ))}
+      </div>
+
+      {/* 탭 */}
+      <div className="flex gap-1 border-b border-slate-200 mb-3">
+        {[{k:'price',l:'가격정책 이력'},{k:'supply',l:'공급망'},{k:'marketing',l:'마케팅 지원'}].map(t => (
+          <button key={t.k} onClick={()=>setTab(t.k)} className={"px-3 py-1.5 text-sm font-semibold border-b-2 -mb-px "+(tab===t.k?'border-blue-600 text-blue-700':'border-transparent text-slate-500 hover:text-slate-700')}>{t.l}</button>
+        ))}
+      </div>
+
+      {/* 탭: 가격정책 이력 (기간 중심) */}
+      {tab==='price' && (() => {
+        const ph = m.priceHistory || [];
+        const periods = ph.map(p=>p.period);
+        const [selP, setSelP] = [null,null]; // placeholder
+        // 기간 목록 + 선택은 별도 상태로
+        return <PriceHistoryView ph={ph} onChange={(np)=>updateM({priceHistory:np})} />;
+      })()}
+
+      {/* 탭: 공급망 */}
+      {tab==='supply' && (
+        <div className="grid grid-cols-2 gap-4">
+          {[{key:'dso',label:'주요 공급 DSO'},{key:'subCust',label:'주요 하부고객'}].map(col => (
+            <div key={col.key}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-600">{col.label}</span>
+                <button onClick={()=>updateM({[col.key]:[...(m[col.key]||[]), '']})} className="text-xs px-2 py-0.5 border border-slate-300 rounded hover:bg-slate-50">+ 추가</button>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {(m[col.key]||[]).length===0 && <span className="text-xs text-slate-400 px-1">항목 없음 — 추가 버튼으로 입력</span>}
+                {(m[col.key]||[]).map((item,i) => (
+                  <div key={i} className="flex items-center gap-1 bg-slate-50 rounded-md px-2 py-1.5">
+                    <div className="flex-1 text-sm"><EC value={item} placeholder="이름 (지점수 등)" onSave={v=>{const a=[...(m[col.key])];a[i]=v;updateM({[col.key]:a});}} /></div>
+                    <button onClick={()=>{const a=(m[col.key]).filter((_,idx)=>idx!==i);updateM({[col.key]:a});}} className="text-slate-400 hover:text-rose-600 text-sm">✕</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 탭: 마케팅 지원 */}
+      {tab==='marketing' && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-slate-500">한도 = 계약금액 × 2% (자동)</span>
+            <button onClick={()=>updateM({marketing:[...(m.marketing||[]), {date:'',item:'활동지원',desc:'',amount:0,status:'신청중'}]})} className="text-xs px-2 py-1 border border-slate-300 rounded hover:bg-slate-50">+ 지원 신청 추가</button>
+          </div>
+          <div className="grid grid-cols-4 gap-2 mb-3">
+            <div className="bg-slate-50 rounded-md p-2"><div className="text-[11px] text-slate-500">지원 한도(2%)</div><div className="text-base font-bold text-slate-800">¥{fmt(limit)}</div></div>
+            <div className="bg-slate-50 rounded-md p-2"><div className="text-[11px] text-slate-500">발생</div><div className="text-base font-bold text-slate-800">¥{fmt(usedConfirmed)}</div></div>
+            <div className="bg-slate-50 rounded-md p-2"><div className="text-[11px] text-slate-500">신청중</div><div className="text-base font-bold text-amber-600">¥{fmt(usedPending)}</div></div>
+            <div className={`rounded-md p-2 ${remain<0?'bg-rose-50':'bg-emerald-50'}`}><div className={`text-[11px] ${remain<0?'text-rose-600':'text-emerald-600'}`}>잔여 가능</div><div className={`text-base font-bold ${remain<0?'text-rose-600':'text-emerald-600'}`}>¥{fmt(remain)}</div></div>
+          </div>
+          <div className="border border-slate-300 rounded overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100 text-slate-600 text-xs">
+                <tr>
+                  <th className="px-2 py-1.5 text-left font-semibold">활동일자</th>
+                  <th className="px-2 py-1.5 text-left font-semibold">항목</th>
+                  <th className="px-2 py-1.5 text-left font-semibold">주요 내용</th>
+                  <th className="px-2 py-1.5 text-right font-semibold">신청금액</th>
+                  <th className="px-2 py-1.5 text-center font-semibold">상태</th>
+                  <th className="px-2 py-1.5 w-8"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {(m.marketing||[]).length===0 && <tr><td colSpan={6} className="px-2 py-4 text-center text-slate-400">신청 내역 없음 — 추가 버튼으로 등록</td></tr>}
+                {(m.marketing||[]).map((x,i) => {
+                  const upd=(patch)=>{const a=[...(m.marketing)];a[i]={...a[i],...patch};updateM({marketing:a});};
+                  return (
+                    <tr key={i} className="border-t border-slate-200">
+                      <td className="px-2 py-1"><EC value={x.date} placeholder="2026-06-18" onSave={v=>upd({date:v})} /></td>
+                      <td className="px-2 py-1">
+                        <select value={x.item} onChange={e=>upd({item:e.target.value})} className="text-sm border-0 bg-transparent cursor-pointer hover:bg-slate-100 rounded px-1">
+                          {['활동지원','세미나','마케팅물품','학술','기타'].map(o=><option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </td>
+                      <td className="px-2 py-1"><EC value={x.desc} placeholder="내용" onSave={v=>upd({desc:v})} /></td>
+                      <td className="px-2 py-1 text-right font-semibold">¥<EC value={x.amount} type="number" onSave={v=>upd({amount:parseFloat(v)||0})} /></td>
+                      <td className="px-2 py-1 text-center">
+                        <select value={x.status} onChange={e=>upd({status:e.target.value})} className={"text-xs border rounded px-1 py-0.5 cursor-pointer "+(x.status==='발생'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-amber-50 text-amber-700 border-amber-200')}>
+                          <option value="신청중">신청중</option><option value="발생">발생</option>
+                        </select>
+                      </td>
+                      <td className="px-2 py-1 text-center"><button onClick={()=>{const a=(m.marketing).filter((_,idx)=>idx!==i);updateM({marketing:a});}} className="text-slate-400 hover:text-rose-600">✕</button></td>
+                    </tr>
+                  );
+                })}
+                {(m.marketing||[]).length>0 && (
+                  <tr className="border-t-2 border-slate-300 bg-slate-50 font-bold">
+                    <td colSpan={3} className="px-2 py-1.5">합계</td>
+                    <td className="px-2 py-1.5 text-right">¥{fmt(mkSum())}</td>
+                    <td colSpan={2}></td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 가격정책 이력 - 기간 중심 뷰
+function PriceHistoryView({ ph, onChange }) {
+  // ph: [{period:'2025.07~현재', prices:[{product, price}]}]
+  const [selIdx, setSelIdx] = React.useState(ph.length ? ph.length-1 : -1);
+  const fmt=(v)=>Number(v||0).toLocaleString();
+  const addPeriod = () => { const np=[...ph, {period:'', prices:[]}]; onChange(np); setSelIdx(np.length-1); };
+  const cur = selIdx>=0 ? ph[selIdx] : null;
+  const prevP = selIdx>0 ? ph[selIdx-1] : null;
+  const updPeriod = (patch) => { const a=[...ph]; a[selIdx]={...a[selIdx],...patch}; onChange(a); };
+  const delPeriod = () => { if(!confirm('이 기간을 삭제할까요?'))return; const a=ph.filter((_,i)=>i!==selIdx); onChange(a); setSelIdx(a.length?Math.min(selIdx,a.length-1):-1); };
+
+  const EC = ({ value, onSave, placeholder, type }) => {
+    const [ed,setEd]=React.useState(false); const [t,setT]=React.useState(value);
+    React.useEffect(()=>setT(value),[value]);
+    if (ed) return <input type={type||'text'} value={t} autoFocus onChange={e=>setT(e.target.value)} onBlur={()=>{onSave(t);setEd(false);}} onKeyDown={e=>{if(e.key==='Enter'){onSave(t);setEd(false);}if(e.key==='Escape')setEd(false);}} className="w-full px-1 py-0.5 border border-blue-400 rounded outline-none text-sm" />;
+    return <span onClick={()=>setEd(true)} className="cursor-pointer hover:bg-slate-100 rounded px-1 inline-block min-w-[40px] min-h-[20px]">{(value===0||value)?value:<span className="text-slate-300">{placeholder||'입력'}</span>}</span>;
+  };
+
+  const prevPrice = (product) => { if(!prevP)return null; const f=(prevP.prices||[]).find(p=>p.product===product); return f?Number(f.price):null; };
+
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-3 flex-wrap">
+        <span className="text-xs text-slate-500 mr-1">기간:</span>
+        {ph.map((p,i)=>(
+          <button key={i} onClick={()=>setSelIdx(i)} className={"text-xs px-2.5 py-1 rounded border "+(i===selIdx?'border-blue-500 bg-blue-50 text-blue-700 font-semibold':'border-slate-300 hover:bg-slate-50')}>{p.period||`기간${i+1}`}</button>
+        ))}
+        <button onClick={addPeriod} className="text-xs px-2 py-1 border border-slate-300 rounded hover:bg-slate-50 ml-auto">+ 기간</button>
+      </div>
+      {cur ? (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs text-slate-500">적용기간(자유입력):</span>
+            <span className="text-sm font-semibold"><EC value={cur.period} placeholder="예: 2025.07~현재" onSave={v=>updPeriod({period:v})} /></span>
+            <button onClick={delPeriod} className="text-xs text-slate-400 hover:text-rose-600 ml-auto">기간 삭제</button>
+          </div>
+          <div className="border border-slate-300 rounded overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100 text-slate-600 text-xs">
+                <tr><th className="px-2 py-1.5 text-left font-semibold">제품명</th><th className="px-2 py-1.5 text-right font-semibold">최종가</th><th className="px-2 py-1.5 text-right font-semibold">직전 대비</th><th className="px-2 py-1.5 w-8"></th></tr>
+              </thead>
+              <tbody>
+                {(cur.prices||[]).length===0 && <tr><td colSpan={4} className="px-2 py-4 text-center text-slate-400">제품 없음 — 추가 버튼으로 등록</td></tr>}
+                {(cur.prices||[]).map((p,i)=>{
+                  const upd=(patch)=>{const a=[...cur.prices];a[i]={...a[i],...patch};updPeriod({prices:a});};
+                  const pp=prevPrice(p.product); const cp=Number(p.price);
+                  let chg=null, cls='text-slate-400', txt='기준';
+                  if(pp!==null && pp!==0){ const d=(cp-pp)/pp*100; chg=d; if(Math.abs(d)<0.05){cls='text-slate-400';txt='동일';} else if(d<0){cls='text-emerald-600';txt='▼'+Math.abs(d).toFixed(1)+'%';} else {cls='text-rose-600';txt='▲'+d.toFixed(1)+'%';} }
+                  return (
+                    <tr key={i} className="border-t border-slate-200">
+                      <td className="px-2 py-1"><EC value={p.product} placeholder="제품명" onSave={v=>upd({product:v})} /></td>
+                      <td className="px-2 py-1 text-right font-semibold">¥<EC value={p.price} type="number" onSave={v=>upd({price:parseFloat(v)||0})} /></td>
+                      <td className={"px-2 py-1 text-right "+cls}>{txt}</td>
+                      <td className="px-2 py-1 text-center"><button onClick={()=>{const a=cur.prices.filter((_,idx)=>idx!==i);updPeriod({prices:a});}} className="text-slate-400 hover:text-rose-600">✕</button></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <button onClick={()=>updPeriod({prices:[...(cur.prices||[]), {product:'',price:0}]})} className="text-xs px-2 py-1 border border-slate-300 rounded hover:bg-slate-50 mt-2">+ 제품 추가</button>
+        </div>
+      ) : (
+        <div className="text-sm text-slate-400 py-6 text-center">가격정책 기간이 없습니다. "+ 기간"으로 첫 기간을 추가하세요.</div>
+      )}
+      <div className="text-[11px] text-slate-400 mt-2">* 직전 대비 = 바로 앞 기간의 같은 제품 가격과 비교 · 인하 ▼초록 / 인상 ▲빨강 · 모든 항목 클릭 수정</div>
+    </div>
+  );
+}
+
+
+function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logChange }) {
+  const psiKey = 'psiAnnual_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
+  const extraKey = 'psiExtra_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
+  // 추가 대리상 (사용자가 추가, weeklyEntries에 저장 → 세 탭 공유)
+  const extraDealers = (() => { try { const v = weeklyEntries[extraKey]; if (v) return JSON.parse(v); } catch(e){} return []; })();
+  const rows = [...(PSI_ANNUAL_DATA[hq] || []), ...extraDealers];
+
+  // 대리상 추가
+  const handleAddDealer = () => {
+    const name = prompt('추가할 대리상명을 입력하세요 (중국어 회사명):');
+    if (!name || !name.trim()) return;
+    const region = prompt('지역을 입력하세요 (예: 상해, 광동, 사천 등):') || '';
+    const nd = { region: region.trim(), name: name.trim(), con: Array(12).fill(0), act: Array(12).fill(0) };
+    const next = [...extraDealers, nd];
+    setWeeklyEntries(prev => ({ ...prev, [extraKey]: JSON.stringify(next) }));
+    logChange(`대리상별 계약실적현황 ${hq}`, `대리상 추가: ${name}`);
+  };
+  const handleRemoveDealer = (name) => {
+    if (!confirm(`'${name}' 대리상을 목록에서 삭제할까요? (입력한 계약/실적도 함께 사라집니다)`)) return;
+    const next = extraDealers.filter(d => d.name !== name);
+    setWeeklyEntries(prev => ({ ...prev, [extraKey]: JSON.stringify(next) }));
+    logChange(`대리상별 계약실적현황 ${hq}`, `대리상 삭제: ${name}`);
+  };
+
+  const [visibleMonths, setVisibleMonths] = React.useState(() => {
+    try { const s = localStorage.getItem(`dashboard_${psiKey}_m${month}_visMonths_v1`); if (s) return JSON.parse(s); } catch (e) {}
+    return Array(12).fill(true);
+  });
+  const [monthPickerOpen, setMonthPickerOpen] = React.useState(false);
+  const [regionFilter, setRegionFilter] = React.useState('전체');
+  const [gradeFilter, setGradeFilter] = React.useState('전체');
+  // 숨김 처리된 대리상 (본부별 저장, 합계 제외)
+  const [hiddenRows, setHiddenRows] = React.useState(() => {
+    try { const s = localStorage.getItem(`dashboard_${psiKey}_hiddenRows_v1`); if (s) return JSON.parse(s); } catch(e){}
+    return [];
+  });
+  const [showHidden, setShowHidden] = React.useState(false);
+  React.useEffect(()=>{ try{ localStorage.setItem(`dashboard_${psiKey}_hiddenRows_v1`, JSON.stringify(hiddenRows)); }catch(e){} }, [hiddenRows, psiKey]);
+  const toggleHide = (name) => setHiddenRows(prev => prev.includes(name) ? prev.filter(n=>n!==name) : [...prev, name]);
+  React.useEffect(() => {
+    try { const s = localStorage.getItem(`dashboard_${psiKey}_m${month}_visMonths_v1`); setVisibleMonths(s ? JSON.parse(s) : Array(12).fill(true)); } catch (e) { setVisibleMonths(Array(12).fill(true)); }
+  }, [psiKey, month]);
+  React.useEffect(() => {
+    try { localStorage.setItem(`dashboard_${psiKey}_m${month}_visMonths_v1`, JSON.stringify(visibleMonths)); } catch (e) {}
+  }, [visibleMonths, psiKey, month]);
+
+  const getCell = (name, field, mi, def) => {
+    const k = `${psiKey}|${name}|${field}|${mi}`;
+    const v = weeklyEntries[k];
+    return (v !== undefined && v !== null && v !== '') ? Number(v) : def;
+  };
+  const setCell = (name, field, mi, val) => {
+    const k = `${psiKey}|${name}|${field}|${mi}`;
+    setWeeklyEntries(prev => ({ ...prev, [k]: val }));
+    logChange(`대리상별 계약실적현황 ${hq}`, `${name} ${field==='con'?'계약':'실적'} ${mi+1}월 수정`);
+  };
+
+  const fmtW = (v) => (v === 0 || v === null || v === undefined) ? '0' : Number(v).toLocaleString(undefined, { maximumFractionDigits: 1 });
+  const sum12 = (arr) => arr.reduce((a, b) => a + (Number(b) || 0), 0);
+  const visMonths = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m => visibleMonths[m-1]);
+  const visCount = visibleMonths.filter(Boolean).length;
+
+  // 각 행 계산 + 등급
+  const computed = rows.map(r => {
+    const con = r.con.map((d, mi) => getCell(r.name, 'con', mi, d));
+    const act = r.act.map((d, mi) => getCell(r.name, 'act', mi, d));
+    const conT = sum12(con), actT = sum12(act);
+    const grade = conT >= 1500 ? 'A' : conT >= 1000 ? 'B' : conT >= 500 ? 'C' : 'D';
+    return { ...r, con, act, conT, actT, grade };
+  });
+
+  // 지역 목록 (이 본부)
+  const regionOpts = ['전체', ...Array.from(new Set(rows.map(r => r.region)))];
+  // 지역/등급 필터 적용
+  const filteredBase = computed.filter(c =>
+    (regionFilter === '전체' || c.region === regionFilter) &&
+    (gradeFilter === '전체' || c.grade === gradeFilter)
+  );
+  // 표시 행: 숨김 보기 모드면 숨긴 것만, 아니면 안 숨긴 것만
+  const filtered = showHidden
+    ? filteredBase.filter(c => hiddenRows.includes(c.name))
+    : filteredBase.filter(c => !hiddenRows.includes(c.name));
+
+  // 합계행 (숨김 제외 — 항상 안 숨긴 행만 합산)
+  const sumTargets = filteredBase.filter(c => !hiddenRows.includes(c.name));
+  const totCon = Array(12).fill(0), totAct = Array(12).fill(0);
+  sumTargets.forEach(c => { for (let mi=0; mi<12; mi++) { totCon[mi]+=c.con[mi]; totAct[mi]+=c.act[mi]; } });
+  const totConT = sum12(totCon), totActT = sum12(totAct);
+  const hiddenCount = hiddenRows.length;
+
+  const gradeCls = (g) => g==='A' ? 'bg-emerald-100 text-emerald-700' : g==='B' ? 'bg-blue-100 text-blue-700' : g==='C' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500';
+  const rateCls = (v) => v < 80 ? 'text-rose-600 font-semibold' : 'text-slate-800';
+  const rate = (a, c) => c !== 0 ? Math.round(a / c * 100) : 0;
+
+  const EditCellA = ({ name, field, mi, value }) => {
+    const [editing, setEditing] = React.useState(false);
+    const [temp, setTemp] = React.useState(value);
+    React.useEffect(() => { setTemp(value); }, [value]);
+    const save = () => { setCell(name, field, mi, temp === '' ? 0 : Number(temp)); setEditing(false); };
+    if (editing) return <input type="number" value={temp} autoFocus onChange={e=>setTemp(e.target.value)} onBlur={save}
+      onKeyDown={e=>{ if(e.key==='Enter')save(); if(e.key==='Escape')setEditing(false); }}
+      className="w-full px-1 py-0.5 border border-blue-400 rounded outline-none text-right text-sm" />;
+    return <div onClick={()=>setEditing(true)} title="클릭하여 수정" className="cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded text-right min-h-[22px]">{fmtW(value)}</div>;
+  };
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-md p-4">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h3 className="text-base font-bold text-slate-900">{hq} 대리상별 계약실적현황 ({year}년)</h3>
+        <div className="flex items-center gap-2 relative flex-wrap">
+          <span className="text-xs text-slate-400">단위: 만 RMB</span>
+          {/* 지역 필터 */}
+          <span className="text-xs font-semibold text-slate-600">지역:</span>
+          <select value={regionFilter} onChange={e=>setRegionFilter(e.target.value)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 bg-white">
+            {regionOpts.map(r => <option key={r} value={r}>{r === '전체' ? '전체 지역' : r}</option>)}
+          </select>
+          {/* 등급 필터 */}
+          <span className="text-xs font-semibold text-slate-600">등급:</span>
+          <select value={gradeFilter} onChange={e=>setGradeFilter(e.target.value)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 bg-white">
+            {['전체','A','B','C','D'].map(g => <option key={g} value={g}>{g === '전체' ? '전체 등급' : g+'등급'}</option>)}
+          </select>
+          <button onClick={handleAddDealer} className="px-2 py-1 text-xs border border-blue-300 text-blue-700 rounded hover:bg-blue-50 font-semibold">+ 대리상 추가</button>
+          <button onClick={() => setVisibleMonths(Array(12).fill(true))} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+          <div className="relative inline-block">
+            <button onClick={() => setMonthPickerOpen(!monthPickerOpen)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">월 표시 ({visCount}/12) ▼</button>
+            {monthPickerOpen && (
+              <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
+                {[1,2,3,4,5,6,7,8,9,10,11,12].map((m,i) => (
+                  <label key={m} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                    <input type="checkbox" checked={visibleMonths[i]} onChange={() => setVisibleMonths(prev => prev.map((v,idx)=>idx===i?!v:v))} />{m}월
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          {hiddenCount > 0 && (
+            <button onClick={() => setShowHidden(!showHidden)}
+              className={"px-2 py-1 text-xs border rounded "+(showHidden?'border-blue-400 bg-blue-50 text-blue-700':'border-slate-300 hover:bg-slate-50')}>
+              {showHidden ? '◀ 표시 행으로' : `숨김 ${hiddenCount}개 보기`}
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="border border-slate-300 rounded overflow-x-auto">
+        <table className="text-sm" data-table-id={psiKey} data-sticky-first="off" style={{ width: '100%', minWidth: (70+46+150+54 + visMonths.length*48 + 70) + 'px', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '70px' }} />
+            <col style={{ width: '46px' }} />
+            <col style={{ width: '150px' }} />
+            <col style={{ width: '54px' }} />
+            {visMonths.map(m => <col key={'c'+m} style={{ width: 'auto' }} />)}
+            <col style={{ width: '70px' }} />
+          </colgroup>
+          <thead>
+            <tr className="bg-slate-200 border-b border-slate-300">
+              <th className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 bg-slate-200">지역</th>
+              <th className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 bg-slate-200">등급</th>
+              <th className="px-1 py-1 border-r border-slate-300 font-semibold text-slate-700 text-left bg-slate-200">대리상명</th>
+              <th className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 bg-slate-200">구분</th>
+              {visMonths.map(m => <th key={'h'+m} className="px-0.5 py-1.5 border-r border-slate-200 font-semibold text-slate-700 bg-slate-200 text-sm">{m}월</th>)}
+              <th className="px-1 py-1.5 font-bold text-slate-800 bg-slate-300 text-sm">합계</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={5 + visMonths.length} className="px-2 py-4 text-center text-slate-400">해당 조건의 대리상이 없습니다.</td></tr>
+            ) : filtered.map(c => (
+              <React.Fragment key={c.name}>
+                {/* 계약금액 행 */}
+                <tr className="border-b border-slate-100 hover:bg-slate-50">
+                  <td rowSpan={3} className="px-1 py-1 border-r border-slate-300 text-center bg-white text-xs align-middle">
+                    <label className="flex items-center justify-center gap-1 cursor-pointer" title={showHidden?'숨김 해제':'이 대리상 숨기기 (합계 제외)'}>
+                      <input type="checkbox" checked={hiddenRows.includes(c.name)} onChange={()=>toggleHide(c.name)} className="cursor-pointer" />
+                      <span>{c.region}</span>
+                    </label>
+                  </td>
+                  <td rowSpan={3} className="px-1 py-1 border-r border-slate-300 text-center bg-white align-middle">
+                    <span className={`inline-block px-2 py-0.5 text-xs font-bold rounded ${gradeCls(c.grade)}`}>{c.grade}</span>
+                  </td>
+                  <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-slate-800 bg-white align-middle truncate" title={c.name}>
+                    <div className="flex items-center gap-1">
+                      <span className="truncate flex-1">{c.name}</span>
+                      {extraDealers.some(d => d.name === c.name) && (
+                        <button onClick={()=>handleRemoveDealer(c.name)} className="text-slate-300 hover:text-rose-600 text-xs flex-shrink-0" title="추가 대리상 삭제">✕</button>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-1 py-1 border-r border-slate-200 text-center text-xs font-semibold text-blue-700 bg-blue-50">계약</td>
+                  {visMonths.map(m => (
+                    <td key={'con'+m} className="px-0.5 py-0.5 border-r border-slate-100 text-right bg-white">
+                      <EditCellA name={c.name} field="con" mi={m-1} value={c.con[m-1]} />
+                    </td>
+                  ))}
+                  <td className="px-1 py-1 text-right font-bold text-blue-800 bg-blue-50">{fmtW(c.conT)}</td>
+                </tr>
+                {/* 실적 행 */}
+                <tr className="border-b border-slate-100 hover:bg-slate-50">
+                  <td className="px-1 py-1 border-r border-slate-200 text-center text-xs font-semibold text-emerald-700 bg-emerald-50">실적</td>
+                  {visMonths.map(m => (
+                    <td key={'act'+m} className="px-0.5 py-0.5 border-r border-slate-100 text-right bg-white">
+                      <EditCellA name={c.name} field="act" mi={m-1} value={c.act[m-1]} />
+                    </td>
+                  ))}
+                  <td className="px-1 py-1 text-right font-bold text-emerald-800 bg-emerald-50">{fmtW(c.actT)}</td>
+                </tr>
+                {/* 달성율 행 */}
+                <tr className="border-b border-slate-200 hover:bg-slate-50">
+                  <td className="px-1 py-1 border-r border-slate-200 text-center text-xs font-semibold text-slate-600 bg-slate-50">달성율</td>
+                  {visMonths.map(m => {
+                    const r = rate(c.act[m-1], c.con[m-1]);
+                    return <td key={'rate'+m} className={`px-0.5 py-1 border-r border-slate-100 text-right text-sm bg-slate-50 ${rateCls(r)}`}>{c.con[m-1]!==0?r+'%':'-'}</td>;
+                  })}
+                  <td className={`px-1 py-1 text-right text-sm bg-slate-100 ${rateCls(rate(c.actT,c.conT))}`}>{c.conT!==0?rate(c.actT,c.conT)+'%':'-'}</td>
+                </tr>
+              </React.Fragment>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
+              <td colSpan={3} className="px-1 py-1 border-r border-slate-300 text-center bg-slate-100">합계</td>
+              <td className="px-1 py-1.5 border-r border-slate-200 text-center text-xs text-blue-700 bg-blue-50">계약</td>
+              {visMonths.map(m => <td key={'tc'+m} className="px-0.5 py-1.5 border-r border-slate-100 text-right text-sm">{fmtW(totCon[m-1])}</td>)}
+              <td className="px-1 py-1.5 text-right bg-blue-100">{fmtW(totConT)}</td>
+            </tr>
+            <tr className="bg-slate-100 font-bold border-b border-slate-300">
+              <td colSpan={3} className="px-1 py-1 border-r border-slate-300 text-center bg-slate-100"></td>
+              <td className="px-1 py-1.5 border-r border-slate-200 text-center text-xs text-emerald-700 bg-emerald-50">실적</td>
+              {visMonths.map(m => <td key={'ta'+m} className="px-0.5 py-1.5 border-r border-slate-100 text-right text-sm">{fmtW(totAct[m-1])}</td>)}
+              <td className="px-1 py-1.5 text-right bg-emerald-100">{fmtW(totActT)}</td>
+            </tr>
+            <tr className="bg-slate-100 font-bold">
+              <td colSpan={3} className="px-1 py-1 border-r border-slate-300 text-center bg-slate-100"></td>
+              <td className="px-1 py-1.5 border-r border-slate-200 text-center text-xs text-slate-600 bg-slate-50">달성율</td>
+              {visMonths.map(m => { const r=rate(totAct[m-1],totCon[m-1]); return <td key={'tr'+m} className={`px-0.5 py-1.5 border-r border-slate-100 text-right text-sm bg-slate-50 ${rateCls(r)}`}>{totCon[m-1]!==0?r+'%':'-'}</td>; })}
+              <td className={`px-1 py-1.5 text-right bg-slate-100 ${rateCls(rate(totActT,totConT))}`}>{totConT!==0?rate(totActT,totConT)+'%':'-'}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div className="text-xs text-slate-500 mt-2">* 단위: 만 RMB · 계약·실적 셀 클릭 수정 가능 · 달성율 = 실적 ÷ 계약 · 등급: 계약합계 1,500만↑ A / 1,000만↑ B / 500만↑ C / 미만 D</div>
+    </div>
+  );
+}
+
 
 function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChange, visibleMonths, sortConfig, onSort, storeKey }) {
   const rows = CORP_DATA_MAP[tab];
@@ -3654,8 +4086,6 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
     { label:'KPI',   render:(name,c)=> (mi)=> <EditCell name={name} field="kpi" mi={mi} value={c.kpi[mi]} />, total:c=>fmtCorp(c.kpiT), selTotal:c=>fmtCorp(selSum(c.kpi)) },
     { label:'실적',  render:(name,c)=> (mi)=> <EditCell name={name} field="act" mi={mi} value={c.act[mi]} />, total:c=>fmtCorp(c.actT), selTotal:c=>fmtCorp(selSum(c.act)) },
     { label:'달성율',isPct:true, render:(name,c)=> (mi)=> <span className={rateCls(c.rate[mi])}>{c.rate[mi]}%</span>, total:c=> <span className={rateCls(c.rateT)}>{c.rateT}%</span>, selTotal:c=>{ const r=selRate(c.kpi,c.act); return <span className={rateCls(r)}>{r}%</span>; } },
-    { label:'누계실적', render:(name,c)=> (mi)=> <span className="text-slate-700">{fmtCorp(cumSum(c.act, mi))}</span>, total:c=>fmtCorp(c.actT), selTotal:c=>fmtCorp(selSum(c.act)) },
-    { label:'누계달성율', isPct:true, render:(name,c)=> (mi)=> { const ck=cumSum(c.kpi,mi), ca=cumSum(c.act,mi); const r=ck!==0?Math.round(ca/ck*100):0; return <span className={rateCls(r)}>{r}%</span>; }, total:c=> <span className={rateCls(c.rateT)}>{c.rateT}%</span>, selTotal:c=>{ const r=selRate(c.kpi,c.act); return <span className={rateCls(r)}>{r}%</span>; } },
   ];
   const prevFields = [
     { label:'전년도실적', render:(name,c)=> (mi)=> <EditCell name={name} field="y25" mi={mi} value={c.y25[mi]} />, total:c=>fmtCorp(c.y25T), selTotal:c=>fmtCorp(selSum(c.y25)) },
@@ -3768,10 +4198,10 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
   const aggUnit = tab === 'amount' ? '만RMB' : '개';
   const aggCards = [
     { label:'총 KPI',      value: fmtAgg(agg.kpiT), unit: aggUnit, color:'text-slate-900' },
-    { label:'누계 실적',   value: fmtAgg(agg.actT), unit: aggUnit, color:'text-slate-900' },
-    { label:'누계 달성율', value: agg.rateT+'%',    unit: '',      color: agg.rateT<80?'text-rose-600':(agg.rateT>=100?'text-emerald-600':'text-blue-600') },
+    { label:'총 실적',     value: fmtAgg(agg.actT), unit: aggUnit, color:'text-slate-900' },
+    { label:'달성율',      value: (agg.kpiT? agg.rateT : 0)+'%', unit: '', color: agg.rateT<80?'text-rose-600':(agg.rateT>=100?'text-emerald-600':'text-blue-600') },
     { label:'총 전년도실적', value: fmtAgg(agg.y25T), unit: aggUnit, color:'text-slate-900' },
-    { label:'성장율',      value: (agg.growT===null?'-':(agg.growT>=0?'+':'')+agg.growT+'%'), unit:'', color: agg.growT===null?'text-slate-400':(agg.growT>=0?'text-emerald-600':'text-rose-600') },
+    { label:'성장율',      value: (agg.growT===null||agg.growT===undefined?'-':(agg.growT>=0?'+':'')+agg.growT+'%'), unit:'', color: (agg.growT===null||agg.growT===undefined)?'text-slate-400':(agg.growT>=0?'text-emerald-600':'text-rose-600') },
   ];
 
   return (
@@ -3877,6 +4307,10 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
 function App() {
   const [selectedHQ, setSelectedHQ] = useState('overview');
   const [selectedSubmenu, setSelectedSubmenu] = useState(1);
+  const [showHiddenMenus, setShowHiddenMenus] = useState(() => {
+    try { return localStorage.getItem('dashboard_showHiddenMenus_v1') === '1'; } catch(e){ return false; }
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_showHiddenMenus_v1', showHiddenMenus?'1':'0'); }catch(e){} }, [showHiddenMenus]);
   const [hqExpanded, setHqExpanded] = useState(true);
   const [hideHX, setHideHX] = useState(() => { try { return localStorage.getItem('dashboard_hideHX_v1') === '1'; } catch(e) { return false; } });
   React.useEffect(() => { try { localStorage.setItem('dashboard_hideHX_v1', hideHX ? '1' : '0'); } catch(e) {} }, [hideHX]);
@@ -3895,11 +4329,27 @@ function App() {
     return 'all';
   });
   React.useEffect(()=>{ try{ localStorage.setItem('dashboard_overviewTab_v1', overviewTab); }catch(e){} }, [overviewTab]);
-  // 대리상 PSI 관리 표 숨김 토글
-  const [psiMgmtCollapsed, setPsiMgmtCollapsed] = useState(false);
+  // 종합비교표 본부 숨김 + 표 접기
+  const [hiddenCompareHQ, setHiddenCompareHQ] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_hiddenCompareHQ_v1'); if (s) return JSON.parse(s); } catch(e){}
+    return [];
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_hiddenCompareHQ_v1', JSON.stringify(hiddenCompareHQ)); }catch(e){} }, [hiddenCompareHQ]);
+  const [compareCollapsed, setCompareCollapsed] = useState(() => {
+    try { return localStorage.getItem('dashboard_compareCollapsed_v1') === '1'; } catch(e){ return false; }
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_compareCollapsed_v1', compareCollapsed?'1':'0'); }catch(e){} }, [compareCollapsed]);
+  const [bdSubTab, setBdSubTab] = useState(() => {
+    try { return localStorage.getItem('dashboard_bdSubTab_v1') || 'entry'; } catch(e){ return 'entry'; }
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_bdSubTab_v1', bdSubTab); }catch(e){} }, [bdSubTab]);
+  const [dsoSubTab, setDsoSubTab] = useState(() => {
+    try { return localStorage.getItem('dashboard_dsoSubTab_v1') || 'summary'; } catch(e){ return 'summary'; }
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_dsoSubTab_v1', dsoSubTab); }catch(e){} }, [dsoSubTab]);
   // 대리상 PSI 관리 - 탭 (annual: 연간월별표 / manage: 대리상 PSI 관리 / focus: 중점관리)
   const [psiTab, setPsiTab] = useState(() => {
-    try { const s = localStorage.getItem('dashboard_psiTab_v1'); if (s) return s; } catch(e){}
+    try { const s = localStorage.getItem('dashboard_psiTab_v1'); if (s && s !== 'focus') return s; } catch(e){}
     return 'manage';
   });
   React.useEffect(()=>{ try{ localStorage.setItem('dashboard_psiTab_v1', psiTab); }catch(e){} }, [psiTab]);
@@ -3923,7 +4373,13 @@ function App() {
   const [filterPeriod, setFilterPeriod] = useState('2026년 1주차');
   const [filterPeriodType, setFilterPeriodType] = useState('주간');
   // 상단 공통 필터바: 주차 선택 (전체 메뉴 공통)
-  const [filterWeek, setFilterWeek] = useState('2026-01'); // 기본: 2026년 1주차
+  const [filterWeek, setFilterWeek] = useState(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    // 현재 월(1~12)을 대략 주차로 환산 (월 중앙 주차)
+    const wk = Math.min(52, Math.max(1, Math.round((now.getMonth()) * 4.333) + 2));
+    return `${y}-${String(wk).padStart(2,'0')}`;
+  });
 
   const [kpi, setKPI] = useState(() => {
     try { const s = localStorage.getItem('dashboard_kpi_v1'); return s ? JSON.parse(s) : initialKPI; } catch (e) { return initialKPI; }
@@ -3948,6 +4404,11 @@ function App() {
   const [psiFocus, setPSIFocus] = useState(() => {
     try { const s = localStorage.getItem('dashboard_psiFocus_v4'); return s ? JSON.parse(s) : initialPSIFocus; } catch (e) { return initialPSIFocus; }
   });
+  const [hiddenSalesRows, setHiddenSalesRows] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_sales_emp_progress_hiddenRows_v1'); if (s) return JSON.parse(s); } catch(e){}
+    return {};
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_sales_emp_progress_hiddenRows_v1', JSON.stringify(hiddenSalesRows)); }catch(e){} }, [hiddenSalesRows]);
   const [salesPerson, setSalesPerson] = useState(() => {
     try { const s = localStorage.getItem('dashboard_salesPerson_v1'); return s ? JSON.parse(s) : initialSalesPerson; } catch (e) { return initialSalesPerson; }
   });
@@ -4060,7 +4521,7 @@ function App() {
   // 추가 필터 state (요구사항: 본부/지역/판매구분/판매시스템/연도/월/주차/주간월간연간)
   const [filterSalesCategory, setFilterSalesCategory] = useState('전체');
   const [filterSalesSystem, setFilterSalesSystem] = useState('전체');
-  const [filterMonth, setFilterMonth] = useState(0); // 0 = 자동(주차에서 추출)
+  const [filterMonth, setFilterMonth] = useState(() => new Date().getMonth() + 1); // 현재 월
   const [filterPeriodMode, setFilterPeriodMode] = useState('weekly'); // 'weekly' | 'monthly' | 'yearly'
 
   // Sheets 데이터 동기화 함수
@@ -4947,9 +5408,10 @@ function App() {
           } else {
             year = yw; // 'YYYY-MM' 형식 또는 다른 형식이면 그대로
           }
-          return { 메뉴: menu, 본부: hq, 참조ID: refId, 필드: field, 연도: year, 주차: week, 값: typeof value === 'string' ? value : JSON.stringify(value) };
+          // 원본키/원본값 컬럼을 별도로 저장 → 복원 시 무손실 (JSON·노트·마스터 등 보존)
+          return { 원본키: key, 원본값: typeof value === 'string' ? value : JSON.stringify(value), 메뉴: menu, 본부: hq, 참조ID: refId, 필드: field, 연도: year, 주차: week, 값: typeof value === 'string' ? value : JSON.stringify(value) };
         } catch (e) {
-          return { 메뉴: '', 본부: '', 참조ID: '', 필드: '', 연도: '', 주차: '', 값: String(value || '') };
+          return { 원본키: key, 원본값: String(value == null ? '' : value), 메뉴: '', 본부: '', 참조ID: '', 필드: '', 연도: '', 주차: '', 값: String(value || '') };
         }
       });
       if (weeklyEntriesRows.length > 0) {
@@ -5044,8 +5506,18 @@ function App() {
           const rows = XLSX.utils.sheet_to_json(wb.Sheets['주차별신규실적']);
           const entries = {};
           rows.forEach(r => {
-            const key = `${r.메뉴}|${r.본부}|${r.참조ID}|${r.필드}|${r.연도}-${String(r.주차).padStart(2, '0')}`;
-            entries[key] = parseFloat(r.값) || 0;
+            if (r.원본키 !== undefined && r.원본키 !== '') {
+              // 신버전 백업: 원본 키/값 그대로 복원 (JSON·노트·마스터 등 무손실)
+              const rawV = (r.원본값 !== undefined && r.원본값 !== '') ? r.원본값 : (r.값 !== undefined ? r.값 : '');
+              const sv = String(rawV);
+              // 순수 숫자면 숫자로, 아니면 문자열(JSON 등) 그대로
+              entries[r.원본키] = (sv !== '' && !isNaN(sv) && /^-?\d+(\.\d+)?$/.test(sv.trim())) ? parseFloat(sv) : rawV;
+            } else {
+              // 구버전 백업 폴백: 조각으로 키 재조립
+              const key = `${r.메뉴}|${r.본부}|${r.참조ID}|${r.필드}|${r.연도}-${String(r.주차).padStart(2, '0')}`;
+              const sv = String(r.값 == null ? '' : r.값);
+              entries[key] = (sv !== '' && !isNaN(sv) && /^-?\d+(\.\d+)?$/.test(sv.trim())) ? parseFloat(sv) : r.값;
+            }
           });
           setWeeklyEntries(entries);
           restoreCount += rows.length;
@@ -5104,7 +5576,7 @@ function App() {
       `}>
       <div className="px-5 py-5 border-b border-slate-700/50 flex items-center gap-2">
         <div className="w-7 h-7 bg-blue-500 rounded flex items-center justify-center"><Icon name="box" className="w-4 h-4 text-white" /></div>
-        <span className="font-bold text-sm flex-1">3개 본부 통합 관리 시스템</span>
+        <span className="font-bold text-sm flex-1">메가젠 중국지역</span>
         <button
           onClick={() => setSidebarOpen(false)}
           className="text-slate-400 hover:text-white p-1"
@@ -5123,8 +5595,8 @@ function App() {
           <Icon name="chevronDown" className="w-3 h-3" />
         </div>
         <div className="mt-1 space-y-0.5">
-          <button onClick={() => setSelectedHQ('overview')}
-            className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded ${selectedHQ === 'overview' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
+          <button onClick={() => { setSelectedHQ('overview'); setOverviewTab('all'); }}
+            className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded ${selectedHQ === 'overview' && overviewTab === 'all' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
             <Icon name="dashboard" className="w-4 h-4" /><span>전체 대시보드</span>
           </button>
         </div>
@@ -5158,6 +5630,10 @@ function App() {
         </button>
         {hqExpanded && (
           <div className="mt-1 space-y-0.5">
+            <button onClick={() => { setSelectedHQ('overview'); setOverviewTab('main'); }}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded ${selectedHQ === 'overview' && overviewTab === 'main' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
+              <Icon name="barchart" className="w-4 h-4" /><span>주요본부대시보드</span>
+            </button>
             {['화남본부', '화동본부', '화서본부'].map(hq => {
               if (hq === '화서본부' && hideHX) return null;
               return (
@@ -5182,13 +5658,11 @@ function App() {
           <nav className="mt-1 space-y-0.5">
             {[
               { id: 1, label: '주요 지표 KPI', icon: 'target' },
-              { id: 3, label: '대리상 PSI 관리', icon: 'layers' },
+              { id: 3, label: '대리상 관리현황', icon: 'layers' },
               { id: 4, label: '영업사원 판매목표', icon: 'users' },
               { id: 6, label: 'DSO 판매목표', icon: 'activity' },
               { id: 7, label: 'BD 진입현황', icon: 'trending' },
               { id: 2, label: '지역별 M/S 달성현황', icon: 'barchart' },
-              { id: 5, label: '패키지 활동보고', icon: 'package' },
-              { id: 8, label: '하부고객 확대현황', icon: 'users' },
             ].map(m => {
               const active = selectedSubmenu === m.id;
               return (
@@ -5199,18 +5673,28 @@ function App() {
                 </button>
               );
             })}
+            {/* 숨김 메뉴 (맨 밑, 토글로 펼침) */}
+            <button onClick={() => setShowHiddenMenus(!showHiddenMenus)}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs rounded text-left text-slate-500 hover:bg-slate-800">
+              <div className="flex-shrink-0"><Icon name={showHiddenMenus ? 'eye' : 'eyeOff'} className="w-3.5 h-3.5" /></div>
+              <span className="truncate">{showHiddenMenus ? '기타 메뉴 숨기기' : '기타 메뉴 보기'}</span>
+            </button>
+            {showHiddenMenus && [
+              { id: 5, label: '패키지 활동보고', icon: 'package' },
+              { id: 8, label: '하부고객 확대현황', icon: 'users' },
+            ].map(m => {
+              const active = selectedSubmenu === m.id;
+              return (
+                <button key={m.id} onClick={() => setSelectedSubmenu(m.id)}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded text-left ${active ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
+                  <div className="flex-shrink-0"><Icon name={m.icon} className="w-4 h-4" /></div>
+                  <span className="truncate">{m.label}</span>
+                </button>
+              );
+            })}
           </nav>
         </div>
       )}
-
-      <div className="mt-auto px-3 py-3 border-t border-slate-700/50">
-        <button onClick={() => setShowChangeLog(!showChangeLog)} className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded text-slate-300 hover:bg-slate-800">
-          <Icon name="file" className="w-4 h-4" /><span>변경 이력 ({changeLog.length})</span>
-        </button>
-        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded text-slate-300 hover:bg-slate-800">
-          <Icon name="settings" className="w-4 h-4" /><span>설정</span>
-        </button>
-      </div>
     </aside>
     </>
   );
@@ -5365,7 +5849,7 @@ function App() {
                       // 월 선택/컬럼 너비/탭 등 화면 설정 키만 수집 (데이터 키 제외)
                       if (k.includes('_visMonths_') || k.includes('_prevVisMonths_') ||
                           k.includes('VisMonths') || k === 'dashboard_psiCols_v1' ||
-                          k.includes('_columnWidths') ||
+                          k.includes('_columnWidths') || k.includes('_hiddenRows_') ||
                           k === 'dashboard_overviewTab_v1' || k === 'dashboard_psiTab_v1') {
                         out[k] = localStorage.getItem(k);
                       }
@@ -5584,58 +6068,11 @@ function App() {
           </button>
         </div>
 
-        {/* 대시보드 전환 버튼 (페이지 제목 바로 아래) */}
-        <div className="flex items-center gap-1 border-b border-slate-200">
-          {[{id:'all',label:'전체대시보드'},{id:'main',label:'주요본부대시보드'}].map(d => (
-            <button key={d.id} onClick={()=>setOverviewTab(d.id)}
-              className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 transition-colors "
-                + (overviewTab===d.id
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50')}>
-              {d.label}
-            </button>
-          ))}
-        </div>
-
-        {/* ===== 주요본부대시보드: 본부별 종합 비교표 + 3개 본부 KPI 카드 ===== */}
+        {/* ===== 주요본부대시보드: KPI 카드 + (아래) 본부별 종합 비교표 ===== */}
         {overviewTab === 'main' && (<>
-        {/* ① 본부별 종합 비교표 (맨 위로 이동) */}
-        <Card title="본부별 종합 비교표">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm" data-table-id="kpi_summary" style={{ tableLayout: 'fixed' }}>
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-3 py-2 text-left font-semibold text-slate-700">본부</th>
-                  <th className="px-3 py-2 text-right font-semibold text-slate-700">M/S(%)</th>
-                  <th className="px-3 py-2 text-right font-semibold text-slate-700">DSO(일)</th>
-                  <th className="px-3 py-2 text-right font-semibold text-slate-700">DSO A등급</th>
-                  <th className="px-3 py-2 text-right font-semibold text-slate-700">목표달성률</th>
-                  <th className="px-3 py-2 text-right font-semibold text-slate-700">BD 진입률</th>
-                  <th className="px-3 py-2 text-right font-semibold text-slate-700">하부고객 확대율</th>
-                  <th className="px-3 py-2 text-right font-semibold text-slate-700">패키지 인원</th>
-                </tr>
-              </thead>
-              <tbody>
-                {HQ_LIST.map(hq => (
-                  <tr key={hq} className="border-b border-slate-100 hover:bg-slate-50">
-                    <td className="px-3 py-2 font-semibold text-slate-900">{hq}</td>
-                    <td className="px-3 py-2 text-right">{kpi[hq].ms.toFixed(1)}%</td>
-                    <td className="px-3 py-2 text-right">{kpi[hq].dso.toFixed(1)}</td>
-                    <td className="px-3 py-2 text-right">{kpi[hq].dsoA.toFixed(1)}%</td>
-                    <td className="px-3 py-2 text-right font-semibold text-blue-600">{kpi[hq].goalRate.toFixed(1)}%</td>
-                    <td className="px-3 py-2 text-right">{kpi[hq].bdRate.toFixed(1)}%</td>
-                    <td className="px-3 py-2 text-right">{kpi[hq].subCustRate.toFixed(1)}%</td>
-                    <td className="px-3 py-2 text-right">{formatNumber(kpi[hq].pkgPerson)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        {/* ② 본부별 KPI 카드 (3개 본부) */}
+        {/* ① 본부별 KPI 카드 (3개 본부, 숨김 제외) */}
         <div className="grid grid-cols-3 gap-4">
-          {HQ_LIST.map(hq => {
+          {HQ_LIST.filter(hq => !hiddenCompareHQ.includes(hq)).map(hq => {
             const data = kpi[hq];
             return (
               <div key={hq} className="bg-white border border-slate-200 rounded-md p-4">
@@ -5656,6 +6093,59 @@ function App() {
               </div>
             );
           })}
+        </div>
+
+        {/* ② 본부별 종합 비교표 (아래로 이동, 접기 + 본부 숨김) */}
+        <div className="bg-white border border-slate-200 rounded-md p-4 mt-4">
+          <div className="flex items-center justify-between mb-2">
+            <button onClick={()=>setCompareCollapsed(!compareCollapsed)} className="flex items-center gap-1.5 text-base font-bold text-slate-900 hover:text-blue-700">
+              <span className="inline-block w-3 text-center text-sm">{compareCollapsed?'▶':'▼'}</span>
+              본부별 종합 비교표
+            </button>
+            {hiddenCompareHQ.length>0 && (
+              <button onClick={()=>setHiddenCompareHQ([])} className="text-xs text-blue-600 hover:underline">숨긴 본부 {hiddenCompareHQ.length}개 전체 표시</button>
+            )}
+          </div>
+          {!compareCollapsed && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" data-table-id="kpi_summary" data-sticky-first="off" style={{ tableLayout: 'fixed' }}>
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                  <th className="px-3 py-2 text-left font-semibold text-slate-700">본부</th>
+                  <th className="px-3 py-2 text-right font-semibold text-slate-700">M/S(%)</th>
+                  <th className="px-3 py-2 text-right font-semibold text-slate-700">DSO(일)</th>
+                  <th className="px-3 py-2 text-right font-semibold text-slate-700">DSO A등급</th>
+                  <th className="px-3 py-2 text-right font-semibold text-slate-700">목표달성률</th>
+                  <th className="px-3 py-2 text-right font-semibold text-slate-700">BD 진입률</th>
+                  <th className="px-3 py-2 text-right font-semibold text-slate-700">하부고객 확대율</th>
+                  <th className="px-3 py-2 text-right font-semibold text-slate-700">패키지 인원</th>
+                </tr>
+              </thead>
+              <tbody>
+                {HQ_LIST.map(hq => {
+                  const hidden = hiddenCompareHQ.includes(hq);
+                  return (
+                  <tr key={hq} className={"border-b border-slate-100 hover:bg-slate-50 "+(hidden?'opacity-40':'')}>
+                    <td className="px-3 py-2 font-semibold text-slate-900">
+                      <label className="flex items-center gap-1.5 cursor-pointer" title={hidden?'표시':'숨기기'}>
+                        <input type="checkbox" checked={!hidden} onChange={()=>setHiddenCompareHQ(prev => hidden ? prev.filter(x=>x!==hq) : [...prev, hq])} className="cursor-pointer" />
+                        {hq}
+                      </label>
+                    </td>
+                    <td className="px-3 py-2 text-right">{kpi[hq].ms.toFixed(1)}%</td>
+                    <td className="px-3 py-2 text-right">{kpi[hq].dso.toFixed(1)}</td>
+                    <td className="px-3 py-2 text-right">{kpi[hq].dsoA.toFixed(1)}%</td>
+                    <td className="px-3 py-2 text-right font-semibold text-blue-600">{kpi[hq].goalRate.toFixed(1)}%</td>
+                    <td className="px-3 py-2 text-right">{kpi[hq].bdRate.toFixed(1)}%</td>
+                    <td className="px-3 py-2 text-right">{kpi[hq].subCustRate.toFixed(1)}%</td>
+                    <td className="px-3 py-2 text-right">{formatNumber(kpi[hq].pkgPerson)}</td>
+                  </tr>
+                );})}
+              </tbody>
+            </table>
+            <div className="text-[11px] text-slate-400 mt-2">* 본부명 앞 체크 해제 시 위 KPI 카드에서 숨겨집니다.</div>
+          </div>
+          )}
         </div>
         </>)}
 
@@ -5908,6 +6398,7 @@ function App() {
               저장
             </button>
           </div>
+        <MenuNoteBanner noteKey={`ms_note|${hq}|${yearMonthMS}`} monthLabel={monthLabelMS} hq={hq} year={curYearMS} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
         {/* === 상단 KPI 카드 (통합본부+지역 + 본부 평균 M/S) === */}
         <div className="grid grid-cols-3 gap-3">
           {/* 본부+지역 통합 카드 (한 카드 안에 본부 전체 + 모든 지역) */}
@@ -5952,31 +6443,6 @@ function App() {
             <div className="text-xs text-slate-500 mt-1.5">목표 ÷ 시장규모</div>
           </div>
         </div>
-
-        {/* === NOTE (2번 메뉴, 단일 메모, 월별 분리, 즉시 저장) === */}
-        {(() => {
-          const noteKeyMS = `ms_note|${hq}|${yearMonthMS}`;
-          const currentNoteMS = weeklyEntries[noteKeyMS] ?? '';
-          const updateNoteMS = (value) => {
-            setWeeklyEntries(prev => ({ ...prev, [noteKeyMS]: value }));
-          };
-          return (
-            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
-              <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
-                <span className="text-xs text-slate-700">{monthLabelMS} 메모 · 자동 저장</span>
-              </div>
-              <div className="p-3">
-                <textarea
-                  value={currentNoteMS}
-                  onChange={(e) => updateNoteMS(e.target.value)}
-                  placeholder="이번 달 시장상황, M/S 달성방안, 경쟁사 분석, 다음 액션 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다."
-                  className="w-full min-h-[80px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y"
-                />
-              </div>
-            </div>
-          );
-        })()}
 
         {/* === 지역별 3C 분석 현황 (월별 분리 + 이전월 복사) === */}
         <div className="bg-white border border-slate-200 rounded-md p-4">
@@ -6591,6 +7057,8 @@ function App() {
           );
         })()}
 
+        <MenuNoteBanner noteKey={`ct_note|${hq}|${_curYearCT}-${_displayMonthCT}`} monthLabel={`${_displayMonthCT}월`} hq={hq} year={_curYearCT} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
+
         {/* === 페이지 부제목 === */}
         {(() => {
           const { year: curYearK } = parseWeekValue(filterWeek);
@@ -6599,31 +7067,6 @@ function App() {
             <div className="text-sm text-slate-600">
               {curYearK}년 {displayMonthK}월 당월 실적 + 1~{displayMonthK}월 누계 요약
               <span className="ml-3 text-xs text-slate-500">단위: M RMB / 개 / 개사</span>
-            </div>
-          );
-        })()}
-
-        {/* === NOTE (단일 메모, 월별 분리, 즉시 저장) === */}
-        {(() => {
-          const noteKeyCT = `ct_note|${hq}|${yearMonthCT}`;
-          const currentNoteCT = weeklyEntries[noteKeyCT] ?? '';
-          const updateNoteCT = (value) => {
-            setWeeklyEntries(prev => ({ ...prev, [noteKeyCT]: value }));
-          };
-          return (
-            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
-              <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
-                <span className="text-xs text-slate-700">{monthLabelCT} 메모 · 자동 저장</span>
-              </div>
-              <div className="p-3">
-                <textarea
-                  value={currentNoteCT}
-                  onChange={(e) => updateNoteCT(e.target.value)}
-                  placeholder="이번 달 주요지표 KPI 관련 메모, 분석, 다음 액션 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다. (우측 하단을 드래그하여 높이 조절 가능)"
-                  className="w-full min-h-[80px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y"
-                />
-              </div>
             </div>
           );
         })()}
@@ -6745,31 +7188,6 @@ function App() {
 
           return (
             <>
-              {/* === 연간 KPI 목표 강조 배너 === */}
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4 text-white shadow-sm">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-2">
-                    <Icon name="target" className="w-5 h-5 text-blue-100" />
-                    <span className="text-sm font-semibold text-blue-50">{curYearM}년 KPI 목표</span>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-baseline gap-1.5">
-                      <EditableCell value={annualGoalAmt} type="number" align="right"
-                        className="text-2xl font-bold text-white bg-transparent"
-                        onSave={(v) => setTaskField('_annual', 'goalAmt', v)} />
-                      <span className="text-sm text-blue-100">만 위안</span>
-                    </div>
-                    <div className="w-px h-8 bg-blue-400/50"></div>
-                    <div className="flex items-baseline gap-1.5">
-                      <EditableCell value={annualGoalQty} type="number" align="right"
-                        className="text-2xl font-bold text-white bg-transparent"
-                        onSave={(v) => setTaskField('_annual', 'goalQty', v)} />
-                      <span className="text-sm text-blue-100">만 개</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* === 상단 KPI 카드 4개 (금액 + 수량 통합) === */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
                 {/* 당월 목표 */}
@@ -7707,7 +8125,17 @@ function App() {
       ? psiMonth[hq][yearMonthP]
       : (is5월P ? (psi[hq] || []) : emptyPSI);
     // 대리상 PSI 관리 표: 1~12월을 한 행에 담는 단일 데이터 (월 무관, psiFocus 사용)
-    const focusData = (psiFocus[hq] || []);
+    // + 계약실적현황에서 추가한 대리상도 자동 포함 (PSI 행 형식으로 변환)
+    const _extraKeyP = 'psiExtra_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
+    const _extraP = (() => { try { const v = weeklyEntries[_extraKeyP]; if (v) return JSON.parse(v); } catch(e){} return []; })();
+    const _baseFocus = (psiFocus[hq] || []);
+    const _baseNames = new Set(_baseFocus.map(d => d.dealer));
+    const _extraAsFocus = _extraP.filter(d => !_baseNames.has(d.name)).map((d, i) => {
+      const row = { id: 'extra_' + i + '_' + d.name, dealer: d.name, region: d.region || '', stockY25: 0, targetQty: 0, purchaseQtyManual: null, salesQtyManual: null };
+      for (let mm = 1; mm <= 12; mm++) { row[`m${mm}_P`]=0; row[`m${mm}_S`]=0; row[`m${mm}_I`]=0; row[`m${mm}_R`]=0; }
+      return row;
+    });
+    const focusData = [..._baseFocus, ..._extraAsFocus];
 
     // 지역 필터 적용
     const filteredData = filterRegion === '전체' ? data : data.filter(d => d.region === filterRegion);
@@ -7887,21 +8315,7 @@ function App() {
             </button>
           </div>
 
-        {/* === NOTE (단일 메모, 월별 분리, 즉시 저장) === */}
-        <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
-          <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-            <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
-            <span className="text-xs text-slate-700">{monthLabelP} 메모 · 자동 저장</span>
-          </div>
-          <div className="p-3">
-            <textarea
-              value={currentNote}
-              onChange={(e) => updateNote(e.target.value)}
-              placeholder="이번 달 주요 사항, 문제, 달성방안, 다음 액션 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다."
-              className="w-full min-h-[80px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y"
-            />
-          </div>
-        </div>
+        <MenuNoteBanner noteKey={`psi_note|${hq}|${yearMonthP}`} monthLabel={monthLabelP} hq={hq} year={curYearP} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
 
         {/* === 3번 KPI 목표 배너 + 카드 3개 (당월목표/당월실적/누적실적) === */}
         {(() => {
@@ -7916,8 +8330,9 @@ function App() {
           // 데이터 없는 본부는 0
           const monGoal = psi ? getPsiCell('_mon', 'goal', mi, psi.hqMonthly.goal[mi]) : 0;
           const monActual = psi ? getPsiCell('_mon', 'actual', mi, psi.hqMonthly.actual[mi]) : 0;
-          const cumActual = psi ? getPsiCell('_cum', 'actual', mi, psi.hqCumulative.actual[mi]) : 0;
-          const cumGoal = psi ? getPsiCell('_cum', 'goal', mi, psi.hqCumulative.goal[mi]) : 0;
+          // 누적 = 1~현재월 월별 실적/목표 합산 (자동) — 저장된 월별값 우선
+          const cumActual = psi ? (() => { let s=0; for(let j=0;j<=mi;j++) s += Number(getPsiCell('_mon','actual',j, psi.hqMonthly.actual[j])||0); return s; })() : 0;
+          const cumGoal = psi ? (() => { let s=0; for(let j=0;j<=mi;j++) s += Number(getPsiCell('_mon','goal',j, psi.hqMonthly.goal[j])||0); return s; })() : 0;
           const monRate = monGoal !== 0 ? Math.round(monActual / monGoal * 100) : 0;
           const cumRate = cumGoal !== 0 ? Math.round(cumActual / cumGoal * 100) : 0;
           // 연간 KPI 목표 (배너용) - 본부별 + 연도별 저장 (weeklyEntries 직접 사용)
@@ -7927,31 +8342,6 @@ function App() {
           const annualGoalQty = (weeklyEntries[psiGoalQtyKey] !== undefined && weeklyEntries[psiGoalQtyKey] !== '') ? weeklyEntries[psiGoalQtyKey] : (hq === '화남본부' ? 9.5 : 0);
           return (
             <>
-              {/* === 연간 KPI 목표 강조 배너 === */}
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4 text-white shadow-sm mt-3">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-2">
-                    <Icon name="target" className="w-5 h-5 text-blue-100" />
-                    <span className="text-sm font-semibold text-blue-50">{curYearP}년 KPI 목표</span>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-baseline gap-1.5">
-                      <EditableCell value={annualGoalAmt} type="number" align="right"
-                        className="text-2xl font-bold text-white bg-transparent"
-                        onSave={(v) => setWeeklyEntries(prev => ({ ...prev, [psiGoalAmtKey]: v }))} />
-                      <span className="text-sm text-blue-100">만 위안</span>
-                    </div>
-                    <div className="w-px h-8 bg-blue-400/50"></div>
-                    <div className="flex items-baseline gap-1.5">
-                      <EditableCell value={annualGoalQty} type="number" align="right"
-                        className="text-2xl font-bold text-white bg-transparent"
-                        onSave={(v) => setWeeklyEntries(prev => ({ ...prev, [psiGoalQtyKey]: v }))} />
-                      <span className="text-sm text-blue-100">만 개</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div className="grid grid-cols-3 gap-3 mt-3">
               <div className="bg-white border border-slate-200 rounded-md p-4">
                 <div className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1.5">
@@ -7996,9 +8386,9 @@ function App() {
         {/* === PSI 탭 === */}
         <div className="flex items-center gap-1 border-b border-slate-200 mb-3">
           {[
-            { key:'annual', label:'본부 대리상 PSI 연간 월별표' },
+            { key:'annual', label:'대리상별 계약실적현황' },
             { key:'manage', label:'대리상 PSI 관리' },
-            { key:'focus',  label:'중점 관리 대리상' },
+            { key:'master', label:'대리상 마스터' },
           ].map(t => (
             <button key={t.key} onClick={() => setPsiTab(t.key)}
               className={"px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition "+(psiTab===t.key
@@ -8196,7 +8586,7 @@ function App() {
               })()}
               {!psiMgmtCollapsed && (
               <div className="border border-slate-300 rounded overflow-x-auto">
-                <table className="text-sm" data-table-id="dealer_psi_summary" style={{ minWidth: (210 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*52 : 0) + (psiCols.selSum?3*64:0) + (psiCols.stockY25?90:0)+(psiCols.target?90:0)+(psiCols.purchaseQty?100:0)+(psiCols.salesQty?100:0)+(psiCols.status?70:0)+60) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
+                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (210 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*52 : 0) + (psiCols.selSum?3*64:0) + (psiCols.stockY25?90:0)+(psiCols.target?90:0)+(psiCols.purchaseQty?100:0)+(psiCols.salesQty?100:0)+(psiCols.status?70:0)+60) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
                   <colgroup>
                     <col style={{ width: '60px' }} />
                     <col style={{ width: '150px' }} />
@@ -8799,6 +9189,15 @@ function App() {
         </div>
         )}
 
+        {/* === 대리상 마스터 === */}
+        {psiTab === 'master' && (
+        <DealerMasterTab
+          hq={hq}
+          weeklyEntries={weeklyEntries}
+          setWeeklyEntries={setWeeklyEntries}
+          logChange={logChange}
+        />
+        )}
 
 
         {/* 푸터 */}
@@ -9011,6 +9410,8 @@ function App() {
               저장
             </button>
           </div>
+
+        <MenuNoteBanner noteKey={`sp_note|${hq}|${yearMonthSP}`} monthLabel={monthLabelSP} hq={hq} year={curYearSP} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
         {/* === 상단 KPI 카드 5개 === */}
         {(() => {
           // 우수/위험 사원 계산 (대구경리 제외, 사원만)
@@ -9098,31 +9499,6 @@ function App() {
           );
         })()}
 
-        {/* === NOTE (단일 메모, 월별 분리, 즉시 저장) === */}
-        {(() => {
-          const noteKeySP = `sp_note|${hq}|${yearMonthSP}`;
-          const currentNoteSP = weeklyEntries[noteKeySP] ?? '';
-          const updateNoteSP = (value) => {
-            setWeeklyEntries(prev => ({ ...prev, [noteKeySP]: value }));
-          };
-          return (
-            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
-              <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
-                <span className="text-xs text-slate-700">{monthLabelSP} 메모 · 자동 저장</span>
-              </div>
-              <div className="p-3">
-                <textarea
-                  value={currentNoteSP}
-                  onChange={(e) => updateNoteSP(e.target.value)}
-                  placeholder="이번 달 영업사원 실적 분석, 우수/위험 사원 관리방안, 다음 액션 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다."
-                  className="w-full min-h-[80px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y"
-                />
-              </div>
-            </div>
-          );
-        })()}
-
         {/* === 하단: 표 + 주차별 실적 추이 (세로 배치) === */}
         <div className="space-y-4">
           {/* 영업사원별 진도 현황 표 */}
@@ -9137,7 +9513,7 @@ function App() {
             </div>
 
             <div className="border border-slate-300 rounded overflow-hidden">
-              <table className="w-full text-sm" data-table-id="sales_emp_progress" style={{ tableLayout: 'fixed' }}>
+              <table className="w-full text-sm" data-table-id="sales_emp_progress" data-sticky-first="off" style={{ tableLayout: 'fixed' }}>
                 <thead>
                   <tr className="bg-slate-100 border-b border-slate-300">
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">지역</th>
@@ -9148,13 +9524,12 @@ function App() {
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[90px]">누적 실적</th>
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">달성률</th>
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[70px]">상태</th>
-                    <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[200px]">현황</th>
-                    <th className="px-3 py-2 font-semibold text-slate-700 w-[60px]">작업</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700 w-[200px]">현황</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredEmps.length === 0 ? (
-                    <tr><td colSpan={10} className="px-3 py-12 text-center text-slate-400">조건에 맞는 영업사원이 없습니다.</td></tr>
+                    <tr><td colSpan={9} className="px-3 py-12 text-center text-slate-400">조건에 맞는 영업사원이 없습니다.</td></tr>
                   ) : filteredEmps.map((emp) => {
                     // 월별 실적 / 누적 실적 / 현황 (월별 분리 저장, weeklyEntries)
                     const _mp = empMetric === 'amount' ? 'A' : ''; // 금액 탭은 접두어로 독립 저장
@@ -9169,13 +9544,18 @@ function App() {
                     const rate = goalVal > 0 ? +(monthActual / goalVal * 100).toFixed(1) : 0;
                     const status = calcStatus(rate);
                     return (
-                      <tr key={emp.id} className="border-b border-slate-200 hover:bg-slate-50">
+                      <tr key={emp.id} className={"border-b border-slate-200 hover:bg-slate-50 "+((hiddenSalesRows[hq]||[]).includes(emp.id)?'opacity-40':'')}>
                         <td className="px-2 py-1 border-r border-slate-300 text-center">
-                          <select value={emp.region}
-                            onChange={(e) => updateRow(emp.id, 'region', e.target.value)}
-                            className="px-1 py-0.5 text-sm border-0 bg-transparent outline-none cursor-pointer hover:bg-blue-50 rounded w-full text-center font-semibold">
-                            {(REGIONS[hq] || []).map(r => <option key={r} value={r}>{r}</option>)}
-                          </select>
+                          <div className="flex items-center gap-1">
+                            <input type="checkbox" checked={!(hiddenSalesRows[hq]||[]).includes(emp.id)} title="숨기기/표시"
+                              onChange={()=>setHiddenSalesRows(prev => { const cur=prev[hq]||[]; const has=cur.includes(emp.id); return {...prev, [hq]: has?cur.filter(x=>x!==emp.id):[...cur, emp.id]}; })}
+                              className="cursor-pointer flex-shrink-0" />
+                            <select value={emp.region}
+                              onChange={(e) => updateRow(emp.id, 'region', e.target.value)}
+                              className="px-1 py-0.5 text-sm border-0 bg-transparent outline-none cursor-pointer hover:bg-blue-50 rounded w-full text-center font-semibold">
+                              {(REGIONS[hq] || []).map(r => <option key={r} value={r}>{r}</option>)}
+                            </select>
+                          </div>
                         </td>
                         <td className="px-3 py-2 border-r border-slate-300 text-center font-semibold">
                           <EditableCell value={emp.name} align="center" onSave={(v) => updateRow(emp.id, 'name', v)} />
@@ -9206,50 +9586,32 @@ function App() {
                             {status}
                           </span>
                         </td>
-                        <td className="px-2 py-1 border-r border-slate-300">
+                        <td className="px-2 py-1">
                           <EditableCell value={statusNote} align="left"
                             onSave={(v) => { setWeeklyEntries(prev => ({ ...prev, [_sKey]: v })); logChange(`${hq} - 영업사원 (${monthLabelSP})`, `${emp.name} 현황 수정`); }} />
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <button onClick={() => {
-                            if (!confirm(`${emp.name} 영업사원을 삭제하시겠습니까?`)) return;
-                            setSalesPersonMonth(prev => {
-                              const hqData = prev[hq] || {};
-                              const monthData = hqData[yearMonthSP]
-                                ? hqData[yearMonthSP]
-                                : (is5월SP
-                                    ? JSON.parse(JSON.stringify(salesPerson[hq] || []))
-                                    : JSON.parse(JSON.stringify(emptySalesPerson)));
-                              return { ...prev, [hq]: { ...hqData, [yearMonthSP]: monthData.filter(p => p.id !== emp.id) } };
-                            });
-                            if (is5월SP) {
-                              setSalesPerson(prev => ({ ...prev, [hq]: (prev[hq] || []).filter(p => p.id !== emp.id) }));
-                            }
-                            logChange(`${hq} - 영업사원 (${monthLabelSP})`, `${emp.name} 삭제`);
-                          }}
-                            className="text-xs text-rose-500 hover:text-rose-700">삭제</button>
                         </td>
                       </tr>
                     );
                   })}
 
-                  {/* 합계 행 */}
+                  {/* 합계 행 (숨김 제외) */}
                   {filteredEmps.length > 0 && (() => {
                     const _mp = empMetric === 'amount' ? 'A' : '';
-                    const sumGoal = filteredEmps.reduce((s, d) => s + (empMetric === 'amount'
+                    const _hidden = hiddenSalesRows[hq] || [];
+                    const _calcEmps = filteredEmps.filter(d => !_hidden.includes(d.id));
+                    const sumGoal = _calcEmps.reduce((s, d) => s + (empMetric === 'amount'
                       ? Number(weeklyEntries[`empGoalA|${hq}|${d.id}|${yearMonthSP}`] ?? 0)
                       : (d.shipGoal || 0)), 0);
-                    const sumMonth = filteredEmps.reduce((s, d) => s + Number(weeklyEntries[`empMonthly${_mp}|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
-                    const sumCum = filteredEmps.reduce((s, d) => s + Number(weeklyEntries[`empCum${_mp}|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
+                    const sumMonth = _calcEmps.reduce((s, d) => s + Number(weeklyEntries[`empMonthly${_mp}|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
+                    const sumCum = _calcEmps.reduce((s, d) => s + Number(weeklyEntries[`empCum${_mp}|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
                     const sumRate = sumGoal > 0 ? +(sumMonth / sumGoal * 100).toFixed(1) : 0;
                     return (
                       <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
-                        <td colSpan={3} className="px-3 py-2 border-r border-slate-300 text-center">전체 합계</td>
+                        <td colSpan={3} className="px-3 py-2 border-r border-slate-300 text-center">전체 합계{_hidden.length>0?` (숨김 ${_hidden.length} 제외)`:''}</td>
                         <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumGoal)}</td>
                         <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumMonth)}</td>
                         <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumCum)}</td>
                         <td className={`px-3 py-2 border-r border-slate-300 text-right ${rateColor(sumRate)}`}>{sumRate.toFixed(1)}%</td>
-                        <td className="px-3 py-2 border-r border-slate-300 text-center text-slate-500">-</td>
                         <td className="px-3 py-2 border-r border-slate-300 text-center text-slate-500">-</td>
                         <td className="px-3 py-2 text-center text-slate-500">-</td>
                       </tr>
@@ -9647,6 +10009,8 @@ function App() {
           </button>
         </div>
 
+        <MenuNoteBanner noteKey={`dso_note|${hq}|${yearMonthD6}`} monthLabel={monthLabelD6} hq={hq} year={curYearD6} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
+
         {/* KPI 카드 5개 */}
         <div className="grid grid-cols-5 gap-3">
           <div className="bg-white border border-slate-200 rounded-md p-3">
@@ -9701,535 +10065,205 @@ function App() {
           </div>
         </div>
 
-        {/* === 월간 요약 / 진입 현황 / 등급 분포 (자동 계산 + 수동 수정 가능) === */}
-        {(() => {
-          // 저장 키
-          const k월간 = `dso_overview|${hq}`;
-          const k진입 = `dso_enter_status|${hq}`;
-          const k등급 = `dso_grade|${hq}`;
+        {/* === DSO 서브 탭 === */}
+        <div className="flex items-center gap-1 border-b border-slate-200">
+          {[{k:'summary',l:'DSO 진입현황'},{k:'sales',l:'DSO 판매현황'},{k:'detail',l:'DSO 상세 현황'}].map(t => (
+            <button key={t.k} onClick={()=>setDsoSubTab(t.k)}
+              className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 transition-colors "+(dsoSubTab===t.k?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>
+              {t.l}
+            </button>
+          ))}
+        </div>
 
-          // 수동값 로드 (객체)
-          const parseObj = (raw) => {
-            try { return raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {}; } catch (e) { return {}; }
+        {/* === DSO 진입현황 (첨부 기준, 월별 분리) === */}
+        {dsoSubTab === 'summary' && (() => {
+          // DSO 진입현황 (첨부 기준) — 월별 분리 저장
+          const _hqShort = hq.replace('본부','');
+          const rows = DSO_ENTRY_DATA.filter(r => r.hq === _hqShort);
+          const gv = (region, field, def) => {
+            const k = `dsoEntry|${hq}|${region}|${field}|${yearMonthD6}`;
+            const v = weeklyEntries[k];
+            return (v !== undefined && v !== null && v !== '') ? Number(v) : def;
           };
-          const manualOverview = parseObj(weeklyEntries[k월간]);
-          const manualEnter = parseObj(weeklyEntries[k진입]);
-          const manualGrade = parseObj(weeklyEntries[k등급]);
-
-          const updateOverview = (key, value) => {
-            const newVal = { ...manualOverview, [key]: value };
-            // 빈값은 키 제거 (자동으로 복귀)
-            if (value === null || value === undefined || value === '') delete newVal[key];
-            setWeeklyEntries(prev => ({ ...prev, [k월간]: JSON.stringify(newVal) }));
+          const setV = (region, field, val) => {
+            const k = `dsoEntry|${hq}|${region}|${field}|${yearMonthD6}`;
+            setWeeklyEntries(prev => ({ ...prev, [k]: val }));
+            logChange(`${hq} - DSO 진입현황 (${monthLabelD6})`, `${region} ${field} 수정`);
           };
-          const updateEnter = (key, value) => {
-            const newVal = { ...manualEnter, [key]: value };
-            if (value === null || value === undefined || value === '') delete newVal[key];
-            setWeeklyEntries(prev => ({ ...prev, [k진입]: JSON.stringify(newVal) }));
+          const pct = (e, t) => t > 0 ? Math.round(e / t * 100) : 0;
+          const rateCls = (r) => r >= 80 ? 'text-emerald-600' : r >= 50 ? 'text-blue-600' : r >= 30 ? 'text-amber-600' : 'text-rose-600';
+          // 합계 계산
+          const sum = (f) => rows.reduce((s, r) => s + gv(r.region, f, r[f]), 0);
+          const T = { clinic:sum('clinic'), implant:sum('implant'), dso:sum('dso'), enter:sum('enter'),
+            sT:sum('sT'), sE:sum('sE'), aT:sum('aT'), aE:sum('aE'), oT:sum('oT'), oE:sum('oE') };
+          const Cell = ({ region, field, def, editable }) => {
+            const val = gv(region, field, def);
+            if (editable) return <EditableCell value={val} type="number" align="right" onSave={(v)=>setV(region, field, parseFloat(v)||0)} />;
+            return <span>{formatNumber(val)}</span>;
           };
-          const updateGrade = (key, value) => {
-            const newVal = { ...manualGrade, [key]: value };
-            if (value === null || value === undefined || value === '') delete newVal[key];
-            setWeeklyEntries(prev => ({ ...prev, [k등급]: JSON.stringify(newVal) }));
-          };
-
-          // 표 3의 데이터를 기준으로 자동 집계
-          const rows = filteredData || [];
-          // 자동 계산 값
-          const autoMonthSales = rows.reduce((s, r) => s + (Number(r.monthSales) || 0), 0);
-          const autoMonthRev = rows.reduce((s, r) => s + (Number(r.monthRev) || 0), 0);
-          const autoAchRate = autoMonthSales > 0 ? +(autoMonthRev / autoMonthSales * 100).toFixed(1) : 0;
-          const autoYearTarget = rows.reduce((s, r) => s + (Number(r.yearTarget) || 0), 0);
-          const autoCumQty = rows.reduce((s, r) => s + (Number(r.cumQty) || 0), 0);
-          const autoProgRate = autoYearTarget > 0 ? +(autoCumQty / autoYearTarget * 100).toFixed(1) : 0;
-
-          const autoEnterCount = rows.filter(r => r.enter).length;
-          const autoNotEnterCount = rows.filter(r => !r.enter && r.status !== '검토중').length;
-          const autoReviewCount = rows.filter(r => r.status === '검토중').length;
-
-          const autoGradeCount = { S: 0, A: 0, B: 0, C: 0 };
-          rows.forEach(r => {
-            const g = r.grade || 'C';
-            if (autoGradeCount[g] !== undefined) autoGradeCount[g]++;
-          });
-
-          // 실제 표시값 (수동값 우선, 없으면 자동)
-          const isManualOV = (k) => manualOverview[k] !== undefined && manualOverview[k] !== null && manualOverview[k] !== '';
-          const getOV = (k, autoVal) => isManualOV(k) ? Number(manualOverview[k]) : autoVal;
-          const monthSales = getOV('monthSales', autoMonthSales);
-          const monthRev = getOV('monthRev', autoMonthRev);
-          const yearTarget = getOV('yearTarget', autoYearTarget);
-          const cumQty = getOV('cumQty', autoCumQty);
-          // 달성률/진도율은 위 4개 값(수동값이 반영된 최종값) 기준으로 자동 재계산
-          // 사용자가 수동 입력하지 않은 경우에만 자동값을 사용
-          const computedAchRate = monthSales > 0 ? +(monthRev / monthSales * 100).toFixed(1) : 0;
-          const computedProgRate = yearTarget > 0 ? +(cumQty / yearTarget * 100).toFixed(1) : 0;
-          const achRate = getOV('achRate', computedAchRate);
-          const progRate = getOV('progRate', computedProgRate);
-
-          const isManualEN = (k) => manualEnter[k] !== undefined && manualEnter[k] !== null && manualEnter[k] !== '';
-          const getEN = (k, autoVal) => isManualEN(k) ? Number(manualEnter[k]) : autoVal;
-          const enterCount = getEN('enter', autoEnterCount);
-          const notEnterCount = getEN('notEnter', autoNotEnterCount);
-          const reviewCount = getEN('review', autoReviewCount);
-          const totalCount = enterCount + notEnterCount + reviewCount;
-          const enterPct = totalCount > 0 ? (enterCount / totalCount * 100) : 0;
-          const notEnterPct = totalCount > 0 ? (notEnterCount / totalCount * 100) : 0;
-          const reviewPct = totalCount > 0 ? (reviewCount / totalCount * 100) : 0;
-
-          const isManualGR = (k) => manualGrade[k] !== undefined && manualGrade[k] !== null && manualGrade[k] !== '';
-          const getGR = (k, autoVal) => isManualGR(k) ? Number(manualGrade[k]) : autoVal;
-
-          // 지역×등급 표 (dso_grade_byregion)와 막대 그래프 동기화
-          // 표에서 입력한 값이 있으면 표 합계를 우선, 없으면 자동 집계 사용
-          const kGradeByRegionForBar = `dso_grade_byregion|${hq}`;
-          const manualGrRegForBar = parseObj(weeklyEntries[kGradeByRegionForBar]);
-          const autoBCByRegion = {}; // 지역별 B+C
-          (REGIONS[hq] || []).forEach(r => { autoBCByRegion[r] = 0; });
-          (filteredData || []).forEach(d => {
-            const g = d.grade || 'C';
-            if (g !== 'S' && g !== 'A' && autoBCByRegion[d.region] !== undefined) autoBCByRegion[d.region]++;
-          });
-          const autoSByRegion = {}, autoAByRegion = {};
-          (REGIONS[hq] || []).forEach(r => { autoSByRegion[r] = 0; autoAByRegion[r] = 0; });
-          (filteredData || []).forEach(d => {
-            if (d.grade === 'S' && autoSByRegion[d.region] !== undefined) autoSByRegion[d.region]++;
-            else if (d.grade === 'A' && autoAByRegion[d.region] !== undefined) autoAByRegion[d.region]++;
-          });
-          // 지역별 합계 (수동값 우선)
-          let barSumS = 0, barSumA = 0, barSumBC = 0;
-          (REGIONS[hq] || []).forEach(r => {
-            const m = manualGrRegForBar[r] || {};
-            barSumS += (m.S !== undefined && m.S !== null && m.S !== '') ? Number(m.S) : autoSByRegion[r];
-            barSumA += (m.A !== undefined && m.A !== null && m.A !== '') ? Number(m.A) : autoAByRegion[r];
-            barSumBC += (m.BC !== undefined && m.BC !== null && m.BC !== '') ? Number(m.BC) : autoBCByRegion[r];
-          });
-
-          // gradeCount: S/A/BC 3개로 통합 (B/C 막대 통합)
-          const gradeCount = {
-            S: barSumS,
-            A: barSumA,
-            BC: barSumBC,
-          };
-          const totalGrade = gradeCount.S + gradeCount.A + gradeCount.BC;
-          const maxGrade = Math.max(gradeCount.S, gradeCount.A, gradeCount.BC, 1);
-
-          // 작은 ✎ + ↻ 표시 헬퍼
-          const ManualMarker = ({ isManual, onReset }) => (
-            <span className="inline-flex items-center gap-0.5 ml-1">
-              {isManual && (
-                <>
-                  <span className="text-[9px] text-slate-500" title="수동 입력값">✎</span>
-                  <button onClick={onReset} className="text-[10px] text-slate-400 hover:text-slate-700 leading-none" title="자동값으로 복귀">↻</button>
-                </>
-              )}
-            </span>
-          );
-
           return (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {/* 1. 월간 요약 (표 형식) */}
-              <div className="bg-white border border-slate-200 rounded-md p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <h4 className="text-sm font-bold text-slate-900">월간 요약 ({monthLabelD6} 수량)</h4>
-                  <span className="text-xs text-slate-400" title="DSO 상세 현황 자동 집계 · 셀 클릭하여 수동 수정 가능">ⓘ</span>
-                </div>
-                <div className="border border-slate-300 rounded overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-slate-100 border-b border-slate-300">
-                        <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left">항목</th>
-                        <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-right">목표</th>
-                        <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-right">실적</th>
-                        <th className="px-2 py-1.5 font-semibold text-slate-700 text-right">진도율</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-slate-200 hover:bg-slate-50">
-                        <td className="px-2 py-1.5 border-r border-slate-200 font-semibold text-slate-700">{monthLabelD6}</td>
-                        <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                          <div className="flex items-center justify-end gap-0.5">
-                            <EditableCell value={monthSales} type="number" align="right" onSave={(v) => updateOverview('monthSales', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                            <ManualMarker isManual={isManualOV('monthSales')} onReset={() => updateOverview('monthSales', null)} />
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                          <div className="flex items-center justify-end gap-0.5">
-                            <EditableCell value={monthRev} type="number" align="right" onSave={(v) => updateOverview('monthRev', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                            <ManualMarker isManual={isManualOV('monthRev')} onReset={() => updateOverview('monthRev', null)} />
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5 text-right">
-                          <div className="flex items-baseline justify-end gap-0.5">
-                            <EditableCell value={achRate} type="number" align="right" onSave={(v) => updateOverview('achRate', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                            <span className="text-xs">%</span>
-                            <ManualMarker isManual={isManualOV('achRate')} onReset={() => updateOverview('achRate', null)} />
-                          </div>
-                        </td>
-                      </tr>
-                      <tr className="border-b border-slate-200 hover:bg-slate-50">
-                        <td className="px-2 py-1.5 border-r border-slate-200 font-semibold text-slate-700">26년</td>
-                        <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                          <div className="flex items-center justify-end gap-0.5">
-                            <EditableCell value={yearTarget} type="number" align="right" onSave={(v) => updateOverview('yearTarget', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                            <ManualMarker isManual={isManualOV('yearTarget')} onReset={() => updateOverview('yearTarget', null)} />
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                          <div className="flex items-center justify-end gap-0.5">
-                            <EditableCell value={cumQty} type="number" align="right" onSave={(v) => updateOverview('cumQty', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                            <ManualMarker isManual={isManualOV('cumQty')} onReset={() => updateOverview('cumQty', null)} />
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5 text-right">
-                          <div className="flex items-baseline justify-end gap-0.5">
-                            <EditableCell value={progRate} type="number" align="right" onSave={(v) => updateOverview('progRate', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                            <span className="text-xs">%</span>
-                            <ManualMarker isManual={isManualOV('progRate')} onReset={() => updateOverview('progRate', null)} />
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div className="mt-2 text-[10px] text-slate-400">
-                  * 달성률 = 실적 ÷ 목표 × 100 · 진도율 = 누적 ÷ 26년 × 100 · 자동 계산
-                </div>
-              </div>
-
-              {/* 2. DSO 진입현황 - 지역별 표 + 도넛 차트 */}
-              <div className="bg-white border border-slate-200 rounded-md p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <h4 className="text-sm font-bold text-slate-900">DSO 진입현황</h4>
-                  <span className="text-xs text-slate-400" title="지역별 자동 집계 · 미진입은 DSO수 - 진입 - 검토중 자동 계산">ⓘ</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  {/* 도넛 SVG */}
-                  <div className="relative flex-shrink-0">
-                    {(() => {
-                      const size = 110, stroke = 18, r = (size - stroke) / 2;
-                      const C = 2 * Math.PI * r;
-                      let offset = 0;
-                      const segs = [
-                        { v: enterPct, color: '#475569' },
-                        { v: notEnterPct, color: '#94a3b8' },
-                        { v: reviewPct, color: '#cbd5e1' },
-                      ];
+            <div className="bg-white border border-slate-200 rounded-md p-4">
+              <h3 className="text-base font-bold text-slate-900 mb-3">DSO 진입현황 ({hq} - {monthLabelD6})</h3>
+              <div className="border border-slate-300 rounded overflow-x-auto">
+                <table className="w-full text-sm" data-table-id="dso_entry_status" data-sticky-first="off" style={{ tableLayout:'fixed', minWidth:'1100px' }}>
+                  <thead>
+                    <tr className="bg-blue-50 border-b border-slate-300 text-slate-700">
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold w-[70px]">지역</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold w-[80px]">DSO<br/>문진수</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold w-[90px]">DSO<br/>연종식량</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold w-[70px]">DSO<br/>수량</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold text-blue-700 w-[70px]">진입<br/>수량</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold text-rose-600 w-[70px]">달성율</th>
+                      <th colSpan={3} className="px-2 py-1.5 border-r border-slate-300 font-semibold text-center bg-amber-50">S급</th>
+                      <th colSpan={3} className="px-2 py-1.5 border-r border-slate-300 font-semibold text-center bg-amber-50">A급</th>
+                      <th colSpan={3} className="px-2 py-1.5 font-semibold text-center bg-amber-50">기타</th>
+                    </tr>
+                    <tr className="bg-blue-50 border-b border-slate-300 text-xs text-slate-600">
+                      <th className="px-2 py-1.5 border-r border-slate-200 font-semibold">합계</th>
+                      <th className="px-2 py-1.5 border-r border-slate-200 font-semibold text-blue-700">진입</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-rose-600">달성율</th>
+                      <th className="px-2 py-1.5 border-r border-slate-200 font-semibold">합계</th>
+                      <th className="px-2 py-1.5 border-r border-slate-200 font-semibold text-blue-700">진입</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-rose-600">달성율</th>
+                      <th className="px-2 py-1.5 border-r border-slate-200 font-semibold">합계</th>
+                      <th className="px-2 py-1.5 border-r border-slate-200 font-semibold text-blue-700">진입</th>
+                      <th className="px-2 py-1.5 font-semibold text-rose-600">달성율</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r, i) => {
+                      const dso=gv(r.region,'dso',r.dso), enter=gv(r.region,'enter',r.enter);
+                      const sTv=gv(r.region,'sT',r.sT), sEv=gv(r.region,'sE',r.sE);
+                      const aTv=gv(r.region,'aT',r.aT), aEv=gv(r.region,'aE',r.aE);
+                      const oTv=gv(r.region,'oT',r.oT), oEv=gv(r.region,'oE',r.oE);
+                      const rEnter=pct(enter,dso), rS=pct(sEv,sTv), rA=pct(aEv,aTv), rO=pct(oEv,oTv);
                       return (
-                        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-                          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#f1f5f9" strokeWidth={stroke} />
-                          {segs.map((s, i) => {
-                            const len = (s.v / 100) * C;
-                            const dash = `${len} ${C}`;
-                            const dashOffset = -offset;
-                            offset += len;
-                            return (
-                              <circle key={i} cx={size/2} cy={size/2} r={r} fill="none"
-                                stroke={s.color} strokeWidth={stroke}
-                                strokeDasharray={dash} strokeDashoffset={dashOffset}
-                                transform={`rotate(-90 ${size/2} ${size/2})`} />
-                            );
-                          })}
-                          <text x={size/2} y={size/2 - 4} textAnchor="middle" className="fill-slate-500" style={{ fontSize: 10 }}>전체</text>
-                          <text x={size/2} y={size/2 + 12} textAnchor="middle" className="fill-slate-900 font-bold" style={{ fontSize: 16 }}>{totalCount}</text>
-                        </svg>
+                        <tr key={i} className="border-b border-slate-200 hover:bg-slate-50 text-center">
+                          <td className="px-2 py-1 border-r border-slate-300 font-semibold">{r.region}</td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><Cell region={r.region} field="clinic" def={r.clinic} editable /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><Cell region={r.region} field="implant" def={r.implant} editable /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><Cell region={r.region} field="dso" def={r.dso} editable /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right text-blue-700"><Cell region={r.region} field="enter" def={r.enter} editable /></td>
+                          <td className={`px-2 py-1 border-r border-slate-300 text-right font-semibold ${rateCls(rEnter)}`}>{rEnter}%</td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><Cell region={r.region} field="sT" def={r.sT} editable /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right text-blue-700"><Cell region={r.region} field="sE" def={r.sE} editable /></td>
+                          <td className={`px-2 py-1 border-r border-slate-300 text-right ${rateCls(rS)}`}>{rS}%</td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><Cell region={r.region} field="aT" def={r.aT} editable /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right text-blue-700"><Cell region={r.region} field="aE" def={r.aE} editable /></td>
+                          <td className={`px-2 py-1 border-r border-slate-300 text-right ${rateCls(rA)}`}>{rA}%</td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><Cell region={r.region} field="oT" def={r.oT} editable /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right text-blue-700"><Cell region={r.region} field="oE" def={r.oE} editable /></td>
+                          <td className={`px-2 py-1 text-right ${rateCls(rO)}`}>{rO}%</td>
+                        </tr>
                       );
-                    })()}
-                  </div>
-                  {/* 범례 + 편집 */}
-                  <div className="flex-1 space-y-1.5 text-sm">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#475569' }}></span>
-                        <span className="text-slate-700">진입</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-12 text-right">
-                          <EditableCell value={enterCount} type="number" align="right" onSave={(v) => updateEnter('enter', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                        </div>
-                        <span className="text-xs text-slate-500 w-14 text-right">({enterPct.toFixed(1)}%)</span>
-                        <ManualMarker isManual={isManualEN('enter')} onReset={() => updateEnter('enter', null)} />
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#94a3b8' }}></span>
-                        <span className="text-slate-700">미진입</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-12 text-right">
-                          <EditableCell value={notEnterCount} type="number" align="right" onSave={(v) => updateEnter('notEnter', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                        </div>
-                        <span className="text-xs text-slate-500 w-14 text-right">({notEnterPct.toFixed(1)}%)</span>
-                        <ManualMarker isManual={isManualEN('notEnter')} onReset={() => updateEnter('notEnter', null)} />
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#cbd5e1' }}></span>
-                        <span className="text-slate-700">검토중</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-12 text-right">
-                          <EditableCell value={reviewCount} type="number" align="right" onSave={(v) => updateEnter('review', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                        </div>
-                        <span className="text-xs text-slate-500 w-14 text-right">({reviewPct.toFixed(1)}%)</span>
-                        <ManualMarker isManual={isManualEN('review')} onReset={() => updateEnter('review', null)} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* 지역별 표 */}
-                {(() => {
-                  const kRegionEnter = `dso_enter_byregion|${hq}`;
-                  const manualRegEnter = parseObj(weeklyEntries[kRegionEnter]);
-                  const updateRegEnter = (region, field, value) => {
-                    const cur = manualRegEnter[region] || {};
-                    const newRegion = { ...cur, [field]: value };
-                    if (value === null || value === undefined || value === '') delete newRegion[field];
-                    const newVal = { ...manualRegEnter, [region]: newRegion };
-                    if (Object.keys(newRegion).length === 0) delete newVal[region];
-                    setWeeklyEntries(prev => ({ ...prev, [kRegionEnter]: JSON.stringify(newVal) }));
-                  };
-                  // 자동 집계: 표 (DSO 상세 현황) filteredData 기준
-                  const autoByRegion = {};
-                  (REGIONS[hq] || []).forEach(r => {
-                    autoByRegion[r] = { dsoCount: 0, target: 0, enter: 0, review: 0 };
-                  });
-                  (filteredData || []).forEach(d => {
-                    if (!autoByRegion[d.region]) autoByRegion[d.region] = { dsoCount: 0, target: 0, enter: 0, review: 0 };
-                    autoByRegion[d.region].dsoCount++;
-                    if (d.enter) autoByRegion[d.region].enter++;
-                    else if (d.status === '검토중') autoByRegion[d.region].review++;
-                  });
-
-                  const getRegVal = (region, field, autoVal) => {
-                    const m = manualRegEnter[region];
-                    if (m && m[field] !== undefined && m[field] !== null && m[field] !== '') return Number(m[field]);
-                    return autoVal;
-                  };
-
-                  const regionList = REGIONS[hq] || [];
-                  let totDso = 0, totTarget = 0, totEnter = 0, totReview = 0, totNotEnter = 0;
-                  regionList.forEach(r => {
-                    const dsoCount = getRegVal(r, 'dsoCount', autoByRegion[r]?.dsoCount || 0);
-                    const target = getRegVal(r, 'target', autoByRegion[r]?.target || 0);
-                    const enterN = getRegVal(r, 'enter', autoByRegion[r]?.enter || 0);
-                    const reviewN = getRegVal(r, 'review', autoByRegion[r]?.review || 0);
-                    // 미진입 = DSO수 - 진입 - 검토중 (자동 계산)
-                    const notEnterN = Math.max(0, dsoCount - enterN - reviewN);
-                    totDso += dsoCount; totTarget += target;
-                    totEnter += enterN; totReview += reviewN; totNotEnter += notEnterN;
-                  });
-
-                  return (
-                    <div className="border border-slate-300 rounded overflow-hidden mt-3">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-slate-100 border-b border-slate-300">
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 w-[60px]">지역</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">DSO수</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">목표</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">진입</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">검토중</th>
-                            <th className="px-2 py-1.5 font-semibold text-slate-700" title="DSO수 - 진입 - 검토중 (자동)">미진입</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {regionList.map(region => {
-                            const auto = autoByRegion[region] || { dsoCount: 0, target: 0, enter: 0, review: 0 };
-                            const dsoCount = getRegVal(region, 'dsoCount', auto.dsoCount);
-                            const target = getRegVal(region, 'target', auto.target);
-                            const enterN = getRegVal(region, 'enter', auto.enter);
-                            const reviewN = getRegVal(region, 'review', auto.review);
-                            // 미진입 자동 계산
-                            const notEnterN = Math.max(0, dsoCount - enterN - reviewN);
-                            return (
-                              <tr key={region} className="border-b border-slate-200 hover:bg-slate-50">
-                                <td className="px-2 py-1.5 border-r border-slate-200 text-center font-semibold">{region}</td>
-                                <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                                  <EditableCell value={dsoCount} type="number" align="right"
-                                    onSave={(v) => updateRegEnter(region, 'dsoCount', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                                </td>
-                                <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                                  <EditableCell value={target} type="number" align="right"
-                                    onSave={(v) => updateRegEnter(region, 'target', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                                </td>
-                                <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                                  <EditableCell value={enterN} type="number" align="right"
-                                    onSave={(v) => updateRegEnter(region, 'enter', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                                </td>
-                                <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                                  <EditableCell value={reviewN} type="number" align="right"
-                                    onSave={(v) => updateRegEnter(region, 'review', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                                </td>
-                                <td className="px-2 py-1.5 text-right text-slate-700" title="자동 계산: DSO수 - 진입 - 검토중">{formatNumber(notEnterN)}</td>
-                              </tr>
-                            );
-                          })}
-                          <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
-                            <td className="px-2 py-1.5 border-r border-slate-200 text-center">합계</td>
-                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(totDso)}</td>
-                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(totTarget)}</td>
-                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(totEnter)}</td>
-                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(totReview)}</td>
-                            <td className="px-2 py-1.5 text-right">{formatNumber(totNotEnter)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  );
-                })()}
+                    })}
+                    <tr className="bg-slate-100 font-bold border-t-2 border-slate-400 text-center">
+                      <td className="px-2 py-1.5 border-r border-slate-300">합계</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.clinic)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.implant)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.dso)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right text-blue-700">{formatNumber(T.enter)}</td>
+                      <td className={`px-2 py-1.5 border-r border-slate-300 text-right ${rateCls(pct(T.enter,T.dso))}`}>{pct(T.enter,T.dso)}%</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.sT)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right text-blue-700">{formatNumber(T.sE)}</td>
+                      <td className={`px-2 py-1.5 border-r border-slate-300 text-right ${rateCls(pct(T.sE,T.sT))}`}>{pct(T.sE,T.sT)}%</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.aT)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right text-blue-700">{formatNumber(T.aE)}</td>
+                      <td className={`px-2 py-1.5 border-r border-slate-300 text-right ${rateCls(pct(T.aE,T.aT))}`}>{pct(T.aE,T.aT)}%</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.oT)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right text-blue-700">{formatNumber(T.oE)}</td>
+                      <td className={`px-2 py-1.5 text-right ${rateCls(pct(T.oE,T.oT))}`}>{pct(T.oE,T.oT)}%</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-
-              {/* 3. 등급 분포 - 가로 막대 (수동 수정 가능) */}
-              <div className="bg-white border border-slate-200 rounded-md p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <h4 className="text-sm font-bold text-slate-900">등급 분포</h4>
-                  <span className="text-xs text-slate-400" title="아래 표의 지역×등급 합계 · 표 수정 시 막대 즉시 갱신">ⓘ</span>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { key: 'S', label: 'S' },
-                    { key: 'A', label: 'A' },
-                    { key: 'BC', label: 'B/C' },
-                  ].map(({ key, label }) => {
-                    const cnt = gradeCount[key];
-                    const pct = totalGrade > 0 ? (cnt / totalGrade * 100) : 0;
-                    const barW = maxGrade > 0 ? (cnt / maxGrade * 100) : 0;
-                    return (
-                      <div key={key} className="flex items-center gap-2 text-sm">
-                        <span className="w-8 font-bold text-slate-700">{label}</span>
-                        <div className="flex-1 h-4 bg-slate-100 rounded overflow-hidden">
-                          <div className="h-full rounded transition-all" style={{ width: `${barW}%`, backgroundColor: '#64748b' }}></div>
-                        </div>
-                        <div className="flex items-center gap-1 w-24 justify-end">
-                          <div className="w-10 text-right font-semibold">{formatNumber(cnt)}</div>
-                          <span className="text-xs text-slate-500">({pct.toFixed(1)}%)</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-2 text-[10px] text-slate-400">총 {totalGrade}개 · 막대는 아래 표 합계 자동 표시 (표를 수정하세요)</div>
-                {/* 지역×등급 표 (이미지 형식: 지역 | S | A | B/C) */}
-                {(() => {
-                  const kGradeByRegion = `dso_grade_byregion|${hq}`;
-                  const manualGrReg = parseObj(weeklyEntries[kGradeByRegion]);
-                  const updateGrReg = (region, gradeKey, value) => {
-                    const cur = manualGrReg[region] || {};
-                    const newRegion = { ...cur, [gradeKey]: value };
-                    if (value === null || value === undefined || value === '') delete newRegion[gradeKey];
-                    const newVal = { ...manualGrReg, [region]: newRegion };
-                    if (Object.keys(newRegion).length === 0) delete newVal[region];
-                    setWeeklyEntries(prev => ({ ...prev, [kGradeByRegion]: JSON.stringify(newVal) }));
-                  };
-                  // 자동 집계: 지역×등급(S/A/BC)
-                  const autoData = {};
-                  (REGIONS[hq] || []).forEach(r => {
-                    autoData[r] = { S: 0, A: 0, BC: 0 };
-                  });
-                  (filteredData || []).forEach(d => {
-                    if (!autoData[d.region]) return;
-                    const g = d.grade || 'C';
-                    if (g === 'S') autoData[d.region].S++;
-                    else if (g === 'A') autoData[d.region].A++;
-                    else autoData[d.region].BC++; // B, C
-                  });
-
-                  const getGV = (region, gradeKey, autoVal) => {
-                    const m = manualGrReg[region];
-                    if (m && m[gradeKey] !== undefined && m[gradeKey] !== null && m[gradeKey] !== '') return Number(m[gradeKey]);
-                    return autoVal;
-                  };
-
-                  const regionList = REGIONS[hq] || [];
-                  let totS = 0, totA = 0, totBC = 0;
-                  regionList.forEach(r => {
-                    totS += getGV(r, 'S', autoData[r]?.S || 0);
-                    totA += getGV(r, 'A', autoData[r]?.A || 0);
-                    totBC += getGV(r, 'BC', autoData[r]?.BC || 0);
-                  });
-
-                  return (
-                    <div className="border border-slate-300 rounded overflow-hidden mt-3">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-slate-100 border-b border-slate-300">
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 w-[60px]">지역</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">S</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">A</th>
-                            <th className="px-2 py-1.5 font-semibold text-slate-700">B/C</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {regionList.map(region => {
-                            const auto = autoData[region] || { S: 0, A: 0, BC: 0 };
-                            return (
-                              <tr key={region} className="border-b border-slate-200 hover:bg-slate-50">
-                                <td className="px-2 py-1.5 border-r border-slate-200 text-center font-semibold">{region}</td>
-                                <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                                  <EditableCell value={getGV(region, 'S', auto.S)} type="number" align="right"
-                                    onSave={(v) => updateGrReg(region, 'S', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                                </td>
-                                <td className="px-2 py-1.5 border-r border-slate-200 text-right">
-                                  <EditableCell value={getGV(region, 'A', auto.A)} type="number" align="right"
-                                    onSave={(v) => updateGrReg(region, 'A', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                                </td>
-                                <td className="px-2 py-1.5 text-right">
-                                  <EditableCell value={getGV(region, 'BC', auto.BC)} type="number" align="right"
-                                    onSave={(v) => updateGrReg(region, 'BC', v === '' || v === null ? null : (parseFloat(v) || 0))} />
-                                </td>
-                              </tr>
-                            );
-                          })}
-                          <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
-                            <td className="px-2 py-1.5 border-r border-slate-200 text-center">합계</td>
-                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(totS)}</td>
-                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(totA)}</td>
-                            <td className="px-2 py-1.5 text-right">{formatNumber(totBC)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  );
-                })()}
-              </div>
+              <div className="mt-2 text-[10px] text-slate-400">* 달성율 = 진입 ÷ 수량(또는 등급별 진입 ÷ 합계) × 100 · 자동 계산 · 숫자 클릭하여 수정 · 월별 분리 저장</div>
             </div>
           );
         })()}
 
-        {/* === NOTE (단일 메모, 월별 분리, 즉시 저장) === */}
-        {(() => {
-          const noteKeyD6 = `dso_note|${hq}|${yearMonthD6}`;
-          const currentNoteD6 = weeklyEntries[noteKeyD6] ?? '';
-          const updateNoteD6 = (value) => {
-            setWeeklyEntries(prev => ({ ...prev, [noteKeyD6]: value }));
+        {/* DSO 판매현황 (첨부 기준, 월별 분리) */}
+        {dsoSubTab === 'sales' && (() => {
+          const _hqShort = hq.replace('본부','');
+          const rows = DSO_SALES_DATA.filter(r => r.hq === _hqShort);
+          const gv = (region, field, def) => {
+            const k = `dsoSales|${hq}|${region}|${field}|${yearMonthD6}`;
+            const v = weeklyEntries[k];
+            return (v !== undefined && v !== null && v !== '') ? Number(v) : def;
           };
+          const setV = (region, field, val) => {
+            const k = `dsoSales|${hq}|${region}|${field}|${yearMonthD6}`;
+            setWeeklyEntries(prev => ({ ...prev, [k]: val }));
+            logChange(`${hq} - DSO 판매현황 (${monthLabelD6})`, `${region} ${field} 수정`);
+          };
+          const pct = (a, t) => t > 0 ? Math.round(a / t * 100) : 0;
+          const rateCls = (r) => r >= 80 ? 'text-emerald-600' : r >= 50 ? 'text-blue-600' : r >= 30 ? 'text-amber-600' : 'text-rose-600';
+          const sum = (f) => rows.reduce((s, r) => s + gv(r.region, f, r[f]), 0);
+          const T = { clinic:sum('clinic'), implant:sum('implant'), enter:sum('enter'), yearTarget:sum('yearTarget'), monthTarget:sum('monthTarget'), monthActual:sum('monthActual') };
+          const EC = ({ region, field, def }) => <EditableCell value={gv(region,field,def)} type="number" align="right" onSave={(v)=>setV(region,field,parseFloat(v)||0)} />;
           return (
-            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
-              <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
-                <span className="text-xs text-slate-700">{monthLabelD6} 메모 · 자동 저장</span>
+            <div className="bg-white border border-slate-200 rounded-md p-4">
+              <h3 className="text-base font-bold text-slate-900 mb-3">DSO 판매현황 ({hq} - {monthLabelD6})</h3>
+              <div className="border border-slate-300 rounded overflow-x-auto">
+                <table className="w-full text-sm" data-table-id="dso_sales_status" data-sticky-first="off" style={{ tableLayout:'fixed', minWidth:'900px' }}>
+                  <thead>
+                    <tr className="bg-blue-50 border-b border-slate-300 text-slate-700">
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold w-[70px]">지역</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold w-[80px]">DSO<br/>문진수</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold w-[90px]">DSO<br/>연종식량</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold text-blue-700 w-[70px]">진입<br/>수량</th>
+                      <th colSpan={1} className="px-2 py-1.5 border-r border-slate-300 font-semibold text-center bg-amber-50">26년 누계</th>
+                      <th colSpan={3} className="px-2 py-1.5 font-semibold text-center bg-amber-50">{monthLabelD6} 업적</th>
+                    </tr>
+                    <tr className="bg-blue-50 border-b border-slate-300 text-xs text-slate-600">
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold">목표</th>
+                      <th className="px-2 py-1.5 border-r border-slate-200 font-semibold">목표</th>
+                      <th className="px-2 py-1.5 border-r border-slate-200 font-semibold text-blue-700">업적</th>
+                      <th className="px-2 py-1.5 font-semibold text-rose-600">완성률</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r, i) => {
+                      const mt=gv(r.region,'monthTarget',r.monthTarget), ma=gv(r.region,'monthActual',r.monthActual);
+                      const rate=pct(ma, mt);
+                      return (
+                        <tr key={i} className="border-b border-slate-200 hover:bg-slate-50 text-center">
+                          <td className="px-2 py-1 border-r border-slate-300 font-semibold">{r.region}</td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><EC region={r.region} field="clinic" def={r.clinic} /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><EC region={r.region} field="implant" def={r.implant} /></td>
+                          <td className="px-2 py-1 border-r border-slate-300 text-right text-blue-700"><EC region={r.region} field="enter" def={r.enter} /></td>
+                          <td className="px-2 py-1 border-r border-slate-300 text-right"><EC region={r.region} field="yearTarget" def={r.yearTarget} /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right"><EC region={r.region} field="monthTarget" def={r.monthTarget} /></td>
+                          <td className="px-2 py-1 border-r border-slate-200 text-right text-blue-700"><EC region={r.region} field="monthActual" def={r.monthActual} /></td>
+                          <td className={`px-2 py-1 text-right font-semibold ${rateCls(rate)}`}>{rate}%</td>
+                        </tr>
+                      );
+                    })}
+                    <tr className="bg-slate-100 font-bold border-t-2 border-slate-400 text-center">
+                      <td className="px-2 py-1.5 border-r border-slate-300">합계</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.clinic)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.implant)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-300 text-right text-blue-700">{formatNumber(T.enter)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-300 text-right">{formatNumber(T.yearTarget)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(T.monthTarget)}</td>
+                      <td className="px-2 py-1.5 border-r border-slate-200 text-right text-blue-700">{formatNumber(T.monthActual)}</td>
+                      <td className={`px-2 py-1.5 text-right ${rateCls(pct(T.monthActual,T.monthTarget))}`}>{pct(T.monthActual,T.monthTarget)}%</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <div className="p-3">
-                <textarea
-                  value={currentNoteD6}
-                  onChange={(e) => updateNoteD6(e.target.value)}
-                  placeholder="이번 달 DSO 진입 현황, 미진입 대응방안, 다음 액션 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다."
-                  className="w-full min-h-[80px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y"
-                />
-              </div>
+              <div className="mt-2 text-[10px] text-slate-400">* 완성률 = 업적 ÷ 목표 × 100 · 자동 계산 · 숫자 클릭하여 수정 · 월별 분리 저장</div>
             </div>
           );
         })()}
 
 
         {/* 표 2: DSO 상세 현황 */}
+        {dsoSubTab === 'detail' && (<>
         <div className="bg-white border border-slate-200 rounded-md p-4">
           <h3 className="text-base font-bold text-slate-900 mb-3">DSO 상세 현황 ({monthLabelD6})</h3>
           <div className="border border-slate-300 rounded overflow-x-auto">
-            <table className="w-full text-sm" data-table-id="dso_progress" style={{ tableLayout: 'fixed' }}>
+            <table className="w-full text-sm" data-table-id="dso_progress" data-sticky-first="off" style={{ tableLayout: 'fixed' }}>
               <thead>
                 <tr className="bg-slate-100 border-b border-slate-300">
                   <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">지역</th>
@@ -10513,6 +10547,7 @@ function App() {
             <Icon name="check" className="w-3.5 h-3.5" /> 자동 저장 완료
           </span>
         </div>
+        </>)}
       </div>
     );
   };
@@ -10785,6 +10820,8 @@ function App() {
               저장
             </button>
           </div>
+
+        <MenuNoteBanner noteKey={`bd_note|${hq}|${yearMonthBD}`} monthLabel={monthLabelBD} hq={hq} year={curYearBD} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
         {/* === 상단 KPI 카드 5개 (표 1 + 표 2와 자동 연동) === */}
         {(() => {
           // 표 1 (BD 진입현황 - 지역별) 합산값
@@ -10868,32 +10905,18 @@ function App() {
           );
         })()}
 
-        {/* === NOTE (단일 메모, 월별 분리, 즉시 저장) === */}
-        {(() => {
-          const noteKeyBD = `bd_note|${hq}|${yearMonthBD}`;
-          const currentNoteBD = weeklyEntries[noteKeyBD] ?? '';
-          const updateNoteBD = (value) => {
-            setWeeklyEntries(prev => ({ ...prev, [noteKeyBD]: value }));
-          };
-          return (
-            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
-              <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
-                <span className="text-xs text-slate-700">{monthLabelBD} 메모 · 자동 저장</span>
-              </div>
-              <div className="p-3">
-                <textarea
-                  value={currentNoteBD}
-                  onChange={(e) => updateNoteBD(e.target.value)}
-                  placeholder="이번 달 BD 진입 현황, 신규 고객 개발, 매출 분석, 다음 액션 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다."
-                  className="w-full min-h-[80px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y"
-                />
-              </div>
-            </div>
-          );
-        })()}
+        {/* === BD 서브 탭 === */}
+        <div className="flex items-center gap-1 border-b border-slate-200">
+          {[{k:'entry',l:'BD 진입현황'},{k:'detail',l:'BD 목표고객 상세 현황'}].map(t => (
+            <button key={t.k} onClick={()=>setBdSubTab(t.k)}
+              className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 transition-colors "+(bdSubTab===t.k?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>
+              {t.l}
+            </button>
+          ))}
+        </div>
 
         {/* === 1. BD 진입현황 - 지역별 표 (이미지 형식) === */}
+        {bdSubTab === 'entry' && (
         <div className="bg-white border border-slate-200 rounded-md p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-base font-bold text-slate-900">1. BD 진입현황 ({hq} - {monthLabelBD})</h3>
@@ -10948,7 +10971,7 @@ function App() {
 
             return (
               <div className="border border-slate-300 rounded overflow-x-auto">
-                <table className="w-full text-sm" style={{ minWidth: '900px' }}>
+                <table className="w-full text-sm" data-table-id="bd_entry_status" data-sticky-first="off" style={{ minWidth: '900px' }}>
                   <thead>
                     {/* 1단 헤더: 그룹 */}
                     <tr className="bg-slate-100 border-b border-slate-300">
@@ -11054,11 +11077,10 @@ function App() {
             );
           })()}
         </div>
-
-
-
+        )}
 
         {/* === BD 목표고객 상세 현황 (고객별) - 새 구조 (지역/하부고객/진입상태/누계/1-12월/담당자) === */}
+        {bdSubTab === 'detail' && (
         <div className="bg-white border border-slate-200 rounded-md p-4">
           <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
             <h3 className="text-base font-bold text-slate-900">BD 목표고객 상세 현황 (고객별)</h3>
@@ -11250,6 +11272,7 @@ function App() {
             <span className="text-xs text-slate-500">행 위에 마우스를 올리면 우측에 삭제 버튼이 나타납니다 · 1~12월 셀 클릭하여 직접 입력</span>
           </div>
         </div>
+        )}
 
         {/* 푸터 */}
         <div className="text-xs text-slate-500 pt-2 flex items-center justify-between border-t border-slate-200">
@@ -11362,30 +11385,7 @@ function App() {
           </div>
         </div>
 
-        {/* === NOTE (단일 메모, 월별 분리, 즉시 저장) === */}
-        {(() => {
-          const noteKeySC = `sc_note|${hq}|${yearMonthSC}`;
-          const currentNoteSC = weeklyEntries[noteKeySC] ?? '';
-          const updateNoteSC = (value) => {
-            setWeeklyEntries(prev => ({ ...prev, [noteKeySC]: value }));
-          };
-          return (
-            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
-              <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
-                <span className="text-xs text-slate-700">{monthLabelSC} 메모 · 자동 저장</span>
-              </div>
-              <div className="p-3">
-                <textarea
-                  value={currentNoteSC}
-                  onChange={(e) => updateNoteSC(e.target.value)}
-                  placeholder="이번 달 하부고객 확대 현황, 신규 고객 발굴, 방문 활동, 다음 액션 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다."
-                  className="w-full min-h-[80px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y"
-                />
-              </div>
-            </div>
-          );
-        })()}
+        <MenuNoteBanner noteKey={`sc_note|${hq}|${yearMonthSC}`} monthLabel={monthLabelSC} hq={hq} year={curYearSC} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
 
         {/* === 메인 카드 === */}
         <div className="bg-white border border-slate-200 rounded-md p-4">
@@ -11795,6 +11795,8 @@ function App() {
           </button>
         </div>
 
+        <MenuNoteBanner noteKey={`pkg_note|${hq}|${yearMonth}`} monthLabel={monthLabel} hq={hq} year={curYear} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
+
         {/* === KPI 카드 5개 (당월) === */}
         {(() => {
           const UNIT_PRICE_KPI = { AO: 431, AR: 567, BD: 650 };
@@ -11846,31 +11848,6 @@ function App() {
                   <span className="text-xl font-bold text-slate-900">{monthRows.length}</span>
                   <span className="text-xs text-slate-500">건</span>
                 </div>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* === NOTE (단일 메모, 월별 분리, 즉시 저장) === */}
-        {(() => {
-          const noteKeyPK = `pkg_note|${hq}|${yearMonth}`;
-          const currentNotePK = weeklyEntries[noteKeyPK] ?? '';
-          const updateNotePK = (value) => {
-            setWeeklyEntries(prev => ({ ...prev, [noteKeyPK]: value }));
-          };
-          return (
-            <div className="bg-white border border-slate-200 rounded-md overflow-hidden">
-              <div className="bg-slate-200 px-4 py-2 flex items-center justify-between">
-                <h4 className="text-sm font-bold text-slate-900">NOTE</h4>
-                <span className="text-xs text-slate-700">{monthLabel} 메모 · 자동 저장</span>
-              </div>
-              <div className="p-3">
-                <textarea
-                  value={currentNotePK}
-                  onChange={(e) => updateNotePK(e.target.value)}
-                  placeholder="이번 달 패키지 판매 현황, 신규 등록, 매출 분석, 다음 액션 등을 자유롭게 입력하세요. 입력 즉시 저장됩니다."
-                  className="w-full min-h-[80px] px-2 py-1.5 text-sm border border-slate-200 rounded-md outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y"
-                />
               </div>
             </div>
           );
@@ -12084,17 +12061,28 @@ function App() {
   const renderContent = () => {
     if (selectedHQ === 'overview') return renderOverview();
     const hq = selectedHQ;
+    const { year: _bnYear } = parseWeekValue(filterWeek);
+    let _body;
     switch (selectedSubmenu) {
-      case 1: return renderCoreTasks(hq);
-      case 2: return renderMSDSO(hq);
-      case 3: return renderPSI(hq);
-      case 4: return renderSalesPerson(hq);
-      case 5: return renderPackage(hq);
-      case 6: return renderDSONotEntered(hq);
-      case 7: return renderBD(hq);
-      case 8: return renderSubCustomer(hq);
-      default: return renderMSDSO(hq);
+      case 1: _body = renderCoreTasks(hq); break;
+      case 2: _body = renderMSDSO(hq); break;
+      case 3: _body = renderPSI(hq); break;
+      case 4: _body = renderSalesPerson(hq); break;
+      case 5: _body = renderPackage(hq); break;
+      case 6: _body = renderDSONotEntered(hq); break;
+      case 7: _body = renderBD(hq); break;
+      case 8: _body = renderSubCustomer(hq); break;
+      default: _body = renderMSDSO(hq);
     }
+    // 메뉴별 NOTE 키 prefix
+    const _notePrefix = { 1:'ct_note', 2:'ms_note', 3:'psi_note', 4:'sp_note', 5:'pkg_note', 6:'dso_note', 7:'bd_note', 8:'sc_note' }[selectedSubmenu] || 'ct_note';
+    const _mn = filterMonth || 5;
+    const _commonNoteKey = `${_notePrefix}|${hq}|${_bnYear}-${_mn}`;
+    return (
+      <div className="space-y-4">
+        {_body}
+      </div>
+    );
   };
 
   return (
