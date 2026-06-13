@@ -475,6 +475,9 @@
       var widths = loadWidths();
       var tables = document.querySelectorAll('table');
       tables.forEach(function(table) {
+        // React ResizableHeader를 쓰는 표는 제외 (자체 너비 저장 사용)
+        if (table.getAttribute('data-table-id') === 'bd_customers') return;
+        if (table.querySelector('thead .cursor-col-resize')) return;
         var tableId = getTableId(table);
         // 모든 헤더 행을 한 번에 처리 (rowSpan으로 1단에만 있는 셀도 포함)
         var allThs = table.querySelectorAll('thead th');
@@ -3024,8 +3027,24 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
     return Array(12).fill(true);
   });
   const [monthPickerOpen, setMonthPickerOpen] = React.useState(false);
-  // 소팅: { key: 'region'|'type', dir: 'asc'|'desc' } - 본부 행은 항상 맨 위 고정
+  const [entPickerOpen, setEntPickerOpen] = React.useState(false);
+  // 소팅: { key: 'region'|'name', dir: 'asc'|'desc' } - 본부 행은 항상 맨 위 고정
   const [sortConfig, setSortConfig] = React.useState(null);
+
+  // 업체별 숨김 (업체명 배열, localStorage 저장 - 본부 단위)
+  const [hiddenEntities, setHiddenEntities] = React.useState(() => {
+    try {
+      const s = localStorage.getItem(`dashboard_annual${hqKeyBase}_hidden_v1`);
+      if (s) return JSON.parse(s);
+    } catch (e) {}
+    return [];
+  });
+  React.useEffect(() => {
+    try { localStorage.setItem(`dashboard_annual${hqKeyBase}_hidden_v1`, JSON.stringify(hiddenEntities)); } catch (e) {}
+  }, [hiddenEntities, hqKeyBase]);
+  const hideEntity = (name) => setHiddenEntities(prev => prev.includes(name) ? prev : [...prev, name]);
+  const showEntity = (name) => setHiddenEntities(prev => prev.filter(n => n !== name));
+  const showAllEntities = () => setHiddenEntities([]);
 
   const handleSort = (key) => {
     setSortConfig(prev => {
@@ -3075,9 +3094,13 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
   };
 
   const hqData = computeEntity(annualData.headquarter);
-  let dealersData = annualData.dealers.map(d => ({ ent: d, calc: computeEntity(d) }));
+  let dealersData = annualData.dealers
+    .filter(d => !hiddenEntities.includes(d.name))
+    .map(d => ({ ent: d, calc: computeEntity(d) }));
+  // 숨긴 업체 목록 (복원 바용)
+  const hiddenList = annualData.dealers.filter(d => hiddenEntities.includes(d.name));
 
-  // 소팅 적용 (화남지역 본부는 별도 - 항상 맨 위 고정)
+  // 소팅 적용 (본부는 별도 - 항상 맨 위 고정)
   if (sortConfig) {
     dealersData = [...dealersData].sort((a, b) => {
       const va = a.ent[sortConfig.key] || '';
@@ -3150,6 +3173,31 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                 ))}
               </div>
             )}
+            {/* 숨긴 업체 복원 */}
+            <button onClick={() => setEntPickerOpen(!entPickerOpen)}
+              className={"px-2 py-1 text-xs border rounded flex items-center gap-1 "+(hiddenEntities.length>0?'border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100':'border-slate-300 hover:bg-slate-50')}>
+              숨긴 업체 ({hiddenEntities.length}) ▼
+            </button>
+            {entPickerOpen && (
+              <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 w-60 max-h-72 overflow-y-auto">
+                {hiddenList.length === 0 ? (
+                  <div className="text-xs text-slate-400 px-1 py-2 text-center">숨긴 업체가 없습니다</div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between px-1 pb-1 mb-1 border-b border-slate-200">
+                      <span className="text-xs font-semibold text-slate-600">숨긴 업체 목록</span>
+                      <button onClick={showAllEntities} className="text-xs text-blue-600 hover:underline">전체 복원</button>
+                    </div>
+                    {hiddenList.map(d => (
+                      <div key={d.name} className="flex items-center justify-between text-xs px-1 py-1 hover:bg-slate-50 rounded">
+                        <span className="text-slate-700 truncate mr-2" title={d.name}>{d.name}</span>
+                        <button onClick={() => showEntity(d.name)} className="text-blue-600 hover:underline shrink-0">복원</button>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -3159,15 +3207,14 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
           <table className="text-sm border-collapse" style={{ minWidth: '100%' }}>
             <thead className="sticky top-0 z-20">
               <tr className="bg-slate-100 border-b border-slate-300" style={{ height: '39px' }}>
+                <th onClick={() => handleSort('name')}
+                  className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 sticky left-0 bg-slate-100 z-30 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '110px' }}>
+                  업체명 {sortConfig?.key === 'name' ? (sortConfig.dir === 'asc' ? '▲' : '▼') : '⇅'}
+                </th>
                 <th onClick={() => handleSort('region')}
-                  className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 sticky left-0 bg-slate-100 z-30 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '80px' }}>
+                  className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '80px' }}>
                   지역 {sortConfig?.key === 'region' ? (sortConfig.dir === 'asc' ? '▲' : '▼') : '⇅'}
                 </th>
-                <th onClick={() => handleSort('type')}
-                  className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth: '60px' }}>
-                  구분 {sortConfig?.key === 'type' ? (sortConfig.dir === 'asc' ? '▲' : '▼') : '⇅'}
-                </th>
-                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth: '95px' }}>업체명</th>
                 <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth: '75px' }}>구분상세</th>
                 {visMonthIdxs.map(mi => (
                   <th key={mi} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right" style={{ minWidth: '80px' }}>{MONTH_LABELS[mi]}</th>
@@ -3189,9 +3236,8 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                 return (
                   <>
                     <tr className={rowBase} style={stickyRow(0)}>
-                      <td rowSpan={5} style={{...cellH, background: ent.region==='화남지역' ? '#FBEAF0' : undefined}} className="px-2 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-20">{ent.region}</td>
-                      <td rowSpan={5} style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-700 align-middle bg-white">{ent.type}</td>
-                      <td rowSpan={5} style={cellH} className="px-2 border-r border-slate-300 text-center font-medium text-slate-800 align-middle bg-white">{ent.name}</td>
+                      <td rowSpan={5} style={cellH} className="px-2 border-r border-slate-300 text-center font-medium text-slate-800 align-middle sticky left-0 bg-white z-20">{ent.name}</td>
+                      <td rowSpan={5} style={{...cellH, background: ent.region==='화남지역' ? '#FBEAF0' : undefined}} className="px-2 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle bg-white">{ent.region}</td>
                       <td style={cellH} className="px-2 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">목표(KPI)</td>
                       {visMonthIdxs.map(mi => <td key={mi} style={cellH} className="px-1 border-r border-slate-300 font-bold text-slate-900 bg-white"><EditCell name={ent.name} field="kpi" mi={mi} value={c.kpi[mi]} /></td>)}
                       <td style={cellH} className="px-2 text-right font-bold bg-slate-100">{fmt(c.kpiTotal)}</td>
@@ -3230,9 +3276,14 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                   return (
                     <React.Fragment key={ent.name}>
                       <tr className={rowBase}>
-                        <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-10">{ent.region}</td>
-                        <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-center text-slate-700 align-middle">{ent.type}</td>
-                        <td rowSpan={3} className={`px-2 py-1 border-r border-slate-300 text-center font-medium align-middle ${nameColor}`}>{ent.name}</td>
+                        <td rowSpan={3} className={`px-2 py-1 border-r border-slate-300 text-center font-medium align-middle sticky left-0 bg-white z-10 ${nameColor}`}>
+                          <div className="flex items-center justify-center gap-1">
+                            <span>{ent.name}</span>
+                            <button onClick={() => hideEntity(ent.name)} title="이 업체 숨기기"
+                              className="text-slate-400 hover:text-rose-600 text-xs leading-none">✕</button>
+                          </div>
+                        </td>
+                        <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle">{ent.region}</td>
                         <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI</td>
                         {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300 font-bold text-slate-900"><EditCell name={ent.name} field="kpi" mi={mi} value={c.kpi[mi]} /></td>)}
                         <td className="px-2 py-1 text-right font-bold bg-slate-100">{fmt(c.kpiTotal)}</td>
@@ -3253,9 +3304,14 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
                 return (
                   <React.Fragment key={ent.name}>
                     <tr className={rowBase}>
-                      <td rowSpan={5} style={ent.region==='화남지역' ? {background:'#FBEAF0'} : undefined} className="px-2 py-1 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle sticky left-0 bg-white z-10">{ent.region}</td>
-                      <td rowSpan={5} className="px-2 py-1 border-r border-slate-300 text-center text-slate-700 align-middle">{ent.type}</td>
-                      <td rowSpan={5} className={`px-2 py-1 border-r border-slate-300 text-center font-medium align-middle ${nameColor}`}>{ent.name}</td>
+                      <td rowSpan={5} className={`px-2 py-1 border-r border-slate-300 text-center font-medium align-middle sticky left-0 bg-white z-10 ${nameColor}`}>
+                        <div className="flex items-center justify-center gap-1">
+                          <span>{ent.name}</span>
+                          <button onClick={() => hideEntity(ent.name)} title="이 업체 숨기기"
+                            className="text-slate-400 hover:text-rose-600 text-xs leading-none">✕</button>
+                        </div>
+                      </td>
+                      <td rowSpan={5} style={ent.region==='화남지역' ? {background:'#FBEAF0'} : undefined} className="px-2 py-1 border-r border-slate-300 text-center font-semibold text-slate-800 align-middle">{ent.region}</td>
                       <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold">KPI</td>
                       {visMonthIdxs.map(mi => <td key={mi} className="px-1 py-0.5 border-r border-slate-300 font-bold text-slate-900"><EditCell name={ent.name} field="kpi" mi={mi} value={c.kpi[mi]} /></td>)}
                       <td className="px-2 py-1 text-right font-bold bg-slate-100">{fmt(c.kpiTotal)}</td>
@@ -3289,7 +3345,7 @@ function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, log
       )}
       {!tableCollapsed && (
         <div className="mt-2 text-[11px] text-slate-500">
-          * KPI달성율 = 실적 ÷ KPI × 100 (자동) · 合计 = 1~12월 합산 (자동) · 목표/실적/하부고객/DSO고객 숫자 클릭하여 수정 · 월별 표시 토글 가능
+          * KPI달성율 = 실적 ÷ KPI × 100 (자동) · 合计 = 1~12월 합산 (자동) · 목표/실적/하부고객/DSO고객 숫자 클릭하여 수정 · 월별 표시 토글 가능 · 업체명 옆 ✕로 숨김, 상단 "숨긴 업체"에서 복원
         </div>
       )}
 
@@ -3706,6 +3762,33 @@ const CORP_QTY_ROWS = [
 ];
 const CORP_DATA_MAP = { amount: CORP_AMOUNT_ROWS, qty: CORP_QTY_ROWS };
 
+// 법인매출 집계 계산 (탭별 총 KPI/실적/달성율/전년도/성장율) - 카드와 표에서 공용
+function computeCorpTotals(tab, weeklyEntries, storeKey) {
+  const rows = CORP_DATA_MAP[tab];
+  const tabKey = tab === 'amount' ? 'AMT' : 'QTY';
+  const sk = storeKey || 'corp';
+  const sum12 = (arr) => arr.reduce((a,b)=>a+b,0);
+  const gc = (name, field, mi, dv) => {
+    const stored = weeklyEntries[`${sk}${tabKey}|${name}|${field}|${mi}`];
+    if (stored !== undefined && stored !== null && stored !== '') return stored;
+    return dv;
+  };
+  const z=()=>Array(12).fill(0); const kpi=z(),act=z(),y25=z();
+  rows.forEach(ent=>{
+    for(let mi=0;mi<12;mi++){
+      kpi[mi]+=gc(ent.name,'kpi',mi,ent.kpi[mi]);
+      act[mi]+=gc(ent.name,'act',mi,0);
+      y25[mi]+=gc(ent.name,'y25',mi,ent.y25[mi]);
+    }
+  });
+  const kpiT=sum12(kpi), actT=sum12(act), y25T=sum12(y25);
+  return {
+    kpiT, actT, y25T,
+    rateT: kpiT!==0?Math.round(actT/kpiT*100):0,
+    growT: y25T!==0?Math.round((actT-y25T)/y25T*100):0,
+  };
+}
+
 function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChange, visibleMonths, sortConfig, onSort, storeKey }) {
   const rows = CORP_DATA_MAP[tab];
   const tabKey = tab === 'amount' ? 'AMT' : 'QTY';
@@ -3851,16 +3934,44 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange }) {
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [sortConfig, setSortConfig] = React.useState(null);
 
+  // 아래표(전년도·성장율) 전용 독립 상태
+  const [prevTab, setPrevTab] = React.useState('amount');
+  const [prevVisibleMonths, setPrevVisibleMonths] = React.useState(() => {
+    try { const s = localStorage.getItem(`corpSales_${sk}_prevVisMonths_v1`); if (s) return JSON.parse(s); } catch(e){}
+    return Array(12).fill(true);
+  });
+  const [prevPickerOpen, setPrevPickerOpen] = React.useState(false);
+  const [prevSortConfig, setPrevSortConfig] = React.useState(null);
+
   React.useEffect(()=>{ try{ localStorage.setItem(`corpSales_${sk}_visMonths_v1`, JSON.stringify(visibleMonths)); }catch(e){} }, [visibleMonths, sk]);
+  React.useEffect(()=>{ try{ localStorage.setItem(`corpSales_${sk}_prevVisMonths_v1`, JSON.stringify(prevVisibleMonths)); }catch(e){} }, [prevVisibleMonths, sk]);
 
   const onSort = (key) => setSortConfig(prev => {
     if (!prev || prev.key !== key) return { key, dir:'asc' };
     if (prev.dir === 'asc') return { key, dir:'desc' };
     return null;
   });
+  const onPrevSort = (key) => setPrevSortConfig(prev => {
+    if (!prev || prev.key !== key) return { key, dir:'asc' };
+    if (prev.dir === 'asc') return { key, dir:'desc' };
+    return null;
+  });
 
   const visCount = visibleMonths.filter(Boolean).length;
+  const prevVisCount = prevVisibleMonths.filter(Boolean).length;
   const unit = tab === 'amount' ? '단위: 만 RMB' : '단위: 수량(개)';
+
+  // 집계 KPI 카드 데이터 (위표 탭 기준)
+  const agg = computeCorpTotals(tab, weeklyEntries, sk);
+  const fmtAgg = (v) => Math.round(v).toLocaleString();
+  const aggUnit = tab === 'amount' ? '만RMB' : '개';
+  const aggCards = [
+    { label:'총 KPI',      value: fmtAgg(agg.kpiT), unit: aggUnit, color:'text-slate-900' },
+    { label:'총 실적',     value: fmtAgg(agg.actT), unit: aggUnit, color:'text-slate-900' },
+    { label:'달성율',      value: agg.rateT+'%',    unit: '',      color: agg.rateT>=100?'text-emerald-600':'text-blue-600' },
+    { label:'총 전년도실적', value: fmtAgg(agg.y25T), unit: aggUnit, color:'text-slate-900' },
+    { label:'성장율',      value: (agg.growT>=0?'+':'')+agg.growT+'%', unit:'', color: agg.growT>=0?'text-emerald-600':'text-rose-600' },
+  ];
 
   return (
     <div className="bg-white border border-slate-200 rounded-md p-4">
@@ -3870,44 +3981,77 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange }) {
           <h3 className="text-base font-bold text-slate-900">{blockTitle}</h3>
           <span className="text-xs text-slate-500">{unit}</span>
         </div>
-        {!collapsed && (
-          <div className="flex items-center gap-2 relative">
-            <div className="flex rounded overflow-hidden border border-slate-300 text-xs">
-              <button onClick={()=>setTab('amount')} className={"px-3 py-1 "+(tab==='amount'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>금액(만RMB)</button>
-              <button onClick={()=>setTab('qty')} className={"px-3 py-1 "+(tab==='qty'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>수량</button>
-            </div>
-            <button onClick={()=>setVisibleMonths(Array(12).fill(true))} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
-            <button onClick={()=>setPickerOpen(!pickerOpen)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">월 표시 ({visCount}/12) ▼</button>
-            {pickerOpen && (
-              <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
-                {MONTH_LABELS.map((m,i)=>(
-                  <label key={i} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
-                    <input type="checkbox" checked={visibleMonths[i]} onChange={()=>setVisibleMonths(prev=>prev.map((v,idx)=>idx===i?!v:v))} />{m}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {!collapsed && (
         <div className="space-y-4">
+          {/* 집계 KPI 카드 */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {aggCards.map(c=>(
+              <div key={c.label} className="bg-slate-50 border border-slate-200 rounded-md p-3">
+                <div className="text-[12px] text-slate-500 text-center mb-1">{c.label}</div>
+                <div className="flex items-baseline justify-center gap-0.5 min-h-[28px]">
+                  <span className={`text-2xl font-bold ${c.color}`}>{c.value}</span>
+                  {c.unit && <span className="text-sm font-semibold text-slate-700">{c.unit}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-[11px] text-slate-500 -mt-2">* 집계 카드는 위 탭(금액/수량) 기준 · 전체 본부 1~12월 합산 (자동)</div>
+
           {/* 위 표 */}
           <div>
-            <div className="text-sm font-semibold text-slate-700 mb-1">▶ KPI · 실적 · 달성율</div>
+            <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+              <div className="text-sm font-semibold text-slate-700">▶ KPI · 실적 · 달성율</div>
+              <div className="flex items-center gap-2 relative">
+                <div className="flex rounded overflow-hidden border border-slate-300 text-xs">
+                  <button onClick={()=>setTab('amount')} className={"px-3 py-1 "+(tab==='amount'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>금액(만RMB)</button>
+                  <button onClick={()=>setTab('qty')} className={"px-3 py-1 "+(tab==='qty'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>수량</button>
+                </div>
+                <button onClick={()=>setVisibleMonths(Array(12).fill(true))} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+                <button onClick={()=>setPickerOpen(!pickerOpen)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">월 표시 ({visCount}/12) ▼</button>
+                {pickerOpen && (
+                  <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
+                    {MONTH_LABELS.map((m,i)=>(
+                      <label key={i} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                        <input type="checkbox" checked={visibleMonths[i]} onChange={()=>setVisibleMonths(prev=>prev.map((v,idx)=>idx===i?!v:v))} />{m}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
             <CorpSalesTable tab={tab} variant="main"
               weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} logChange={logChange}
               visibleMonths={visibleMonths} sortConfig={sortConfig} onSort={onSort} storeKey={sk} />
             <div className="mt-1 text-[11px] text-slate-500">* 달성율 = 실적 ÷ KPI × 100 (자동) · 합계 = 1~12월 합산 (자동) · KPI/실적 클릭하여 수정</div>
           </div>
-          {/* 아래 표 */}
+          {/* 아래 표 (독립 탭/월 설정) */}
           <div>
-            <div className="text-sm font-semibold text-slate-700 mb-1">▶ 전년도(25년) 실적 · 성장율</div>
-            <CorpSalesTable tab={tab} variant="prev"
+            <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+              <div className="text-sm font-semibold text-slate-700">▶ 전년도(25년) 실적 · 성장율</div>
+              <div className="flex items-center gap-2 relative">
+                <div className="flex rounded overflow-hidden border border-slate-300 text-xs">
+                  <button onClick={()=>setPrevTab('amount')} className={"px-3 py-1 "+(prevTab==='amount'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>금액(만RMB)</button>
+                  <button onClick={()=>setPrevTab('qty')} className={"px-3 py-1 "+(prevTab==='qty'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>수량</button>
+                </div>
+                <button onClick={()=>setPrevVisibleMonths(Array(12).fill(true))} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+                <button onClick={()=>setPrevPickerOpen(!prevPickerOpen)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">월 표시 ({prevVisCount}/12) ▼</button>
+                {prevPickerOpen && (
+                  <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
+                    {MONTH_LABELS.map((m,i)=>(
+                      <label key={i} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                        <input type="checkbox" checked={prevVisibleMonths[i]} onChange={()=>setPrevVisibleMonths(prev=>prev.map((v,idx)=>idx===i?!v:v))} />{m}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <CorpSalesTable tab={prevTab} variant="prev"
               weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} logChange={logChange}
-              visibleMonths={visibleMonths} sortConfig={sortConfig} onSort={onSort} storeKey={sk} />
-            <div className="mt-1 text-[11px] text-slate-500">* 성장율 = (실적 − 전년도실적) ÷ 전년도실적 × 100 (자동) · 합계 = 1~12월 합산 (자동) · 전년도실적 클릭하여 수정</div>
+              visibleMonths={prevVisibleMonths} sortConfig={prevSortConfig} onSort={onPrevSort} storeKey={sk} />
+            <div className="mt-1 text-[11px] text-slate-500">* 성장율 = (실적 − 전년도실적) ÷ 전년도실적 × 100 (자동) · 합계 = 1~12월 합산 (자동) · 전년도실적 클릭하여 수정 · 위표와 독립된 탭/월 설정</div>
           </div>
         </div>
       )}
@@ -4120,6 +4264,15 @@ function App() {
   const [bdTypeFilter, setBDTypeFilter] = useState('전체');
   const [bdSearch, setBDSearch] = useState('');
   const [bdPage, setBDPage] = useState(1);
+  // BD 목표고객 상세 - 월 표시 토글
+  const [bdVisibleMonths, setBDVisibleMonths] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_bdVisMonths_v1'); if (s) return JSON.parse(s); } catch (e) {}
+    return Array(12).fill(true);
+  });
+  const [bdMonthPickerOpen, setBDMonthPickerOpen] = useState(false);
+  useEffect(() => {
+    try { localStorage.setItem('dashboard_bdVisMonths_v1', JSON.stringify(bdVisibleMonths)); } catch (e) {}
+  }, [bdVisibleMonths]);
   const [subCustomer, setSubCustomer] = useState(() => {
     try { const s = localStorage.getItem('dashboard_subCustomer_v1'); return s ? JSON.parse(s) : initialSubCustomer; } catch (e) { return initialSubCustomer; }
   });
@@ -4193,6 +4346,10 @@ function App() {
   const [columnWidths, setColumnWidths] = useState(() => {
     try { const s = localStorage.getItem('dashboard_columnWidths_v1'); return s ? JSON.parse(s) : {}; } catch (e) { return {}; }
   });
+  // 드래그로 너비가 바뀔 때마다 자동 저장 (새로고침해도 유지)
+  React.useEffect(() => {
+    try { localStorage.setItem('dashboard_columnWidths_v1', JSON.stringify(columnWidths)); } catch (e) {}
+  }, [columnWidths]);
 
   // === 표 너비 잠금 모드 (true면 현재 저장된 너비 강제 유지, 드래그 비활성화) ===
   const [columnWidthsLocked, setColumnWidthsLocked] = useState(() => {
@@ -6638,8 +6795,8 @@ function App() {
                 </div>
               </div>
 
-              {/* === 상단 KPI 카드 3개 (금액 + 수량 통합) === */}
-              <div className="grid grid-cols-3 gap-3 mt-3">
+              {/* === 상단 KPI 카드 4개 (금액 + 수량 통합) === */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
                 {/* 당월 목표 */}
                 <div className="bg-white border border-slate-200 rounded-md p-4">
                   <div className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1.5">
@@ -6667,6 +6824,34 @@ function App() {
                   </div>
                 </div>
 
+                {/* 당월 실적 */}
+                <div className="bg-white border border-slate-200 rounded-md p-4">
+                  <div className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>{monthLabelM} 실적
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-sm text-slate-700">판매금액</span>
+                      <div className="flex items-baseline gap-1">
+                        <EditableCell value={r1.monthActual || 0} type="number" align="right"
+                          className="text-2xl font-bold text-black"
+                          onSave={(v) => setTaskField('sales_amt', 'monthActual', v)} />
+                        <span className="text-xs text-slate-500">M RMB</span>
+                      </div>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-sm text-slate-700">판매수량</span>
+                      <div className="flex items-baseline gap-1">
+                        <EditableCell value={r2.monthActual || 0} type="number" align="right"
+                          className="text-2xl font-bold text-black"
+                          onSave={(v) => setTaskField('sales_qty', 'monthActual', v)} />
+                        <span className="text-xs text-slate-500">개</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-emerald-600 mt-2">목표 달성률 {r1.monthRate !== null ? r1.monthRate + '%' : '-'}</div>
+                </div>
+
                 {/* 당월 예측판매 */}
                 <div className="bg-white border border-slate-200 rounded-md p-4">
                   <div className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1.5">
@@ -6692,6 +6877,7 @@ function App() {
                       </div>
                     </div>
                   </div>
+                  <div className="text-[10px] text-amber-600 mt-2">예측 달성률 {r1.forecastRate !== null ? r1.forecastRate + '%' : '-'}</div>
                 </div>
 
                 {/* 당월 누적판매 */}
@@ -7459,6 +7645,8 @@ function App() {
   // 4번 표 (영업사원 진도 현황) - 정렬 상태
   const [empSortKey, setEmpSortKey] = useState(null); // 'rate' | 'status' | null
   const [empSortDir, setEmpSortDir] = useState('asc');
+  // 영업사원 진도 현황 - 금액/수량 탭 (탭별 독립 저장)
+  const [empMetric, setEmpMetric] = useState('qty'); // 'amount' | 'qty'
   // 3번 표 (대리상 PSI 관리) - 숨김 행 + 정렬 상태
   const [hiddenPSIRows, setHiddenPSIRows] = useState(() => {
     try { const s = localStorage.getItem('dashboard_hiddenPSIRows_v1'); return s ? JSON.parse(s) : {}; } catch (e) { return {}; }
@@ -7877,7 +8065,12 @@ function App() {
           const togglePsiHide = (id) => {
             setHiddenPSIRows(prev => {
               const cur = prev[hq] || [];
-              const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
+              const willHide = !cur.includes(id);
+              const next = willHide ? [...cur, id] : cur.filter(x => x !== id);
+              // 숨김 보기 모드에서 마지막 행을 복원하면 자동으로 일반 목록으로 복귀
+              if (!willHide && next.length === 0 && (showHiddenPSI[hq] || false)) {
+                setShowHiddenPSI(p => ({ ...p, [hq]: false }));
+              }
               return { ...prev, [hq]: next };
             });
           };
@@ -7935,21 +8128,21 @@ function App() {
                           className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left min-w-[200px] align-middle cursor-pointer hover:bg-slate-300 select-none" title="클릭하여 정렬">
                         대리상명 {psiSortKey === 'name' ? (psiSortDir === 'asc' ? '↑' : '↓') : <span className="text-slate-400">↕</span>}
                       </th>
-                      <th colSpan={2} className="px-2 py-1.5 border-r border-slate-300 font-bold text-slate-800 bg-slate-100 text-center">1-5월</th>
-                      <th colSpan={6} className="px-2 py-1.5 font-bold text-slate-800 bg-slate-100 text-center">당월 (5월)</th>
+                      <th colSpan={2} className="px-2 py-1.5 border-r border-slate-300 font-bold text-slate-800 bg-slate-200 text-center">1-5월</th>
+                      <th colSpan={6} className="px-2 py-1.5 font-bold text-slate-800 bg-slate-200 text-center">당월 (5월)</th>
                     </tr>
                     {/* 2단: 컬럼 헤더 */}
                     <tr className="bg-slate-100 border-b border-slate-300">
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-white">구매(P)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-white">판매(S)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-white">구매(P) 목표</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-white">구매(P) 실적</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-white">판매(S)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-white">재고(I)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[120px] bg-white">평균판매기준</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[110px] bg-white">구매(P) 달성률</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[80px] bg-white">상태</th>
-                      <th className="px-2 py-1.5 font-semibold text-slate-900 w-[60px] bg-white">관리</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">구매(P)</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">판매(S)</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">구매(P) 목표</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">구매(P) 실적</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">판매(S)</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">재고(I)</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[120px] bg-slate-100">평균판매기준</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[110px] bg-slate-100">구매(P) 달성률</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[80px] bg-slate-100">상태</th>
+                      <th className="px-2 py-1.5 font-semibold text-slate-900 w-[60px] bg-slate-100">관리</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -8101,14 +8294,14 @@ function App() {
                   className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
                   <Icon name="plus" className="w-3.5 h-3.5" /> 대리상 추가
                 </button>
-                {psiHiddenIds.length > 0 && (
+                {(psiHiddenIds.length > 0 || isShowingHiddenPSI) && (
                   <button onClick={() => setShowHiddenPSI(prev => ({ ...prev, [hq]: !prev[hq] }))}
                     className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md border font-semibold transition ${
                       isShowingHiddenPSI
                         ? 'bg-white border-blue-300 text-slate-900 hover:bg-slate-100'
                         : 'bg-slate-50 border-slate-300 text-slate-600 hover:bg-slate-100'
                     }`}>
-                    {isShowingHiddenPSI ? `↩ 표시로 돌아가기` : `숨김 ${psiHiddenIds.length}개 보기`}
+                    {isShowingHiddenPSI ? `↩ 목록으로 돌아가기` : `숨김 ${psiHiddenIds.length}개 보기`}
                   </button>
                 )}
                 <span className="text-xs text-slate-500">
@@ -8487,13 +8680,8 @@ function App() {
     const empOptions = ['전체', ...employees.map(e => e.name)];
 
     // 필터 적용
+    // 필터 제거: 영업사원 전체 표시 (지역/영업사원/검색 필터 삭제됨)
     let filteredEmps = employees;
-    if (filterRegion !== '전체') filteredEmps = filteredEmps.filter(e => e.region === filterRegion);
-    if (empFilter !== '전체') filteredEmps = filteredEmps.filter(e => e.name === empFilter);
-    if (empSearch.trim()) {
-      const q = empSearch.toLowerCase();
-      filteredEmps = filteredEmps.filter(e => e.name.toLowerCase().includes(q) || e.region.toLowerCase().includes(q));
-    }
 
     // 합계 계산 (필터 적용된 데이터 기준)
     const total = {
@@ -8794,31 +8982,12 @@ function App() {
         <div className="space-y-4">
           {/* 영업사원별 진도 현황 표 */}
           <div className="bg-white border border-slate-200 rounded-md p-4">
-            {/* 표 제목 + 필터 */}
+            {/* 표 제목 + 금액/수량 탭 */}
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-              <h3 className="text-base font-bold text-slate-900">영업사원별 진도 현황(수량)</h3>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <select value={filterRegion} onChange={(e) => setFilterRegion(e.target.value)}
-                    className="pl-3 pr-8 py-1.5 text-xs border border-slate-300 rounded-md outline-none focus:border-blue-400 appearance-none cursor-pointer min-w-[110px] bg-white">
-                    <option value="전체">지역 전체</option>
-                    {REGIONS[hq]?.map(r => <option key={r} value={r}>{r}</option>)}
-                  </select>
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Icon name="chevronDown" className="w-3 h-3" /></div>
-                </div>
-                <div className="relative">
-                  <select value={empFilter} onChange={(e) => setEmpFilter(e.target.value)}
-                    className="pl-3 pr-8 py-1.5 text-xs border border-slate-300 rounded-md outline-none focus:border-blue-400 appearance-none cursor-pointer min-w-[110px] bg-white">
-                    <option value="전체">영업사원 전체</option>
-                    {employees.map(e => <option key={e.id} value={e.name}>{e.name}</option>)}
-                  </select>
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Icon name="chevronDown" className="w-3 h-3" /></div>
-                </div>
-                <div className="relative">
-                  <input type="text" placeholder="영업사원 검색" value={empSearch} onChange={(e) => setEmpSearch(e.target.value)}
-                    className="pl-3 pr-8 py-1.5 text-xs border border-slate-300 rounded-md outline-none focus:border-blue-400 w-[140px]" />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Icon name="search" className="w-3 h-3" /></div>
-                </div>
+              <h3 className="text-base font-bold text-slate-900">영업사원별 진도 현황 <span className="text-xs font-normal text-slate-500">({empMetric==='amount'?'금액 · 만 RMB':'수량 · 개'})</span></h3>
+              <div className="flex rounded overflow-hidden border border-slate-300 text-xs">
+                <button onClick={() => setEmpMetric('amount')} className={"px-3 py-1.5 "+(empMetric==='amount'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>금액</button>
+                <button onClick={() => setEmpMetric('qty')} className={"px-3 py-1.5 "+(empMetric==='qty'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>수량</button>
               </div>
             </div>
 
@@ -8850,13 +9019,16 @@ function App() {
                     <tr><td colSpan={9} className="px-3 py-12 text-center text-slate-400">조건에 맞는 영업사원이 없습니다.</td></tr>
                   ) : filteredEmps.map((emp) => {
                     // 월별 실적 / 누적 실적 / 현황 (월별 분리 저장, weeklyEntries)
-                    const _mKey = `empMonthly|${hq}|${emp.id}|${yearMonthSP}`;
-                    const _cKey = `empCum|${hq}|${emp.id}|${yearMonthSP}`;
-                    const _sKey = `empStatus|${hq}|${emp.id}|${yearMonthSP}`;
+                    const _mp = empMetric === 'amount' ? 'A' : ''; // 금액 탭은 접두어로 독립 저장
+                    const _mKey = `empMonthly${_mp}|${hq}|${emp.id}|${yearMonthSP}`;
+                    const _cKey = `empCum${_mp}|${hq}|${emp.id}|${yearMonthSP}`;
+                    const _sKey = `empStatus${_mp}|${hq}|${emp.id}|${yearMonthSP}`;
+                    const _gKey = `empGoalA|${hq}|${emp.id}|${yearMonthSP}`; // 금액 목표(독립)
+                    const goalVal = empMetric === 'amount' ? Number(weeklyEntries[_gKey] ?? 0) : emp.shipGoal;
                     const monthActual = Number(weeklyEntries[_mKey] ?? 0);
                     const cumActual = Number(weeklyEntries[_cKey] ?? 0);
                     const statusNote = weeklyEntries[_sKey] ?? '';
-                    const rate = emp.shipGoal > 0 ? +(monthActual / emp.shipGoal * 100).toFixed(1) : 0;
+                    const rate = goalVal > 0 ? +(monthActual / goalVal * 100).toFixed(1) : 0;
                     const status = calcStatus(rate);
                     return (
                       <tr key={emp.id} className="border-b border-slate-200 hover:bg-slate-50">
@@ -8871,7 +9043,12 @@ function App() {
                           <EditableCell value={emp.name} align="center" onSave={(v) => updateRow(emp.id, 'name', v)} />
                         </td>
                         <td className="px-2 py-1 border-r border-slate-300 text-right">
-                          <EditableCell value={emp.shipGoal} type="number" align="right" onSave={(v) => updateRow(emp.id, 'shipGoal', v)} />
+                          {empMetric === 'amount' ? (
+                            <EditableCell value={goalVal} type="number" align="right"
+                              onSave={(v) => { setWeeklyEntries(prev => ({ ...prev, [_gKey]: parseFloat(v) || 0 })); logChange(`${hq} - 영업사원 (${monthLabelSP})`, `${emp.name} 월 목표(금액) 수정`); }} />
+                          ) : (
+                            <EditableCell value={emp.shipGoal} type="number" align="right" onSave={(v) => updateRow(emp.id, 'shipGoal', v)} />
+                          )}
                         </td>
                         <td className="px-2 py-1 border-r border-slate-300 text-right">
                           <EditableCell value={monthActual} type="number" align="right"
@@ -8916,9 +9093,12 @@ function App() {
 
                   {/* 합계 행 */}
                   {filteredEmps.length > 0 && (() => {
-                    const sumGoal = filteredEmps.reduce((s, d) => s + (d.shipGoal || 0), 0);
-                    const sumMonth = filteredEmps.reduce((s, d) => s + Number(weeklyEntries[`empMonthly|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
-                    const sumCum = filteredEmps.reduce((s, d) => s + Number(weeklyEntries[`empCum|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
+                    const _mp = empMetric === 'amount' ? 'A' : '';
+                    const sumGoal = filteredEmps.reduce((s, d) => s + (empMetric === 'amount'
+                      ? Number(weeklyEntries[`empGoalA|${hq}|${d.id}|${yearMonthSP}`] ?? 0)
+                      : (d.shipGoal || 0)), 0);
+                    const sumMonth = filteredEmps.reduce((s, d) => s + Number(weeklyEntries[`empMonthly${_mp}|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
+                    const sumCum = filteredEmps.reduce((s, d) => s + Number(weeklyEntries[`empCum${_mp}|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
                     const sumRate = sumGoal > 0 ? +(sumMonth / sumGoal * 100).toFixed(1) : 0;
                     return (
                       <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
@@ -10750,27 +10930,53 @@ function App() {
                   className="pl-3 pr-8 py-1.5 text-xs border border-slate-300 rounded outline-none focus:border-blue-400 w-[140px]" />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Icon name="search" className="w-3 h-3" /></div>
               </div>
+              {/* 전체월 / 월 표시 */}
+              <button onClick={() => setBDVisibleMonths(Array(12).fill(true))}
+                className="px-2 py-1.5 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+              <div className="relative">
+                <button onClick={() => setBDMonthPickerOpen(!bdMonthPickerOpen)}
+                  className="px-2 py-1.5 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">
+                  월 표시 ({bdVisibleMonths.filter(Boolean).length}/12) ▼
+                </button>
+                {bdMonthPickerOpen && (
+                  <div className="absolute right-0 top-9 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map((m, i) => (
+                      <label key={m} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                        <input type="checkbox" checked={bdVisibleMonths[i]}
+                          onChange={() => setBDVisibleMonths(prev => prev.map((v, idx) => idx === i ? !v : v))} />{m}월
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           <div className="border border-slate-300 rounded overflow-x-auto">
-            <table className="w-full text-xs" data-table-id="bd_customers" style={{ tableLayout: 'fixed' }}>
+            <table className="w-full text-sm" data-table-id="bd_customers" style={{ tableLayout: 'fixed' }}>
               <thead>
                 <tr className="bg-slate-100 border-b border-slate-300">
-                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[40px]">NO</th>
-                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[70px]">지역</th>
-                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 min-w-[150px]">하부고객</th>
-                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">진입/미진입</th>
-                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[75px] bg-amber-50">26년<br/>누계실적</th>
-                  {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
-                    <th key={m} className="px-1.5 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[42px]">{m}월</th>
+                  <ResizableHeader tableId="bd_customers" colKey="no" defaultWidth={46} columnWidths={columnWidths} setColumnWidths={setColumnWidths}
+                    className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm">NO</ResizableHeader>
+                  <ResizableHeader tableId="bd_customers" colKey="region" defaultWidth={80} columnWidths={columnWidths} setColumnWidths={setColumnWidths}
+                    className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm">지역</ResizableHeader>
+                  <ResizableHeader tableId="bd_customers" colKey="customer" defaultWidth={170} columnWidths={columnWidths} setColumnWidths={setColumnWidths}
+                    className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm">하부고객</ResizableHeader>
+                  <ResizableHeader tableId="bd_customers" colKey="stage" defaultWidth={90} columnWidths={columnWidths} setColumnWidths={setColumnWidths}
+                    className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm">진입/미진입</ResizableHeader>
+                  <ResizableHeader tableId="bd_customers" colKey="cum" defaultWidth={82} columnWidths={columnWidths} setColumnWidths={setColumnWidths}
+                    className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm bg-amber-50">26년<br/>누계실적</ResizableHeader>
+                  {[1,2,3,4,5,6,7,8,9,10,11,12].filter(m => bdVisibleMonths[m-1]).map(m => (
+                    <ResizableHeader key={m} tableId="bd_customers" colKey={`m${m}`} defaultWidth={50} columnWidths={columnWidths} setColumnWidths={setColumnWidths}
+                      className="px-1.5 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm">{m}월</ResizableHeader>
                   ))}
-                  <th className="px-2 py-2 font-semibold text-slate-700 w-[80px]">담당자</th>
+                  <ResizableHeader tableId="bd_customers" colKey="owner" defaultWidth={90} columnWidths={columnWidths} setColumnWidths={setColumnWidths}
+                    className="px-2 py-2 font-semibold text-slate-700 text-sm">담당자</ResizableHeader>
                 </tr>
               </thead>
               <tbody>
                 {pagedCustomers.length === 0 ? (
-                  <tr><td colSpan={18} className="px-3 py-12 text-center text-slate-400">조건에 맞는 고객이 없습니다.</td></tr>
+                  <tr><td colSpan={6 + bdVisibleMonths.filter(Boolean).length} className="px-3 py-12 text-center text-slate-400">조건에 맞는 고객이 없습니다.</td></tr>
                 ) : pagedCustomers.map((c, rowIdx) => {
                   const cumQty = getCustCumQty(c.id);
                   const setCustMonthQty = (mNum, value) => {
@@ -10788,7 +10994,7 @@ function App() {
                       <td className="px-1 py-1 border-r border-slate-300 text-center">
                         <select value={c.region || (REGIONS[hq] || [])[0]}
                           onChange={(e) => updateCustomer(c.id, 'region', e.target.value)}
-                          className="px-1 py-0.5 text-xs border-0 bg-transparent outline-none cursor-pointer hover:bg-blue-50 rounded w-full text-center font-semibold">
+                          className="px-1 py-0.5 text-sm border-0 bg-transparent outline-none cursor-pointer hover:bg-blue-50 rounded w-full text-center font-semibold">
                           {(REGIONS[hq] || []).map(r => <option key={r} value={r}>{r}</option>)}
                         </select>
                       </td>
@@ -10800,7 +11006,7 @@ function App() {
                       <td className="px-1 py-1 border-r border-slate-300 text-center">
                         <select value={c.stage || '진입'}
                           onChange={(e) => updateCustomer(c.id, 'stage', e.target.value)}
-                          className={`px-1.5 py-0.5 text-[11px] font-semibold rounded border outline-none cursor-pointer ${stageColor}`}>
+                          className={`px-1.5 py-0.5 text-[13px] font-semibold rounded border outline-none cursor-pointer ${stageColor}`}>
                           {stageOptions.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                       </td>
@@ -10808,8 +11014,8 @@ function App() {
                       <td className="px-2 py-1.5 border-r border-slate-300 text-right font-bold text-slate-900" title="1~12월 합산 (자동 계산)">
                         {cumQty > 0 ? formatNumber(cumQty) : '-'}
                       </td>
-                      {/* 1월 ~ 12월 */}
-                      {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => {
+                      {/* 1월 ~ 12월 (표시 필터 적용) */}
+                      {[1,2,3,4,5,6,7,8,9,10,11,12].filter(m => bdVisibleMonths[m-1]).map(m => {
                         const v = getCustMonthQty(c.id, m);
                         const isCurMonth = filterMonth === m;
                         return (
@@ -10837,10 +11043,13 @@ function App() {
                 })}
                 {/* 합계 행 */}
                 {pagedCustomers.length > 0 && (() => {
-                  const sumByMonth = [1,2,3,4,5,6,7,8,9,10,11,12].map(m =>
+                  const visMonthsBD = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m => bdVisibleMonths[m-1]);
+                  const sumByMonth = visMonthsBD.map(m =>
                     filteredCustomers.reduce((s, c) => s + getCustMonthQty(c.id, m), 0)
                   );
-                  const totalCum = sumByMonth.reduce((s, v) => s + v, 0);
+                  // 누계는 표시 여부와 무관하게 전체 12개월 합산
+                  const totalCum = [1,2,3,4,5,6,7,8,9,10,11,12].reduce((s, m) =>
+                    s + filteredCustomers.reduce((ss, c) => ss + getCustMonthQty(c.id, m), 0), 0);
                   return (
                     <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
                       <td colSpan={4} className="px-2 py-2 border-r border-slate-300 text-center">합계 ({filteredCustomers.length}건)</td>
