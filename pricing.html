@@ -1877,6 +1877,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
     1: 1, 2: 2.5, 3: 3, 4: 8, 5: 4, 6: 3, 7: 1,
   });
   const [qtrType, setQtrType] = useState('제품');  // 분기리베이트: '제품'(분모) | '현금'(곱셈)
+  const [sellOverride, setSellOverride] = useState({});  // 수익성 요약 판매가 수정값
 
   // ---------- 저장 상태 ----------
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -2959,18 +2960,25 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                     <tbody>
                       {profitSummary.rows.map((r, i) => {
                         const isFirst = i === 0 || profitSummary.rows[i-1].dealerGrade !== r.dealerGrade;
+                        const rk = `gen_${r.dealerGrade}_${i}`;
+                        const effSell = sellOverride[rk] != null ? sellOverride[rk] : r.sellPrice;
+                        const effProfit = Math.round((effSell||0) - r.supply);
+                        const effMargin = (effSell||0) > 0 ? (((effSell||0) - r.supply) / (effSell||0)) * 100 : 0;
                         return (
                           <tr key={i} className={r.dealerGrade === dealerGrade ? 'bg-blue-50/40' : 'hover:bg-slate-50'}>
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirst ? 'text-slate-900' : 'text-slate-300'}`}>
                               {isFirst ? `${r.dealerGrade}급` : ''}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.sellPrice}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
+                              <input type="number" value={effSell} onChange={e=>setSellOverride(prev=>({...prev,[rk]: e.target.value===''?'':Number(e.target.value)}))}
+                                className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 수정 가능"/>
+                            </td>
                             <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
                               {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{r.profit}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.margin.toFixed(1)}%</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
                         );
                       })}
@@ -3002,6 +3010,10 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                           (dsoGrade === 'A' && r.dsoGrade === 'A급') ||
                           (dsoGrade === 'B/C' && (r.dsoGrade === 'B/C급' || r.dsoGrade === 'B급'))
                         );
+                        const rk = `dso_${r.dsoGrade}_${r.dealerGrade}_${i}`;
+                        const effSell = sellOverride[rk] != null ? sellOverride[rk] : r.sellPrice;
+                        const effProfit = Math.round((effSell||0) - r.supply);
+                        const effMargin = (effSell||0) > 0 ? (((effSell||0) - r.supply) / (effSell||0)) * 100 : 0;
                         return (
                           <tr key={i} className={isCurrent ? 'bg-blue-50/40' : 'hover:bg-slate-50'}>
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirstDso ? 'text-slate-900' : 'text-slate-300'}`}>
@@ -3010,13 +3022,16 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirstDealer ? 'text-slate-900' : 'text-slate-300'}`}>
                               {isFirstDealer ? `${r.dealerGrade}급` : ''}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.sellPrice}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
+                              <input type="number" value={effSell} onChange={e=>setSellOverride(prev=>({...prev,[rk]: e.target.value===''?'':Number(e.target.value)}))}
+                                className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 수정 가능"/>
+                            </td>
                             <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
                               {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{r.profit}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.margin.toFixed(1)}%</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
                         );
                       })}
@@ -5191,22 +5206,40 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
 function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices, simHistory, setSimHistory, setActiveMenu, setNegoSource }) {
   // ---------- 입력 상태 ----------
   const [productGroup, setProductGroup] = useState('AO');
-  const [kitCategory, setKitCategory] = useState('표준키트');  // 표준키트 / 풀키트 / 키트
-  const [tradeType, setTradeType] = useState('일반치과');       // '일반치과' | 'DSO'
+  const [kitCategory, setKitCategory] = useState('标准配套');  // 标准配套 / 全套配套 / 키트
+  const [tradeType, setTradeType] = useState('普通牙科');       // '普通牙科' | 'DSO'
   const [dealerGrade, setDealerGrade] = useState('A');
   const [dsoGrade, setDsoGrade] = useState('S');
   const [showDetail, setShowDetail] = useState(true);
-  const [leftCollapsed, setLeftCollapsed] = useState(true);   // 좌측 접기/펼치기 (기본 접힘)
-  const [showFormulas, setShowFormulas] = useState(false);     // 참고 계산식 표시
-  const [showStKitConversion, setShowStKitConversion] = useState(false);  // ST KIT 전환 참고표
+  const [leftCollapsed, setLeftCollapsed] = useState(true);   // 좌측 접기/展开 (기본 접힘)
+  const [showFormulas, setShowFormulas] = useState(false);     // 参考 计算公式 표시
+  const [showStKitConversion, setShowStKitConversion] = useState(false);  // ST KIT 전환 参考표
+  // 各型号确定最终金额 (대리상가격 전용, 독립 저장)
+  const [confirmed, setConfirmed] = useState(() => {
+    try { const s = localStorage.getItem('corp_confirmed_v1'); if (s) return JSON.parse(s); } catch(e){}
+    return {};
+  });
+  useEffect(() => { try { localStorage.setItem('corp_confirmed_v1', JSON.stringify(confirmed)); } catch(e){} }, [confirmed]);
+  const [showBasicInfo, setShowBasicInfo] = useState(false);  // 基本信息 토글 (기본 숨김)
 
   // ---------- 정책 활성화/요율 ----------
+  const SM_POLICIES = [
+    { id: 1, name: "月目标达成(配件)", color: "blue",  base: "step", optionMode: "single", options: [{label:"1% 适用", value:1}] },
+    { id: 2, name: "特殊政策(现金)",   color: "blue",  base: "list", optionMode: "product" },
+    { id: 3, name: "现金结算(现金)",   color: "blue",  base: "step", optionMode: "single", options: [{label:"3% 折扣", value:3}] },
+    { id: 4, name: "DSO等级(제품)",   color: "blue",  base: "step", optionMode: "dso" },
+    { id: 5, name: "季度返利(产品/现金)", color: "amber", base: "list", optionMode: "quarterly", options: [{label:"4%", value:4},{label:"3%", value:3},{label:"2%", value:2}] },
+    { id: 6, name: "年度返利(现金)", color: "amber", base: "list", optionMode: "yearly", options: [{label:"3%", value:3},{label:"2%", value:2},{label:"1%", value:1}] },
+    { id: 7, name: "BD奖励(现金)",     color: "red",   base: "step", optionMode: "bd", options: [{label:"1%", value:1}] },
+  ];
   const [policyEnabled, setPolicyEnabled] = useState({
     1: true, 2: true, 3: true, 4: false, 5: true, 6: true, 7: false,
   });
   const [policyRates, setPolicyRates] = useState({
     1: 1, 2: 2.5, 3: 3, 4: 8, 5: 4, 6: 3, 7: 1,
   });
+  const [qtrType, setQtrType] = useState('제품');  // 季度返利: '제품'(분모) | '현금'(곱셈)
+  const [sellOverride, setSellOverride] = useState({});  // 收益汇总 판매가 수정값
 
   // ---------- 저장 상태 ----------
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -5217,14 +5250,14 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
   // ---------- 키트 옵션 (제품군별) ----------
   const kitOptions = useMemo(() => getKitOptions(productGroup, exportPrices), [productGroup, exportPrices]);
   
-  // 제품군 변경 시 키트 카테고리 자동 보정
+  // 제품군 변경 시 키트 카테고리 自动 보정
   useEffect(() => {
     if (kitOptions.length && !kitOptions.includes(kitCategory)) {
       setKitCategory(kitOptions[0]);
     }
   }, [kitOptions]);
 
-  // ---------- 특수정책 요율 자동 적용 (제품군 변경 시) ----------
+  // ---------- 特殊政策 요율 自动 适用 (제품군 변경 시) ----------
   useEffect(() => {
     const rate = SPECIAL_POLICY_RATE[productGroup] || 0;
     setPolicyRates(prev => ({ ...prev, 2: rate }));
@@ -5235,9 +5268,9 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     }
   }, [productGroup]);
 
-  // ---------- 대리상 등급 변경 시 정책 5,6 요율 자동 동기화 + 자동 ON ----------
-  //   ST 제품: 분기/연도 미적용 → 정책 5,6 OFF 유지
-  //            대신 대리상 등급에 따라 DSO 등급 자동 매핑 (A→S, B→A, C/D→B/C)
+  // ---------- 经销商等级 변경 시 정책 5,6 요율 自动 동기화 + 自动 ON ----------
+  //   ST 제품: 분기/연도 미适用 → 정책 5,6 OFF 유지
+  //            대신 经销商等级에 따라 DSO等级 自动 매핑 (A→S, B→A, C/D→B/C)
   useEffect(() => {
     const g = SIM_DEALER_GRADES.find(d => d.value === dealerGrade);
     if (g) {
@@ -5246,7 +5279,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
         5: g.qtr,
         6: g.year,
       }));
-      // ST가 아닌 경우 정책 5, 6 자동 ON (대리상 등급 영향이 보이도록)
+      // ST가 아닌 경우 정책 5, 6 自动 ON (经销商等级 영향이 보이도록)
       if (productGroup !== 'ST') {
         setPolicyEnabled(prev => ({
           ...prev,
@@ -5254,7 +5287,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
           6: true,
         }));
       } else {
-        // ST: 대리상 등급에 따라 DSO 등급 자동 매핑
+        // ST: 经销商等级에 따라 DSO等级 自动 매핑
         //   A → S (20%), B → A (15%), C/D → B/C (10%)
         const mappedDsoGrade = ST_DEALER_TO_DSO[dealerGrade];
         if (mappedDsoGrade) {
@@ -5264,10 +5297,10 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     }
   }, [dealerGrade, productGroup]);
 
-  // ---------- DSO 등급 변경 시 정책 4 요율 자동 동기화 + 정책 4 ON ----------
+  // ---------- DSO等级 변경 시 정책 4 요율 自动 동기화 + 정책 4 ON ----------
   //   일반 제품: SIM_DSO_GRADES의 rate (3/5/8%)
   //   ST 제품: ST_DSO_CONFIG의 addRate (10/15/20%)
-  //   tradeType이 DSO일 때만 적용, 정책 4도 자동 ON
+  //   tradeType이 DSO일 때만 适用, 정책 4도 自动 ON
   useEffect(() => {
     if (tradeType === 'DSO') {
       if (productGroup === 'ST') {
@@ -5286,84 +5319,84 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     }
   }, [dsoGrade, tradeType, productGroup]);
 
-  // ---------- 거래 유형 변경 시 정책 4 활성화 토글 ----------
+  // ---------- 交易类型 변경 시 정책 4 활성화 토글 ----------
   useEffect(() => {
     setPolicyEnabled(prev => ({ ...prev, 4: tradeType === 'DSO' }));
   }, [tradeType]);
 
-  // ---------- ST 제품은 일반치과 미공급 → 자동으로 DSO로 변경 ----------
+  // ---------- ST 제품은 普通牙科 미공급 → 自动으로 DSO로 변경 ----------
   useEffect(() => {
     if (productGroup === 'ST' && tradeType !== 'DSO') {
       setTradeType('DSO');
     }
   }, [productGroup]);
 
-  // ---------- ST 제품 선택 시 일부 정책 자동 비활성화 ----------
+  // ---------- ST 제품 선택 시 일부 정책 自动 비활성화 ----------
   //   ST 정책 구조:
-  //     ✓ 정책 ② 특수정책 (2%) - ST 전용 요율
-  //     ✓ 정책 ③ 현금결제 (3%)
-  //     ✓ 정책 ④ DSO 추가증정 (S 20% / A 15% / B/C 10%)
+  //     ✓ 정책 ② 特殊政策 (2%) - ST 전용 요율
+  //     ✓ 정책 ③ 现金结算 (3%)
+  //     ✓ 정책 ④ DSO追加赠品 (S 20% / A 15% / B/C 10%)
   //   비활성화:
-  //     ✗ 정책 ① 월목표달성
+  //     ✗ 정책 ① 月目标达成
   //     ✗ 정책 ⑤ 분기 리베이트
   //     ✗ 정책 ⑥ 연도 리베이트
   useEffect(() => {
     if (productGroup === 'ST') {
       setPolicyEnabled(prev => ({
         ...prev,
-        1: false,  // 월목표달성 OFF
-        2: true,   // 특수정책 ON (2%)
-        3: true,   // 현금결제 ON
-        4: true,   // DSO 추가증정 ON (중요: 명시 ON)
+        1: false,  // 月目标达成 OFF
+        2: true,   // 特殊政策 ON (2%)
+        3: true,   // 现金结算 ON
+        4: true,   // DSO追加赠品 ON (중요: 명시 ON)
         5: false,  // 분기 리베이트 OFF
         6: false,  // 연도 리베이트 OFF
       }));
-      // ST 특수정책 요율 2% 자동 적용 (다른 제품은 2.5%)
-      // ST DSO 추가증정 요율은 dsoGrade에 따라 별도 useEffect에서 동기화 (10/15/20%)
+      // ST 特殊政策 요율 2% 自动 适用 (다른 제품은 2.5%)
+      // ST DSO追加赠品 요율은 dsoGrade에 따라 별도 useEffect에서 동기화 (10/15/20%)
       setPolicyRates(prev => ({
         ...prev,
-        2: 2,    // 특수정책 2%
-        3: 3,    // 현금결제 3%
+        2: 2,    // 特殊政策 2%
+        3: 3,    // 现金结算 3%
       }));
     } else {
-      // ST가 아니면 다른 제품의 기본 특수정책 요율 적용 (SPECIAL_POLICY_RATE)
+      // ST가 아니면 다른 제품의 기본 特殊政策 요율 适用 (SPECIAL_POLICY_RATE)
       const defaultRate = SPECIAL_POLICY_RATE[productGroup];
       if (defaultRate !== undefined) {
         setPolicyRates(prev => ({ ...prev, 2: defaultRate }));
-        // 특수정책 0%인 제품(AR, BD)은 OFF
+        // 特殊政策 0%인 제품(AR, BD)은 OFF
         setPolicyEnabled(prev => ({ ...prev, 2: defaultRate > 0 }));
       }
     }
   }, [productGroup]);
 
-  // ---------- BD 제품 선택 시 BD장려금(정책 7번) 자동 활성화 ----------
-  //   BD 외 제품은 정책 7번 자동 비활성화
+  // ---------- BD 제품 선택 시 BD奖励금(정책 7번) 自动 활성화 ----------
+  //   BD 외 제품은 정책 7번 自动 비활성화
   useEffect(() => {
     if (productGroup === 'BD') {
       setPolicyEnabled(prev => ({ ...prev, 7: true }));
-      setPolicyRates(prev => ({ ...prev, 7: 1 }));  // BD장려 1% 고정
+      setPolicyRates(prev => ({ ...prev, 7: 1 }));  // BD奖励 1% 고정
     } else {
       setPolicyEnabled(prev => ({ ...prev, 7: false }));
     }
   }, [productGroup]);
 
   // ---------- 핵심 가격 데이터 계산 ----------
-  //   listPrice (기본가격) = SIM_LIST_PRICES (제품군별 권장 소비자가)
-  //   applyRate (적용률)   = PRICE_POLICY_MARGIN
-  //   supplyBase (공급가)  = listPrice / (1 + applyRate/100)
-  //   listPriceMin/Max     = DENTAL_RECOMMENDED_PRICES (대리상 판매 권장가 범위, 수익성 요약표용)
-  //   kitCost (키트 원가)  = exportPrices 의 selectedProduct.changeUSD × 환율 × 1.14 (입고가)
+  //   listPrice (基础价格) = SIM_LIST_PRICES (제품군별 建议零售价)
+  //   applyRate (适用率)   = PRICE_POLICY_MARGIN
+  //   supplyBase (供货价)  = listPrice / (1 + applyRate/100)
+  //   listPriceMin/Max     = DENTAL_RECOMMENDED_PRICES (대리상 판매 권장가 범위, 收益汇总표용)
+  //   kitCost (配套成本)  = exportPrices 의 selectedProduct.changeUSD × 환율 × 1.14 (入库价)
   const priceData = useMemo(() => {
     const applyRate = PRICE_POLICY_MARGIN[productGroup] || 30;
-    const listPrice = SIM_LIST_PRICES[productGroup] || 0;  // 시뮬레이션 전용 기본가격
+    const listPrice = SIM_LIST_PRICES[productGroup] || 0;  // 시뮬레이션 전용 基础价格
     const supplyBase = listPrice > 0 ? Math.round(listPrice / (1 + applyRate/100)) : 0;
 
-    // 대리상 판매 권장가 범위 (수익성 요약표에 표시용)
+    // 대리상 판매 권장가 범위 (收益汇总표에 표시용)
     const dentalArr = (dentalPrices[productGroup] && dentalPrices[productGroup][kitCategory]) || [0, 0];
     const listPriceMin = dentalArr[0] || 0;
     const listPriceMax = dentalArr[dentalArr.length - 1] || 0;
 
-    // 키트 원가 (CNY) = changeUSD × 환율 × 입고마진
+    // 配套成本 (CNY) = changeUSD × 환율 × 입고마진
     const selectedKit = exportPrices.find(p => p.group === productGroup && p.category === kitCategory);
     const kitCost = selectedKit ? Math.round(selectedKit.changeUSD * exchangeRate * IMPORT_MARGIN) : 0;
 
@@ -5372,14 +5405,14 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
 
   // ---------- 계산 로직 (새 수식 체계) ----------
   // 정책별 계산 방식:
-  //   ① 월목표달성 (denominator) → 분모에 % 추가
-  //   ② 특수정책 (subtract_amount) → 기준가에서 금액 차감 (¥431 × 2.5% 등)
-  //   ③ 현금결제 (multiply, 97折) → 곱셈 ×(1-3%) = ×97%
-  //   ④ DSO 등급 (denominator) → 분모에 % 추가
+  //   ① 月目标达成 (denominator) → 분모에 % 추가
+  //   ② 特殊政策 (subtract_amount) → 基准价에서 금액 차감 (¥431 × 2.5% 등)
+  //   ③ 现金结算 (multiply, 97折) → 곱셈 ×(1-3%) = ×97%
+  //   ④ DSO等级 (denominator) → 분모에 % 추가
   //   ⑤ 분기 (denominator) → 분모에 % 추가
   //   ⑥ 연도 (multiply) → 곱셈 ×(1-연도%)
-  //      BD 제품일 경우: 연도+BD장려 묶어서 ×(1-연도%-BD장려%)
-  //   ⑦ BD장려 (combined with 연도) → 별도 단계 없이 연도와 묶어서 처리
+  //      BD 제품일 경우: 연도+BD奖励 묶어서 ×(1-연도%-BD奖励%)
+  //   ⑦ BD奖励 (combined with 연도) → 별도 步骤 없이 연도와 묶어서 처리
   //
   // 수식 예 (AO A등급 / 모든 정책 활성화):
   //   초기: 431
@@ -5389,7 +5422,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
   //   ④ DSO 8%: (431 - 431×0.025) × 0.97 / (1+0.36+0.08) = ...
   //   ⑤ 분기 4%: (431 - 431×0.025) × 0.97 / (1+0.36+0.08+0.04) = 291 (DSO 없을 시)
   //   ⑥ 연도 3%: 위 값 × (1-0.03) = 282
-  //   ⑦ BD장려 1%: BD제품인 경우 연도와 묶어서 (1-0.03-0.01) = 위 값 × 0.96
+  //   ⑦ BD奖励 1%: BD제품인 경우 연도와 묶어서 (1-0.03-0.01) = 위 값 × 0.96
 
   const calculation = useMemo(() => {
     const { listPrice, supplyBase, kitCost, applyRate } = priceData;
@@ -5398,23 +5431,23 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     }
 
     // ─────────────────────────────────────────────────
-    // 정책환산GP 계산
-    //   공식: GP = 1 - 정책반영원가 ÷ 정책반영기준가
-    //   정책반영원가 = (임플란트원가 + KIT원가/KIT기준) × (1 + 제품증정 + 목표달성)
-    //   정책반영기준가 = 단계별로 다름 (431, 431-10.8, ×97%, ×(1-연도%) 등)
+    // 政策换算GP 계산
+    //   공식: GP = 1 - 정책반영원가 ÷ 정책반영基准价
+    //   정책반영원가 = (임플란트원가 + KIT원가/KIT기준) × (1 + 赠品(产品) + 목표달성)
+    //   정책반영基准价 = 步骤별로 다름 (431, 431-10.8, ×97%, ×(1-연도%) 등)
     // ─────────────────────────────────────────────────
     const costData = SIM_COST_DATA[productGroup];
     const kitInfo = costData?.kits?.[kitCategory];
     const gpAvailable = !!(costData && kitInfo);  // 원가 데이터 있을 때만 GP 계산
 
-    // 환산원가 기본값 (제품증정/목표달성 미적용 시)
+    // 환산원가 기본값 (赠品(产品)/목표달성 미适用 시)
     const baseUnitCost = gpAvailable
       ? costData.implantCost + kitInfo.kitCost / kitInfo.kitRatio
       : 0;
 
-    // 각 단계별 GP 계산 함수
-    //   ratedCostMultiplier: 원가 환산배수 (1 + 제품증정 + 목표달성)
-    //   refBasePrice: 정책반영 기준가 (분모)
+    // 각 步骤별 GP 계산 함수
+    //   ratedCostMultiplier: 원가 환산배수 (1 + 赠品(产品) + 목표달성)
+    //   refBasePrice: 정책반영 基准价 (분모)
     const calcGP = (refBasePrice, ratedCostMultiplier) => {
       if (!gpAvailable || refBasePrice <= 0) return null;
       const ratedCost = baseUnitCost * ratedCostMultiplier;
@@ -5423,12 +5456,12 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
 
     const steps = [];
 
-    // 단계 0: 초기 기준가
+    // 步骤 0: 初始基准价
     steps.push({
       step: 0,
-      name: "초기 기준가",
+      name: "初始基准价",
       rate: null, basePrice: listPrice, discount: null, finalPrice: listPrice,
-      gp: null,  // 단계 0은 GP 없음
+      gp: null,  // 步骤 0은 GP 없음
       method: 'base',
     });
 
@@ -5445,15 +5478,15 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     let numerator = listPrice;
     let multiplier = 1;
 
-    // GP 계산용: 정책반영기준가 추적
-    let gpRefBase = listPrice;          // 분모 기준가 (특수정책에서 reduce, 곱셈에서 multiply)
-    let costMultiplier = 1 + baseRate;  // 원가 환산배수 (제품증정 + 목표달성)
+    // GP 계산용: 정책반영基准价 추적
+    let gpRefBase = listPrice;          // 분모 基准价 (特殊政策에서 reduce, 곱셈에서 multiply)
+    let costMultiplier = 1 + baseRate;  // 원가 환산배수 (赠品(产品) + 목표달성)
 
-    // 단계 1: 제품증정 35% (기본 공급가)
+    // 步骤 1: 赠品(产品) 35% (기본 供货价)
     let cur = numerator / denom;
     steps.push({
       step: 1,
-      name: `제품증정 ${(baseRate*100).toFixed(0)}%`,
+      name: `赠品(产品) ${(baseRate*100).toFixed(0)}%`,
       rate: baseRate * 100,
       basePrice: listPrice,
       discount: Math.round((listPrice - cur) * 10) / 10,
@@ -5464,7 +5497,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
 
     let appliedCount = 0;
 
-    // 단계 2: 월목표달성 (분모 더하기)
+    // 步骤 2: 月目标达成 (분모 더하기)
     if (policyEnabled[1]) {
       denom += r1_target;
       costMultiplier += r1_target;  // 원가도 함께 증가
@@ -5473,7 +5506,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       appliedCount += 1;
       steps.push({
         step: 1 + appliedCount,
-        name: `월목표달성 ${(r1_target*100).toFixed(0)}%`,
+        name: `月目标达成 ${(r1_target*100).toFixed(0)}%`,
         rate: r1_target * 100,
         basePrice: before,
         discount: Math.round((before - cur) * 10) / 10,
@@ -5484,10 +5517,10 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     }
 
     // ─────────────────────────────────────────────────
-    // 단계 3 & 4: 특수정책 ↔ DSO 순서
-    // - 일반 제품(AO/AR/BD/ARi): 특수정책 → DSO
-    // - ST 제품: DSO 추가증정 → 특수정책 (ST 전용 순서)
-    //   ST는 첨부 4번 표에 따라 65% → DSO 추가증정 → 특수격려 → 현금결제 순서
+    // 步骤 3 & 4: 特殊政策 ↔ DSO 순서
+    // - 일반 제품(AO/AR/BD/ARi): 特殊政策 → DSO
+    // - ST 제품: DSO追加赠品 → 特殊政策 (ST 전용 순서)
+    //   ST는 첨부 4번 표에 따라 65% → DSO追加赠品 → 특수격려 → 现金结算 순서
     // ─────────────────────────────────────────────────
     const applySpecialPolicy = () => {
       if (policyEnabled[2]) {
@@ -5499,7 +5532,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
         appliedCount += 1;
         steps.push({
           step: 1 + appliedCount,
-          name: `특수정책 ${(r2_special*100)}%`,
+          name: `特殊政策 ${(r2_special*100)}%`,
           rate: r2_special * 100,
           basePrice: before,
           discount: Math.round((before - cur) * 10) / 10,
@@ -5512,8 +5545,8 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     };
 
     const applyDsoPolicy = () => {
-      // ST 제품은 정책 4 ON/OFF와 무관하게 DSO 추가증정 항상 적용
-      // 일반 제품은 정책 4가 ON일 때만 적용
+      // ST 제품은 정책 4 ON/OFF와 무관하게 DSO追加赠品 항상 适用
+      // 일반 제품은 정책 4가 ON일 때만 适用
       const shouldApply = tradeType === 'DSO' && (productGroup === 'ST' || policyEnabled[4]);
       if (shouldApply) {
         denom += r4_dso;
@@ -5524,8 +5557,8 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
         steps.push({
           step: 1 + appliedCount,
           name: productGroup === 'ST'
-            ? `DSO 추가증정 ${(r4_dso*100).toFixed(0)}%`
-            : `DSO 등급 ${(r4_dso*100).toFixed(0)}%`,
+            ? `DSO追加赠品 ${(r4_dso*100).toFixed(0)}%`
+            : `DSO等级 ${(r4_dso*100).toFixed(0)}%`,
           rate: r4_dso * 100,
           basePrice: before,
           discount: Math.round((before - cur) * 10) / 10,
@@ -5536,17 +5569,10 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       }
     };
 
-    if (productGroup === 'ST') {
-      // ST 순서: DSO 추가증정 → 특수정책
-      applyDsoPolicy();
-      applySpecialPolicy();
-    } else {
-      // 일반 제품 순서: 특수정책 → DSO
-      applySpecialPolicy();
-      applyDsoPolicy();
-    }
+    // 特殊政策만 适用 (DSO는 季度返利 앞에서 适用)
+    applySpecialPolicy();
 
-    // 단계 5: 현금결제 97折 (곱셈) - GP 분모도 곱셈
+    // 步骤 5: 现金结算 97折 (곱셈) - GP 분모도 곱셈
     if (policyEnabled[3]) {
       multiplier *= (1 - r3_cash);
       gpRefBase = gpRefBase * (1 - r3_cash);
@@ -5555,7 +5581,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       appliedCount += 1;
       steps.push({
         step: 1 + appliedCount,
-        name: `현금결제 3%`,
+        name: `现金结算 3%`,
         rate: r3_cash * 100,
         basePrice: before,
         discount: Math.round((before - cur) * 10) / 10,
@@ -5565,40 +5591,64 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       });
     }
 
-    // 단계 6: 분기 리베이트 (분모 더하기) - GP: 원가 환산배수에 추가
+    // DSO等级 适用 (特殊政策·现金结算 다음, 季度返利 앞)
+    applyDsoPolicy();
+
+    // 步骤 6: 분기 리베이트 — 제품(분모) 또는 현금(곱셈)
     if (policyEnabled[5]) {
-      denom += r5_qtr;
-      costMultiplier += r5_qtr;  // 원가도 함께 증가
       const before = cur;
-      cur = (numerator / denom) * multiplier;
+      if (qtrType === '현금') {
+        multiplier *= (1 - r5_qtr);
+        gpRefBase = gpRefBase * (1 - r5_qtr);
+        cur = (numerator / denom) * multiplier;
+      } else {
+        denom += r5_qtr;
+        costMultiplier += r5_qtr;
+        cur = (numerator / denom) * multiplier;
+      }
       appliedCount += 1;
       steps.push({
         step: 1 + appliedCount,
-        name: `분기 리베이트 ${(r5_qtr*100).toFixed(0)}%`,
+        name: `季度返利(${qtrType}) ${(r5_qtr*100).toFixed(0)}%`,
         rate: r5_qtr * 100,
         basePrice: before,
         discount: Math.round((before - cur) * 10) / 10,
         finalPrice: Math.round(cur),
         gp: calcGP(gpRefBase, costMultiplier),
-        method: 'denominator',
+        method: qtrType === '현금' ? 'multiply' : 'denominator',
       });
     }
 
-    // 단계 7: 연도 리베이트 (곱셈) - GP 분모도 곱셈
-    if (policyEnabled[6] || policyEnabled[7]) {
-      const yearTotal = r6_year + r7_bd;
-      multiplier *= (1 - yearTotal);
-      gpRefBase = gpRefBase * (1 - yearTotal);
+    // 步骤 7: 年度返利 (곱셈) - GP 분모도 곱셈
+    if (policyEnabled[6]) {
+      multiplier *= (1 - r6_year);
+      gpRefBase = gpRefBase * (1 - r6_year);
       const before = cur;
       cur = (numerator / denom) * multiplier;
       appliedCount += 1;
-      const nameLabel = policyEnabled[7]
-        ? `연도 리베이트 ${(r6_year*100).toFixed(0)}% + BD장려 ${(r7_bd*100).toFixed(0)}%`
-        : `연도 리베이트 ${(r6_year*100).toFixed(0)}%`;
       steps.push({
         step: 1 + appliedCount,
-        name: nameLabel,
-        rate: yearTotal * 100,
+        name: `年度返利(现金) ${(r6_year*100).toFixed(0)}%`,
+        rate: r6_year * 100,
+        basePrice: before,
+        discount: Math.round((before - cur) * 10) / 10,
+        finalPrice: Math.round(cur),
+        gp: calcGP(gpRefBase, costMultiplier),
+        method: 'multiply',
+      });
+    }
+
+    // 步骤 8: BD奖励 (곱셈) - 별도 步骤
+    if (policyEnabled[7]) {
+      multiplier *= (1 - r7_bd);
+      gpRefBase = gpRefBase * (1 - r7_bd);
+      const before = cur;
+      cur = (numerator / denom) * multiplier;
+      appliedCount += 1;
+      steps.push({
+        step: 1 + appliedCount,
+        name: `BD奖励(现金) ${(r7_bd*100).toFixed(0)}%`,
+        rate: r7_bd * 100,
         basePrice: before,
         discount: Math.round((before - cur) * 10) / 10,
         finalPrice: Math.round(cur),
@@ -5613,42 +5663,42 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     const finalGP = calcGP(gpRefBase, costMultiplier);
 
     return { steps, finalPrice, totalDiscount, totalDiscountRate, appliedCount, finalGP, gpAvailable };
-  }, [priceData, policyEnabled, policyRates, productGroup, kitCategory, tradeType]);
+  }, [priceData, policyEnabled, policyRates, productGroup, kitCategory, tradeType, qtrType]);
 
-  // ---------- 대리상 수익성 요약 (첨부 양식: 거래유형별 분기) ----------
-  // 일반치과: 대리상 등급(A/B/C/D) × 판매가(330/350) = 8행
-  // DSO치과:  DSO등급(S/A/B/C) × 대리상등급(A/B/C/D) = 12행
+  // ---------- 经销商利润성 요약 (첨부 양식: 거래유형별 분기) ----------
+  // 普通牙科: 经销商等级(A/B/C/D) × 판매가(330/350) = 8행
+  // DSO连锁牙科:  DSO등급(S/A/B/C) × 대리상등급(A/B/C/D) = 12행
   //
   // 첨부 7번 핵심 공식:
-  //   공급가는 기준가에서 특수격려 반환금을 차감한 뒤, 제품증정+목표달성+DSO+분기를
-  //   분모에 반영하여 계산하고, 현금결제(97折) 후 연도 리베이트를 현금성 차감으로 적용.
+  //   供货价는 基准价에서 특수격려 반환금을 차감한 뒤, 赠品(产品)+목표달성+DSO+분기를
+  //   분모에 반영하여 계산하고, 现金结算(97折) 후 연도 리베이트를 현금성 차감으로 适用.
   //
-  //   최종 공급가 = (기준가-반환금) × 97% / (1+제품증정+목표달성+DSO+분기) × (1-연도)
+  //   最终供货价 = (基准价-반환금) × 97% / (1+赠品(产品)+목표달성+DSO+분기) × (1-연도)
   //
-  //   본사 GP (정책환산):
-  //     원가 환산 = baseUnitCost × (1+제품증정+목표달성+DSO+분기)
-  //     분모 (정책반영기준가) = (기준가-반환금) × 97% × (1-연도)
+  //   总部GP (정책환산):
+  //     원가 환산 = baseUnitCost × (1+赠品(产品)+목표달성+DSO+분기)
+  //     분모 (정책반영基准价) = (基准价-반환금) × 97% × (1-연도)
   //     GP = 1 - 원가환산 / 분모
   //
-  //   대리상 수익 = 판매가 - 공급가
-  //   대리상 마진율 = 수익 / 판매가
+  //   经销商利润 = 판매가 - 供货价
+  //   经销商毛利率 = 利润 / 판매가
   //
-  //   ※ 수익성 요약표는 정책 표준 시나리오로 항상 계산:
-  //      - 목표달성 1%, 특수격려, 현금결제 97折 항상 적용
-  //      - 분기/연도 리베이트는 대리상 등급에 따라 자동 적용
+  //   ※ 收益汇总표는 정책 표준 시나리오로 항상 계산:
+  //      - 목표달성 1%, 특수격려, 现金结算 97折 항상 适用
+  //      - 분기/연도 리베이트는 经销商等级에 따라 自动 适用
   const profitSummary = useMemo(() => {
     const { listPrice, applyRate } = priceData;
     if (listPrice <= 0) return { type: 'none', rows: [] };
 
     // 표준 시나리오 정책률
-    //   ST: 월목표/특수/분기/연도 모두 미적용 → r1_target=0, specialRate=0, qtrRate=0, yearRate=0
-    //   다른 제품: 표준 정책 적용
+    //   ST: 월목표/특수/분기/연도 모두 미适用 → r1_target=0, specialRate=0, qtrRate=0, yearRate=0
+    //   다른 제품: 표준 정책 适用
     const isST = productGroup === 'ST';
-    const r1_target  = isST ? 0 : 0.01;   // 월목표달성 (ST는 0)
-    const r3_cash    = 0.03;              // 현금결제 3% (97折, 항상 적용)
+    const r1_target  = isST ? 0 : 0.01;   // 月目标达成 (ST는 0)
+    const r3_cash    = 0.03;              // 现金结算 3% (97折, 항상 适用)
     const baseRate   = applyRate / 100;
 
-    // 제품군별 특수정책 요율 (ST는 0)
+    // 제품군별 特殊政策 요율 (ST는 0)
     const specialRate = isST ? 0 : ((SPECIAL_POLICY_RATE[productGroup] || 0) / 100);
     const refundAmount = listPrice * specialRate;
     const adjusted = (listPrice - refundAmount) * (1 - r3_cash);
@@ -5659,38 +5709,15 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     const gpAvailable = !!(costData && kitInfo);
 
     // 공통 계산 함수
-    //   dsoRate: DSO 정책률 (0이면 일반치과)
-    //   dealerG: 대리상 등급 객체 ({qtr, year, bdBonus})
-    //   sellPrice: 판매가 기준
+    //   dsoRate: DSO 정책률 (0이면 普通牙科)
+    //   dealerG: 经销商等级 객체 ({qtr, year, bdBonus})
+    //   sellPrice: 售价基准
     const calcRow = (dsoRate, dealerG, sellPrice) => {
-      // ST는 분기/연도/BD장려 모두 미적용
-      const qtrRate  = isST ? 0 : (dealerG.qtr / 100);
-      const yearRate = isST ? 0 : (dealerG.year / 100);
-      const bdRate   = (productGroup === 'BD') ? (dealerG.bdBonus / 100) : 0;
-      const yearTotal = yearRate + bdRate;
-
-      // 최종 공급가
-      // 일반 제품: (기준가-반환금) × 97% / (1+제품증정+목표달성+DSO+분기) × (1-연도-BD장려)
-      // ST: (기준가) × 97% / (1+제품증정+DSO 추가증정)
-      const denom = 1 + baseRate + r1_target + (dsoRate / 100) + qtrRate;
-      const yearMult = (1 - yearTotal);
-      const supply = Math.round((adjusted / denom) * yearMult);
-
-      // 본사 정책환산GP
-      let hqGP = null;
-      if (gpAvailable) {
-        const costMult = 1 + baseRate + r1_target + (dsoRate / 100) + qtrRate;
-        // 원가 = 임플란트 × costMult + KIT × costMult / KIT기준
-        const ratedCost = costData.implantCost * costMult
-                        + kitInfo.kitCost * costMult / kitInfo.kitRatio;
-        const refBase = adjusted * yearMult;
-        hqGP = refBase > 0 ? (1 - ratedCost / refBase) * 100 : null;
-      }
-
-      // 대리상 수익 / 마진율
+      // 위에서 선택/조정한 정책의 最终供货价·GP를 그대로 반영
+      const supply = Math.round(calculation.finalPrice);
+      const hqGP = calculation.finalGP;
       const profit = sellPrice - supply;
       const margin = sellPrice > 0 ? (profit / sellPrice) * 100 : 0;
-
       return { supply, hqGP, profit, margin };
     };
 
@@ -5698,7 +5725,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     const sellConfig = SIM_SELL_PRICES[productGroup];
     if (!sellConfig) return { type: 'none', rows: [] };
 
-    // 선택된 대리상 등급만 필터링하여 표시
+    // 선택된 经销商等级만 필터링하여 표시
     const selectedDealer = SIM_DEALER_GRADES.find(d => d.value === dealerGrade);
     if (!selectedDealer) return { type: 'none', rows: [] };
 
@@ -5707,8 +5734,8 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       const rows = [];
 
       if (dsoConfig.structure === 'per_dso') {
-        // 구조 A: DSO 등급별 판매가 다름 (AO, AR, ST)
-        //   선택된 대리상 등급 + 선택된 DSO 등급 = 1행만
+        // 구조 A: DSO等级별 판매가 다름 (AO, AR, ST)
+        //   선택된 经销商等级 + 선택된 DSO等级 = 1행만
         const dsoValueMap = { 'S': 'S', 'A': 'A', 'B/C': 'BC' };
         const selectedDsoValue = dsoValueMap[dsoGrade] || 'S';
         const selectedDso = dsoConfig.list.find(d => d.dsoGrade === selectedDsoValue);
@@ -5722,8 +5749,8 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
           });
         }
       } else if (dsoConfig.structure === 'uniform') {
-        // 구조 B: DSO 등급 무관 동일 판매가 2종 (BD, ARi)
-        //   선택된 대리상 등급 + 선택된 DSO 등급 × 판매가 2종 = 2행
+        // 구조 B: DSO等级 무관 동일 판매가 2종 (BD, ARi)
+        //   선택된 经销商等级 + 선택된 DSO等级 × 판매가 2종 = 2행
         const dsoValueMap = { 'S': 'S', 'A': 'A', 'B/C': 'BC' };
         const selectedDsoValue = dsoValueMap[dsoGrade] || 'S';
         const selectedDso = dsoConfig.list.find(d => d.dsoGrade === selectedDsoValue);
@@ -5741,7 +5768,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       }
       return { type: 'DSO', rows };
     } else {
-      // 일반치과: 선택된 대리상등급의 판매가 2종 = 2행
+      // 普通牙科: 선택된 대리상등급의 판매가 2종 = 2행
       if (!sellConfig.general) return { type: 'none', rows: [] };
       const sellPrices = sellConfig.general;
       const rows = [];
@@ -5755,7 +5782,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       });
       return { type: 'GENERAL', rows };
     }
-  }, [priceData, productGroup, kitCategory, tradeType, dealerGrade, dsoGrade]);
+  }, [priceData, productGroup, kitCategory, tradeType, dealerGrade, dsoGrade, calculation]);
 
   // ---------- 함수: Toast ----------
   const showToast = (msg, type = "success") => {
@@ -5763,28 +5790,28 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     setTimeout(() => setToast(null), 2500);
   };
 
-  // ---------- 함수: 초기화 ----------
+  // ---------- 함수: 重置 ----------
   const handleReset = () => {
-    if (!confirm("모든 입력을 초기화하시겠습니까?")) return;
+    if (!confirm("모든 입력을 重置하시겠습니까?")) return;
     setProductGroup("AO");
-    setTradeType("일반치과");
+    setTradeType("普通牙科");
     setDealerGrade("A");
     setDsoGrade("S");
     setPolicyEnabled({ 1: true, 2: true, 3: true, 4: false, 5: true, 6: true, 7: false });
     setPolicyRates({ 1: 1, 2: 2.5, 3: 3, 4: 8, 5: 4, 6: 3, 7: 1 });
-    showToast("초기화 완료");
+    showToast("重置 완료");
   };
 
-  // ---------- 함수: 이력저장 모달 열기 ----------
+  // ---------- 함수: 保存记录 모달 열기 ----------
   const handleOpenHistoryModal = () => {
-    // 자동 제목 (사용자가 비어두면 이 값 사용)
+    // 自动 제목 (사용자가 비어두면 이 값 사용)
     const autoTitle = `${productGroup} ${kitCategory} / ${dealerGrade}급 / ${tradeType === 'DSO' ? `DSO ${dsoGrade}급` : '민영치과'}`;
     setHistoryTitle(autoTitle);
     setHistoryNote('');
     setShowHistoryModal(true);
   };
 
-  // ---------- 함수: 이력저장 확정 ----------
+  // ---------- 함수: 保存记录 확정 ----------
   const handleConfirmSaveHistory = () => {
     const title = historyTitle.trim() || `${productGroup} ${kitCategory} / ${dealerGrade}급`;
     const entry = {
@@ -5801,13 +5828,13 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       totalDiscountRate: calculation.totalDiscountRate,
       totalDiscount: calculation.totalDiscount,
       appliedCount: calculation.appliedCount,
-      // 가격 시뮬레이션 단계별 결과 저장
+      // 法人经销商价格 步骤별 결과 저장
       calculationSteps: calculation.steps.map(s => ({
         step: s.step, name: s.name, rate: s.rate,
         basePrice: s.basePrice, discount: s.discount,
         finalPrice: s.finalPrice, gp: s.gp,
       })),
-      // 대리상 수익성 요약 저장
+      // 经销商利润성 요약 저장
       profitSummary: {
         type: profitSummary.type,
         rows: profitSummary.rows ? profitSummary.rows.map(r => ({ ...r })) : [],
@@ -5858,13 +5885,13 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
   // ---------- 함수: CSV 다운로드 ----------
   const handleDownload = () => {
     const rows = [
-      ["가격 시뮬레이션 결과"],
+      ["法人经销商价格 결과"],
       ["제품군", productGroup, "키트", kitCategory],
-      ["기본가격", `¥${priceData.listPrice}`, "적용률", `${priceData.applyRate}%`],
-      ["공급가(기준)", `¥${priceData.supplyBase}`, "키트원가(입고가CNY)", `¥${priceData.kitCost}`],
-      ["거래유형", tradeType, "대리상 등급", dealerGrade],
+      ["基础价格", `¥${priceData.listPrice}`, "适用率", `${priceData.applyRate}%`],
+      ["供货价(基准)", `¥${priceData.supplyBase}`, "키트원가(入库价CNY)", `¥${priceData.kitCost}`],
+      ["거래유형", tradeType, "经销商等级", dealerGrade],
       [],
-      ["단계", "정책/항목", "방식", "적용률(%)", "기준가", "할인금액", "공급가", "정책환산GP(%)"],
+      ["步骤", "政策/项目", "방식", "适用率(%)", "基准价", "折扣金额", "供货价", "政策换算GP(%)"],
       ...calculation.steps.map(s => [
         s.step, s.name,
         s.method === "denominator" ? "분모" : (s.method === "subtract_amount" ? "금액차감" : (s.method === "multiply" ? "곱셈" : "-")),
@@ -5875,11 +5902,11 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
         s.gp === null ? "-" : s.gp.toFixed(1),
       ]),
       [],
-      ["최종 공급가", calculation.finalPrice],
-      ["최종 정책환산GP", calculation.finalGP === null ? "-" : (calculation.finalGP.toFixed(1) + "%")],
-      ["총 할인율(누적)", calculation.totalDiscountRate.toFixed(2) + "%"],
-      ["총 할인금액", -calculation.totalDiscount],
-      ["적용 정책 수", calculation.appliedCount + "개"],
+      ["最终供货价", calculation.finalPrice],
+      ["최종 政策换算GP", calculation.finalGP === null ? "-" : (calculation.finalGP.toFixed(1) + "%")],
+      ["总折扣率(累计)", calculation.totalDiscountRate.toFixed(2) + "%"],
+      ["총 折扣金额", -calculation.totalDiscount],
+      ["适用政策数", calculation.appliedCount + "개"],
     ];
     const csv = "\uFEFF" + rows.map(r => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -5901,57 +5928,103 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
         {/* 헤더 */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">법인 대리상가격</h1>
-            <p className="text-sm text-slate-500 mt-1">법인(영파/북경 등) 기준 대리상가격 시뮬레이션입니다.</p>
+            <h1 className="text-2xl font-bold text-slate-900">法人经销商价格</h1>
+            <p className="text-sm text-slate-500 mt-1">选择政策后自动计算最终供货价。</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={handleReset}
-              className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 flex items-center gap-1.5">
-              <span>↻</span> 초기화
-            </button>
-            <button onClick={handleOpenHistoryModal}
-              className="px-4 py-2 bg-emerald-500 text-white rounded-lg text-sm font-medium hover:bg-emerald-600 flex items-center gap-1.5">
-              <span>⏱</span> 이력저장
-            </button>
-            <button onClick={() => {
-              if (setNegoSource && setActiveMenu) {
-                // 현재 시뮬레이션 결과를 네고 화면에 전달
-                setNegoSource({
-                  productGroup, kitCategory, tradeType,
-                  dealerGrade, dsoGrade,
-                  policyEnabled: { ...policyEnabled },
-                  policyRates: { ...policyRates },
-                  listPrice: priceData.listPrice,
-                  applyRate: priceData.applyRate,
-                  supplyBase: priceData.supplyBase,
-                  finalPrice: calculation.finalPrice,
-                  finalGP: calculation.finalGP,
-                  totalDiscountRate: calculation.totalDiscountRate,
-                  appliedCount: calculation.appliedCount,
-                  calculationSteps: calculation.steps.map(s => ({
-                    step: s.step, name: s.name, rate: s.rate,
-                    basePrice: s.basePrice, discount: s.discount,
-                    finalPrice: s.finalPrice, gp: s.gp,
-                  })),
-                  profitSummary: {
-                    type: profitSummary.type,
-                    rows: profitSummary.rows ? profitSummary.rows.map(r => ({ ...r })) : [],
-                  },
-                  fromPage: 'sim-main',
-                });
-                setActiveMenu('sim-nego');
-              }
-            }}
-              className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 flex items-center gap-1.5">
-              <span>🔥</span> 네고하기
-            </button>
-            <button onClick={handleSave}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-1.5">
-              <span>💾</span> 저장
-            </button>
-          </div>
+        <div className="flex items-center gap-2">
+              <button onClick={handleReset}
+                className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5">
+                <span>↻</span> 重置
+              </button>
+              <button onClick={handleOpenHistoryModal}
+                className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-medium hover:bg-emerald-600 flex items-center gap-1.5">
+                <span>⏱</span> 保存记录
+              </button>
+              <button onClick={() => {
+                if (setNegoSource && setActiveMenu) {
+                  // 현재 시뮬레이션 결과를 네고 화면에 전달
+                  setNegoSource({
+                    productGroup, kitCategory, tradeType,
+                    dealerGrade, dsoGrade,
+                    policyEnabled: { ...policyEnabled },
+                    policyRates: { ...policyRates },
+                    listPrice: priceData.listPrice,
+                    applyRate: priceData.applyRate,
+                    supplyBase: priceData.supplyBase,
+                    finalPrice: calculation.finalPrice,
+                    finalGP: calculation.finalGP,
+                    totalDiscountRate: calculation.totalDiscountRate,
+                    appliedCount: calculation.appliedCount,
+                    calculationSteps: calculation.steps.map(s => ({
+                      step: s.step, name: s.name, rate: s.rate,
+                      basePrice: s.basePrice, discount: s.discount,
+                      finalPrice: s.finalPrice, gp: s.gp,
+                    })),
+                    profitSummary: {
+                      type: profitSummary.type,
+                      rows: profitSummary.rows ? profitSummary.rows.map(r => ({ ...r })) : [],
+                    },
+                    fromPage: 'sim-main',
+                  });
+                  setActiveMenu('sim-nego');
+                }
+              }}
+                className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-medium hover:bg-orange-600 flex items-center gap-1.5">
+                <span>🔥</span> 议价
+              </button>
+              <button onClick={handleSave}
+                className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 flex items-center gap-1.5">
+                <span>💾</span> 저장
+              </button>
+        </div>
         </div>
 
+        {/* === 各型号确定最终金额 (상단 요약) === */}
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-5 border border-slate-200">
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <div className="flex items-baseline gap-2">
+              <h2 className="text-base font-bold text-slate-900">各型号确定最终金额</h2>
+              <span className="text-xs text-slate-400">设定条件后点击[确定当前型号]即可加入卡片</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setConfirmed(prev => ({ ...prev, [`${productGroup}_${Date.now()}`]: {
+                  productGroup,
+                  finalPrice: calculation.finalPrice,
+                  tradeType, dealerGrade,
+                  dsoGrade: tradeType === 'DSO' ? dsoGrade : null,
+                  kitCategory,
+                  finalGP: calculation.finalGP,
+                  at: new Date().toLocaleString('ko-KR'),
+                }}))}
+                className="px-3 py-1.5 bg-blue-600 text-white rounded-md text-xs font-semibold hover:bg-blue-700">确定当前型号({productGroup})</button>
+              {Object.keys(confirmed).length > 0 && (
+                <button onClick={() => setConfirmed({})}
+                  className="px-3 py-1.5 bg-white border border-slate-300 text-slate-600 rounded-md text-xs font-medium hover:bg-slate-50">全部清除</button>
+              )}
+            </div>
+          </div>
+          {Object.keys(confirmed).length === 0 ? (
+            <div className="text-center py-5 text-sm text-slate-400 bg-slate-50 rounded-lg border border-dashed border-slate-300">暂无已确定的 모델이 없습니다. 아래에서 조건을 정하고 [确定当前型号 확정]을 눌러보세요.</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {Object.entries(confirmed).map(([g, c]) => (
+                <div key={g} className="border border-slate-200 rounded-lg p-3 relative group">
+                  <button onClick={() => setConfirmed(prev => { const nx={...prev}; delete nx[g]; return nx; })}
+                    className="absolute top-1.5 right-1.5 text-slate-300 hover:text-rose-500 text-xs opacity-0 group-hover:opacity-100" title="삭제">✕</button>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-bold text-slate-800">{c.productGroup || g}</span>
+                    {c.finalGP != null && <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">GP {c.finalGP.toFixed(1)}%</span>}
+                  </div>
+                  <div className="text-xl font-bold text-blue-700">¥{Math.round(c.finalPrice).toLocaleString()}</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">
+                    {c.tradeType === 'DSO' ? `DSO ${c.dsoGrade||''}급` : '普通牙科'} · {c.dealerGrade}급 · {c.kitCategory}
+                  </div>
+                  {c.at && <div className="text-[9px] text-slate-300 mt-0.5">{c.at}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <div className={`grid grid-cols-1 gap-5 ${
           leftCollapsed
             ? "lg:grid-cols-[280px_1fr]"
@@ -5962,20 +6035,20 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
           {/* ============================================ */}
           <div className="bg-white rounded-xl shadow-sm p-4 lg:p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-900">1. 입력 조건</h2>
+              <h2 className="text-lg font-bold text-slate-900">1. 输入条件</h2>
               <button
                 onClick={() => setLeftCollapsed(!leftCollapsed)}
                 className="text-xs text-slate-500 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded transition flex items-center gap-1"
-                title={leftCollapsed ? "펼치기" : "접기"}
+                title={leftCollapsed ? "展开" : "접기"}
               >
-                {leftCollapsed ? "▶ 펼치기" : "◀ 접기"}
+                {leftCollapsed ? "▶ 展开" : "◀ 접기"}
               </button>
             </div>
 
-            {/* 제품군 / 거래 유형 */}
+            {/* 제품군 / 交易类型 */}
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-2">제품군 선택</label>
+                <label className="block text-xs font-medium text-slate-600 mb-2">产品组选择</label>
                 <select value={productGroup} onChange={e => setProductGroup(e.target.value)}
                   className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm bg-white">
                   {PRODUCT_GROUPS.filter(g => g !== 'EZ').map(g => <option key={g} value={g}>{g}</option>)}
@@ -5983,35 +6056,35 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-2">
-                  거래 유형
+                  交易类型
                   {productGroup === 'ST' && (
                     <span className="ml-1 text-[10px] text-amber-600">(ST는 DSO만 공급)</span>
                   )}
                 </label>
                 <div className="grid grid-cols-2 gap-1.5">
                   <button
-                    onClick={() => setTradeType("일반치과")}
+                    onClick={() => setTradeType("普通牙科")}
                     disabled={productGroup === 'ST'}
                     className={`px-3 py-2.5 rounded-lg text-xs font-medium border ${
-                      tradeType === "일반치과" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-300"
+                      tradeType === "普通牙科" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-300"
                     } disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed disabled:border-slate-200`}>
-                    일반 치과
+                    普通牙科
                   </button>
                   <button onClick={() => setTradeType("DSO")}
                     className={`px-3 py-2.5 rounded-lg text-xs font-medium border ${
                       tradeType === "DSO" ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-300"
-                    }`}>DSO 체인치과</button>
+                    }`}>DSO连锁牙科</button>
                 </div>
               </div>
             </div>
 
-            {/* 대리상 등급 / DSO 등급 */}
+            {/* 经销商等级 / DSO等级 */}
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-2">
-                  대리상 등급
+                  经销商等级
                   {productGroup === 'ST' && (
-                    <span className="ml-1 text-[10px] text-amber-600">(DSO 추가증정 자동 매핑)</span>
+                    <span className="ml-1 text-[10px] text-amber-600">(DSO追加赠品 自动 매핑)</span>
                   )}
                 </label>
                 <select value={dealerGrade} onChange={e => setDealerGrade(e.target.value)}
@@ -6026,14 +6099,14 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                 </select>
                 {productGroup === 'ST' && (
                   <p className="text-[10px] text-amber-600 mt-1">
-                    ※ ST는 대리상 등급에 따라 DSO 추가증정율이 자동 결정됩니다 (A→20%, B→15%, C/D→10%)
+                    ※ ST는 经销商等级에 따라 DSO追加赠品율이 自动 결정됩니다 (A→20%, B→15%, C/D→10%)
                   </p>
                 )}
               </div>
               {productGroup !== 'ST' && (
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-2">
-                    DSO 등급
+                    DSO等级
                   </label>
                   <select value={dsoGrade} onChange={e => setDsoGrade(e.target.value)}
                     disabled={tradeType !== "DSO"}
@@ -6045,7 +6118,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
               {productGroup === 'ST' && (
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-2">
-                    DSO 추가증정 <span className="text-[10px] text-emerald-600">(대리상 등급에 따라 자동)</span>
+                    DSO追加赠品 <span className="text-[10px] text-emerald-600">(经销商等级에 따라 自动)</span>
                   </label>
                   <div className="w-full px-3 py-2.5 border border-emerald-300 rounded-lg text-sm bg-emerald-50 text-emerald-700 font-semibold">
                     {(() => {
@@ -6057,9 +6130,9 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
               )}
             </div>
 
-            {/* 키트 종류 */}
+            {/* 配套类型 */}
             <div className="mb-4">
-              <label className="block text-xs font-medium text-slate-600 mb-2">키트 종류</label>
+              <label className="block text-xs font-medium text-slate-600 mb-2">配套类型</label>
               <div className="grid grid-cols-3 gap-1.5">
                 {kitOptions.length === 0 ? (
                   <div className="col-span-3 px-3 py-2.5 bg-slate-50 text-slate-400 text-xs rounded-lg text-center">키트 옵션 없음</div>
@@ -6074,43 +6147,43 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
               </div>
             </div>
 
-            {/* 기본 정보 */}
+            {/* 基本信息 */}
             <div className="bg-slate-50 rounded-xl p-3 mb-4">
-              <h3 className="text-sm font-semibold text-slate-700 mb-2">기본 정보</h3>
+              <button onClick={() => setShowBasicInfo(v => !v)} className="w-full flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-slate-700">基本信息</h3>
+                <span className="text-xs text-slate-500">{showBasicInfo ? '▲ 收起' : '▼ 展开'}</span>
+              </button>
+              {showBasicInfo && (
               <div className="grid grid-cols-2 gap-2">
                 <div className="text-center">
-                  <div className="text-[11px] text-slate-500 mb-1">기본가격</div>
+                  <div className="text-[11px] text-slate-500 mb-1">基础价格</div>
                   <div className="text-lg font-bold text-slate-900">¥{priceData.listPrice}</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">권장 소비자가</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">建议零售价</div>
                 </div>
                 <div className="text-center border-l border-slate-200">
-                  <div className="text-[11px] text-slate-500 mb-1">적용률</div>
+                  <div className="text-[11px] text-slate-500 mb-1">适用率</div>
                   <div className="text-lg font-bold text-blue-600">{priceData.applyRate}%</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">{productGroup} 자동</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">{productGroup} 自动</div>
                 </div>
                 <div className="text-center border-t border-slate-200 pt-2">
-                  <div className="text-[11px] text-slate-500 mb-1">공급가(기준)</div>
+                  <div className="text-[11px] text-slate-500 mb-1">供货价(基准)</div>
                   <div className="text-lg font-bold text-slate-900">¥{priceData.supplyBase}</div>
                   <div className="text-[10px] text-slate-400 mt-0.5">{priceData.listPrice} ÷ 1.{priceData.applyRate}</div>
                 </div>
-                <div className="text-center border-l border-t border-slate-200 pt-2">
-                  <div className="text-[11px] text-slate-500 mb-1">키트 원가</div>
-                  <div className="text-lg font-bold text-emerald-600">¥{priceData.kitCost}</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">입고가</div>
-                </div>
               </div>
+              )}
             </div>
 
-            {/* 인센티브 정책 선택 */}
+            {/* 激励政策选择 */}
             <div className="flex items-center gap-2 mb-3">
               <span className="text-base">🎯</span>
-              <h3 className="text-sm font-semibold text-slate-700">인센티브 정책 선택</h3>
-              <span className="text-[11px] text-slate-400">(등급 변경 시 자동 적용 / 수동 조정 가능)</span>
+              <h3 className="text-sm font-semibold text-slate-700">激励政策选择</h3>
+              <span className="text-[11px] text-slate-400">(등급 변경 시 自动 适用 / 수동 조정 가능)</span>
             </div>
             <div className="space-y-1">
-              {SIM_POLICIES.map(policy => (
+              {SM_POLICIES.map(policy => (
+                <React.Fragment key={policy.id}>
                 <SimPolicyRow
-                  key={policy.id}
                   policy={policy}
                   enabled={policyEnabled[policy.id]}
                   rate={policyRates[policy.id]}
@@ -6119,12 +6192,22 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                   onToggle={() => setPolicyEnabled(prev => ({ ...prev, [policy.id]: !prev[policy.id] }))}
                   onRateChange={v => setPolicyRates(prev => ({ ...prev, [policy.id]: v }))}
                 />
+                {policy.id === 5 && policyEnabled[5] && (
+                  <div className="flex items-center gap-2 -mt-1 mb-2 ml-1">
+                    <span className="text-xs text-slate-500">返还形式:</span>
+                    {['제품','현금'].map(t => (
+                      <button key={t} onClick={() => setQtrType(t)}
+                        className={"px-2.5 py-1 text-xs rounded-md border font-semibold " + (qtrType===t ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-slate-500 border-slate-300 hover:bg-slate-50')}>{t}</button>
+                    ))}
+                  </div>
+                )}
+                </React.Fragment>
               ))}
             </div>
 
             <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-start gap-2">
               <span className="text-blue-500 text-sm">ⓘ</span>
-              <span className="text-xs text-blue-700">선택한 조건으로 최종 공급가를 자동 계산합니다.</span>
+              <span className="text-xs text-blue-700">선택한 조건으로 最终供货价를 自动 계산합니다.</span>
             </div>
           </div>
 
@@ -6134,39 +6217,45 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
           <div className="bg-white rounded-xl shadow-sm p-4 lg:p-5">
             <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
               <div className="flex items-baseline gap-3 flex-wrap">
-                <h2 className="text-lg font-bold text-slate-900">2. 가격 시뮬레이션</h2>
-                <p className="text-sm text-slate-500">선택한 정책이 적용되는 순서대로 계산됩니다.</p>
+                <h2 className="text-lg font-bold text-slate-900">2. 法人经销商价格</h2>
+                <p className="text-sm text-slate-500">按所选政策的适用顺序计算。</p>
               </div>
               <button onClick={handleDownload}
                 className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5">
-                <span>⬇</span> 계산내역 다운로드
+                <span>⬇</span> 下载计算明细
               </button>
             </div>
 
-            {/* 계산 단계 테이블 */}
+            {/* 계산 步骤 테이블 */}
             <div className="overflow-x-auto mb-5">
-              <table className="w-full text-sm resizable-table">
+              <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
+                <colgroup>
+                  <col style={{ width: '52px' }} />
+                  <col style={{ width: '210px' }} />
+                  <col />
+                  <col />
+                  <col />
+                  <col />
+                </colgroup>
                 <thead>
                   <tr className="bg-slate-100 text-slate-900">
-                    <th className="px-3 py-2.5 text-left font-bold border border-slate-300">단계<ColResizer/></th>
-                    <th className="px-3 py-2.5 text-left font-bold border border-slate-300">정책/항목<ColResizer/></th>
-                    <th className="px-3 py-2.5 text-right font-bold border border-slate-300">적용률<ColResizer/></th>
-                    <th className="px-3 py-2.5 text-right font-bold border border-slate-300">기준가<ColResizer/></th>
-                    <th className="px-3 py-2.5 text-right font-bold border border-slate-300">할인금액<ColResizer/></th>
-                    <th className="px-3 py-2.5 text-right font-bold border border-slate-300">공급가<ColResizer/></th>
-                    <th className="px-3 py-2.5 text-right font-bold border border-slate-300">정책환산GP</th>
+                    <th className="px-2 py-2.5 text-center font-bold border border-slate-300">步骤</th>
+                    <th className="px-3 py-2.5 text-left font-bold border border-slate-300">政策/项目</th>
+                    <th className="px-2 py-2.5 text-right font-bold border border-slate-300">适用率</th>
+                    <th className="px-2 py-2.5 text-right font-bold border border-slate-300">基准价</th>
+                    <th className="px-2 py-2.5 text-right font-bold border border-slate-300">折扣金额</th>
+                    <th className="px-2 py-2.5 text-right font-bold border border-slate-300">供货价</th>
                   </tr>
                 </thead>
                 <tbody>
                   {calculation.steps.map((s, idx) => (
                     <tr key={idx} className={idx === 0 ? "bg-slate-50" : "hover:bg-slate-50"}>
-                      <td className="px-3 py-2 border border-slate-300 text-slate-600">{s.step}</td>
-                      <td className="px-3 py-2 border border-slate-300 text-slate-800">{s.name}</td>
+                      <td className="px-3 py-2 border border-slate-300 text-slate-600 text-center">{s.step}</td>
+                      <td className="px-3 py-2 border border-slate-300 text-slate-800 whitespace-nowrap overflow-hidden text-ellipsis">{s.name}</td>
                       <td className="px-3 py-2 border border-slate-300 text-right text-slate-700">{s.rate === null ? "-" : `${s.rate.toFixed(1)}%`}</td>
                       <td className="px-3 py-2 border border-slate-300 text-right text-slate-700">{Math.round(s.basePrice)}</td>
                       <td className="px-3 py-2 border border-slate-300 text-right text-red-600">{s.discount === null ? "-" : `-${s.discount}`}</td>
                       <td className="px-3 py-2 border border-slate-300 text-right font-bold text-slate-900">{s.finalPrice}</td>
-                      <td className="px-3 py-2 border border-slate-300 text-right text-emerald-700 font-medium">{s.gp === null ? "-" : `${s.gp.toFixed(1)}%`}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -6176,67 +6265,64 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
             {/* KPI 카드 5개 */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-5">
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-2.5 text-center">
-                <div className="text-xs text-slate-600 mb-0.5">최종 공급가</div>
+                <div className="text-xs text-slate-600 mb-0.5">最终供货价</div>
                 <div className="text-2xl font-bold text-blue-600 leading-tight">¥{calculation.finalPrice}</div>
               </div>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center">
-                <div className="text-xs text-slate-600 mb-0.5">최종 정책환산GP</div>
-                <div className="text-2xl font-bold text-emerald-600 leading-tight">
-                  {calculation.finalGP === null ? "-" : `${calculation.finalGP.toFixed(1)}%`}
-                </div>
-              </div>
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
-                <div className="text-xs text-slate-600 mb-0.5">총 할인율(누적)</div>
+                <div className="text-xs text-slate-600 mb-0.5">总折扣率(累计)</div>
                 <div className="text-2xl font-bold text-slate-800 leading-tight">{calculation.totalDiscountRate.toFixed(2)}%</div>
               </div>
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
-                <div className="text-xs text-slate-600 mb-0.5">총 할인금액</div>
+                <div className="text-xs text-slate-600 mb-0.5">총 折扣金额</div>
                 <div className="text-2xl font-bold text-red-600 leading-tight">-¥{calculation.totalDiscount}</div>
               </div>
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
-                <div className="text-xs text-slate-600 mb-0.5">적용 정책 수</div>
+                <div className="text-xs text-slate-600 mb-0.5">适用政策数</div>
                 <div className="text-2xl font-bold text-slate-800 leading-tight">{calculation.appliedCount}개</div>
               </div>
             </div>
 
-            {/* 3. 대리상 수익성 요약 (거래유형별 분기 표시) */}
+            {/* 3. 经销商利润성 요약 (거래유형별 분기 표시) */}
             <div className="bg-white border border-slate-200 rounded-xl p-4 mb-5">
               <div className="flex items-center justify-between mb-1">
                 <h3 className="text-lg font-bold text-slate-900">
-                  3. {productGroup} 기준 대리상 수익성 요약 ({tradeType === 'DSO' ? 'DSO치과' : '일반치과'})
+                  3. {productGroup} 基准 经销商收益汇总 ({tradeType === 'DSO' ? 'DSO连锁牙科' : '普通牙科'})
                 </h3>
-                <span className="text-xs text-slate-500">정책·거래유형 변경 시 자동 갱신</span>
+                <span className="text-xs text-slate-500">정책·거래유형 변경 시 自动 갱신</span>
               </div>
-              <div className="text-xs text-slate-500 mb-2">단위: RMB</div>
+              <div className="text-xs text-slate-500 mb-2">单位: RMB</div>
 
               {profitSummary.type === 'GENERAL' && (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm resizable-table">
+                  <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
                     <thead>
                       <tr className="bg-slate-100 text-slate-900">
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">대리상 등급<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">판매가 기준<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">최종 공급가<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 수익<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 마진율</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">经销商等级</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">售价基准</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">最终供货价</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">经销商利润</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">经销商毛利率</th>
                       </tr>
                     </thead>
                     <tbody>
                       {profitSummary.rows.map((r, i) => {
                         const isFirst = i === 0 || profitSummary.rows[i-1].dealerGrade !== r.dealerGrade;
+                        const rk = `gen_${r.dealerGrade}_${i}`;
+                        const effSell = sellOverride[rk] != null ? sellOverride[rk] : r.sellPrice;
+                        const effProfit = Math.round((effSell||0) - r.supply);
+                        const effMargin = (effSell||0) > 0 ? (((effSell||0) - r.supply) / (effSell||0)) * 100 : 0;
                         return (
                           <tr key={i} className={r.dealerGrade === dealerGrade ? 'bg-blue-50/40' : 'hover:bg-slate-50'}>
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirst ? 'text-slate-900' : 'text-slate-300'}`}>
                               {isFirst ? `${r.dealerGrade}급` : ''}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.sellPrice}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
-                              {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
+                              <input type="number" value={effSell} onChange={e=>setSellOverride(prev=>({...prev,[rk]: e.target.value===''?'':Number(e.target.value)}))}
+                                className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 可修改"/>
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{r.profit}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.margin.toFixed(1)}%</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
                         );
                       })}
@@ -6247,16 +6333,15 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
 
               {profitSummary.type === 'DSO' && (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm resizable-table">
+                  <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
                     <thead>
                       <tr className="bg-slate-100 text-slate-900">
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">DSO 등급<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">대리상 등급<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">판매가 기준<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">최종 공급가<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 수익<ColResizer/></th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 마진율</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">DSO等级</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">经销商等级</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300">售价基准</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">最终供货价</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">经销商利润</th>
+                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">经销商毛利率</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -6268,6 +6353,10 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                           (dsoGrade === 'A' && r.dsoGrade === 'A급') ||
                           (dsoGrade === 'B/C' && (r.dsoGrade === 'B/C급' || r.dsoGrade === 'B급'))
                         );
+                        const rk = `dso_${r.dsoGrade}_${r.dealerGrade}_${i}`;
+                        const effSell = sellOverride[rk] != null ? sellOverride[rk] : r.sellPrice;
+                        const effProfit = Math.round((effSell||0) - r.supply);
+                        const effMargin = (effSell||0) > 0 ? (((effSell||0) - r.supply) / (effSell||0)) * 100 : 0;
                         return (
                           <tr key={i} className={isCurrent ? 'bg-blue-50/40' : 'hover:bg-slate-50'}>
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirstDso ? 'text-slate-900' : 'text-slate-300'}`}>
@@ -6276,13 +6365,13 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirstDealer ? 'text-slate-900' : 'text-slate-300'}`}>
                               {isFirstDealer ? `${r.dealerGrade}급` : ''}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.sellPrice}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
-                              {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
+                              <input type="number" value={effSell} onChange={e=>setSellOverride(prev=>({...prev,[rk]: e.target.value===''?'':Number(e.target.value)}))}
+                                className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 可修改"/>
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{r.profit}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.margin.toFixed(1)}%</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
                         );
                       })}
@@ -6293,27 +6382,20 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
 
               {profitSummary.type === 'none' && (
                 <div className="text-center py-8 text-sm text-slate-400">
-                  기본가격이 설정되지 않은 제품입니다.
+                  基础价格이 설정되지 않은 제품입니다.
                 </div>
               )}
 
               <p className="text-[10px] text-slate-400 mt-2">
-                ※ 표준 시나리오 기준 (목표달성·특수정책·현금결제 97折 항상 적용)
+                ※ 最终供货价反映上方"2. 法人经销商价格"中所选政策的计算结果。
                 <br/>
-                ※ {productGroup === 'ST'
-                  ? '계산식 (ST 전용): (기준가-반환금) × 97% / (1+제품증정 65%+목표달성+DSO 추가증정+분기리베이트율) × (1-연도리베이트율)'
-                  : (tradeType === 'DSO'
-                    ? '계산식: (기준가-반환금) × 97% / (1+제품증정+목표달성+DSO율+분기리베이트율) × (1-연도리베이트율)'
-                    : '계산식: (기준가-반환금) × 97% / (1+제품증정+목표달성+분기리베이트율) × (1-연도리베이트율)')}
-                {productGroup === 'BD' && ' · BD장려 1% 포함'}
+                ※ 经销商利润 = 售价 − 最终供货价 / 经销商毛利率 = 利润 ÷ 售价
                 <br/>
-                ※ 선택한 대리상 등급 <span className="font-semibold text-slate-700">{dealerGrade}급</span>의 결과만 표시됩니다. 다른 등급 비교가 필요하면 좌측 "대리상 등급"을 변경하세요.
-                {productGroup === 'ST' && <br/>}
-                {productGroup === 'ST' && '※ ST 전용 - 특수격려 2%(반환금 7.8) · DSO 추가증정 20/15/10% · DSO 판매가 220/230/250'}
+                ※ 仅显示所选经销商等级 <span className="font-semibold text-slate-700">{dealerGrade}</span> 的结果。如需比较其他等级，请在左侧"经销商等级"中更改。
               </p>
             </div>
 
-            {/* ST 전용 KIT 전환 참고 표 (ST 제품일 때만 표시) */}
+            {/* ST 전용 KIT 전환 参考 표 (ST 제품일 때만 표시) */}
             {productGroup === 'ST' && (
               <div className="bg-white border border-slate-200 rounded-xl mb-5 overflow-hidden">
                 <button
@@ -6322,27 +6404,27 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-base">🔄</span>
-                    <h3 className="text-sm font-bold text-slate-900">KIT 전환 적용 시 참고</h3>
+                    <h3 className="text-sm font-bold text-slate-900">KIT 전환 适用 시 参考</h3>
                     <span className="text-xs text-amber-600">2026년 3월부터 KIT 증정 → 임플란트 증정 방식 전환</span>
                   </div>
-                  <span className="text-xs text-slate-500">{showStKitConversion ? "▲ 접기" : "▼ 펼치기"}</span>
+                  <span className="text-xs text-slate-500">{showStKitConversion ? "▲ 접기" : "▼ 展开"}</span>
                 </button>
                 {showStKitConversion && (
                   <div className="px-4 pb-4 border-t border-slate-100">
                     <div className="text-xs text-slate-700 mt-3 mb-2">
-                      ST는 2026년 3월부터 KIT 증정 정책이 임플란트 증정 방식으로 전환되므로 별도 참고 표를 제공합니다.
+                      ST는 2026년 3월부터 KIT 증정 정책이 임플란트 증정 방식으로 전환되므로 별도 参考 표를 제공합니다.
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-slate-100 text-slate-900">
-                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300">DSO 등급</th>
+                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300">DSO等级</th>
                             <th className="px-3 py-2.5 text-center font-medium border border-slate-300">추가증정률</th>
                             <th className="px-3 py-2.5 text-center font-medium border border-slate-300">DSO 판매가</th>
-                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300 bg-blue-50">월결 공급가</th>
-                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300 bg-blue-50">현금 97折 공급가</th>
-                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300 bg-emerald-50">월결 수익</th>
-                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300 bg-emerald-50">현금 수익</th>
+                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300 bg-blue-50">月结供货价</th>
+                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300 bg-blue-50">现金97折供货价</th>
+                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300 bg-emerald-50">月结利润</th>
+                            <th className="px-3 py-2.5 text-center font-medium border border-slate-300 bg-emerald-50">现金利润</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -6361,16 +6443,16 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                       </table>
                     </div>
                     <p className="text-xs text-slate-700 mt-3">
-                      ※ KIT 전환 정책은 ST 제품 전용 별도 정책이며, 위 공급가는 26년 3월 이후 기준 참고값입니다
+                      ※ KIT 전환 정책은 ST 제품 전용 별도 정책이며, 위 供货价는 26년 3월 이후 기준 参考값입니다
                       <br/>
-                      ※ 분기/연도 리베이트는 별도 적용되지 않은 기본 KIT 전환 공급가입니다
+                      ※ 분기/연도 리베이트는 별도 适用되지 않은 기본 KIT 전환 供货价입니다
                     </p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* 참고 계산식 표 (숨김 토글) - 제품별로 적용 정책/공식/예시 동적 표시 */}
+            {/* 参考 计算公式 표 (숨김 토글) - 제품별로 适用 정책/공식/예시 동적 표시 */}
             <div className="bg-white border border-slate-200 rounded-xl mb-5 overflow-hidden">
               <button
                 onClick={() => setShowFormulas(!showFormulas)}
@@ -6378,13 +6460,13 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
               >
                 <div className="flex items-center gap-2">
                   <span className="text-base">📐</span>
-                  <h3 className="text-sm font-bold text-slate-900">참고 계산식 ({productGroup} - {tradeType === 'DSO' ? 'DSO치과' : '일반치과'})</h3>
-                  <span className="text-xs text-slate-500">제품·거래유형별 단계별 공급가 및 정책환산GP 산출 수식</span>
+                  <h3 className="text-sm font-bold text-slate-900">参考 计算公式 ({productGroup} - {tradeType === 'DSO' ? 'DSO连锁牙科' : '普通牙科'})</h3>
+                  <span className="text-xs text-slate-500">제품·거래유형별 步骤별 供货价 및 政策换算GP 산출 수식</span>
                 </div>
-                <span className="text-xs text-slate-500">{showFormulas ? "▲ 접기" : "▼ 펼치기"}</span>
+                <span className="text-xs text-slate-500">{showFormulas ? "▲ 접기" : "▼ 展开"}</span>
               </button>
               {showFormulas && (() => {
-                // 제품별 계산식 데이터 동적 생성
+                // 제품별 计算公式 데이터 동적 생성
                 const formulaData = {
                   AO:  { listPrice: 431, baseRate: 35, special: 2.5, name: 'AO' },
                   BD:  { listPrice: 650, baseRate: 30, special: 0,   name: 'BD',  bdBonus: 1 },
@@ -6400,7 +6482,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                 const yearR = 3;
                 const bdR = productGroup === 'BD' ? 1 : 0;
 
-                // 단계별 계산 (예시)
+                // 步骤별 계산 (예시)
                 const lp = fd.listPrice;
                 const isST = productGroup === 'ST';
                 const isAOorARi = ['AO', 'ARi'].includes(productGroup);
@@ -6409,12 +6491,12 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                 let numerator = lp;
                 let multiplier = 1;
 
-                const s1 = Math.round(lp / denom); // 제품증정만
+                const s1 = Math.round(lp / denom); // 赠品(产品)만
 
                 let s2 = s1;
                 if (!isST) { denom += r1/100; s2 = Math.round(lp / denom); }
 
-                // 특수정책 (ST는 DSO 후, 다른 제품은 여기서)
+                // 特殊政策 (ST는 DSO 후, 다른 제품은 여기서)
                 let sSpecial = s2;
                 let afterSpecialNum = lp;
                 if (fd.special > 0 && !isST) {
@@ -6422,14 +6504,14 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                   sSpecial = Math.round(afterSpecialNum / denom);
                 }
 
-                // DSO (DSO치과 시)
+                // DSO (DSO连锁牙科 시)
                 let sDso = sSpecial;
                 if (tradeType === 'DSO') {
                   denom += dsoR/100;
                   sDso = Math.round((isST ? lp : afterSpecialNum) / denom);
                 }
 
-                // ST 특수정책 (DSO 후)
+                // ST 特殊政策 (DSO 후)
                 let sStSpecial = sDso;
                 if (isST && fd.special > 0) {
                   afterSpecialNum = lp * (1 - fd.special/100);
@@ -6440,11 +6522,11 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                 multiplier *= (1 - r3/100);
                 const sCash = Math.round(afterSpecialNum / denom * multiplier);
 
-                // 분기 (ST는 미적용)
+                // 분기 (ST는 미适用)
                 let sQtr = sCash;
                 if (!isST) { denom += qtrR/100; sQtr = Math.round(afterSpecialNum / denom * multiplier); }
 
-                // 연도 + BD장려 (ST는 미적용)
+                // 연도 + BD奖励 (ST는 미适用)
                 let sYear = sQtr;
                 if (!isST) {
                   const yearTotal = (yearR + bdR) / 100;
@@ -6454,65 +6536,65 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
 
                 // 표 행 데이터 생성
                 const rows = [
-                  { step: 0, name: '초기 기준가', formula: '기준가', value: lp },
-                  { step: 1, name: `제품증정 ${fd.baseRate}%`, formula: '= 기준가 / (1 + 제품증정정책)', value: s1 },
+                  { step: 0, name: '初始基准价', formula: '基准价', value: lp },
+                  { step: 1, name: `赠品(产品) ${fd.baseRate}%`, formula: '= 基准价 / (1 + 赠品(产品)정책)', value: s1 },
                 ];
 
                 if (!isST) {
-                  rows.push({ step: 2, name: `월목표달성 ${r1}%`, formula: '= 기준가 / (1 + 제품증정 + 목표달성)', value: s2 });
+                  rows.push({ step: 2, name: `月目标达成 ${r1}%`, formula: '= 基准价 / (1 + 赠品(产品) + 목표달성)', value: s2 });
                   if (fd.special > 0) {
-                    rows.push({ step: 3, name: `특수정책 ${fd.special}%`, formula: `= (기준가 - 기준가×${fd.special}%) / (1 + 제품증정 + 목표달성)`, value: sSpecial });
+                    rows.push({ step: 3, name: `特殊政策 ${fd.special}%`, formula: `= (基准价 - 基准价×${fd.special}%) / (1 + 赠品(产品) + 목표달성)`, value: sSpecial });
                   }
                   if (tradeType === 'DSO') {
-                    rows.push({ step: rows.length, name: `DSO 등급 ${dsoR}%`, formula: '= (기준가 - 반환금) / (1 + 제품증정 + 목표달성 + DSO율)', value: sDso });
+                    rows.push({ step: rows.length, name: `DSO等级 ${dsoR}%`, formula: '= (基准价 - 반환금) / (1 + 赠品(产品) + 목표달성 + DSO율)', value: sDso });
                   }
-                  rows.push({ step: rows.length, name: `현금결제 ${r3}%`, formula: `= (기준가 - 반환금) × 97% / (1 + 제품증정 + 목표달성${tradeType === 'DSO' ? ' + DSO율' : ''})`, value: sCash });
-                  rows.push({ step: rows.length, name: `분기 리베이트 ${qtrR}%`, formula: `= (기준가 - 반환금) × 97% / (1 + 제품증정 + 목표달성${tradeType === 'DSO' ? ' + DSO' : ''} + 분기)`, value: sQtr });
+                  rows.push({ step: rows.length, name: `现金结算 ${r3}%`, formula: `= (基准价 - 반환금) × 97% / (1 + 赠品(产品) + 목표달성${tradeType === 'DSO' ? ' + DSO율' : ''})`, value: sCash });
+                  rows.push({ step: rows.length, name: `분기 리베이트 ${qtrR}%`, formula: `= (基准价 - 반환금) × 97% / (1 + 赠品(产品) + 목표달성${tradeType === 'DSO' ? ' + DSO' : ''} + 분기)`, value: sQtr });
                   if (productGroup === 'BD') {
-                    rows.push({ step: rows.length, name: `연도 리베이트 ${yearR}% + BD장려 ${bdR}%`, formula: '= 분기리베이트적용가 × (1 - 연도율 - BD장려율)', value: sYear });
+                    rows.push({ step: rows.length, name: `연도 리베이트 ${yearR}% + BD奖励 ${bdR}%`, formula: '= 季度返利适用가 × (1 - 연도율 - BD奖励율)', value: sYear });
                   } else {
-                    rows.push({ step: rows.length, name: `연도 리베이트 ${yearR}%`, formula: '= 분기리베이트적용가 × (1 - 연도리베이트율)', value: sYear });
+                    rows.push({ step: rows.length, name: `연도 리베이트 ${yearR}%`, formula: '= 季度返利适用가 × (1 - 연도리베이트율)', value: sYear });
                   }
                 } else {
-                  // ST 전용: DSO 추가증정 → 특수정책 → 현금
-                  rows.push({ step: 2, name: `DSO 추가증정 ${dsoR}%`, formula: '= 기준가 / (1 + 제품증정 65% + DSO 추가증정)', value: sDso });
-                  rows.push({ step: 3, name: `특수정책 ${fd.special}%`, formula: `= (기준가 - 기준가×${fd.special}%) / (1 + 제품증정 + DSO 추가증정)`, value: sStSpecial });
-                  rows.push({ step: 4, name: `현금결제 ${r3}%`, formula: '= (기준가 - 반환금) × 97% / (1 + 제품증정 + DSO 추가증정)', value: sCash });
+                  // ST 전용: DSO追加赠品 → 特殊政策 → 현금
+                  rows.push({ step: 2, name: `DSO追加赠品 ${dsoR}%`, formula: '= 基准价 / (1 + 赠品(产品) 65% + DSO追加赠品)', value: sDso });
+                  rows.push({ step: 3, name: `特殊政策 ${fd.special}%`, formula: `= (基准价 - 基准价×${fd.special}%) / (1 + 赠品(产品) + DSO追加赠品)`, value: sStSpecial });
+                  rows.push({ step: 4, name: `现金结算 ${r3}%`, formula: '= (基准价 - 반환금) × 97% / (1 + 赠品(产品) + DSO追加赠品)', value: sCash });
                 }
 
-                // 적용 정책 요약
+                // 适用 정책 요약
                 const appliedPolicies = [];
-                appliedPolicies.push(`제품증정 ${fd.baseRate}%`);
-                if (!isST) appliedPolicies.push(`월목표달성 ${r1}%`);
-                if (fd.special > 0) appliedPolicies.push(`특수정책 ${fd.special}% (반환금 ${(lp*fd.special/100).toFixed(1)})`);
-                if (tradeType === 'DSO') appliedPolicies.push(isST ? `DSO 추가증정 ${dsoR}%` : `DSO 등급 ${dsoR}%`);
-                appliedPolicies.push(`현금결제 ${r3}% (97折)`);
+                appliedPolicies.push(`赠品(产品) ${fd.baseRate}%`);
+                if (!isST) appliedPolicies.push(`月目标达成 ${r1}%`);
+                if (fd.special > 0) appliedPolicies.push(`特殊政策 ${fd.special}% (반환금 ${(lp*fd.special/100).toFixed(1)})`);
+                if (tradeType === 'DSO') appliedPolicies.push(isST ? `DSO追加赠品 ${dsoR}%` : `DSO等级 ${dsoR}%`);
+                appliedPolicies.push(`现金结算 ${r3}% (97折)`);
                 if (!isST) appliedPolicies.push(`분기 리베이트 ${qtrR}%`);
                 if (!isST) appliedPolicies.push(`연도 리베이트 ${yearR}%`);
-                if (productGroup === 'BD') appliedPolicies.push(`BD장려 ${bdR}%`);
+                if (productGroup === 'BD') appliedPolicies.push(`BD奖励 ${bdR}%`);
 
                 return (
                   <div className="px-4 pb-4 border-t border-slate-100">
-                    {/* 적용 정책 요약 */}
+                    {/* 适用 정책 요약 */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3 mb-3">
-                      <div className="text-xs font-bold text-blue-900 mb-1">📌 {productGroup} 적용 정책 ({tradeType === 'DSO' ? 'DSO치과' : '일반치과'})</div>
+                      <div className="text-xs font-bold text-blue-900 mb-1">📌 {productGroup} 适用 정책 ({tradeType === 'DSO' ? 'DSO连锁牙科' : '普通牙科'})</div>
                       <div className="text-xs text-blue-800">
                         {appliedPolicies.join(' → ')}
                       </div>
                       <div className="text-[11px] text-blue-700 mt-1">
-                        예시 기준: 기준가 ¥{lp} · A등급 대리상 · 표준키트
+                        예시 기준: 基准价 ¥{lp} · A등급 대리상 · 标准配套
                       </div>
                     </div>
 
-                    {/* 공급가 계산식 표 */}
-                    <div className="text-xs text-slate-700 mb-2 font-semibold">💰 공급가 단계별 계산식</div>
+                    {/* 供货价 计算公式 표 */}
+                    <div className="text-xs text-slate-700 mb-2 font-semibold">💰 供货价 步骤별 计算公式</div>
                     <div className="overflow-x-auto mb-4">
-                      <table className="w-full text-sm resizable-table">
+                      <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
                         <thead>
                           <tr className="bg-slate-100 text-slate-900">
-                            <th className="px-3 py-2.5 text-left font-medium border border-slate-300" style={{width: '50px'}}>단계<ColResizer/></th>
-                            <th className="px-3 py-2.5 text-left font-medium border border-slate-300" style={{width: '180px'}}>정책 항목<ColResizer/></th>
-                            <th className="px-3 py-2.5 text-left font-medium border border-slate-300">공급가 계산식<ColResizer/></th>
+                            <th className="px-3 py-2.5 text-left font-medium border border-slate-300" style={{width: '50px'}}>步骤</th>
+                            <th className="px-3 py-2.5 text-left font-medium border border-slate-300" style={{width: '180px'}}>정책 항목</th>
+                            <th className="px-3 py-2.5 text-left font-medium border border-slate-300">供货价 计算公式</th>
                             <th className="px-3 py-2.5 text-right font-medium border border-slate-300" style={{width: '80px'}}>예시 결과</th>
                           </tr>
                         </thead>
@@ -6529,20 +6611,20 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                       </table>
                     </div>
 
-                    {/* 정책환산GP 계산식 표 */}
-                    <div className="text-xs text-slate-700 mb-2 font-semibold">📊 정책환산GP 계산식 (KIT 포함)</div>
+                    {/* 政策换算GP 计算公式 표 */}
+                    <div className="text-xs text-slate-700 mb-2 font-semibold">📊 政策换算GP 计算公式 (KIT 포함)</div>
                     <div className="overflow-x-auto mb-3">
-                      <table className="w-full text-sm resizable-table">
+                      <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
                         <thead>
                           <tr className="bg-slate-100 text-slate-900">
-                            <th className="px-3 py-2.5 text-left font-medium border border-slate-300" style={{width: '140px'}}>항목<ColResizer/></th>
+                            <th className="px-3 py-2.5 text-left font-medium border border-slate-300" style={{width: '140px'}}>항목</th>
                             <th className="px-3 py-2.5 text-left font-medium border border-slate-300">공식</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
                             <td className="px-3 py-2 border border-slate-300 text-slate-900 font-semibold">기본 공식</td>
-                            <td className="px-3 py-2 border border-slate-300 font-mono text-slate-900 text-xs">GP = 1 - (정책반영원가 ÷ 정책반영기준가)</td>
+                            <td className="px-3 py-2 border border-slate-300 font-mono text-slate-900 text-xs">GP = 1 - (정책반영원가 ÷ 정책반영基准价)</td>
                           </tr>
                           <tr className="bg-slate-50">
                             <td className="px-3 py-2 border border-slate-300 text-slate-900 font-semibold">정책반영원가</td>
@@ -6551,16 +6633,16 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                           <tr>
                             <td className="px-3 py-2 border border-slate-300 text-slate-900 font-semibold">costMult</td>
                             <td className="px-3 py-2 border border-slate-300 font-mono text-slate-900 text-xs">
-                              = 1 + 제품증정 {!isST && '+ 목표달성'} {tradeType === 'DSO' && (isST ? '+ DSO 추가증정' : '+ DSO율')}
-                              {!isST && ' + 분기'} <span className="text-amber-600">(연도/BD장려 제외)</span>
+                              = 1 + 赠品(产品) {!isST && '+ 목표달성'} {tradeType === 'DSO' && (isST ? '+ DSO追加赠品' : '+ DSO율')}
+                              {!isST && ' + 분기'} <span className="text-amber-600">(연도/BD奖励 제외)</span>
                             </td>
                           </tr>
                           <tr className="bg-slate-50">
-                            <td className="px-3 py-2 border border-slate-300 text-slate-900 font-semibold">정책반영기준가</td>
+                            <td className="px-3 py-2 border border-slate-300 text-slate-900 font-semibold">정책반영基准价</td>
                             <td className="px-3 py-2 border border-slate-300 font-mono text-slate-900 text-xs">
-                              = (기준가 - 반환금) × 97% {productGroup === 'BD' ? '× (1 - 연도율 - BD장려율)' : !isST ? '× (1 - 연도율)' : ''}
+                              = (基准价 - 반환금) × 97% {productGroup === 'BD' ? '× (1 - 연도율 - BD奖励율)' : !isST ? '× (1 - 연도율)' : ''}
                               <br/>
-                              <span className="text-[11px] text-slate-600">반환금 = 기준가 × {fd.special}% = {lp} × {fd.special}% = {(lp*fd.special/100).toFixed(1)}</span>
+                              <span className="text-[11px] text-slate-600">반환금 = 基准价 × {fd.special}% = {lp} × {fd.special}% = {(lp*fd.special/100).toFixed(1)}</span>
                             </td>
                           </tr>
                         </tbody>
@@ -6569,7 +6651,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
 
                     {/* 환산원가 정보 */}
                     <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-3">
-                      <div className="text-xs font-bold text-emerald-900 mb-1.5">🧪 {productGroup} 환산원가 (참고)</div>
+                      <div className="text-xs font-bold text-emerald-900 mb-1.5">🧪 {productGroup} 환산원가 (参考)</div>
                       <div className="text-xs text-emerald-800 space-y-0.5">
                         {(() => {
                           const cost = SIM_COST_DATA[productGroup];
@@ -6587,13 +6669,13 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                     </div>
 
                     <p className="text-[11px] text-slate-500">
-                      ※ {productGroup === 'AR' && 'AR 제품은 특수정책 미적용'}
-                      {productGroup === 'BD' && 'BD 제품은 특수정책 미적용 + 연도 리베이트에 BD장려 1% 추가 반영'}
-                      {productGroup === 'ST' && 'ST 제품은 DSO 거래 전용, DSO 추가증정 → 특수정책 → 현금 순서, 분기/연도 미적용'}
-                      {productGroup === 'AO' && 'AO 제품은 일반치과/DSO치과 모두 적용 가능'}
-                      {productGroup === 'ARi' && 'ARi 제품은 BD와 동일 가격대, BD장려 미적용'}
+                      ※ {productGroup === 'AR' && 'AR 제품은 特殊政策 미适用'}
+                      {productGroup === 'BD' && 'BD 제품은 特殊政策 미适用 + 연도 리베이트에 BD奖励 1% 추가 반영'}
+                      {productGroup === 'ST' && 'ST 제품은 DSO 거래 전용, DSO追加赠品 → 特殊政策 → 현금 순서, 분기/연도 미适用'}
+                      {productGroup === 'AO' && 'AO 제품은 普通牙科/DSO连锁牙科 모두 适用 가능'}
+                      {productGroup === 'ARi' && 'ARi 제품은 BD와 동일 가격대, BD奖励 미适用'}
                       <br/>
-                      ※ KIT 종류(표준키트/풀키트)에 따라 KIT 원가와 기준 비율이 달라 GP가 다르게 산출됩니다
+                      ※ KIT 종류(标准配套/全套配套)에 따라 KIT 원가와 기준 비율이 달라 GP가 다르게 산출됩니다
                     </p>
                   </div>
                 );
@@ -6601,13 +6683,13 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
             </div>
 
             <p className="text-[11px] text-slate-400 mt-4 text-right">
-              ※ 상기 계산은 선택한 조건 기준으로 자동 계산된 금액이며, 실제 거래 조건에 따라 달라질 수 있습니다.
+              ※ 상기 계산은 선택한 조건 기준으로 自动 계산된 금액이며, 실제 거래 조건에 따라 달라질 수 있습니다.
             </p>
           </div>
         </div>
       </div>
 
-      {/* 이력저장 모달 */}
+      {/* 保存记录 모달 */}
       {showHistoryModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
           onClick={() => setShowHistoryModal(false)}>
@@ -6626,9 +6708,9 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                 {tradeType === 'DSO' && ` · DSO ${dsoGrade}급`}
               </div>
               <div className="text-xs text-slate-600 mt-1">
-                최종 공급가: <span className="font-bold text-blue-700">¥{calculation.finalPrice}</span>
+                最终供货价: <span className="font-bold text-blue-700">¥{calculation.finalPrice}</span>
                 <span className="mx-2 text-slate-300">|</span>
-                정책환산GP: <span className="font-bold text-emerald-700">{calculation.finalGP === null ? "-" : `${calculation.finalGP.toFixed(1)}%`}</span>
+                政策换算GP: <span className="font-bold text-emerald-700">{calculation.finalGP === null ? "-" : `${calculation.finalGP.toFixed(1)}%`}</span>
               </div>
             </div>
 
@@ -6641,7 +6723,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
                 type="text"
                 value={historyTitle}
                 onChange={e => setHistoryTitle(e.target.value)}
-                placeholder="예: 2026 Q2 AO 표준키트 A등급 시뮬레이션"
+                placeholder="예: 2026 Q2 AO 标准配套 A등급 시뮬레이션"
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 autoFocus
               />
@@ -6690,6 +6772,9 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
   );
 }
 
+// ============================================================
+// 정책 행 컴포넌트 (버튼 그룹 방식)
+// ============================================================
 function CostSimPage() {
   const [d, setD] = useState(costLoad);
   const [showFormula, setShowFormula] = useState(false);
