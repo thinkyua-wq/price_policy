@@ -3743,7 +3743,7 @@ const CORP_AMOUNT_ROWS = [
     kpi:[308,190,451,427,427,332,356,475,451,498,403,0], y25:[305,294,392,354,441,169,288,354,326,363,190,0] },
   { corp:'닝보', region:'화남지역', name:'화남본부',
     kpi:[167,103,244,231,231,180,193,257,244,218,0,0], y25:[71,96,193,141,151,148,98,192,130,103,0,0] },
-  { corp:'북경', region:'북경지역', name:'북경법인합계',
+  { corp:'북경', region:'북경지역', name:'북경법인',
     kpi:[398,245,582,551,551,429,459,612,582,643,521,0], y25:[293,333,471,431,416,329,326,507,271,386,155,0] },
 ];
 const CORP_QTY_ROWS = [
@@ -3757,7 +3757,7 @@ const CORP_QTY_ROWS = [
     kpi:[10488,6454,15326,14521,14521,14521,11293,12100,16134,15326,13714,0], y25:[7747,7810,11281,9827,9090,12323,5419,8219,9329,9406,7228,0] },
   { corp:'닝보', region:'화남지역', name:'화남본부',
     kpi:[5675,3492,8293,7857,7857,7857,6111,6548,9166,7420,0,0], y25:[1571,2516,3762,4078,4743,4180,3329,5950,4822,3592,0,0] },
-  { corp:'북경', region:'북경지역', name:'북경법인합계',
+  { corp:'북경', region:'북경지역', name:'북경법인',
     kpi:[14300,8801,20900,19800,19800,19800,15400,16499,22001,20900,23099,0], y25:[9237,10858,15546,16989,13177,14654,12238,13374,17421,10585,13574,18700] },
 ];
 const CORP_DATA_MAP = { amount: CORP_AMOUNT_ROWS, qty: CORP_QTY_ROWS };
@@ -3844,6 +3844,11 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
   const visMonthIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
   const pctCls = (v) => v<0 ? 'text-rose-600 font-bold' : 'text-slate-800';
 
+  // 선택합계: 월 표시로 선택된 월(visMonthIdxs)만 합산
+  const selSum = (arr) => visMonthIdxs.reduce((a,i)=>a+(arr[i]||0),0);
+  const selRate = (kArr, aArr) => { const k=selSum(kArr), a=selSum(aArr); return k!==0?Math.round(a/k*100):0; };
+  const selGrow = (yArr, aArr) => { const y=selSum(yArr), a=selSum(aArr); return y!==0?Math.round((a-y)/y*100):0; };
+
   const EditCell = ({ name, field, mi, value }) => {
     const [editing,setEditing] = React.useState(false);
     const [temp,setTemp] = React.useState(value);
@@ -3858,13 +3863,13 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
   };
 
   const mainFields = [
-    { label:'KPI',   render:(name,c)=> (mi)=> <EditCell name={name} field="kpi" mi={mi} value={c.kpi[mi]} />, total:c=>fmtCorp(c.kpiT) },
-    { label:'실적',  render:(name,c)=> (mi)=> <EditCell name={name} field="act" mi={mi} value={c.act[mi]} />, total:c=>fmtCorp(c.actT) },
-    { label:'달성율',isPct:true, render:(name,c)=> (mi)=> <span className={pctCls(c.rate[mi])}>{c.rate[mi]}%</span>, total:c=> <span className={pctCls(c.rateT)}>{c.rateT}%</span> },
+    { label:'KPI',   render:(name,c)=> (mi)=> <EditCell name={name} field="kpi" mi={mi} value={c.kpi[mi]} />, total:c=>fmtCorp(c.kpiT), selTotal:c=>fmtCorp(selSum(c.kpi)) },
+    { label:'실적',  render:(name,c)=> (mi)=> <EditCell name={name} field="act" mi={mi} value={c.act[mi]} />, total:c=>fmtCorp(c.actT), selTotal:c=>fmtCorp(selSum(c.act)) },
+    { label:'달성율',isPct:true, render:(name,c)=> (mi)=> <span className={pctCls(c.rate[mi])}>{c.rate[mi]}%</span>, total:c=> <span className={pctCls(c.rateT)}>{c.rateT}%</span>, selTotal:c=>{ const r=selRate(c.kpi,c.act); return <span className={pctCls(r)}>{r}%</span>; } },
   ];
   const prevFields = [
-    { label:'전년도실적', render:(name,c)=> (mi)=> <EditCell name={name} field="y25" mi={mi} value={c.y25[mi]} />, total:c=>fmtCorp(c.y25T) },
-    { label:'성장율', isPct:true, render:(name,c)=> (mi)=> <span className={pctCls(c.grow[mi])}>{c.grow[mi]}%</span>, total:c=> <span className={pctCls(c.growT)}>{c.growT}%</span> },
+    { label:'전년도실적', render:(name,c)=> (mi)=> <EditCell name={name} field="y25" mi={mi} value={c.y25[mi]} />, total:c=>fmtCorp(c.y25T), selTotal:c=>fmtCorp(selSum(c.y25)) },
+    { label:'성장율', isPct:true, render:(name,c)=> (mi)=> <span className={pctCls(c.grow[mi])}>{c.grow[mi]}%</span>, total:c=> <span className={pctCls(c.growT)}>{c.growT}%</span>, selTotal:c=>{ const g=selGrow(c.y25,c.act); return <span className={pctCls(g)}>{g}%</span>; } },
   ];
   const fields = variant==='main' ? mainFields : prevFields;
   const rowCount = fields.length;
@@ -3876,14 +3881,13 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
       <table className="text-sm border-collapse" style={{ minWidth:'100%' }}>
         <thead>
           <tr className="bg-slate-100 border-b border-slate-300">
-            <th onClick={()=>onSort('corp')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth:'70px' }}>법인 {arrow('corp')}</th>
-            <th onClick={()=>onSort('region')} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 cursor-pointer hover:bg-slate-200 select-none" style={{ minWidth:'84px' }}>지역 {arrow('region')}</th>
             <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth:'110px' }}>본부</th>
             <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth:'90px' }}>구분</th>
             {visMonthIdxs.map(mi => (
               <th key={mi} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right" style={{ minWidth:'80px' }}>{MONTH_LABELS[mi]}</th>
             ))}
-            <th className="px-2 py-2 font-semibold text-slate-700 text-right bg-slate-200" style={{ minWidth:'90px' }}>합계</th>
+            <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right bg-slate-200" style={{ minWidth:'90px' }}>합계</th>
+            <th className="px-2 py-2 font-semibold text-blue-700 text-right bg-blue-50" style={{ minWidth:'90px' }} title="월 표시로 선택된 월만 합산">선택합계</th>
           </tr>
         </thead>
         <tbody>
@@ -3891,14 +3895,13 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
             <React.Fragment key={ent.name}>
               {fields.map((f, ri)=>(
                 <tr key={f.label} className="border-b border-slate-200">
-                  {ri===0 && <td rowSpan={rowCount} className="px-2 py-1 border-r border-slate-300 text-center font-semibold align-middle bg-white">{ent.corp}</td>}
-                  {ri===0 && <td rowSpan={rowCount} className="px-2 py-1 border-r border-slate-300 text-center align-middle bg-white">{ent.region}</td>}
                   {ri===0 && <td rowSpan={rowCount} className="px-2 py-1 border-r border-slate-300 text-center font-medium align-middle bg-white">{ent.name}</td>}
                   <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-600 font-semibold bg-white">{f.label}</td>
                   {visMonthIdxs.map(mi=>(
                     <td key={mi} className={`px-1 py-0.5 border-r border-slate-300 bg-white ${f.isPct?'text-right px-2 py-1':''}`}>{f.render(ent.name, c)(mi)}</td>
                   ))}
-                  <td className="px-2 py-1 text-right font-bold bg-white">{f.total(c)}</td>
+                  <td className="px-2 py-1 text-right font-bold border-r border-slate-300 bg-white">{f.total(c)}</td>
+                  <td className="px-2 py-1 text-right font-bold bg-blue-50 text-blue-800">{f.selTotal(c)}</td>
                 </tr>
               ))}
             </React.Fragment>
@@ -3906,14 +3909,15 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
           {/* 총계 */}
           {fields.map((f, ri)=>(
             <tr key={'tot_'+f.label} className={"border-b border-slate-200 "+(ri===0?'border-t-2 border-slate-400':'')}>
-              {ri===0 && <td rowSpan={rowCount} colSpan={3} className="px-2 py-1 border-r border-slate-300 text-center font-bold align-middle bg-slate-50">총계</td>}
+              {ri===0 && <td rowSpan={rowCount} colSpan={1} className="px-2 py-1 border-r border-slate-300 text-center font-bold align-middle bg-slate-50">총계</td>}
               <td className="px-2 py-1 border-r border-slate-300 text-center text-slate-700 font-semibold bg-slate-50">{f.label}</td>
               {visMonthIdxs.map(mi=>(
                 <td key={mi} className="px-2 py-1 border-r border-slate-300 text-right font-semibold bg-slate-50">
                   {f.isPct ? f.render('총계', totals)(mi) : fmtCorp(variant==='main' ? (f.label==='KPI'?totals.kpi[mi]:totals.act[mi]) : totals.y25[mi])}
                 </td>
               ))}
-              <td className="px-2 py-1 text-right font-bold bg-slate-100">{f.total(totals)}</td>
+              <td className="px-2 py-1 text-right font-bold border-r border-slate-300 bg-slate-100">{f.total(totals)}</td>
+              <td className="px-2 py-1 text-right font-bold bg-blue-100 text-blue-800">{f.selTotal(totals)}</td>
             </tr>
           ))}
         </tbody>
