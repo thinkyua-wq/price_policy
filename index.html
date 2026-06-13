@@ -3734,31 +3734,35 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
    ============================================================ */
 const CORP_AMOUNT_ROWS = [
   { corp:'닝보', region:'절강지역', name:'절강본부',
-    kpi:[428,263,625,593,593,461,494,658,625,691,560,0], y25:[437,410,674,554,534,437,359,483,456,366,447,0] },
+    kpi:[428,263,625,593,593,593,461,494,658,625,691,560], act:[496,286,639,461,564,86,0,0,0,0,0,0], y25:[437,410,674,554,417,534,437,359,483,456,366,447] },
   { corp:'닝보', region:'화동지역', name:'화동본부',
-    kpi:[493,303,720,683,683,531,569,758,720,796,645,0], y25:[429,439,589,510,615,433,425,580,446,566,449,0] },
+    kpi:[493,303,720,683,683,683,531,569,758,720,796,645], act:[496,309,705,459,404,40,0,0,0,0,0,0], y25:[429,439,589,560,510,615,433,425,580,446,566,449] },
   { corp:'닝보', region:'화중지역', name:'화중본부',
-    kpi:[472,291,691,654,654,509,545,727,691,763,618,0], y25:[453,448,589,492,626,460,488,566,401,370,341,0] },
+    kpi:[472,291,691,654,654,654,509,545,727,691,763,618], act:[204,289,626,481,525,71,0,0,0,0,0,0], y25:[453,448,589,620,492,626,460,488,566,401,370,341] },
   { corp:'닝보', region:'화서지역', name:'화서본부',
-    kpi:[308,190,451,427,427,332,356,475,451,498,403,0], y25:[305,294,392,354,441,169,288,354,326,363,190,0] },
+    kpi:[308,190,451,427,427,427,332,356,475,451,498,403], act:[319,181,423,398,298,22,0,0,0,0,0,0], y25:[305,294,392,389,354,441,169,288,354,326,363,190] },
   { corp:'닝보', region:'화남지역', name:'화남본부',
-    kpi:[167,103,244,231,231,180,193,257,244,218,0,0], y25:[71,96,193,141,151,148,98,192,130,103,0,0] },
+    kpi:[167,103,244,231,231,231,180,193,257,244,270,218], act:[94,87,173,165,53,98,0,0,0,0,0,0], y25:[71,96,193,141,66,151,148,98,192,130,173,103] },
   { corp:'북경', region:'북경지역', name:'북경법인',
-    kpi:[398,245,582,551,551,429,459,612,582,643,521,0], y25:[293,333,471,431,416,329,326,507,271,386,155,0] },
+    kpi:[398,245,582,551,551,551,429,459,612,582,643,521], act:[390,215,463,400,392,32,0,0,0,0,0,0], y25:[293,333,471,431,396,416,329,326,507,271,386,155] },
+  { corp:'-', region:'기타', name:'기타',
+    kpi:[0,0,0,0,0,0,0,0,0,0,0,0], act:[3,3,10,3,3,5,0,0,0,0,0,0], y25:[0,0,0,0,0,0,0,0,0,0,0,0] },
 ];
 const CORP_QTY_ROWS = [
   { corp:'닝보', region:'절강지역', name:'절강본부',
-    kpi:[14569,8966,21295,20174,20174,20174,15690,16810,22415,21295,23536,19052], y25:[11298,10676,17828,17457,13432,15648,15354,13928,12763,15838,13045,14690] },
+    kpi:[14569,8966,21295,20174,20174,20174,15690,16810,22415,21295,23536,19052], act:[15439,12073,22570,15690,19704,3470,0,0,0,0,0,0], y25:[11298,10676,17828,17457,13432,15648,15354,13928,12763,15838,13045,14690] },
   { corp:'닝보', region:'화동지역', name:'화동본부',
-    kpi:[16770,10320,24510,23220,23220,23220,18060,19350,25800,27090,21930,0], y25:[11339,11492,17809,16352,14799,16548,14784,12193,16083,16802,15657,0] },
+    kpi:[16770,10320,24510,23220,23220,23220,18060,19350,25800,24510,27090,21930], act:[15911,10052,22878,17231,17007,2311,0,0,0,0,0,0], y25:[11339,11492,17809,16352,14799,16548,14784,12193,16083,16802,15657,14740] },
   { corp:'닝보', region:'화중지역', name:'화중본부',
-    kpi:[16074,9892,23494,22257,22257,22257,17311,18547,24730,23494,25967,21020], y25:[12090,12436,16206,16050,13607,17876,13041,14072,15873,11107,12239,15141] },
+    kpi:[16074,9892,23494,22257,22257,22257,17311,18547,24730,23494,25967,21020], act:[7092,9192,20820,19717,18270,3279,0,0,0,0,0,0], y25:[12090,12436,16206,16050,13607,17876,13041,14072,15873,11107,12239,15141] },
   { corp:'닝보', region:'화서지역', name:'화서본부',
-    kpi:[10488,6454,15326,14521,14521,14521,11293,12100,16134,15326,13714,0], y25:[7747,7810,11281,9827,9090,12323,5419,8219,9329,9406,7228,0] },
+    kpi:[10488,6454,15326,14521,14521,14521,11293,12100,16134,15326,16942,13714], act:[9518,5514,13278,11890,9025,1439,0,0,0,0,0,0], y25:[7747,7810,11281,9827,9090,12323,5419,8219,9329,9406,10278,7228] },
   { corp:'닝보', region:'화남지역', name:'화남본부',
-    kpi:[5675,3492,8293,7857,7857,7857,6111,6548,9166,7420,0,0], y25:[1571,2516,3762,4078,4743,4180,3329,5950,4822,3592,0,0] },
+    kpi:[5675,3492,8293,7857,7857,7857,6111,6548,8730,8294,9166,7420], act:[3605,2549,5171,7296,1494,2504,0,0,0,0,0,0], y25:[1571,2516,3762,5292,4078,4743,4180,3329,5950,4822,4079,3592] },
   { corp:'북경', region:'북경지역', name:'북경법인',
-    kpi:[14300,8801,20900,19800,19800,19800,15400,16499,22001,20900,23099,0], y25:[9237,10858,15546,16989,13177,14654,12238,13374,17421,10585,13574,18700] },
+    kpi:[14300,8801,20900,19800,19800,19800,15400,16499,22001,20900,23099,18700], act:[14018,8061,18606,16130,18183,1341,0,0,0,0,0,0], y25:[9237,10858,15546,16989,13177,14654,12238,13374,17421,10585,13574,6720] },
+  { corp:'-', region:'기타', name:'기타',
+    kpi:[0,0,0,0,0,0,0,0,0,0,0,0], act:[154,113,339,97,206,232,0,0,0,0,0,0], y25:[0,0,0,0,0,0,0,0,0,0,0,0] },
 ];
 const CORP_DATA_MAP = { amount: CORP_AMOUNT_ROWS, qty: CORP_QTY_ROWS };
 
@@ -3777,15 +3781,18 @@ function computeCorpTotals(tab, weeklyEntries, storeKey) {
   rows.forEach(ent=>{
     for(let mi=0;mi<12;mi++){
       kpi[mi]+=gc(ent.name,'kpi',mi,ent.kpi[mi]);
-      act[mi]+=gc(ent.name,'act',mi,0);
+      act[mi]+=gc(ent.name,'act',mi,(ent.act?ent.act[mi]:0));
       y25[mi]+=gc(ent.name,'y25',mi,ent.y25[mi]);
     }
   });
   const kpiT=sum12(kpi), actT=sum12(act), y25T=sum12(y25);
+  // 누계 성장율: 실적 입력된 월만 25년과 비교 (미입력 월 제외)
+  const am=act.map((v,mi)=>v!==0?mi:-1).filter(i=>i>=0);
+  const aS=am.reduce((s,mi)=>s+act[mi],0), yS=am.reduce((s,mi)=>s+y25[mi],0);
   return {
     kpiT, actT, y25T,
     rateT: kpiT!==0?Math.round(actT/kpiT*100):0,
-    growT: y25T!==0?Math.round((actT-y25T)/y25T*100):0,
+    growT: yS!==0?Math.round((aS-yS)/yS*100):null,
   };
 }
 
@@ -3813,13 +3820,19 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
 
   const computeEntity = (ent) => {
     const kpi = ent.kpi.map((d, mi) => getCell(ent.name, 'kpi', mi, d));
-    const act = ent.kpi.map((_, mi) => getCell(ent.name, 'act', mi, 0));
+    const act = ent.kpi.map((_, mi) => getCell(ent.name, 'act', mi, (ent.act ? ent.act[mi] : 0)));
     const y25 = ent.y25.map((d, mi) => getCell(ent.name, 'y25', mi, d));
     const rate = act.map((v, mi) => kpi[mi] !== 0 ? Math.round(v / kpi[mi] * 100) : 0);
-    const grow = act.map((v, mi) => y25[mi] !== 0 ? Math.round((v - y25[mi]) / y25[mi] * 100) : 0);
+    // 성장율 = (26년 실적 − 25년 실적) ÷ 25년 실적. 단, 실적 미입력(0)인 월은 계산 제외(null)
+    const grow = act.map((v, mi) => (v !== 0 && y25[mi] !== 0) ? Math.round((v - y25[mi]) / y25[mi] * 100) : null);
     const kpiT=sum12(kpi), actT=sum12(act), y25T=sum12(y25);
+    // 누계 성장율: 실적이 입력된 월(act>0)의 25년 합과만 비교 (미입력 월 제외)
+    const actMonths = act.map((v,mi)=>v!==0?mi:-1).filter(i=>i>=0);
+    const actSumForGrow = actMonths.reduce((s,mi)=>s+act[mi],0);
+    const y25SumForGrow = actMonths.reduce((s,mi)=>s+y25[mi],0);
+    const growT = y25SumForGrow !== 0 ? Math.round((actSumForGrow - y25SumForGrow) / y25SumForGrow * 100) : null;
     return { kpi, act, y25, rate, grow, kpiT, actT, y25T,
-      rateT: kpiT!==0?Math.round(actT/kpiT*100):0, growT: y25T!==0?Math.round((actT-y25T)/y25T*100):0 };
+      rateT: kpiT!==0?Math.round(actT/kpiT*100):0, growT };
   };
 
   let dataRows = rows.map(r => ({ ent:r, calc:computeEntity(r) }));
@@ -3835,19 +3848,32 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
     const z=()=>Array(12).fill(0); const kpi=z(),act=z(),y25=z();
     dataRows.forEach(({calc})=>{ for(let mi=0;mi<12;mi++){ kpi[mi]+=calc.kpi[mi]; act[mi]+=calc.act[mi]; y25[mi]+=calc.y25[mi]; }});
     const rate=act.map((v,mi)=>kpi[mi]!==0?Math.round(v/kpi[mi]*100):0);
-    const grow=act.map((v,mi)=>y25[mi]!==0?Math.round((v-y25[mi])/y25[mi]*100):0);
+    const grow=act.map((v,mi)=>(v!==0 && y25[mi]!==0)?Math.round((v-y25[mi])/y25[mi]*100):null);
     const kpiT=sum12(kpi),actT=sum12(act),y25T=sum12(y25);
+    // 누계 성장율: 실적 입력된 월만 비교
+    const am=act.map((v,mi)=>v!==0?mi:-1).filter(i=>i>=0);
+    const aS=am.reduce((s,mi)=>s+act[mi],0), yS=am.reduce((s,mi)=>s+y25[mi],0);
     return { kpi,act,y25,rate,grow,kpiT,actT,y25T,
-      rateT:kpiT!==0?Math.round(actT/kpiT*100):0, growT:y25T!==0?Math.round((actT-y25T)/y25T*100):0 };
+      rateT:kpiT!==0?Math.round(actT/kpiT*100):0, growT: yS!==0?Math.round((aS-yS)/yS*100):null };
   })();
 
   const visMonthIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
-  const pctCls = (v) => v<0 ? 'text-rose-600 font-bold' : 'text-slate-800';
+  // 달성율 색상: 80% 미만 빨강
+  const rateCls = (v) => (v===null||v===undefined) ? 'text-slate-400' : (v < 80 ? 'text-rose-600 font-bold' : 'text-slate-800');
+  // 성장율 색상: 음수 빨강
+  const growCls = (v) => (v===null||v===undefined) ? 'text-slate-400' : (v < 0 ? 'text-rose-600 font-bold' : 'text-slate-800');
+  const pctTxt = (v) => (v===null||v===undefined) ? '-' : v+'%';
 
   // 선택합계: 월 표시로 선택된 월(visMonthIdxs)만 합산
   const selSum = (arr) => visMonthIdxs.reduce((a,i)=>a+(arr[i]||0),0);
   const selRate = (kArr, aArr) => { const k=selSum(kArr), a=selSum(aArr); return k!==0?Math.round(a/k*100):0; };
-  const selGrow = (yArr, aArr) => { const y=selSum(yArr), a=selSum(aArr); return y!==0?Math.round((a-y)/y*100):0; };
+  // 선택합계 성장율: 선택 월 중 실적이 입력된 월만 비교
+  const selGrow = (yArr, aArr) => {
+    const idxs = visMonthIdxs.filter(i => (aArr[i]||0) !== 0);
+    const y = idxs.reduce((s,i)=>s+(yArr[i]||0),0);
+    const a = idxs.reduce((s,i)=>s+(aArr[i]||0),0);
+    return y!==0 ? Math.round((a-y)/y*100) : null;
+  };
 
   const EditCell = ({ name, field, mi, value }) => {
     const [editing,setEditing] = React.useState(false);
@@ -3865,11 +3891,11 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
   const mainFields = [
     { label:'KPI',   render:(name,c)=> (mi)=> <EditCell name={name} field="kpi" mi={mi} value={c.kpi[mi]} />, total:c=>fmtCorp(c.kpiT), selTotal:c=>fmtCorp(selSum(c.kpi)) },
     { label:'실적',  render:(name,c)=> (mi)=> <EditCell name={name} field="act" mi={mi} value={c.act[mi]} />, total:c=>fmtCorp(c.actT), selTotal:c=>fmtCorp(selSum(c.act)) },
-    { label:'달성율',isPct:true, render:(name,c)=> (mi)=> <span className={pctCls(c.rate[mi])}>{c.rate[mi]}%</span>, total:c=> <span className={pctCls(c.rateT)}>{c.rateT}%</span>, selTotal:c=>{ const r=selRate(c.kpi,c.act); return <span className={pctCls(r)}>{r}%</span>; } },
+    { label:'달성율',isPct:true, render:(name,c)=> (mi)=> <span className={rateCls(c.rate[mi])}>{c.rate[mi]}%</span>, total:c=> <span className={rateCls(c.rateT)}>{c.rateT}%</span>, selTotal:c=>{ const r=selRate(c.kpi,c.act); return <span className={rateCls(r)}>{r}%</span>; } },
   ];
   const prevFields = [
     { label:'전년도실적', render:(name,c)=> (mi)=> <EditCell name={name} field="y25" mi={mi} value={c.y25[mi]} />, total:c=>fmtCorp(c.y25T), selTotal:c=>fmtCorp(selSum(c.y25)) },
-    { label:'성장율', isPct:true, render:(name,c)=> (mi)=> <span className={pctCls(c.grow[mi])}>{c.grow[mi]}%</span>, total:c=> <span className={pctCls(c.growT)}>{c.growT}%</span>, selTotal:c=>{ const g=selGrow(c.y25,c.act); return <span className={pctCls(g)}>{g}%</span>; } },
+    { label:'성장율', isPct:true, render:(name,c)=> (mi)=> <span className={growCls(c.grow[mi])}>{pctTxt(c.grow[mi])}</span>, total:c=> <span className={growCls(c.growT)}>{pctTxt(c.growT)}</span>, selTotal:c=>{ const g=selGrow(c.y25,c.act); return <span className={growCls(g)}>{pctTxt(g)}</span>; } },
   ];
   const fields = variant==='main' ? mainFields : prevFields;
   const rowCount = fields.length;
@@ -3972,9 +3998,9 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange }) {
   const aggCards = [
     { label:'총 KPI',      value: fmtAgg(agg.kpiT), unit: aggUnit, color:'text-slate-900' },
     { label:'총 실적',     value: fmtAgg(agg.actT), unit: aggUnit, color:'text-slate-900' },
-    { label:'달성율',      value: agg.rateT+'%',    unit: '',      color: agg.rateT>=100?'text-emerald-600':'text-blue-600' },
+    { label:'달성율',      value: agg.rateT+'%',    unit: '',      color: agg.rateT<80?'text-rose-600':(agg.rateT>=100?'text-emerald-600':'text-blue-600') },
     { label:'총 전년도실적', value: fmtAgg(agg.y25T), unit: aggUnit, color:'text-slate-900' },
-    { label:'성장율',      value: (agg.growT>=0?'+':'')+agg.growT+'%', unit:'', color: agg.growT>=0?'text-emerald-600':'text-rose-600' },
+    { label:'성장율',      value: (agg.growT===null?'-':(agg.growT>=0?'+':'')+agg.growT+'%'), unit:'', color: agg.growT===null?'text-slate-400':(agg.growT>=0?'text-emerald-600':'text-rose-600') },
   ];
 
   return (
@@ -3985,6 +4011,19 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange }) {
           <h3 className="text-base font-bold text-slate-900">{blockTitle}</h3>
           <span className="text-xs text-slate-500">{unit}</span>
         </div>
+        <button onClick={()=>{
+          if(!confirm('법인 매출 표를 최신 기본 데이터로 다시 채웁니다.\n\n기존에 이 표에서 직접 수정한 KPI/실적/전년도실적 값은 삭제되고\n새 데이터로 교체됩니다. (다른 메뉴 데이터는 영향 없음)\n\n계속하시겠습니까?')) return;
+          setWeeklyEntries(prev=>{
+            const next={...prev};
+            Object.keys(next).forEach(k=>{ if(k.startsWith('corpAMT|')||k.startsWith('corpQTY|')) delete next[k]; });
+            return next;
+          });
+          logChange('법인 매출 관리', '기본 데이터로 초기화 (저장값 삭제)');
+          alert('✅ 법인 매출 표가 최신 기본 데이터로 교체되었습니다.');
+        }}
+          className="flex items-center gap-1 px-2.5 py-1 text-xs border border-amber-300 bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 font-semibold">
+          ↻ 기본값으로 다시 채우기
+        </button>
       </div>
 
       {!collapsed && (
@@ -5507,18 +5546,51 @@ function App() {
                 coreTasks, dealers, dealerInsights, psi, psiFocus,
                 salesPerson, dso, dsoPipeline, bd, bdQty, bdCustomers,
                 subCustomer, weeklyEntries, kpi, dsoByGrade, salesByOwner,
-                packagePerson, issues, msGoals, competitorMS, dsoDetail, actionPlans
+                packagePerson, issues, msGoals, competitorMS, dsoDetail, actionPlans,
+                // 월별 분리 데이터 (누락 보완)
+                dealersMonth, psiMonth, salesPersonMonth, dsoMonth, bdMonth, bdQtyMonth,
+                bdCustomersMonth, subCustomerMonth, msGoalsMonth, competitorMSMonth,
+                dsoDetailMonth, actionPlansMonth, bdDevMonth, bdStructMonth,
+                dsoRevMonth, dsoEnterMonth, psiFocusMonth,
+                // 사용자 설정/상태 (누락 보완)
+                columnWidths, hiddenPSIRows, hiddenFocusRows, changeLog
               };
               const res = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain' },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({ action: 'save', payload: payload })
               });
-              localStorage.setItem('dashboard_last_cloud_save', new Date().toISOString());
-              alert('✅ 클라우드 저장 완료!\nGoogle Sheets에 저장되었습니다.');
+              let ok = false, errMsg = '';
+              try { const j = await res.json(); ok = j.ok !== false; errMsg = j.error || ''; }
+              catch (parseErr) { ok = res.ok; } // 응답 파싱 실패 시 HTTP 상태로 판단
+              if (ok) {
+                localStorage.setItem('dashboard_last_cloud_save', new Date().toISOString());
+                alert('✅ 클라우드 저장 완료!\nGoogle Sheets에 저장되었습니다.\n저장 시각: ' + new Date().toLocaleString('ko-KR'));
+              } else {
+                alert('❌ 저장 실패' + (errMsg ? ': ' + errMsg : '\n응답을 확인하지 못했습니다. 잠시 후 불러오기로 확인해 주세요.'));
+              }
             } catch (e) {
-              alert('❌ 저장 실패: ' + e.message);
+              // no-cors 폴백: CORS 차단 시에도 저장 자체는 전송됨
+              try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                  method: 'POST', mode: 'no-cors',
+                  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                  body: JSON.stringify({ action: 'save', payload: {
+                    coreTasks, dealers, dealerInsights, psi, psiFocus, salesPerson, dso, dsoPipeline,
+                    bd, bdQty, bdCustomers, subCustomer, weeklyEntries, kpi, dsoByGrade, salesByOwner,
+                    packagePerson, issues, msGoals, competitorMS, dsoDetail, actionPlans,
+                    dealersMonth, psiMonth, salesPersonMonth, dsoMonth, bdMonth, bdQtyMonth,
+                    bdCustomersMonth, subCustomerMonth, msGoalsMonth, competitorMSMonth,
+                    dsoDetailMonth, actionPlansMonth, bdDevMonth, bdStructMonth,
+                    dsoRevMonth, dsoEnterMonth, psiFocusMonth,
+                    columnWidths, hiddenPSIRows, hiddenFocusRows, changeLog
+                  }})
+                });
+                localStorage.setItem('dashboard_last_cloud_save', new Date().toISOString());
+                alert('✅ 클라우드 저장 전송 완료 (응답 확인 불가 모드)\n저장 시각: ' + new Date().toLocaleString('ko-KR') + '\n\n불러오기로 정상 저장 여부를 확인해 주세요.');
+              } catch (e2) {
+                alert('❌ 저장 실패: ' + e2.message);
+              }
             }
           }}
             className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold">
@@ -5562,6 +5634,29 @@ function App() {
               if (d.competitorMS) setCompetitorMS(d.competitorMS);
               if (d.dsoDetail) setDSODetail(d.dsoDetail);
               if (d.actionPlans) setActionPlans(d.actionPlans);
+              // 월별 분리 데이터 복원 (누락 보완)
+              if (d.dealersMonth) setDealersMonth(d.dealersMonth);
+              if (d.psiMonth) setPSIMonth(d.psiMonth);
+              if (d.salesPersonMonth) setSalesPersonMonth(d.salesPersonMonth);
+              if (d.dsoMonth) setDSOMonth(d.dsoMonth);
+              if (d.bdMonth) setBDMonth(d.bdMonth);
+              if (d.bdQtyMonth) setBDQtyMonth(d.bdQtyMonth);
+              if (d.bdCustomersMonth) setBDCustomersMonth(d.bdCustomersMonth);
+              if (d.subCustomerMonth) setSubCustomerMonth(d.subCustomerMonth);
+              if (d.msGoalsMonth) setMSGoalsMonth(d.msGoalsMonth);
+              if (d.competitorMSMonth) setCompetitorMSMonth(d.competitorMSMonth);
+              if (d.dsoDetailMonth) setDSODetailMonth(d.dsoDetailMonth);
+              if (d.actionPlansMonth) setActionPlansMonth(d.actionPlansMonth);
+              if (d.bdDevMonth) setBDDevMonth(d.bdDevMonth);
+              if (d.bdStructMonth) setBDStructMonth(d.bdStructMonth);
+              if (d.dsoRevMonth) setDSORevMonth(d.dsoRevMonth);
+              if (d.dsoEnterMonth) setDSOEnterMonth(d.dsoEnterMonth);
+              if (d.psiFocusMonth) setPSIFocusMonth(d.psiFocusMonth);
+              // 사용자 설정/상태 복원 (누락 보완)
+              if (d.columnWidths) setColumnWidths(d.columnWidths);
+              if (d.hiddenPSIRows) setHiddenPSIRows(d.hiddenPSIRows);
+              if (d.hiddenFocusRows) setHiddenFocusRows(d.hiddenFocusRows);
+              if (d.changeLog) setChangeLog(d.changeLog);
               alert('✅ 클라우드 불러오기 완료!\n마지막 저장: ' + (data.lastSaved || '알 수 없음'));
             } catch (e) {
               alert('❌ 불러오기 실패: ' + e.message);
@@ -5613,6 +5708,40 @@ function App() {
 
           </span>
 
+        </div>
+
+        {/* 액션 버튼 모음 (이전월 복사 / 엑셀 업로드 / 엑셀 다운로드 / 저장) */}
+        <div className="flex items-center justify-end gap-2 -mt-1">
+          <button onClick={() => {
+            alert('전체 대시보드는 3개 본부를 통합한 뷰입니다.\n이전월 복사는 각 본부 메뉴(1~9번)에서 본부별로 실행해 주세요.');
+          }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-purple-300 bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 font-semibold">
+            <Icon name="copy" className="w-4 h-4" /> 이전월 복사
+          </button>
+          <label className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50 cursor-pointer">
+            <Icon name="upload" className="w-4 h-4" /> 엑셀 업로드
+            <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFullRestore} />
+          </label>
+          <button onClick={() => {
+            const rows = [];
+            CORP_AMOUNT_ROWS.forEach(ent => {
+              const get = (field, mi, dv) => {
+                const v = weeklyEntries[`corpAMT|${ent.name}|${field}|${mi}`];
+                return (v !== undefined && v !== null && v !== '') ? v : dv;
+              };
+              const rec = { 본부: ent.name };
+              for (let mi = 0; mi < 12; mi++) rec[`${mi+1}월_KPI`] = get('kpi', mi, ent.kpi[mi]);
+              for (let mi = 0; mi < 12; mi++) rec[`${mi+1}월_실적`] = get('act', mi, (ent.act ? ent.act[mi] : 0));
+              rows.push(rec);
+            });
+            downloadCSV(rows, `전체대시보드_법인매출_${new Date().toISOString().slice(0,10)}`);
+          }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">
+            <Icon name="download" className="w-4 h-4" /> 엑셀 다운로드
+          </button>
+          <button onClick={handleSync} className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold">
+            저장
+          </button>
         </div>
 
         {/* 대시보드 전환 버튼 (페이지 제목 바로 아래) */}
@@ -8120,7 +8249,7 @@ function App() {
               </div>
               {!psiMgmtCollapsed && (
               <div className="border border-slate-300 rounded overflow-x-auto">
-                <table className="w-full text-sm" data-table-id="dealer_psi_summary" style={{ tableLayout: 'fixed' }}>
+                <table className="text-sm" data-table-id="dealer_psi_summary" style={{ minWidth: '1320px', width: '100%', tableLayout: 'auto' }}>
                   <thead>
                     {/* 1단: 그룹 헤더 */}
                     <tr className="bg-slate-200 border-b border-slate-300">
@@ -8137,16 +8266,16 @@ function App() {
                     </tr>
                     {/* 2단: 컬럼 헤더 */}
                     <tr className="bg-slate-100 border-b border-slate-300">
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">구매(P)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">판매(S)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">구매(P) 목표</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">구매(P) 실적</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">판매(S)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100">재고(I)</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[120px] bg-slate-100">평균판매기준</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[110px] bg-slate-100">구매(P) 달성률</th>
-                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[80px] bg-slate-100">상태</th>
-                      <th className="px-2 py-1.5 font-semibold text-slate-900 w-[60px] bg-slate-100">관리</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[90px] bg-slate-100 whitespace-nowrap">구매(P)</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[90px] bg-slate-100 whitespace-nowrap">판매(S)</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[95px] bg-slate-100 whitespace-nowrap">구매(P)<br/>목표</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[95px] bg-slate-100 whitespace-nowrap">구매(P)<br/>실적</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[90px] bg-slate-100 whitespace-nowrap">판매(S)</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[90px] bg-slate-100 whitespace-nowrap">재고(I)</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[110px] bg-slate-100 whitespace-nowrap">평균판매<br/>기준</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[100px] bg-slate-100 whitespace-nowrap">구매(P)<br/>달성률</th>
+                      <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-900 w-[80px] bg-slate-100 whitespace-nowrap">상태</th>
+                      <th className="px-2 py-1.5 font-semibold text-slate-900 w-[70px] bg-slate-100 whitespace-nowrap">관리</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -8701,30 +8830,10 @@ function App() {
     };
     total.rate = total.monthGoal > 0 ? +(total.cumActual / total.monthGoal * 100).toFixed(1) : 0;
 
-    // 정렬 적용 (달성률 / 상태) - 월별 실적 기반
+    // 정렬 기능 삭제됨 - 원본 순서 유지
     const calcRowRate = (emp) => {
       const m = Number(weeklyEntries[`empMonthly|${hq}|${emp.id}|${yearMonthSP}`] ?? 0);
       return emp.shipGoal > 0 ? +(m / emp.shipGoal * 100).toFixed(1) : 0;
-    };
-    const statusRank = { '우수': 4, '정상': 3, '주의': 2, '위험': 1 };
-    if (empSortKey) {
-      filteredEmps = [...filteredEmps].sort((a, b) => {
-        let va, vb;
-        if (empSortKey === 'rate') {
-          va = calcRowRate(a); vb = calcRowRate(b);
-        } else if (empSortKey === 'status') {
-          const sa = (va => va >= 100 ? '우수' : va >= 70 ? '정상' : va >= 50 ? '주의' : '위험')(calcRowRate(a));
-          const sb = (vb => vb >= 100 ? '우수' : vb >= 70 ? '정상' : vb >= 50 ? '주의' : '위험')(calcRowRate(b));
-          va = statusRank[sa] || 0; vb = statusRank[sb] || 0;
-        } else { va = 0; vb = 0; }
-        return empSortDir === 'asc' ? va - vb : vb - va;
-      });
-    }
-    const toggleEmpSort = (key) => {
-      if (empSortKey === key) {
-        if (empSortDir === 'asc') setEmpSortDir('desc');
-        else { setEmpSortKey(null); setEmpSortDir('asc'); }
-      } else { setEmpSortKey(key); setEmpSortDir('asc'); }
     };
 
     // 상태 자동 판정 (달성률 기준)
@@ -9001,26 +9110,19 @@ function App() {
                   <tr className="bg-slate-100 border-b border-slate-300">
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">지역</th>
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[110px]">영업사원</th>
+                    <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[140px]">대리상</th>
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[90px]">월 목표</th>
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[90px]">월별 실적</th>
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[90px]">누적 실적</th>
-                    <th onClick={() => toggleEmpSort('rate')}
-                        className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px] cursor-pointer hover:bg-slate-50 select-none"
-                        title="클릭하여 정렬">
-                      달성률 {empSortKey === 'rate' ? (empSortDir === 'asc' ? '↑' : '↓') : <span className="text-slate-300">↕</span>}
-                    </th>
-                    <th onClick={() => toggleEmpSort('status')}
-                        className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[70px] cursor-pointer hover:bg-slate-50 select-none"
-                        title="클릭하여 정렬">
-                      상태 {empSortKey === 'status' ? (empSortDir === 'asc' ? '↑' : '↓') : <span className="text-slate-300">↕</span>}
-                    </th>
+                    <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">달성률</th>
+                    <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[70px]">상태</th>
                     <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[200px]">현황</th>
                     <th className="px-3 py-2 font-semibold text-slate-700 w-[60px]">작업</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredEmps.length === 0 ? (
-                    <tr><td colSpan={9} className="px-3 py-12 text-center text-slate-400">조건에 맞는 영업사원이 없습니다.</td></tr>
+                    <tr><td colSpan={10} className="px-3 py-12 text-center text-slate-400">조건에 맞는 영업사원이 없습니다.</td></tr>
                   ) : filteredEmps.map((emp) => {
                     // 월별 실적 / 누적 실적 / 현황 (월별 분리 저장, weeklyEntries)
                     const _mp = empMetric === 'amount' ? 'A' : ''; // 금액 탭은 접두어로 독립 저장
@@ -9045,6 +9147,10 @@ function App() {
                         </td>
                         <td className="px-3 py-2 border-r border-slate-300 text-center font-semibold">
                           <EditableCell value={emp.name} align="center" onSave={(v) => updateRow(emp.id, 'name', v)} />
+                        </td>
+                        <td className="px-2 py-1 border-r border-slate-300 text-left">
+                          <EditableCell value={weeklyEntries[`empDealer|${hq}|${emp.id}|${yearMonthSP}`] ?? ''} align="left"
+                            onSave={(v) => { setWeeklyEntries(prev => ({ ...prev, [`empDealer|${hq}|${emp.id}|${yearMonthSP}`]: v })); logChange(`${hq} - 영업사원 (${monthLabelSP})`, `${emp.name} 대리상 수정`); }} />
                         </td>
                         <td className="px-2 py-1 border-r border-slate-300 text-right">
                           {empMetric === 'amount' ? (
@@ -9106,7 +9212,7 @@ function App() {
                     const sumRate = sumGoal > 0 ? +(sumMonth / sumGoal * 100).toFixed(1) : 0;
                     return (
                       <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
-                        <td colSpan={2} className="px-3 py-2 border-r border-slate-300 text-center">전체 합계</td>
+                        <td colSpan={3} className="px-3 py-2 border-r border-slate-300 text-center">전체 합계</td>
                         <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumGoal)}</td>
                         <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumMonth)}</td>
                         <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumCum)}</td>
