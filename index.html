@@ -1678,6 +1678,62 @@ const initialPSIFocus = {
 
 // 5. 2026년 5월 판매실적 (출하계획) - 지역별
 // shipGoal=출하목표, actual=현재 실적, w1Goal/w1Actual=1주차, w2Goal/w2Actual=2주차, w3Plan=3주차계획, w4Plan=4주차계획
+// 조직도 path로 인물 객체 찾기
+function getPersonByPath(org, path) {
+  if (!org || !path) return {};
+  if (path.type === 'head') return org.head || {};
+  if (path.type === 'admin') return (path.idx == null) ? {} : ((org.admin || [])[path.idx] || {});
+  if (path.type === 'manager') return (org.regions[path.ri] || {}).manager || {};
+  if (path.type === 'member') return (path.mi == null) ? {} : (((org.regions[path.ri] || {}).members || [])[path.mi] || {});
+  return {};
+}
+
+// 영업 조직 프로필 (조직도/카드용) — 화동본부 (첨부 명단 기준)
+// node: name, birth(생년월일), join(입사일), title(직위), area(담당구역/DSO), photo(이미지 URL, 비어있으면 이니셜 표시)
+const ORG_PROFILE = {
+  '화동본부': {
+    head: { name: '朱秀婷', birth: '1978.12.17', join: '2025.11.17', title: '华东本部长', area: '3/4/5大区', target: '7,900만', photo: '' },
+    admin: [
+      { name: '俞瑛', birth: '1988.10.15', join: '2023.3.17', title: '行政 / 商务专员', area: '华东本部', photo: '' },
+    ],
+    regions: [
+      {
+        region: '상해', target: '2,000만',
+        manager: { name: '刘裕超', birth: '1989.11.30', join: '2024.9.9', title: '3大区经理', area: '上海', photo: '' },
+        members: [
+          { name: '姚立啡(宁波)', birth: '1980.10.11', join: '2000.1.5', title: '区域经理', area: '上海 · 华齿/雅悦/名冠/维佳康/中喜/永信', photo: '' },
+          { name: '涂慧君', birth: '1984.1.4', join: '2024.7.1', title: '销售经理', area: '上海 · 茂菊连锁/西郊众植', photo: '' },
+          { name: '姚远', birth: '1982.12.4', join: '2025.7.1', title: '销售经理', area: '上海 · 博爱集团', photo: '' },
+          { name: '张宝席', birth: '1991.3.28', join: '2025.9.1', title: '销售经理', area: '上海 · 雅悦/维佳康/美乐', photo: '' },
+        ],
+      },
+      {
+        region: '강소', target: '3,400만',
+        manager: { name: '潘雨锋', birth: '1998.3.12', join: '2024.9.4', title: '4大区经理', area: '江苏', photo: '' },
+        members: [
+          { name: '张秋景(苏州)', birth: '1991.10.28', join: '2023.9.4', title: '销售经理', area: '苏州大市(张家港除外) · 牙博士集团/牙洁仕/丁月铎/中喜口腔', photo: '' },
+          { name: '宋家威', birth: '1999.12.23', join: '2021.10.8', title: '销售经理', area: '南通/南京部分/盐城 · 薄荷博士/海安医博/如皋固德', photo: '' },
+          { name: '王正辉(徐州)', birth: '1999.12.3', join: '2023.11.6', title: '销售经理', area: '徐州/宿迁/淮安/连云港 · 连云港成宏口腔', photo: '' },
+          { name: '方忠智(泰州)', birth: '1999.9.14', join: '2022.5.12', title: '销售经理', area: '扬州/泰州/镇江/南京部分 · 南京牙博士四家/扬州菲特口腔', photo: '' },
+          { name: '高翔', birth: '1995.5.6', join: '2025.2.17', title: '销售经理', area: '苏州/无锡/常州/张家港 · 常州北极星/苏州口腔医院/江阴牙博士/张家港牙博士', photo: '' },
+          { name: '章月飞', birth: '1985.9.15', join: '2026.3.9', title: '区域经理(未转正)', area: '江苏区域 · 管理同事日常工作, 代理商沟通', photo: '' },
+          { name: '左中红', birth: '1995.9.23', join: '2016.12.12', title: '大区经理(6.1担任)', area: '江苏 · 江苏地区所有跟进DSO', photo: '' },
+        ],
+      },
+      {
+        region: '산동', target: '2,500만',
+        manager: { name: '黄友杰', birth: '1991.11.15', join: '2014.2.17', title: '5大区经理', area: '山东', photo: '' },
+        members: [
+          { name: '杜红娟', birth: '1987.3.10', join: '2022.6.16', title: '区域经理', area: '济南/德州/济宁/淄博/临沂', photo: '' },
+          { name: '竺琪林(宁波)', birth: '1997.4.27', join: '2018.7.2', title: '区域经理', area: '东营/日照/青岛/淄博/烟台/滨州', photo: '' },
+          { name: '于蒙', birth: '1991.4.8', join: '2023.5.8', title: '销售经理', area: '济南/德州/济宁/淄博/临沂', photo: '' },
+          { name: '赵丽丽', birth: '2000.3.8', join: '2025.11.10', title: '销售经理', area: '东营/日照/青岛/淄博/烟台/滨州', photo: '' },
+        ],
+      },
+    ],
+  },
+};
+
 // 5. 26년 5월 판매실적 (출하계획) - 영업사원별 상세 데이터
 // role: '대구경리'(총괄), '지역소계'(지역 합계 행), '사원'(개별 영업사원)
 // shipGoal=출하량 목표, actual=업적, w1Goal/w1Actual=1주차, w2Goal/w2Actual=2주차, w3Plan/w3Actual=3주차, w4Plan/w4Actual=4주차
@@ -1720,13 +1776,23 @@ const initialSalesPerson = {
     { id: 15, region: '닝샤', subType: '닝샤', name: '祁晨琛 (치천첸)', role: '사원', shipGoal: 265, actual: 130, w1Goal: 25, w1Actual: 60, w2Goal: 60, w2Actual: 30, w3Plan: 60, w3Actual: 40, w4Plan: 60, w4Actual: 0, w5Plan: 60, w5Actual: 0 },
   ],
   '화동본부': [
-    { id: 1, region: '상해', subType: '대구경리', name: '서동훈', role: '대구경리', shipGoal: 18900, actual: 4480, w1Goal: 3780, w1Actual: 1750, w2Goal: 4725, w2Actual: 2730, w3Plan: 4725, w3Actual: 0, w4Plan: 5670, w4Actual: 0 },
-    { id: 2, region: '상해', subType: '상해구역', name: '상해지역', role: '지역소계', shipGoal: 7800, actual: 1850, w1Goal: 1560, w1Actual: 720, w2Goal: 1950, w2Actual: 1130, w3Plan: 1950, w3Actual: 0, w4Plan: 2340, w4Actual: 0 },
-    { id: 3, region: '상해', subType: '상해', name: '문지영', role: '사원', shipGoal: 4000, actual: 950, w1Goal: 800, w1Actual: 370, w2Goal: 1000, w2Actual: 580, w3Plan: 1000, w3Actual: 0, w4Plan: 1200, w4Actual: 0 },
-    { id: 4, region: '상해', subType: '상해', name: '백승현', role: '사원', shipGoal: 3800, actual: 900, w1Goal: 760, w1Actual: 350, w2Goal: 950, w2Actual: 550, w3Plan: 950, w3Actual: 0, w4Plan: 1140, w4Actual: 0 },
-    { id: 5, region: '강소', subType: '강소구역', name: '강소지역', role: '지역소계', shipGoal: 5200, actual: 1230, w1Goal: 1040, w1Actual: 480, w2Goal: 1300, w2Actual: 750, w3Plan: 1300, w3Actual: 0, w4Plan: 1560, w4Actual: 0 },
-    { id: 6, region: '강소', subType: '강소', name: '신예린', role: '사원', shipGoal: 5200, actual: 1230, w1Goal: 1040, w1Actual: 480, w2Goal: 1300, w2Actual: 750, w3Plan: 1300, w3Actual: 0, w4Plan: 1560, w4Actual: 0 },
-    { id: 7, region: '산동', subType: '산동구역', name: '산동지역', role: '지역소계', shipGoal: 3800, actual: 920, w1Goal: 760, w1Actual: 360, w2Goal: 950, w2Actual: 560, w3Plan: 950, w3Actual: 0, w4Plan: 1140, w4Actual: 0 },
+    { id: 1, region: '상해', subType: '대구경리', name: '刘裕超', role: '대구경리', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 2, region: '상해', subType: '상해구역', name: '상해지역', role: '지역소계', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 3, region: '상해', subType: '상해', name: '姚立啡', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 4, region: '상해', subType: '상해', name: '涂慧君', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 5, region: '상해', subType: '상해', name: '姚远', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 6, region: '상해', subType: '상해', name: '张宝席', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 7, region: '강소', subType: '강소구역', name: '강소지역', role: '지역소계', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 8, region: '강소', subType: '강소', name: '张秋景', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 9, region: '강소', subType: '강소', name: '宋家威', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 10, region: '강소', subType: '강소', name: '王正辉', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 11, region: '강소', subType: '강소', name: '方忠智', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 12, region: '강소', subType: '강소', name: '高翔', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 13, region: '산동', subType: '산동구역', name: '산동지역', role: '지역소계', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 14, region: '산동', subType: '산동', name: '杜红娟', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 15, region: '산동', subType: '산동', name: '竺琪林', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 16, region: '산동', subType: '산동', name: '于蒙', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
+    { id: 17, region: '산동', subType: '산동', name: '赵丽丽', role: '사원', shipGoal: 0, actual: 0, w1Goal: 0, w1Actual: 0, w2Goal: 0, w2Actual: 0, w3Plan: 0, w3Actual: 0, w4Plan: 0, w4Actual: 0 },
   ],
 };
 
@@ -1829,10 +1895,21 @@ const initialDSO = {
     { id: 29, no: 29, customer: '宁夏牙博士口腔', region: '닝샤', medType: 'DSO', annualQty: 8000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 1500, cumShip: 90, probability: 80, status: '정착 중', owner: '祁晨琛', updated: '2026-05-22', branchCount: 2, system: 'AO', yearTarget: 1500, monthSales: 125, cumQty: 450, grade: 'B' },
   ],
   '화동본부': [
-    { id: 1, no: 1, customer: '상해 푸동 의료', region: '상해', medType: 'DSO', annualQty: 32000, annualRev: 850, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 1850, cumProposal: 1250, cumContract: 580, cumShip: 220, probability: 95, status: '정착 중', owner: '서동훈', updated: '2026-05-14', branchCount: 8, system: 'ARi', yearTarget: 32000, monthSales: 2667, cumQty: 17600, grade: 'S' },
-    { id: 2, no: 2, customer: '상해 푸시 의료', region: '상해', medType: '구강병원', annualQty: 28000, annualRev: 720, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 1450, cumProposal: 950, cumContract: 450, cumShip: 180, probability: 88, status: '정착 중', owner: '문지영', updated: '2026-05-13', branchCount: 8, system: 'ARi', yearTarget: 28000, monthSales: 2333, cumQty: 14400, grade: 'A' },
-    { id: 3, no: 3, customer: '남경 강소 의료', region: '강소', medType: 'DSO', annualQty: 25000, annualRev: 620, contact: true, propose: true, risk: false, discuss: true, enter: false, cumPotential: 1200, cumProposal: 780, cumContract: 320, cumShip: 110, probability: 72, status: '계약 진행', owner: '백승현', updated: '2026-05-11', branchCount: 8, system: 'ARi', yearTarget: 25000, monthSales: 2083, cumQty: 8800, grade: 'A' },
-    { id: 4, no: 4, customer: '청도 산동 의료', region: '산동', medType: 'DSO', annualQty: 22000, annualRev: 540, contact: true, propose: true, risk: false, discuss: true, enter: false, cumPotential: 1050, cumProposal: 650, cumContract: 250, cumShip: 80, probability: 65, status: '협의 진행', owner: '신예린', updated: '2026-05-10', branchCount: 4, system: 'AR', yearTarget: 22000, monthSales: 1833, cumQty: 6400, grade: 'B' },
+    { id: 1, no: 1, customer: '상해 푸동 의료', region: '상해', medType: 'DSO', annualQty: 32000, annualRev: 850, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 1850, cumProposal: 1250, cumContract: 580, cumShip: 220, probability: 95, status: '정착 중', owner: '서동훈', updated: '2026-05-14', branchCount: 8, system: 'ARi', yearTarget: 32000, monthSales: 2667, cumQty: 17600, grade: 'S', dealer: '직접', headquarter: '상해', sales25: 0 },
+    { id: 2, no: 2, customer: '상해 푸시 의료', region: '상해', medType: '구강병원', annualQty: 28000, annualRev: 720, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 1450, cumProposal: 950, cumContract: 450, cumShip: 180, probability: 88, status: '정착 중', owner: '문지영', updated: '2026-05-13', branchCount: 8, system: 'ARi', yearTarget: 28000, monthSales: 2333, cumQty: 14400, grade: 'A', dealer: '직접', headquarter: '상해', sales25: 0 },
+    { id: 3, no: 3, customer: '남경 강소 의료', region: '강소', medType: 'DSO', annualQty: 25000, annualRev: 620, contact: true, propose: true, risk: false, discuss: true, enter: false, cumPotential: 1200, cumProposal: 780, cumContract: 320, cumShip: 110, probability: 72, status: '계약 진행', owner: '백승현', updated: '2026-05-11', branchCount: 8, system: 'ARi', yearTarget: 25000, monthSales: 2083, cumQty: 8800, grade: 'A', dealer: '직접', headquarter: '강소', sales25: 0 },
+    { id: 4, no: 4, customer: '청도 산동 의료', region: '산동', medType: 'DSO', annualQty: 22000, annualRev: 540, contact: true, propose: true, risk: false, discuss: true, enter: false, cumPotential: 1050, cumProposal: 650, cumContract: 250, cumShip: 80, probability: 65, status: '협의 진행', owner: '신예린', updated: '2026-05-10', branchCount: 4, system: 'AR', yearTarget: 22000, monthSales: 1833, cumQty: 6400, grade: 'B', dealer: '직접', headquarter: '산동', sales25: 0 },
+    { id: 101, no: 101, customer: '苏州牙博士口腔', region: '강소', medType: 'DSO', annualQty: 148000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 90, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 47, system: 'ARi', yearTarget: 30000, monthSales: 2500, cumQty: 0, grade: 'S', dealer: '江苏湖康', headquarter: '苏州', sales25: 26645 },
+    { id: 102, no: 102, customer: '北极星口腔', region: '강소', medType: 'DSO', annualQty: 30000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 90, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 13, system: 'ARi', yearTarget: 10000, monthSales: 833, cumQty: 0, grade: 'S', dealer: '江苏湖康', headquarter: '常州', sales25: 10234 },
+    { id: 103, no: 103, customer: '薄荷博士', region: '강소', medType: 'DSO', annualQty: 6000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 85, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 4, system: 'ARi', yearTarget: 6000, monthSales: 500, cumQty: 0, grade: 'A', dealer: '江苏湖康', headquarter: '南通', sales25: 6298 },
+    { id: 104, no: 104, customer: '金铂利口腔', region: '강소', medType: 'DSO', annualQty: 15000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 85, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 19, system: 'ARi', yearTarget: 5000, monthSales: 417, cumQty: 0, grade: 'A', dealer: '江苏湖康', headquarter: '南京', sales25: 1775 },
+    { id: 105, no: 105, customer: '惠州廖军贤口腔', region: '강소', medType: 'DSO', annualQty: 4000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 466 },
+    { id: 106, no: 106, customer: '牙洁仕', region: '강소', medType: 'DSO', annualQty: 2000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 6, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 1115 },
+    { id: 107, no: 107, customer: '菲特口腔医院', region: '강소', medType: 'DSO', annualQty: 2000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 4, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '扬州', sales25: 1072 },
+    { id: 108, no: 108, customer: '苏州市口腔', region: '강소', medType: 'DSO', annualQty: 15000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 70, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 14, system: 'ARi', yearTarget: 3000, monthSales: 250, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 1857 },
+    { id: 109, no: 109, customer: '南京六合值得', region: '강소', medType: 'DSO', annualQty: 5000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 70, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 3, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '淮安', sales25: 420 },
+    { id: 110, no: 110, customer: '苏州吴江丁月铎口腔', region: '강소', medType: 'DSO', annualQty: 5000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 65, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 6, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'C', dealer: '江苏湖康', headquarter: '苏州', sales25: 1350 },
+    { id: 111, no: 111, customer: '泰州玲珑口腔', region: '강소', medType: 'DSO', annualQty: 2500, annualRev: 0, contact: true, propose: true, risk: false, discuss: false, enter: false, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 50, status: '未进入', owner: '', updated: '2026-06-01', branchCount: 3, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'C', dealer: '江苏湖康', headquarter: '泰州', sales25: 374 },
   ],
 };
 
@@ -3298,7 +3375,7 @@ function computeCorpTotals(tab, weeklyEntries, storeKey) {
 function KpiGoalBanner({ hq, year, weeklyEntries, setWeeklyEntries }) {
   const amtKey = `kpiGoal_amt|${hq}|${year}`;
   const qtyKey = `kpiGoal_qty|${hq}|${year}`;
-  const defAmt = hq === '화남본부' ? 95074 : 0;
+  const defAmt = hq === '화남본부' ? 95074 : (hq === '화동본부' ? 7900 : 0);
   const defQty = hq === '화남본부' ? 9.5 : 0;
   const amt = (weeklyEntries[amtKey] !== undefined && weeklyEntries[amtKey] !== '') ? weeklyEntries[amtKey] : defAmt;
   const qty = (weeklyEntries[qtyKey] !== undefined && weeklyEntries[qtyKey] !== '') ? weeklyEntries[qtyKey] : defQty;
@@ -4348,6 +4425,25 @@ function App() {
     try { return localStorage.getItem('dashboard_dsoSubTab_v1') || 'summary'; } catch(e){ return 'summary'; }
   });
   React.useEffect(()=>{ try{ localStorage.setItem('dashboard_dsoSubTab_v1', dsoSubTab); }catch(e){} }, [dsoSubTab]);
+  // 영업사원 - 탭 (progress: 진도현황 / trend: 주차별 추이 / org: 조직도)
+  const [spSubTab, setSpSubTab] = useState(() => {
+    try { return localStorage.getItem('dashboard_spSubTab_v1') || 'progress'; } catch(e){ return 'progress'; }
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_spSubTab_v1', spSubTab); }catch(e){} }, [spSubTab]);
+  // 조직도 카드 (사진 클릭 시 표시할 인물)
+  const [orgCardPerson, setOrgCardPerson] = useState(null);
+  // 조직도 인물 사진 (이름 기준, base64 dataURL 저장)
+  const [orgPhotos, setOrgPhotos] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_orgPhotos_v1'); return s ? JSON.parse(s) : {}; } catch(e){ return {}; }
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_orgPhotos_v1', JSON.stringify(orgPhotos)); }catch(e){} }, [orgPhotos]);
+  // 조직도 데이터 (편집/추가/삭제 가능)
+  const [orgData, setOrgData] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_orgData_v1'); return s ? JSON.parse(s) : JSON.parse(JSON.stringify(ORG_PROFILE)); } catch(e){ return JSON.parse(JSON.stringify(ORG_PROFILE)); }
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('dashboard_orgData_v1', JSON.stringify(orgData)); }catch(e){} }, [orgData]);
+  // 조직도 인물 편집 모달 ({ mode, path, person } / path로 위치 식별)
+  const [orgEdit, setOrgEdit] = useState(null);
   // 대리상 PSI 관리 - 탭 (annual: 연간월별표 / manage: 대리상 PSI 관리 / focus: 중점관리)
   const [psiTab, setPsiTab] = useState(() => {
     try { const s = localStorage.getItem('dashboard_psiTab_v1'); if (s && s !== 'focus') return s; } catch(e){}
@@ -4419,7 +4515,19 @@ function App() {
   const [empFilter, setEmpFilter] = useState('전체');
   const [empSearch, setEmpSearch] = useState('');
   const [dso, setDSO] = useState(() => {
-    try { const s = localStorage.getItem('dashboard_dso_v1'); return s ? JSON.parse(s) : initialDSO; } catch (e) { return initialDSO; }
+    try {
+      const s = localStorage.getItem('dashboard_dso_v1');
+      const data = s ? JSON.parse(s) : initialDSO;
+      // 저장본에 코드 기본 DSO(특히 화동본부 江苏湖康 id 101~)가 빠져 있으면 보강
+      Object.keys(initialDSO).forEach(hk => {
+        const baseRows = initialDSO[hk] || [];
+        const cur = Array.isArray(data[hk]) ? data[hk] : [];
+        const ids = new Set(cur.map(r => r.id));
+        const missing = baseRows.filter(b => !ids.has(b.id));
+        if (missing.length > 0) data[hk] = [...cur, ...missing];
+      });
+      return data;
+    } catch (e) { return initialDSO; }
   });
   const [dsoFilter, setDSOFilter] = useState('전체');
   const [dsoMedFilter, setDSOMedFilter] = useState('전체');
@@ -4758,6 +4866,16 @@ function App() {
       if (!parsed || Object.keys(parsed).length === 0) {
         return JSON.parse(JSON.stringify(INITIAL_DSO_MONTH));
       }
+      // 마이그레이션: 화동본부에 江苏湖康(id 101~) 기본 데이터가 반영되도록 기존 화동본부 월별 저장분 제거
+      try {
+        if (parsed['화동본부']) {
+          const mig = localStorage.getItem('dsoMonth_huakang_migrated_v1');
+          if (!mig) {
+            delete parsed['화동본부'];
+            localStorage.setItem('dsoMonth_huakang_migrated_v1', '1');
+          }
+        }
+      } catch (e) {}
       return parsed;
     } catch (e) {
       return JSON.parse(JSON.stringify(INITIAL_DSO_MONTH));
@@ -5781,30 +5899,8 @@ function App() {
 
         {/* 우측 액션 버튼 */}
         <div className="flex items-center gap-2 ml-auto">
-          {/* 표 너비 저장 버튼 */}
-          <button onClick={handleSaveColumnWidths}
-            title="현재 표시된 모든 표의 컬럼 너비를 저장하고 잠금 (새로고침/전환 후에도 유지)"
-            className="flex items-center gap-1 px-2 py-1 text-xs bg-violet-600 text-white rounded hover:bg-violet-700 font-semibold flex-shrink-0">
-            📐 너비 저장
-          </button>
+          {/* (표 너비 저장/초기화 버튼 제거됨) */}
 
-          {/* 잠금 해제 / 초기화 (잠금된 경우만) */}
-          {columnWidthsLocked && (
-            <button onClick={() => {
-              setColumnWidthsLocked(false);
-              alert('🔓 너비 잠금 해제\n\n이제 드래그로 컬럼 너비를 다시 조정할 수 있습니다.\n조정 후 "📐 너비 저장" 버튼을 눌러 다시 저장하세요.');
-            }}
-              title="잠금 해제 - 드래그로 컬럼 너비 조정 가능"
-              className="flex items-center gap-1 px-2 py-1 text-xs border border-amber-300 bg-amber-50 text-amber-700 rounded hover:bg-amber-100 font-semibold flex-shrink-0">
-              🔓 잠금 해제
-            </button>
-          )}
-
-          <button onClick={handleResetColumnWidths}
-            title="저장된 모든 표 컬럼 너비 초기화 (기본 너비로 복귀)"
-            className="flex items-center gap-1 px-2 py-1 text-xs border border-slate-300 text-slate-600 rounded hover:bg-slate-50 flex-shrink-0">
-            너비 초기화
-          </button>
 
           {/* 전체 백업 버튼 */}
           <button onClick={handleFullBackup}
@@ -8000,6 +8096,12 @@ function App() {
   const [psiFocusExpandedRow, setPSIFocusExpandedRow] = useState(null);
   // 6번 메뉴 - DSO 상세 행 펼침 (id를 키로) [Deprecated: 사이드 패널로 변경됨]
   const [dsoExpandedRow, setDSOExpandedRow] = useState(null);
+  const [dsoDealerFilter, setDsoDealerFilter] = useState('전체');  // DSO 상세현황 대리상 필터
+  // 삭제된 DSO id 기록 (hq+월별) — 기본 데이터가 되살아나지 않도록
+  const [dsoDeletedIds, setDsoDeletedIds] = useState(() => {
+    try { const s = localStorage.getItem('dashboard_dsoDeletedIds_v1'); return s ? JSON.parse(s) : {}; } catch(e){ return {}; }
+  });
+  React.useEffect(() => { try { localStorage.setItem('dashboard_dsoDeletedIds_v1', JSON.stringify(dsoDeletedIds)); } catch(e){} }, [dsoDeletedIds]);
   // 6번 메뉴 - DSO 사이드 패널 (선택된 DSO row 전체)
   const [dsoDetailPanel, setDsoDetailPanel] = useState(null); // { hq, dsoId, dsoRow }
   // 6번 메뉴 - DSO 월별 실적 행별 펼침 상태 (rowId → true/false)
@@ -9232,11 +9334,18 @@ function App() {
     }));
 
     // 월별 데이터 조회 (안전한 deep copy 적용)
-    const _baseData = (salesPersonMonth[hq] && salesPersonMonth[hq][yearMonthSP])
+    let _baseData = (salesPersonMonth[hq] && salesPersonMonth[hq][yearMonthSP])
       ? salesPersonMonth[hq][yearMonthSP]
       : (is5월SP ? (salesPerson[hq] || []) : emptySalesPerson);
+    // 저장본 명단이 코드 기본 명단과 다르면(조직 개편 등) 기본 명단으로 시작 (수치는 0)
+    {
+      const baseNames = (salesPerson[hq] || []).map(d => d.name).join('|');
+      const savedNames = (_baseData || []).map(d => d.name).join('|');
+      if (baseNames && savedNames !== baseNames) {
+        _baseData = is5월SP ? (salesPerson[hq] || []) : emptySalesPerson;
+      }
+    }
     const data = _baseData;
-    console.log('[영업사원 렌더링]', { hq, yearMonthSP, 데이터수: data.length, 월별데이터있음: !!(salesPersonMonth[hq] && salesPersonMonth[hq][yearMonthSP]), 첫번째shipGoal: data[0]?.shipGoal, salesPersonMonth_keys: Object.keys(salesPersonMonth[hq] || {}) });
 
     // 사원만 (대구경리/지역소계 제외)
     const employees = data.filter(d => d.role === '사원' || d.role === '8대구경리' || d.role === '9대구경리');
@@ -9413,6 +9522,176 @@ function App() {
           </div>
 
         <MenuNoteBanner noteKey={`sp_note|${hq}|${yearMonthSP}`} monthLabel={monthLabelSP} hq={hq} year={curYearSP} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} />
+
+        {/* 영업사원 서브탭 */}
+        <div className="flex items-center gap-1 mb-4 border-b border-slate-200">
+          {[{k:'progress',l:'진도 현황 (금액)'},{k:'trend',l:'주차별 실적추이'},{k:'org',l:'조직도'}].map(t => (
+            <button key={t.k} onClick={() => setSpSubTab(t.k)}
+              className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 transition-colors " + (spSubTab===t.k?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>
+              {t.l}
+            </button>
+          ))}
+        </div>
+
+        {/* 조직도 탭 */}
+        {spSubTab === 'org' && (() => {
+          const org = orgData[hq];
+          if (!org) return <div className="bg-white border border-slate-200 rounded-md p-8 text-center text-slate-400">{hq} 조직도 데이터가 준비되지 않았습니다.</div>;
+          // 인물 저장 (path: {type:'head'} | {type:'admin', idx} | {type:'manager', ri} | {type:'member', ri, mi})
+          const savePerson = (path, person) => {
+            setOrgData(prev => {
+              const next = JSON.parse(JSON.stringify(prev));
+              const o = next[hq];
+              if (path.type === 'head') o.head = { ...o.head, ...person };
+              else if (path.type === 'admin') { if (path.idx == null) { o.admin = o.admin || []; o.admin.push(person); } else o.admin[path.idx] = { ...o.admin[path.idx], ...person }; }
+              else if (path.type === 'manager') o.regions[path.ri].manager = { ...o.regions[path.ri].manager, ...person };
+              else if (path.type === 'member') { if (path.mi == null) { o.regions[path.ri].members.push(person); } else o.regions[path.ri].members[path.mi] = { ...o.regions[path.ri].members[path.mi], ...person }; }
+              return next;
+            });
+          };
+          const deletePerson = (path) => {
+            if (!confirm('이 인물을 삭제하시겠습니까?')) return;
+            setOrgData(prev => {
+              const next = JSON.parse(JSON.stringify(prev));
+              const o = next[hq];
+              if (path.type === 'admin') o.admin.splice(path.idx, 1);
+              else if (path.type === 'member') o.regions[path.ri].members.splice(path.mi, 1);
+              return next;
+            });
+          };
+          const handlePhotoUpload = (name, file) => {
+            if (!file) return;
+            if (file.size > 1.5 * 1024 * 1024) { alert('이미지 용량이 큽니다(1.5MB 이하 권장).'); }
+            const reader = new FileReader();
+            reader.onload = (ev) => setOrgPhotos(prev => ({ ...prev, [name]: ev.target.result }));
+            reader.readAsDataURL(file);
+          };
+          const EditBtns = ({ path, canDelete }) => (
+            <span className="inline-flex items-center gap-0.5 ml-1">
+              <button onClick={(e) => { e.stopPropagation(); setOrgEdit({ path, person: getPersonByPath(org, path) }); }}
+                className="text-slate-300 hover:text-blue-600 text-[10px]" title="수정">✎</button>
+              {canDelete && <button onClick={(e) => { e.stopPropagation(); deletePerson(path); }}
+                className="text-slate-300 hover:text-rose-500 text-[10px]" title="삭제">✕</button>}
+            </span>
+          );
+          const PhotoBtn = ({ p, size = 'md' }) => {
+            const dim = size === 'lg' ? 'w-14 h-14' : (size === 'sm' ? 'w-9 h-9' : 'w-11 h-11');
+            const initial = (p.name || '?').replace(/\(.*\)/, '').slice(0, 1);
+            const photo = orgPhotos[p.name] || p.photo || '';
+            const inputId = `orgphoto_${p.name}`;
+            return (
+              <div className="relative flex-shrink-0 group/photo">
+                <button onClick={() => setOrgCardPerson({ ...p, photo })} title="클릭하여 상세 카드 보기"
+                  className={`${dim} rounded-full overflow-hidden border-2 border-white shadow ring-1 ring-slate-200 hover:ring-blue-400 transition block`}>
+                  {photo
+                    ? <img src={photo} alt={p.name} className="w-full h-full object-cover" />
+                    : <span className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-sm">{initial}</span>}
+                </button>
+                <label htmlFor={inputId} title="사진 업로드"
+                  className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full border border-slate-300 flex items-center justify-center cursor-pointer opacity-0 group-hover/photo:opacity-100 hover:bg-blue-50 transition text-[9px]">📷</label>
+                <input id={inputId} type="file" accept="image/*" className="hidden"
+                  onChange={(e) => handlePhotoUpload(p.name, e.target.files && e.target.files[0])} />
+              </div>
+            );
+          };
+          return (
+            <div className="bg-white border border-slate-200 rounded-md p-6 overflow-x-auto">
+              {/* 본부장 */}
+              <div className="flex flex-col items-center mb-2">
+                {org.head.target && <div className="text-xs font-bold text-blue-700 mb-1">目标 {org.head.target}</div>}
+                <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2">
+                  <PhotoBtn p={org.head} size="lg" />
+                  <div>
+                    <div className="text-[11px] text-slate-500">{org.head.title}</div>
+                    <div className="text-base font-bold text-slate-900">{org.head.name}<EditBtns path={{type:'head'}} canDelete={false} /></div>
+                  </div>
+                  {org.admin && org.admin.map((a, i) => (
+                    <div key={i} className="flex items-center gap-1.5 ml-3 pl-3 border-l border-emerald-200">
+                      <PhotoBtn p={a} size="sm" />
+                      <div>
+                        <div className="text-[10px] text-slate-500">{a.title}</div>
+                        <div className="text-sm font-semibold text-slate-800">{a.name}<EditBtns path={{type:'admin', idx:i}} canDelete={true} /></div>
+                      </div>
+                    </div>
+                  ))}
+                  <button onClick={() => setOrgEdit({ path:{type:'admin', idx:null}, person:{} })}
+                    className="ml-2 px-2 py-1 text-[11px] border border-dashed border-emerald-300 text-emerald-600 rounded hover:bg-emerald-100">+ 행정</button>
+                </div>
+              </div>
+              {/* 세로선 */}
+              <div className="flex justify-center"><div className="w-px h-5 bg-slate-300"></div></div>
+              {/* 지역(대구) */}
+              <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${org.regions.length}, minmax(0, 1fr))` }}>
+                {org.regions.map((rg, ri) => (
+                  <div key={ri} className="flex flex-col items-center">
+                    {rg.target && <div className="text-[11px] font-bold text-blue-700 mb-1">目标 {rg.target}</div>}
+                    <div className="flex items-center gap-2 bg-sky-50 border border-sky-200 rounded-lg px-3 py-2 w-full justify-center">
+                      <PhotoBtn p={rg.manager} />
+                      <div>
+                        <div className="text-[10px] text-slate-500">{rg.manager.title}</div>
+                        <div className="text-sm font-bold text-slate-900">{rg.manager.name}<EditBtns path={{type:'manager', ri}} canDelete={false} /></div>
+                      </div>
+                    </div>
+                    <div className="w-px h-4 bg-slate-300"></div>
+                    <div className="flex flex-col gap-2 w-full">
+                      {rg.members.map((m, mi) => (
+                        <div key={mi} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1.5">
+                          <PhotoBtn p={m} size="sm" />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[10px] text-slate-500">{m.title}</div>
+                            <div className="text-xs font-semibold text-slate-800 truncate">{m.name}<EditBtns path={{type:'member', ri, mi}} canDelete={true} /></div>
+                          </div>
+                        </div>
+                      ))}
+                      <button onClick={() => setOrgEdit({ path:{type:'member', ri, mi:null}, person:{} })}
+                        className="px-2 py-1 text-[11px] border border-dashed border-slate-300 text-slate-500 rounded hover:bg-slate-100 w-full">+ 사원 추가</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-[11px] text-slate-400">* 사진 클릭 → 상세 카드. 사진 위 📷 → 사진 업로드. 이름 옆 ✎ → 수정, ✕ → 삭제. "+ 사원 추가"로 인원 추가.</div>
+            </div>
+          );
+        })()}
+
+        {/* 주차별 실적추이 탭 (영업사원별) */}
+        {spSubTab === 'trend' && (() => {
+          const emps = filteredEmps.filter(e => e.role === '사원');
+          // 각 주차를 x축, 사원별 실적을 시리즈로
+          const chartData = ['w1','w2','w3','w4','w5'].map((w, i) => {
+            const row = { week: `${i+1}주차` };
+            emps.forEach(e => { row[e.name] = Number(e[`${w}Actual`]) || 0; });
+            return row;
+          });
+          const palette = ['#2563eb','#16a34a','#f59e0b','#dc2626','#7c3aed','#0891b2','#db2777','#65a30d','#ea580c','#4f46e5','#0d9488','#c026d3','#ca8a04','#9333ea','#059669','#e11d48','#2dd4bf'];
+          return (
+            <div className="bg-white border border-slate-200 rounded-md p-6">
+              <h3 className="text-base font-bold text-slate-900 mb-4">주차별 실적추이 (영업사원별) · {monthLabelSP}</h3>
+              {emps.length === 0 ? (
+                <div className="py-12 text-center text-slate-400">표시할 영업사원이 없습니다.</div>
+              ) : (
+                <div style={{ width: '100%', height: 380 }}>
+                  <ResponsiveContainer>
+                    <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="week" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip />
+                      <Legend wrapperStyle={{ fontSize: '11px' }} />
+                      {emps.map((e, idx) => (
+                        <Line key={e.id} type="monotone" dataKey={e.name} stroke={palette[idx % palette.length]} strokeWidth={2} dot={{ r: 3 }} />
+                      ))}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              <div className="mt-3 text-[11px] text-slate-400">* 영업사원별 주차(1~5주) 실적 추이입니다. (단위: 만 위안 · 진도현황 표의 주차 실적 기준)</div>
+            </div>
+          );
+        })()}
+
+        {/* === 진도 현황 (기존 표) — progress 탭에서만 === */}
+        {spSubTab === 'progress' && (<>
         {/* === 상단 KPI 카드 5개 === */}
         {(() => {
           // 우수/위험 사원 계산 (대구경리 제외, 사원만)
@@ -9751,6 +10030,83 @@ function App() {
             </span>
           </div>
         </div>
+        </>)}
+
+        {/* 조직도 인물 편집/추가 모달 */}
+        {orgEdit && (() => {
+          const p = orgEdit.person || {};
+          const setField = (k, v) => setOrgEdit(prev => ({ ...prev, person: { ...prev.person, [k]: v } }));
+          const doSave = () => {
+            const path = orgEdit.path;
+            setOrgData(prev => {
+              const next = JSON.parse(JSON.stringify(prev));
+              const o = next[hq]; if (!o) return prev;
+              const person = orgEdit.person || {};
+              if (path.type === 'head') o.head = { ...o.head, ...person };
+              else if (path.type === 'admin') { o.admin = o.admin || []; if (path.idx == null) o.admin.push(person); else o.admin[path.idx] = { ...o.admin[path.idx], ...person }; }
+              else if (path.type === 'manager') o.regions[path.ri].manager = { ...o.regions[path.ri].manager, ...person };
+              else if (path.type === 'member') { o.regions[path.ri].members = o.regions[path.ri].members || []; if (path.mi == null) o.regions[path.ri].members.push(person); else o.regions[path.ri].members[path.mi] = { ...o.regions[path.ri].members[path.mi], ...person }; }
+              return next;
+            });
+            setOrgEdit(null);
+          };
+          const F = ({ label, k, full }) => (
+            <div className={full ? 'col-span-2' : ''}>
+              <label className="block text-[11px] text-slate-500 mb-1">{label}</label>
+              <input value={p[k] || ''} onChange={(e) => setField(k, e.target.value)}
+                className="w-full px-2 py-1.5 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500" />
+            </div>
+          );
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setOrgEdit(null)}>
+              <div className="bg-white rounded-xl shadow-2xl w-[420px] max-w-[92vw] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-900">{orgEdit.path.idx === null || orgEdit.path.mi === null ? '인물 추가' : '인물 수정'}</h3>
+                  <button onClick={() => setOrgEdit(null)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
+                </div>
+                <div className="p-5 grid grid-cols-2 gap-3">
+                  <F label="이름" k="name" />
+                  <F label="직위" k="title" />
+                  <F label="생년월일" k="birth" />
+                  <F label="입사일" k="join" />
+                  <F label="담당구역/DSO" k="area" full />
+                  {orgEdit.path.type === 'head' || orgEdit.path.type === 'manager' ? <F label="목표 (예: 2,000만)" k="target" full /> : null}
+                </div>
+                <div className="px-5 py-3 border-t border-slate-200 flex justify-end gap-2">
+                  <button onClick={() => setOrgEdit(null)} className="px-3 py-1.5 text-sm border border-slate-300 rounded hover:bg-slate-50">취소</button>
+                  <button onClick={doSave} className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold">저장</button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* 조직도 인물 상세 카드 모달 */}
+        {orgCardPerson && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setOrgCardPerson(null)}>
+            <div className="bg-white rounded-xl shadow-2xl w-[360px] max-w-[92vw] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-4 flex items-center gap-3">
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/70 flex-shrink-0">
+                  {orgCardPerson.photo
+                    ? <img src={orgCardPerson.photo} alt={orgCardPerson.name} className="w-full h-full object-cover" />
+                    : <span className="w-full h-full flex items-center justify-center bg-white/20 text-white font-bold text-xl">{(orgCardPerson.name||'?').replace(/\(.*\)/,'').slice(0,1)}</span>}
+                </div>
+                <div className="text-white">
+                  <div className="text-lg font-bold">{orgCardPerson.name}</div>
+                  <div className="text-xs text-blue-100">{orgCardPerson.title}</div>
+                </div>
+                <button onClick={() => setOrgCardPerson(null)} className="ml-auto text-white/80 hover:text-white text-xl leading-none">×</button>
+              </div>
+              <div className="p-5 space-y-2.5 text-sm">
+                <div className="flex"><span className="w-20 text-slate-400 flex-shrink-0">生年月日</span><span className="text-slate-800 font-medium">{orgCardPerson.birth || '-'}</span></div>
+                <div className="flex"><span className="w-20 text-slate-400 flex-shrink-0">入职日期</span><span className="text-slate-800 font-medium">{orgCardPerson.join || '-'}</span></div>
+                <div className="flex"><span className="w-20 text-slate-400 flex-shrink-0">职位</span><span className="text-slate-800 font-medium">{orgCardPerson.title || '-'}</span></div>
+                <div className="flex"><span className="w-20 text-slate-400 flex-shrink-0">负责区域/DSO</span><span className="text-slate-800 font-medium flex-1">{orgCardPerson.area || '-'}</span></div>
+                {orgCardPerson.target && <div className="flex"><span className="w-20 text-slate-400 flex-shrink-0">目标</span><span className="text-blue-700 font-bold">{orgCardPerson.target}</span></div>}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -9770,9 +10126,17 @@ function App() {
       monthQty: 0, monthRev: 0, monthForecast: 0,
     }));
 
-    const allData = (dsoMonth[hq] && dsoMonth[hq][yearMonthD6])
-      ? dsoMonth[hq][yearMonthD6]
-      : (is5월D6 ? (dso[hq] || []) : emptyDSO);
+    // 그 달에 저장된 데이터가 있으면 그대로 사용(삭제 반영), 없으면 기본 데이터(江苏湖康 포함)로 시작
+    // 삭제 키 (hq+월)
+    const delKey = `${hq}|${yearMonthD6}`;
+    const deletedSet = new Set((dsoDeletedIds[delKey]) || []);
+    // 저장된 월 데이터(사용자 수정/추가분)
+    const savedRows = (dsoMonth[hq] && dsoMonth[hq][yearMonthD6]) ? dsoMonth[hq][yearMonthD6] : [];
+    const savedIds = new Set(savedRows.map(r => r.id));
+    // 기본 데이터(江苏湖康 포함) 중 저장본에 없는 것만 보강
+    const baseRows = (dso[hq] || []).filter(b => !savedIds.has(b.id));
+    // 합치고 삭제된 id 제외
+    const allData = [...savedRows, ...baseRows].filter(r => !deletedSet.has(r.id));
 
     // 이전월 데이터 복사 (표 1, 2, 3 모두)
     const handleCopyPrevMonthDSO = () => {
@@ -9811,19 +10175,32 @@ function App() {
       alert(`${prevMonth}월 데이터 → ${monthLabelD6}로 복사 완료! (표 1/2/3 모두)`);
     };
 
-    // 업데이트 (월별 분리)
+    // 업데이트 (월별 분리) — 항상 보강 포함 전체(allData) 기준으로 저장해 江苏湖康 등 수정 유실 방지
     const updateRow = (id, key, value) => {
+      const updated = allData.map(d => d.id === id ? { ...d, [key]: value } : d);
       setDSOMonth(prev => {
         const hqData = prev[hq] || {};
-        const monthData = hqData[yearMonthD6]
-          ? hqData[yearMonthD6]
-          : (is5월D6
-              ? JSON.parse(JSON.stringify(dso[hq] || []))
-              : JSON.parse(JSON.stringify(emptyDSO)));
-        const updated = monthData.map(d => d.id === id ? { ...d, [key]: value } : d);
         return { ...prev, [hq]: { ...hqData, [yearMonthD6]: updated } };
       });
       logChange(`${hq} - DSO 판매목표 (${monthLabelD6})`, `${key} 수정`);
+    };
+
+    const deleteRowById = (id) => {
+      if (!confirm('이 DSO 행을 삭제하시겠습니까?')) return;
+      // 삭제 id 기록 (기본 데이터가 되살아나지 않도록)
+      setDsoDeletedIds(prev => {
+        const cur = prev[delKey] || [];
+        if (cur.includes(id)) return prev;
+        return { ...prev, [delKey]: [...cur, id] };
+      });
+      // 저장된 월 데이터에서도 제거
+      setDSOMonth(prev => {
+        const hqData = prev[hq] || {};
+        const monthData = hqData[yearMonthD6] ? hqData[yearMonthD6] : [];
+        const updated = monthData.filter(d => d.id !== id);
+        return { ...prev, [hq]: { ...hqData, [yearMonthD6]: updated } };
+      });
+      logChange(`${hq} - DSO 판매목표 (${monthLabelD6})`, '행 삭제');
     };
 
     const filteredData = allData;
@@ -10260,51 +10637,52 @@ function App() {
 
 
         {/* 표 2: DSO 상세 현황 */}
-        {dsoSubTab === 'detail' && (<>
+        {dsoSubTab === 'detail' && (() => {
+        const dealerOpts = ['전체', ...Array.from(new Set(filteredData.map(r => r.dealer).filter(Boolean)))];
+        const detailData = dsoDealerFilter === '전체' ? filteredData : filteredData.filter(r => r.dealer === dsoDealerFilter);
+        return (<>
         <div className="bg-white border border-slate-200 rounded-md p-4">
-          <h3 className="text-base font-bold text-slate-900 mb-3">DSO 상세 현황 ({monthLabelD6})</h3>
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <h3 className="text-base font-bold text-slate-900">DSO 상세 현황 ({monthLabelD6})</h3>
+          </div>
+          {/* 대리상별 탭 */}
+          <div className="flex items-center gap-1 mb-3 border-b border-slate-200 flex-wrap">
+            {dealerOpts.map(d => (
+              <button key={d} onClick={() => setDsoDealerFilter(d)}
+                className={"px-3 py-1.5 text-sm font-semibold -mb-px border-b-2 transition-colors " + (dsoDealerFilter === d ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700')}>
+                {d === '전체' ? `전체 (${filteredData.length})` : (d === '직접' ? '직접(본사)' : d) + ` (${filteredData.filter(r => r.dealer === d).length})`}
+              </button>
+            ))}
+          </div>
           <div className="border border-slate-300 rounded overflow-x-auto">
             <table className="w-full text-sm" data-table-id="dso_progress" data-sticky-first="off" style={{ tableLayout: 'fixed' }}>
               <thead>
                 <tr className="bg-slate-100 border-b border-slate-300">
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">지역</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[60px]">등급</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 text-left min-w-[160px]">DSO 명칭</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[70px]">지점수</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[90px]">년수량</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[100px]">26년목표</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[100px]">매월목표</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[100px]">26년실적</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[80px]">진도율</th>
-                  <th className="px-3 py-2 border-r border-slate-300 font-semibold text-slate-700 w-[110px]">대리상</th>
-                  <th className="px-3 py-2 font-semibold text-slate-700 w-[110px]">진입/미진입</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'7%'}}>지역</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'5%'}}>등급</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-left" style={{width:'20%'}}>DSO 명칭</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'9%'}}>년수량</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'9%'}}>25년실적</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'9%'}}>26년목표</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'9%'}}>26년실적</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'7%'}}>진도율</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'8%'}}>현황</th>
+                  <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{width:'9%'}}>진입모델</th>
+                  <th className="px-2 py-2 font-semibold text-slate-700" style={{width:'8%'}}>진입가격</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredData.length === 0 ? (
+                {detailData.length === 0 ? (
                   <tr><td colSpan={11} className="px-3 py-8 text-center text-slate-400">DSO 데이터가 없습니다.</td></tr>
-                ) : filteredData.map(row => {
+                ) : detailData.map(row => {
                   const achRate = (row.monthSales || 0) > 0 ? +((row.monthRev || 0) / row.monthSales * 100).toFixed(1) : 0;
                   const progRate = (row.yearTarget || 0) > 0 ? +((row.cumQty || 0) / row.yearTarget * 100).toFixed(1) : 0;
                   const isExpanded = dsoExpandedRow === row.id;
                   return (
                     <React.Fragment key={row.id}>
                     <tr className="border-b border-slate-200 hover:bg-slate-50">
-                      <td className="px-3 py-2 border-r border-slate-300 text-center">
-                        <select value={row.region} onChange={(e) => updateRow(row.id, 'region', e.target.value)}
-                          className="px-2 py-1 text-sm border-0 bg-transparent outline-none cursor-pointer hover:bg-blue-50 rounded">
-                          {(REGIONS[hq] || []).map(r => <option key={r} value={r}>{r}</option>)}
-                        </select>
-                      </td>
-                      <td className="px-3 py-2 border-r border-slate-300 text-center">
-                        <select value={row.grade || 'C'} onChange={(e) => updateRow(row.id, 'grade', e.target.value)}
-                          className="px-2 py-1 text-sm border-0 bg-transparent outline-none cursor-pointer hover:bg-blue-50 rounded font-semibold">
-                          <option value="S">S</option>
-                          <option value="A">A</option>
-                          <option value="B">B</option>
-                          <option value="C">C</option>
-                        </select>
-                      </td>
+                      <td className="px-2 py-2 border-r border-slate-300 text-center text-slate-700">{row.region}</td>
+                      <td className="px-2 py-2 border-r border-slate-300 text-center font-semibold text-slate-700">{row.grade || 'C'}</td>
                       <td className="px-3 py-2 border-r border-slate-300 text-left">
                         <div className="flex items-center gap-1.5 group">
                           <button onClick={() => setDsoDetailPanel({ hq, dsoId: row.id, dsoRow: row })}
@@ -10315,13 +10693,18 @@ function App() {
                           <div className="flex-1 min-w-0">
                             <EditableCell value={row.customer || ''} onSave={(v) => updateRow(row.id, 'customer', v)} />
                           </div>
+                          <button onClick={() => deleteRowById(row.id)}
+                            className="flex-shrink-0 text-slate-300 hover:text-rose-500 transition opacity-0 group-hover:opacity-100"
+                            title="이 행 삭제">
+                            <Icon name="trash" className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </td>
-                      <td className="px-3 py-2 border-r border-slate-300 text-right">
-                        <EditableCell value={row.branchCount || 0} type="number" onSave={(v) => updateRow(row.id, 'branchCount', parseFloat(v) || 0)} />
+                      <td className="px-2 py-2 border-r border-slate-300 text-right">
+                        <EditableCell value={row.annualQty || 0} type="number" onSave={(v) => updateRow(row.id, 'annualQty', parseFloat(v) || 0)} />
                       </td>
                       <td className="px-3 py-2 border-r border-slate-300 text-right">
-                        <EditableCell value={row.annualQty || 0} type="number" onSave={(v) => updateRow(row.id, 'annualQty', parseFloat(v) || 0)} />
+                        <EditableCell value={row.sales25 || 0} type="number" onSave={(v) => updateRow(row.id, 'sales25', parseFloat(v) || 0)} />
                       </td>
                       {(() => {
                         // 표 2 자체 월별 데이터 (dso_monthly_t2|hq|dsoId)
@@ -10351,51 +10734,36 @@ function App() {
 
                         return (
                           <>
-                            <td className="px-3 py-2 border-r border-slate-300 text-right">
+                            <td className="px-2 py-2 border-r border-slate-300 text-right">
                               <EditableCell value={setTarget} type="number" align="right" onSave={(v) => updateRow(row.id, 'yearTarget', parseFloat(v) || 0)} />
                             </td>
-                            <td className="px-3 py-2 border-r border-slate-300 text-right">
-                              <EditableCell value={monthlyTarget} type="number" align="right" onSave={(v) => updateRow(row.id, 'monthlyTarget', parseFloat(v) || 0)} />
+                            <td className="px-2 py-2 border-r border-slate-300 text-right" title="26년 실적 (셀 직접 수정)">
+                              <EditableCell
+                                value={yearResult}
+                                type="number"
+                                align="right"
+                                onSave={(v) => updateRow(row.id, 'yearResultManual', v === '' || v === null ? null : (parseFloat(v) || 0))}
+                              />
                             </td>
-                            <td className="px-3 py-2 border-r border-slate-300 text-right" title="셀 직접 수정 가능 · 화살표 클릭 → 1-12월 펼침 입력">
-                              <div className="flex items-center justify-end gap-1">
-                                <button onClick={toggleExp}
-                                  className="text-slate-400 hover:text-slate-700 flex-shrink-0"
-                                  title={isExpanded ? '월별 입력 닫기' : '월별 입력 펼치기 (1~12월)'}
-                                  style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>
-                                  <Icon name="chevronRight" className="w-3.5 h-3.5" />
-                                </button>
-                                <div className="flex-1 text-right">
-                                  <EditableCell
-                                    value={yearResult}
-                                    type="number"
-                                    align="right"
-                                    onSave={(v) => updateRow(row.id, 'yearResultManual', v === '' || v === null ? null : (parseFloat(v) || 0))}
-                                  />
-                                </div>
-                                {has만ual && (
-                                  <button onClick={() => updateRow(row.id, 'yearResultManual', null)}
-                                    className="text-slate-400 hover:text-slate-700 text-[10px] flex-shrink-0"
-                                    title="자동 합산(1-12월)으로 복귀">↻</button>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-3 py-2 border-r border-slate-300 text-right" title="(26년 실적 ÷ 26년 목표) × 100">
+                            <td className="px-2 py-2 border-r border-slate-300 text-right" title="(26년 실적 ÷ 26년 목표) × 100">
                               {setTarget > 0 ? <span>{progRateT2.toFixed(1)}%</span> : <span className="text-slate-400">-</span>}
                             </td>
-                            <td className="px-3 py-2 border-r border-slate-300 text-left" title="대리상 직접 입력">
-                              <EditableCell value={row.dealer || ''} onSave={(v) => updateRow(row.id, 'dealer', v)} />
+                            <td className="px-2 py-2 border-r border-slate-300 text-center">
+                              <select value={row.enter ? '진입' : '미진입'} onChange={(e) => updateRow(row.id, 'enter', e.target.value === '진입')}
+                                className={`px-2 py-1 text-xs rounded font-semibold cursor-pointer border ${row.enter ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                                <option value="진입">진입</option>
+                                <option value="미진입">미진입</option>
+                              </select>
+                            </td>
+                            <td className="px-2 py-2 border-r border-slate-300 text-left" title="진입 모델 입력 (예: ARi, AO)">
+                              <EditableCell value={row.enterModel || ''} onSave={(v) => updateRow(row.id, 'enterModel', v)} placeholder="모델" />
+                            </td>
+                            <td className="px-2 py-2 text-right" title="진입 가격 입력">
+                              <EditableCell value={row.enterPrice || ''} type="number" align="right" onSave={(v) => updateRow(row.id, 'enterPrice', v === '' ? '' : (parseFloat(v) || 0))} placeholder="가격" />
                             </td>
                           </>
                         );
                       })()}
-                      <td className="px-3 py-2 text-center">
-                        <select value={row.enter ? '진입' : '미진입'} onChange={(e) => updateRow(row.id, 'enter', e.target.value === '진입')}
-                          className={`px-2 py-1 text-xs rounded font-semibold cursor-pointer border ${row.enter ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                          <option value="진입">진입</option>
-                          <option value="미진입">미진입</option>
-                        </select>
-                      </td>
                     </tr>
                     {/* 1~12월 펼침 행 */}
                     {dsoMonthlyExpanded[row.id] && (() => {
@@ -10441,29 +10809,28 @@ function App() {
                   );
                 })}
                 {/* === 합계 행 (자동 계산) === */}
-                {filteredData.length > 0 && (() => {
-                  const sumBranch = filteredData.reduce((s, r) => s + (r.branchCount || 0), 0);
-                  const sumAnnualQty = filteredData.reduce((s, r) => s + (r.annualQty || 0), 0);
-                  const sumMonthSales = filteredData.reduce((s, r) => s + (r.monthSales || 0), 0);
-                  const sumMonthRev = filteredData.reduce((s, r) => s + (r.monthRev || 0), 0);
-                  const sumYearTarget = filteredData.reduce((s, r) => s + (r.yearTarget || 0), 0);
-                  const sumCumQty = filteredData.reduce((s, r) => s + (r.cumQty || 0), 0);
+                {detailData.length > 0 && (() => {
+                  const sumBranch = detailData.reduce((s, r) => s + (r.branchCount || 0), 0);
+                  const sumAnnualQty = detailData.reduce((s, r) => s + (r.annualQty || 0), 0);
+                  const sumMonthSales = detailData.reduce((s, r) => s + (r.monthSales || 0), 0);
+                  const sumMonthRev = detailData.reduce((s, r) => s + (r.monthRev || 0), 0);
+                  const sumYearTarget = detailData.reduce((s, r) => s + (r.yearTarget || 0), 0);
+                  const sumCumQty = detailData.reduce((s, r) => s + (r.cumQty || 0), 0);
                   const totAch = sumMonthSales > 0 ? +(sumMonthRev / sumMonthSales * 100).toFixed(1) : 0;
                   const totProg = sumYearTarget > 0 ? +(sumCumQty / sumYearTarget * 100).toFixed(1) : 0;
-                  const enterCount = filteredData.filter(r => r.enter).length;
-                  const notEnterCount = filteredData.length - enterCount;
+                  const enterCount = detailData.filter(r => r.enter).length;
+                  const notEnterCount = detailData.length - enterCount;
                   return (
                     <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
-                      <td colSpan={3} className="px-3 py-2 border-r border-slate-300 text-center">
-                        합계 ({filteredData.length}개 · 진입 {enterCount} / 미진입 {notEnterCount})
+                      <td colSpan={3} className="px-2 py-2 border-r border-slate-300 text-center">
+                        합계 ({detailData.length}개 · 진입 {enterCount} / 미진입 {notEnterCount})
                       </td>
-                      <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumBranch)}</td>
-                      <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumAnnualQty)}</td>
+                      <td className="px-2 py-2 border-r border-slate-300 text-right">{formatNumber(sumAnnualQty)}</td>
+                      <td className="px-2 py-2 border-r border-slate-300 text-right">{formatNumber(detailData.reduce((s, r) => s + (Number(r.sales25) || 0), 0))}</td>
                       {(() => {
-                        // 표 2 자체 데이터 합계 (filteredData 기준)
-                        const sumSetTarget = filteredData.reduce((s, r) => s + (Number(r.yearTarget) || 0), 0);
-                        const sumMonthlyTarget = filteredData.reduce((s, r) => s + (Number(r.monthlyTarget) || 0), 0);
-                        const sumYearResult = filteredData.reduce((s, r) => {
+                        // 표 2 자체 데이터 합계 (detailData 기준)
+                        const sumSetTarget = detailData.reduce((s, r) => s + (Number(r.yearTarget) || 0), 0);
+                        const sumYearResult = detailData.reduce((s, r) => {
                           if (r.yearResultManual !== null && r.yearResultManual !== undefined && r.yearResultManual !== '') {
                             return s + Number(r.yearResultManual);
                           }
@@ -10479,15 +10846,15 @@ function App() {
                         const totProgT2 = sumSetTarget > 0 ? +(sumYearResult / sumSetTarget * 100).toFixed(1) : 0;
                         return (
                           <>
-                            <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumSetTarget)}</td>
-                            <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumMonthlyTarget)}</td>
-                            <td className="px-3 py-2 border-r border-slate-300 text-right">{formatNumber(sumYearResult)}</td>
-                            <td className="px-3 py-2 border-r border-slate-300 text-right">{totProgT2.toFixed(1)}%</td>
-                            <td className="px-3 py-2 border-r border-slate-300 text-center text-slate-500">-</td>
+                            <td className="px-2 py-2 border-r border-slate-300 text-right">{formatNumber(sumSetTarget)}</td>
+                            <td className="px-2 py-2 border-r border-slate-300 text-right">{formatNumber(sumYearResult)}</td>
+                            <td className="px-2 py-2 border-r border-slate-300 text-right">{totProgT2.toFixed(1)}%</td>
+                            <td className="px-2 py-2 border-r border-slate-300 text-center text-slate-500">-</td>
                           </>
                         );
                       })()}
-                      <td className="px-3 py-2 text-center text-slate-500">-</td>
+                      <td className="px-2 py-2 border-r border-slate-300 text-center text-slate-500">-</td>
+                      <td className="px-2 py-2 text-center text-slate-500">-</td>
                     </tr>
                   );
                 })()}
@@ -10499,7 +10866,7 @@ function App() {
           <div className="mt-3 flex items-center gap-2">
             <button onClick={() => {
               const newRow = {
-                id: Date.now(), no: filteredData.length + 1, customer: '신규 DSO',
+                id: Date.now(), no: detailData.length + 1, customer: '신규 DSO',
                 region: (REGIONS[hq] || [])[0] || '', medType: 'DSO',
                 annualQty: 0, annualRev: 0, contact: false, propose: false, risk: false, discuss: false, enter: false,
                 cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 0,
@@ -10511,9 +10878,7 @@ function App() {
               };
               setDSOMonth(prev => {
                 const hqData = prev[hq] || {};
-                const monthData = hqData[yearMonthD6]
-                  ? [...hqData[yearMonthD6], newRow]
-                  : [...(is5월D6 ? JSON.parse(JSON.stringify(dso[hq] || [])) : []), newRow];
+                const monthData = [...allData, newRow];
                 return { ...prev, [hq]: { ...hqData, [yearMonthD6]: monthData } };
               });
               logChange(`${hq} - DSO (${monthLabelD6})`, 'DSO 추가');
@@ -10521,7 +10886,7 @@ function App() {
               className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
               <Icon name="plus" className="w-3.5 h-3.5" /> DSO 추가
             </button>
-            {filteredData.length > 0 && (
+            {detailData.length > 0 && (
               <button onClick={() => {
                 if (confirm('마지막 행을 삭제하시겠습니까?')) {
                   setDSOMonth(prev => {
@@ -10548,7 +10913,7 @@ function App() {
             <Icon name="check" className="w-3.5 h-3.5" /> 자동 저장 완료
           </span>
         </div>
-        </>)}
+        </>);})()}
       </div>
     );
   };
@@ -12197,7 +12562,7 @@ function App() {
               <div className="p-5 space-y-4">
                 {/* === 1. 상단 행 요약 (이미지 1 상단) === */}
                 <div className="border border-slate-200 rounded overflow-hidden">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
                     <thead>
                       <tr className="bg-slate-100">
                         <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">지역</th>
