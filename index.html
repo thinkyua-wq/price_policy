@@ -4335,6 +4335,7 @@ function App() {
     return [];
   });
   React.useEffect(()=>{ try{ localStorage.setItem('dashboard_hiddenCompareHQ_v1', JSON.stringify(hiddenCompareHQ)); }catch(e){} }, [hiddenCompareHQ]);
+  const [psiMgmtCollapsed, setPsiMgmtCollapsed] = useState(false);
   const [compareCollapsed, setCompareCollapsed] = useState(() => {
     try { return localStorage.getItem('dashboard_compareCollapsed_v1') === '1'; } catch(e){ return false; }
   });
