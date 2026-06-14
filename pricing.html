@@ -341,7 +341,7 @@ function Sidebar({ activeMenu, setActiveMenu, mobileOpen, closeMobile, collapsed
     {
       key: 'policy', title: '정책관리', icon: '📋',
       items: [
-        { key: 'gp-analysis', label: '제품별 영업 정책 수익성(GP) 분석' },
+        { key: 'gp-analysis', label: '제품별 수익성 분석' },
       ]
     },
     {
@@ -3801,6 +3801,7 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
   const confirmed = cloudConfirmed || {};
   const setConfirmed = (updater) => setCloudConfirmed(typeof updater === 'function' ? updater(cloudConfirmed || {}) : updater);
   const [qtrType, setQtrType] = useState('제품');  // 분기리베이트: '제품'(분모) | '현금'(곱셈)
+  const [sellOverride, setSellOverride] = useState({});  // 수익성 요약 판매가 수정값
   const [showBasicInfo, setShowBasicInfo] = useState(false);  // 기본 정보 토글 (기본 숨김)
 
   // ---------- 정책 활성화/요율 ----------
@@ -4970,18 +4971,25 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                     <tbody>
                       {profitSummary.rows.map((r, i) => {
                         const isFirst = i === 0 || profitSummary.rows[i-1].dealerGrade !== r.dealerGrade;
+                        const rk = `gen_${r.dealerGrade}_${i}`;
+                        const effSell = sellOverride[rk] != null ? sellOverride[rk] : r.sellPrice;
+                        const effProfit = Math.round((effSell||0) - r.supply);
+                        const effMargin = (effSell||0) > 0 ? (((effSell||0) - r.supply) / (effSell||0)) * 100 : 0;
                         return (
                           <tr key={i} className={r.dealerGrade === dealerGrade ? 'bg-blue-50/40' : 'hover:bg-slate-50'}>
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirst ? 'text-slate-900' : 'text-slate-300'}`}>
                               {isFirst ? `${r.dealerGrade}급` : ''}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.sellPrice}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
+                              <input type="number" value={effSell} onChange={e=>setSellOverride(prev=>({...prev,[rk]: e.target.value===''?'':Number(e.target.value)}))}
+                                className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 수정 가능"/>
+                            </td>
                             <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
                               {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{r.profit}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.margin.toFixed(1)}%</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
                         );
                       })}
@@ -5013,6 +5021,10 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                           (dsoGrade === 'A' && r.dsoGrade === 'A급') ||
                           (dsoGrade === 'B/C' && (r.dsoGrade === 'B/C급' || r.dsoGrade === 'B급'))
                         );
+                        const rk = `dso_${r.dsoGrade}_${r.dealerGrade}_${i}`;
+                        const effSell = sellOverride[rk] != null ? sellOverride[rk] : r.sellPrice;
+                        const effProfit = Math.round((effSell||0) - r.supply);
+                        const effMargin = (effSell||0) > 0 ? (((effSell||0) - r.supply) / (effSell||0)) * 100 : 0;
                         return (
                           <tr key={i} className={isCurrent ? 'bg-blue-50/40' : 'hover:bg-slate-50'}>
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirstDso ? 'text-slate-900' : 'text-slate-300'}`}>
@@ -5021,13 +5033,16 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                             <td className={`px-3 py-2 border border-slate-300 text-center font-semibold ${isFirstDealer ? 'text-slate-900' : 'text-slate-300'}`}>
                               {isFirstDealer ? `${r.dealerGrade}급` : ''}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.sellPrice}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
+                              <input type="number" value={effSell} onChange={e=>setSellOverride(prev=>({...prev,[rk]: e.target.value===''?'':Number(e.target.value)}))}
+                                className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 수정 가능"/>
+                            </td>
                             <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
                               {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
                             </td>
-                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{r.profit}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{r.margin.toFixed(1)}%</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
+                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
                         );
                       })}
@@ -7122,16 +7137,18 @@ function gpKitType(name){
 }
 
 const GP_SAMPLE = [
-  { id:'s1', sys:'AriE', kitName:'Stand Kit',         make:4.28, kit:336, exp:24.5, base:650, kitDiv:80,  kitExport:336 },
-  { id:'s3', sys:'BD',   kitName:'Full Kit',          make:4.28, kit:618, exp:24.5, base:650, kitDiv:160, kitExport:618 },
-  { id:'s4', sys:'BD',   kitName:'Standard Kit',      make:4.28, kit:358, exp:24.5, base:650, kitDiv:80,  kitExport:358 },
-  { id:'s5', sys:'AR',   kitName:'Full Kit',          make:4.0,  kit:496, exp:23.0, base:567, kitDiv:160, kitExport:496 },
-  { id:'s6', sys:'AO',   kitName:'Full Kit',          make:3.0,  kit:468, exp:16.5, base:431, kitDiv:160, kitExport:468 },
-  { id:'s7', sys:'AO',   kitName:'Standard Kit',      make:3.0,  kit:259, exp:16.5, base:431, kitDiv:100, kitExport:259 },
-  { id:'s8', sys:'ST',   kitName:'Full Kit',          make:3.5,  kit:496, exp:13.5, base:390, kitDiv:200, kitExport:496 },
-  { id:'s9', sys:'ST',   kitName:'Standard Kit',      make:3.5,  kit:274, exp:13.5, base:390, kitDiv:120, kitExport:274 },
-  { id:'s10',sys:'EV',   kitName:'Standard Kit',      make:2.0,  kit:528, exp:5.6,  base:150, kitDiv:100, kitExport:528 },
+  { id:'s1', sys:'AriE', kitName:'Stand Kit',         make:4.28, kit:336, exp:24.5, buy:201, base:650, kitDiv:80,  kitExport:336 },
+  { id:'s3', sys:'BD',   kitName:'Full Kit',          make:4.28, kit:618, exp:24.5, buy:201, base:650, kitDiv:160, kitExport:618 },
+  { id:'s4', sys:'BD',   kitName:'Standard Kit',      make:4.28, kit:358, exp:24.5, buy:201, base:650, kitDiv:80,  kitExport:358 },
+  { id:'s5', sys:'AR',   kitName:'Full Kit',          make:4.0,  kit:496, exp:23.0, buy:189, base:567, kitDiv:160, kitExport:496 },
+  { id:'s6', sys:'AO',   kitName:'Full Kit',          make:3.0,  kit:468, exp:16.5, buy:135, base:431, kitDiv:160, kitExport:468 },
+  { id:'s7', sys:'AO',   kitName:'Standard Kit',      make:3.0,  kit:259, exp:16.5, buy:135, base:431, kitDiv:100, kitExport:259 },
+  { id:'s8', sys:'ST',   kitName:'Full Kit',          make:3.5,  kit:496, exp:13.5, buy:111, base:390, kitDiv:200, kitExport:496 },
+  { id:'s9', sys:'ST',   kitName:'Standard Kit',      make:3.5,  kit:274, exp:13.5, buy:111, base:390, kitDiv:120, kitExport:274 },
+  { id:'s10',sys:'EV',   kitName:'Standard Kit',      make:2.0,  kit:528, exp:5.6,  buy:0,   base:150, kitDiv:100, kitExport:528 },
 ];
+const GP_BUY_BY_SYS = { AriE:201, ARi:201, ARI:201, BD:201, AR:189, AO:135, ST:111, EV:0 };
+function gpFillBuy(arr){ return (arr||[]).map(it=>{ const b=Number(it.buy); if(b && b>0) return it; const m=GP_BUY_BY_SYS[it.sys]; return {...it, buy: (m!=null?m:0)}; }); }
 const GP_METRICS = [ {key:'ds',label:'대리상판매가'}, {key:'dealerMargin',label:'대리상마진(금액)'}, {key:'dealerMarginRate',label:'대리상마진율'}, {key:'hqGP',label:'본사 GP'}, {key:'corpGP',label:'법인 GP'} ];
 
 // 다중선택 드롭다운 (월 표시 스타일 — 버튼 누르면 체크박스 목록)
@@ -7174,6 +7191,38 @@ function GpMultiDropdown({ label, options, selected, setSelected, fmtOpt }){
   );
 }
 
+// 품목 행 안에서 보고싶은 무상조건(10+N)을 다중선택하는 작은 드롭다운
+function GpRowFreeDropdown({ cols, selected, setSelected }){
+  const [open, setOpen] = useState(false);
+  const sel = selected || [];
+  const toggle = (v)=> setSelected(sel.includes(v) ? sel.filter(a=>a!==v) : [...sel, v]);
+  const label = sel.length===0 ? '전체' : sel.map(x=>'10+'+x).join(', ');
+  return (
+    <div style={{position:'relative', display:'inline-block'}} onClick={(e)=>e.stopPropagation()}>
+      <button onClick={()=>setOpen(!open)} className="border border-slate-300 rounded px-2 py-0.5 bg-white hover:border-blue-400" style={{fontSize:'11px',color:'#334155',maxWidth:'130px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={label}>
+        {label} ▾
+      </button>
+      {open && (
+        <div style={{position:'absolute', top:'100%', left:0, zIndex:60, marginTop:4, background:'#fff',
+              border:'1px solid #cbd5e1', borderRadius:8, padding:8, minWidth:150, boxShadow:'0 4px 16px rgba(0,0,0,0.12)'}}>
+          <div className="flex items-center justify-between mb-1.5 pb-1.5 border-b border-slate-100">
+            <button onClick={()=>setSelected([])} className="text-[11px]" style={{color: sel.length===0?'#2563eb':'#64748b'}}>전체</button>
+            <button onClick={()=>setOpen(false)} className="text-[11px] text-slate-400">닫기</button>
+          </div>
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'3px 10px', maxHeight:220, overflowY:'auto'}}>
+            {cols.map(o=>(
+              <label key={String(o)} className="flex items-center gap-1 cursor-pointer" style={{fontSize:'12px',color:'#000'}}>
+                <input type="checkbox" checked={sel.includes(o)} onChange={()=>toggle(o)} />
+                10+{o}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
   const GP_FILTER_KEY = 'gp_analysis_filters_v1';
   const _gpInit = (() => { try { return JSON.parse(localStorage.getItem(GP_FILTER_KEY)) || {}; } catch(e){ return {}; } })();
@@ -7184,7 +7233,7 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
   const [selFree, setSelFree] = useState(_gpInit.selFree || []);     // 무상조건 다중선택 (빈 배열 = 전체)
   const [selMetric, setSelMetric] = useState(_gpInit.selMetric || []); // 지표 다중선택 (빈 배열 = 전체)
   const [selInfoCols, setSelInfoCols] = useState(_gpInit.selInfoCols || []); // 품목정보 표시 컬럼 (빈 배열=전체)
-  const INFO_COLS = [['exp','수출가'],['base','기준가'],['kitDiv','KIT비율'],['kitExport','KIT수출가']];
+  const INFO_COLS = [['exp','수출가(US$)'],['buy','매입단가(RMB)'],['base','기준가(RMB)'],['kitDiv','KIT비율'],['kitExport','KIT수출가']];
   const showInfo = (k)=> selInfoCols.length===0 || selInfoCols.includes(k);
   useEffect(() => {
     try { localStorage.setItem(GP_FILTER_KEY, JSON.stringify({ baseMargin, selSys, selKit, selRatio, selFree, selMetric, selInfoCols })); } catch(e){}
@@ -7194,6 +7243,19 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
   const [gpTab, setGpTab] = useState('analysis'); // analysis | history
   const [snapName, setSnapName] = useState('');   // 이력 저장 이름
   const [selHistId, setSelHistId] = useState(null); // 변경이력관리 - 선택된 저장 건
+  // 확정 KPI 카드 (품목별 선택 무상조건의 지표) — localStorage 유지
+  const [gpConfirmed, setGpConfirmed] = useState(() => {
+    try { const s = localStorage.getItem('gp_confirmed_cards_v1'); return s ? JSON.parse(s) : []; } catch(e){ return []; }
+  });
+  useEffect(() => { try { localStorage.setItem('gp_confirmed_cards_v1', JSON.stringify(gpConfirmed)); } catch(e){} }, [gpConfirmed]);
+  // 분석 패널
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [anaMetric, setAnaMetric] = useState('corpGP');   // 추세/순위 기준: hqGP | corpGP | dealerMarginRate
+  const [anaTargetCorp, setAnaTargetCorp] = useState(45); // 목표 법인 GP(%)
+  const [anaTargetHq, setAnaTargetHq] = useState(70);     // 목표 본사 GP(%)
+  const [sortMetric, setSortMetric] = useState('corpGP'); // 순위표 정렬 기준
+  // 화면 내 서브탭: table(표) | cards(확정카드) | analysis(분석)
+  const [gpView, setGpView] = useState('table');
 
   const data = gpItems || [];
   const sysOpts = Array.from(new Set(data.map(i=>i.sys)));
@@ -7218,10 +7280,19 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
     setEditId(nid);
   };
   const updItem = (id,field,val)=>{
-    setGpItems(data.map(it=> it.id===id ? {...it,[field]: (['sys','kitName'].includes(field)? val : (val===''?'':Number(val)))} : it));
+    setGpItems(data.map(it=> it.id===id ? {...it,[field]: (['sys','kitName'].includes(field)? val : (field==='baseFree'? val : (val===''?'':Number(val))))} : it));
   };
   const delItem = (id)=> setGpItems(data.filter(it=>it.id!==id));
   const finishEdit = ()=> setEditId(null);
+  // 기본 품목(GP_SAMPLE) 중 현재 목록에 없는 것 복원
+  const restoreDefaults = ()=>{
+    const curIds = new Set(data.map(it=>it.id));
+    const missing = gpFillBuy(GP_SAMPLE).filter(s=> !curIds.has(s.id));
+    if(missing.length===0){ setToast('복원할 기본 품목이 없습니다 (모두 있음)'); setTimeout(()=>setToast(''),2000); return; }
+    setGpItems([...data, ...missing]);
+    setToast(missing.length+'개 기본 품목을 복원했습니다');
+    setTimeout(()=>setToast(''),2500);
+  };
 
   // 현재 선택(필터+보이는 품목) 저장 → 한 건(batch)으로 저장
   const saveSelection = ()=>{
@@ -7238,7 +7309,26 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
     const batch = { id: now.getTime(), name:'', savedAt, count: items.length, items, filterState };
     setGpHistory([batch, ...(gpHistory||[])]);
     setSelHistId(batch.id);
-    setToast(items.length+'개 품목이 저장되었습니다');
+    // 확정 KPI 카드 생성 — 각 품목에서 선택한 무상조건(없으면 현재 표시 무상조건 전체)별 모든 지표
+    const cards = [];
+    shown.forEach(it=>{
+      const picks = (it.baseFree && it.baseFree.length>0) ? it.baseFree.slice().sort((a,b)=>a-b) : cols.slice();
+      picks.forEach(x=>{
+        const c = gpCalcCell(it, x, baseMargin/100);
+        cards.push({
+          id: now.getTime()+'_'+it.id+'_'+x,
+          sys: it.sys, kitName: it.kitName, free: x,
+          ds: Math.round(c.ds),
+          dealerMargin: Math.round(c.dealerMargin),
+          dealerMarginRate: +(c.dealerMarginRate*100).toFixed(1),
+          hqGP: +(c.hqGP*100).toFixed(1),
+          corpGP: +(c.corpGP*100).toFixed(1),
+          at: savedAt,
+        });
+      });
+    });
+    if(cards.length>0) setGpConfirmed(prev=>[...cards, ...prev]);
+    setToast(items.length+'개 품목이 저장되었습니다 (확정 카드 '+cards.length+'개)');
     setTimeout(()=>setToast(''),2500);
   };
 
@@ -7269,7 +7359,7 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
         ))}
       </div>
 
-      <h1 className="font-bold mb-3" style={{fontSize:'24px',color:'#000'}}>제품별 영업 정책 수익성(GP) 분석</h1>
+      <h1 className="font-bold mb-3" style={{fontSize:'24px',color:'#000'}}>제품별 수익성 분석</h1>
 
       {toast && <div className="mb-3 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm inline-block">✓ {toast}</div>}
 
@@ -7284,11 +7374,181 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
         </div>
         <div className="flex gap-2 items-center">
           <button onClick={addItem} className="px-3 py-2 border border-slate-300 rounded-lg text-sm" style={blk}>＋ 품목 추가</button>
+          <button onClick={restoreDefaults} className="px-3 py-2 border border-slate-300 rounded-lg text-sm" style={blk} title="삭제한 기본 품목(ST+Standard Kit 등)을 다시 불러옵니다">↻ 기본 품목 복원</button>
           <button onClick={saveSelection} className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold whitespace-nowrap">💾 현재 선택 저장</button>
         </div>
       </div>
       <p className="mb-3" style={blk}>품목·키트·KIT비율·지표·무상조건을 선택해 비교하세요. KIT수출가는 표에서 직접 입력·저장됩니다.</p>
 
+      {/* 화면 내 탭: 표 / 확정 수익성 카드 / 분석 */}
+      <div className="flex items-center gap-1 mb-4 border-b border-slate-200">
+        {[{k:'table',l:'표'},{k:'cards',l:'확정 수익성 카드'+(gpConfirmed.length?` (${gpConfirmed.length})`:'')},{k:'analysis',l:'분석'}].map(t=>(
+          <button key={t.k} onClick={()=>setGpView(t.k)}
+            className={"px-4 py-2 -mb-px border-b-2 font-semibold "+(gpView===t.k?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}
+            style={{fontSize:'14px'}}>{t.l}</button>
+        ))}
+      </div>
+
+      {/* === 확정 KPI 카드 (선택한 무상조건 기준) === */}
+      {gpView==='cards' && (
+        gpConfirmed.length===0
+        ? <div className="bg-white border border-slate-200 rounded-xl p-10 text-center text-slate-400" style={{fontSize:'13px'}}>확정 카드가 없습니다. "표" 탭에서 품목별 무상조건을 고르고 "현재 선택 저장"을 누르면 여기에 카드가 쌓입니다.</div>
+        : (
+        <div className="bg-white border border-slate-200 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold" style={{fontSize:'15px',color:'#000'}}>확정 수익성 카드 <span className="font-normal text-slate-400" style={{fontSize:'12px'}}>({gpConfirmed.length}개 · 삭제 전까지 유지)</span></h2>
+            <button onClick={()=>{ if(confirm('확정 카드를 모두 지우시겠습니까?')) setGpConfirmed([]); }} className="text-xs text-slate-500 border border-slate-300 rounded px-2 py-1 hover:bg-slate-50">전체 지움</button>
+          </div>
+          <div className="grid gap-3" style={{gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))'}}>
+            {gpConfirmed.map(c=>(
+              <div key={c.id} className="border border-slate-200 rounded-lg p-3 relative group">
+                <button onClick={()=>setGpConfirmed(prev=>prev.filter(x=>x.id!==c.id))}
+                  className="absolute top-1.5 right-1.5 text-slate-300 hover:text-rose-500 text-xs opacity-0 group-hover:opacity-100" title="삭제">✕</button>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="font-bold text-slate-800" style={{fontSize:'13px'}}>{c.sys}</span>
+                  <span className="text-slate-400" style={{fontSize:'11px'}}>{c.kitName}</span>
+                  <span className="ml-auto px-1.5 py-0.5 rounded bg-blue-50 text-blue-700" style={{fontSize:'10px'}}>10+{c.free}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1.5" style={{fontSize:'11px'}}>
+                  <div><div className="text-slate-400">대리상판매가</div><div className="font-bold text-slate-800" style={{fontSize:'14px'}}>{c.ds.toLocaleString()}</div></div>
+                  <div><div className="text-slate-400">대리상마진</div><div className="font-bold text-slate-800" style={{fontSize:'14px'}}>{c.dealerMargin.toLocaleString()}</div></div>
+                  <div><div className="text-slate-400">마진율</div><div className="font-bold" style={{fontSize:'14px',color:'#0F6E56'}}>{c.dealerMarginRate}%</div></div>
+                  <div><div className="text-slate-400">본사 GP</div><div className="font-bold" style={{fontSize:'14px',color:'#0F6E56'}}>{c.hqGP}%</div></div>
+                  <div><div className="text-slate-400">법인 GP</div><div className="font-bold" style={{fontSize:'14px',color:'#854F0B'}}>{c.corpGP}%</div></div>
+                  <div className="self-end text-slate-300" style={{fontSize:'9px'}}>{c.at}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* === 분석 패널 (A 추세 / C 순위 / D 추천) === */}
+      {gpView==='analysis' && (
+      <div className="bg-white border border-slate-200 rounded-xl p-4 mb-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold flex items-center gap-2" style={{fontSize:'15px',color:'#000'}}>
+            <span>📊 수익성 분석</span>
+            <span className="font-normal text-slate-400" style={{fontSize:'12px'}}>무상조건별 추세 · 순위 · 목표 GP 추천</span>
+          </h2>
+        </div>
+
+        {(() => {
+          const metricLabel = { hqGP:'본사 GP', corpGP:'법인 GP', dealerMarginRate:'대리상 마진율' };
+          const metricVal = (it,x)=>{ const c=gpCalcCell(it,x,baseMargin/100); return (anaMetric==='dealerMarginRate'? c.dealerMarginRate : c[anaMetric])*100; };
+          const allFree = GP_FREE_COLS.filter(x=>x>=2);
+          const palette = ['#2563eb','#0F6E56','#D85A30','#7F77DD','#D4537E','#BA7517','#185FA5','#639922','#993C1D'];
+          const W=560, H=200, pad={l:42,r:12,t:14,b:26};
+          const ys = shown.flatMap(it=> allFree.map(x=> metricVal(it,x)));
+          const ymin = Math.max(0, Math.floor((Math.min(...ys,0))/10)*10);
+          const ymax = Math.min(100, Math.ceil((Math.max(...ys,100))/10)*10);
+          const xOf = (i)=> pad.l + (allFree.length<=1?0:(W-pad.l-pad.r)*i/(allFree.length-1));
+          const yOf = (v)=> pad.t + (H-pad.t-pad.b)*(1-(v-ymin)/((ymax-ymin)||1));
+          const sortKey = sortMetric;
+          const ranked = [...gpConfirmed].sort((a,b)=> (b[sortKey]||0)-(a[sortKey]||0));
+          const reco = shown.map(it=>{
+            let best=null;
+            allFree.forEach(x=>{ const c=gpCalcCell(it,x,baseMargin/100); if(c.corpGP*100>=anaTargetCorp && c.hqGP*100>=anaTargetHq){ if(best===null||x>best) best=x; } });
+            return { sys:it.sys, kitName:it.kitName, best };
+          });
+          return (
+            <div className="mt-4 space-y-5">
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-bold" style={{fontSize:'13px',color:'#000'}}>A · 무상조건별 {metricLabel[anaMetric]} 추세</h3>
+                  <select value={anaMetric} onChange={e=>setAnaMetric(e.target.value)} className="border border-slate-300 rounded px-2 py-1" style={{fontSize:'12px'}}>
+                    <option value="corpGP">법인 GP</option>
+                    <option value="hqGP">본사 GP</option>
+                    <option value="dealerMarginRate">대리상 마진율</option>
+                  </select>
+                </div>
+                {shown.length===0 ? <div className="text-slate-400 text-center py-6" style={{fontSize:'12px'}}>표시할 품목이 없습니다.</div> : (
+                <div className="overflow-x-auto">
+                  <svg width={W} height={H} style={{maxWidth:'100%'}}>
+                    {[0,0.25,0.5,0.75,1].map((t,i)=>{ const v=ymin+(ymax-ymin)*(1-t); const y=pad.t+(H-pad.t-pad.b)*t; return (
+                      <g key={i}><line x1={pad.l} y1={y} x2={W-pad.r} y2={y} stroke="#eef2f7"/><text x={pad.l-6} y={y+3} textAnchor="end" style={{fontSize:'9px',fill:'#94a3b8'}}>{Math.round(v)}%</text></g>
+                    ); })}
+                    {allFree.map((x,i)=> <text key={i} x={xOf(i)} y={H-8} textAnchor="middle" style={{fontSize:'9px',fill:'#94a3b8'}}>10+{x}</text>)}
+                    {shown.map((it,si)=>{
+                      const pts = allFree.map((x,i)=>`${xOf(i)},${yOf(metricVal(it,x))}`).join(' ');
+                      return <polyline key={si} points={pts} fill="none" stroke={palette[si%palette.length]} strokeWidth="2"/>;
+                    })}
+                  </svg>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                    {shown.map((it,si)=>(
+                      <span key={si} className="inline-flex items-center gap-1" style={{fontSize:'10px',color:'#475569'}}>
+                        <span style={{display:'inline-block',width:10,height:3,background:palette[si%palette.length]}}></span>{it.sys} {it.kitName}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-bold" style={{fontSize:'13px',color:'#000'}}>C · 확정 카드 순위 <span className="font-normal text-slate-400">({ranked.length}개)</span></h3>
+                  <select value={sortMetric} onChange={e=>setSortMetric(e.target.value)} className="border border-slate-300 rounded px-2 py-1" style={{fontSize:'12px'}}>
+                    <option value="corpGP">법인 GP 순</option>
+                    <option value="hqGP">본사 GP 순</option>
+                    <option value="dealerMarginRate">마진율 순</option>
+                  </select>
+                </div>
+                {ranked.length===0 ? <div className="text-slate-400 text-center py-6" style={{fontSize:'12px'}}>확정 카드가 없습니다. "현재 선택 저장"으로 카드를 만드세요.</div> : (
+                <div className="overflow-x-auto">
+                  <table className="w-full" style={{fontSize:'12px'}}>
+                    <thead><tr className="bg-slate-50 text-slate-600">
+                      <th className="px-2 py-1.5 text-left">#</th><th className="px-2 py-1.5 text-left">품목 · 조건</th>
+                      <th className="px-2 py-1.5 text-right">대리상판매가</th><th className="px-2 py-1.5 text-right">마진율</th>
+                      <th className="px-2 py-1.5 text-right">본사 GP</th><th className="px-2 py-1.5 text-right">법인 GP</th>
+                    </tr></thead>
+                    <tbody>
+                      {ranked.map((c,i)=>(
+                        <tr key={c.id} className="border-b border-slate-100">
+                          <td className="px-2 py-1.5 text-slate-400">{i+1}</td>
+                          <td className="px-2 py-1.5"><span className="font-semibold text-slate-800">{c.sys}</span> <span className="text-slate-400">{c.kitName}</span> <span className="px-1 rounded bg-blue-50 text-blue-700" style={{fontSize:'10px'}}>10+{c.free}</span></td>
+                          <td className="px-2 py-1.5 text-right">{c.ds.toLocaleString()}</td>
+                          <td className="px-2 py-1.5 text-right">{c.dealerMarginRate}%</td>
+                          <td className="px-2 py-1.5 text-right" style={{color:c.hqGP>=70?'#0F6E56':'#993C1D'}}>{c.hqGP}%</td>
+                          <td className="px-2 py-1.5 text-right" style={{color:c.corpGP>=45?'#0F6E56':(c.corpGP>=30?'#854F0B':'#993C1D')}}>{c.corpGP}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-2 flex-wrap">
+                  <h3 className="font-bold" style={{fontSize:'13px',color:'#000'}}>D · 목표 GP 충족 최대 무상조건</h3>
+                  <span className="flex items-center gap-1" style={{fontSize:'12px',color:'#475569'}}>법인GP ≥ <input type="number" value={anaTargetCorp} onChange={e=>setAnaTargetCorp(Number(e.target.value)||0)} className="w-14 border border-slate-300 rounded px-1 py-0.5 text-right"/>%</span>
+                  <span className="flex items-center gap-1" style={{fontSize:'12px',color:'#475569'}}>본사GP ≥ <input type="number" value={anaTargetHq} onChange={e=>setAnaTargetHq(Number(e.target.value)||0)} className="w-14 border border-slate-300 rounded px-1 py-0.5 text-right"/>%</span>
+                </div>
+                {shown.length===0 ? <div className="text-slate-400 text-center py-6" style={{fontSize:'12px'}}>표시할 품목이 없습니다.</div> : (
+                <div className="grid gap-2" style={{gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))'}}>
+                  {reco.map((r,i)=>(
+                    <div key={i} className="border border-slate-200 rounded-lg p-2.5 flex items-center justify-between">
+                      <div><span className="font-semibold text-slate-800" style={{fontSize:'12px'}}>{r.sys}</span> <span className="text-slate-400" style={{fontSize:'11px'}}>{r.kitName}</span></div>
+                      {r.best===null
+                        ? <span className="px-2 py-0.5 rounded bg-red-50 text-red-600" style={{fontSize:'11px'}}>불가</span>
+                        : <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold" style={{fontSize:'12px'}}>최대 10+{r.best}</span>}
+                    </div>
+                  ))}
+                </div>
+                )}
+                <p className="text-slate-400 mt-2" style={{fontSize:'11px'}}>* 목표(법인·본사 GP)를 모두 만족하는 가장 큰 무상조건을 품목별로 계산합니다. "불가"는 10+2에서도 목표 미달.</p>
+              </div>
+
+            </div>
+          );
+        })()}
+      </div>
+      )}
+
+      {/* 표 탭 (필터 + 표) */}
+      {gpView==='table' && (<>
       {/* 필터 (드롭다운 체크박스 - 월 표시 스타일) */}
       <div className="bg-white border border-slate-200 rounded-xl p-4 mb-4 flex items-center gap-3 flex-wrap" style={blk}>
         <GpMultiDropdown label="품목" options={sysOpts} selected={selSys} setSelected={setSelSys} />
@@ -7308,8 +7568,9 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
           <thead>
             <tr>
               <th className={TH+" text-left"} style={{...blk,minWidth:140}}>품목</th>
-              {showInfo('exp') && <th className={TH} style={{...blk,minWidth:64}}>수출가</th>}
-              {showInfo('base') && <th className={TH} style={{...blk,minWidth:64}}>기준가</th>}
+              {showInfo('exp') && <th className={TH} style={{...blk,minWidth:72}}>수출가<br/><span className="text-[9px] font-normal text-slate-400">US$</span></th>}
+              {showInfo('buy') && <th className={TH} style={{...blk,minWidth:72}}>매입단가<br/><span className="text-[9px] font-normal text-slate-400">RMB</span></th>}
+              {showInfo('base') && <th className={TH} style={{...blk,minWidth:72}}>기준가<br/><span className="text-[9px] font-normal text-slate-400">RMB</span></th>}
               {showInfo('kitDiv') && <th className={TH} style={{...blk,minWidth:64}}>KIT비율</th>}
               {showInfo('kitExport') && <th className={TH} style={{...blk,minWidth:80}}>KIT수출가</th>}
               <th className={TH+" text-left"} style={{...blk,minWidth:104}}>지표</th>
@@ -7328,12 +7589,18 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
                       <input autoFocus value={it.sys} onChange={e=>updItem(it.id,'sys',e.target.value)} className="w-full border-0 border-b-2 border-blue-400 bg-blue-50/50 rounded px-1 text-xs focus:outline-none" placeholder="시스템"/>
                       <input value={it.kitName} onChange={e=>updItem(it.id,'kitName',e.target.value)} className="w-full border-0 border-b-2 border-blue-400 bg-blue-50/50 rounded px-1 text-xs focus:outline-none" placeholder="키트명"/>
                     </div> : <div onClick={()=>setEditId(it.id)} className="cursor-pointer hover:underline decoration-dotted decoration-blue-400 underline-offset-4" title="클릭하여 수정"><div className="font-bold">{it.sys}</div><div>+ {it.kitName}</div></div>}
+                    <div className="mt-1.5">
+                      <GpRowFreeDropdown cols={cols} selected={it.baseFree||[]} setSelected={(nx)=>updItem(it.id,'baseFree',nx)} />
+                    </div>
                   </td>}
                   {mi===0 && showInfo('exp') && <td rowSpan={metrics.length} className={cell+" text-right align-middle"} style={blk}>
                     {editing ? <input autoFocus type="number" value={it.exp} onChange={e=>updItem(it.id,'exp',e.target.value)} onBlur={()=>setEditId(null)} className="w-16 border-0 border-b-2 border-blue-400 bg-blue-50/50 rounded px-1 text-right text-xs focus:outline-none"/> : <span onClick={()=>setEditId(it.id)} className="cursor-pointer hover:underline decoration-dotted decoration-blue-400 underline-offset-4 inline-block w-full" title="클릭하여 수정">{fmt(it.exp,1)}</span>}
                   </td>}
+                  {mi===0 && showInfo('buy') && <td rowSpan={metrics.length} className={cell+" text-right align-middle"} style={blk}>
+                    {editing ? <input type="number" value={it.buy==null?'':it.buy} onChange={e=>updItem(it.id,'buy',e.target.value)} onBlur={()=>setEditId(null)} className="w-16 border-0 border-b-2 border-blue-400 bg-blue-50/50 rounded px-1 text-right text-xs focus:outline-none"/> : <span onClick={()=>setEditId(it.id)} className="cursor-pointer hover:underline decoration-dotted decoration-blue-400 underline-offset-4 inline-block w-full" title="클릭하여 수정">{fmt(Math.round(it.buy||0))}</span>}
+                  </td>}
                   {mi===0 && showInfo('base') && <td rowSpan={metrics.length} className={cell+" text-right align-middle"} style={blk}>
-                    {editing ? <input type="number" value={it.base} onChange={e=>updItem(it.id,'base',e.target.value)} onBlur={()=>setEditId(null)} className="w-16 border-0 border-b-2 border-blue-400 bg-blue-50/50 rounded px-1 text-right text-xs focus:outline-none"/> : <span onClick={()=>setEditId(it.id)} className="cursor-pointer hover:underline decoration-dotted decoration-blue-400 underline-offset-4 inline-block w-full" title="클릭하여 수정">{fmt(it.base)}</span>}
+                    {editing ? <input type="number" value={it.base} onChange={e=>updItem(it.id,'base',e.target.value)} onBlur={()=>setEditId(null)} className="w-16 border-0 border-b-2 border-blue-400 bg-blue-50/50 rounded px-1 text-right text-xs focus:outline-none"/> : <span onClick={()=>setEditId(it.id)} className="cursor-pointer hover:underline decoration-dotted decoration-blue-400 underline-offset-4 inline-block w-full" title="클릭하여 수정">{fmt(Math.round(it.base||0))}</span>}
                   </td>}
                   {mi===0 && showInfo('kitDiv') && <td rowSpan={metrics.length} className={cell+" text-center align-middle"} style={blk}>
                     {editing ? <input type="number" value={it.kitDiv} onChange={e=>updItem(it.id,'kitDiv',e.target.value)} onBlur={()=>setEditId(null)} className="w-14 border-0 border-b-2 border-blue-400 bg-blue-50/50 rounded px-1 text-right text-xs focus:outline-none"/> : <div onClick={()=>setEditId(it.id)} className="cursor-pointer hover:underline decoration-dotted decoration-blue-400 underline-offset-4" title="클릭하여 수정"><div>{it.kitDiv}</div><div style={{fontSize:'12px'}}>대 1</div></div>}
@@ -7343,6 +7610,9 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
                   </td>}
                   <td className={cell+" whitespace-nowrap"} style={blk}>{m.label}</td>
                   {cols.map(x=>{
+                    const view=(it.baseFree||[]);
+                    const hidden = view.length>0 && !view.includes(x);
+                    if(hidden) return <td key={x} className={cell+" text-center"} style={{...blk,background:'#fafafa'}}></td>;
                     const c=gpCalcCell(it,x,baseMargin/100);
                     if(m.key==='ds') return <td key={x} className={cell+" text-center"} style={blk}>{fmt(c.ds)}</td>;
                     if(m.key==='dealerMargin') return <td key={x} className={cell+" text-center"} style={blk}>{fmt(c.dealerMargin)}</td>;
@@ -7366,6 +7636,7 @@ function GpAnalysisPage({ gpItems, setGpItems, gpHistory, setGpHistory }){
       <p className="mt-3" style={{fontSize:'13px',color:'#000'}}>
         ※ "수정"으로 품목 값(수출가/기준가/KIT비율/KIT수출가 등)을 바꾸면 자동으로 클라우드에 저장됩니다. 위 "이력저장"으로 현재 구성을 이름 붙여 저장할 수 있습니다.
       </p>
+      </>)}
       </div>
       )}
 
@@ -7532,7 +7803,7 @@ function App() {
         if (parsed.simHistory && Array.isArray(parsed.simHistory)) {
           setSimHistory(parsed.simHistory);
         }
-        if (parsed.gpItems && Array.isArray(parsed.gpItems) && parsed.gpItems.length) setGpItems(parsed.gpItems.filter(it=> !/R2 One2 Guide/i.test(it.kitName||'')));
+        if (parsed.gpItems && Array.isArray(parsed.gpItems) && parsed.gpItems.length) setGpItems(gpFillBuy(parsed.gpItems.filter(it=> !/R2 One2 Guide/i.test(it.kitName||''))));
         if (parsed.gpHistory && Array.isArray(parsed.gpHistory)) setGpHistory(parsed.gpHistory);
         // ⚠️ 이전 버전의 대리상 가격정책 데이터는 더 이상 로드되지 않으며 다음 저장 시 자동 제거됨
       }
@@ -7547,7 +7818,7 @@ function App() {
         if (Array.isArray(remote.history)) setHistory(remote.history);
         if (Array.isArray(remote.simHistory)) setSimHistory(remote.simHistory);
         if (!userTouchedRef.current) {
-          if (Array.isArray(remote.gpItems) && remote.gpItems.length) setGpItems(remote.gpItems.filter(it=> !/R2 One2 Guide/i.test(it.kitName||'')));
+          if (Array.isArray(remote.gpItems) && remote.gpItems.length) setGpItems(gpFillBuy(remote.gpItems.filter(it=> !/R2 One2 Guide/i.test(it.kitName||''))));
           if (Array.isArray(remote.gpHistory)) setGpHistory(remote.gpHistory);
           if (remote.specialConfirmed && typeof remote.specialConfirmed === 'object') setSpecialConfirmed(remote.specialConfirmed);
         }
@@ -7578,7 +7849,7 @@ function App() {
     if (d.dentalPrices) setDentalPrices({ ...DENTAL_RECOMMENDED_PRICES, ...d.dentalPrices });
     if (Array.isArray(d.history)) setHistory(d.history);
     if (Array.isArray(d.simHistory)) setSimHistory(d.simHistory);
-    if (Array.isArray(d.gpItems)) setGpItems(d.gpItems.filter(it=> !/R2 One2 Guide/i.test(it.kitName||'')));
+    if (Array.isArray(d.gpItems)) setGpItems(gpFillBuy(d.gpItems.filter(it=> !/R2 One2 Guide/i.test(it.kitName||''))));
     if (Array.isArray(d.gpHistory)) setGpHistory(d.gpHistory);
     if (d.specialConfirmed && typeof d.specialConfirmed === 'object') setSpecialConfirmed(d.specialConfirmed);
   };
