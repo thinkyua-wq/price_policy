@@ -662,23 +662,47 @@ const INITIAL_ANNUAL_HN = {
 // 빈 12개월 배열 헬퍼
 const _zero12 = () => [0,0,0,0,0,0,0,0,0,0,0,0];
 
-// 화서본부 연간 실적표 (빈 데이터 - 입력 후 사용)
+// ⚠️ 화서본부 연간 실적표 — 임시(더미) 값. 실제 영업수치로 교체 필요.
 const INITIAL_ANNUAL_HX = {
-  headquarter: { region: '화서지역', type: '본부', name: '목표/실적', kpi: _zero12(), dso: _zero12(), end: _zero12() },
+  headquarter: { region: '화서지역', type: '본부', name: '목표/실적',
+    kpi: [320000,200000,480000,460000,460000,460000,360000,400000,520000,500000,560000,460000],
+    dso: [240000,150000,380000,370000,370000,370000,290000,330000,430000,410000,470000,390000],
+    end: [60000,40000,90000,80000,80000,80000,60000,60000,80000,80000,80000,60000] },
   dealers: [
-    { region: '사천', type: '대리상', name: '대리상1', kpi: _zero12(), dso: _zero12(), end: _zero12() },
-    { region: '감숙', type: '대리상', name: '대리상2', kpi: _zero12(), dso: _zero12(), end: _zero12() },
-    { region: '섬서', type: '대리상', name: '대리상3', kpi: _zero12(), dso: _zero12(), end: _zero12() },
+    { region: '사천', type: '대리상', name: '成都普瑞赛司医疗器械有限公司',
+      kpi: [200000,140000,270000,260000,260000,255000,215000,240000,280000,280000,320000,280000],
+      dso: [170000,120000,230000,220000,220000,215000,180000,200000,240000,240000,270000,240000],
+      end: [30000,20000,40000,40000,40000,40000,35000,40000,40000,40000,50000,40000] },
+    { region: '감숙', type: '대리상', name: '兰州连联荣光商贸有限公司',
+      kpi: [14000,10000,16000,18000,18000,18000,15000,15000,19000,19000,19000,19000],
+      dso: [11000,8000,13000,15000,15000,15000,12000,12000,16000,16000,16000,16000],
+      end: [3000,2000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000] },
+    { region: '섬서', type: '대리상', name: '陕西璐玟医疗器械有限公司',
+      kpi: [18000,12000,23000,22000,22000,22000,18000,19000,25000,24000,25000,21000],
+      dso: [15000,10000,19000,18000,18000,18000,15000,16000,21000,20000,21000,18000],
+      end: [3000,2000,4000,4000,4000,4000,3000,3000,4000,4000,4000,3000] },
   ],
 };
 
-// 화동본부 연간 실적표 (빈 데이터 - 입력 후 사용)
+// ⚠️ 화동본부 연간 실적표 — 임시(더미) 값. 실제 영업수치로 교체 필요.
 const INITIAL_ANNUAL_HD = {
-  headquarter: { region: '화동지역', type: '본부', name: '목표/실적', kpi: _zero12(), dso: _zero12(), end: _zero12() },
+  headquarter: { region: '화동지역', type: '본부', name: '목표/실적',
+    kpi: [900000,520000,1280000,1210000,1210000,1210000,950000,1010000,1350000,1300000,1410000,1150000],
+    dso: [720000,420000,1030000,970000,970000,970000,760000,810000,1080000,1040000,1130000,920000],
+    end: [180000,100000,250000,240000,240000,240000,190000,200000,270000,260000,280000,230000] },
   dealers: [
-    { region: '상해', type: '대리상', name: '대리상1', kpi: _zero12(), dso: _zero12(), end: _zero12() },
-    { region: '강소', type: '대리상', name: '대리상2', kpi: _zero12(), dso: _zero12(), end: _zero12() },
-    { region: '산동', type: '대리상', name: '대리상3', kpi: _zero12(), dso: _zero12(), end: _zero12() },
+    { region: '상해', type: '대리상', name: '上海保贞医疗器械有限公司',
+      kpi: [200000,100000,300000,400000,400000,400000,400000,450000,350000,300000,300000,400000],
+      dso: [160000,80000,240000,330000,330000,330000,330000,370000,290000,250000,250000,330000],
+      end: [40000,20000,60000,70000,70000,70000,70000,80000,60000,50000,50000,70000] },
+    { region: '강소', type: '대리상', name: '南京康睿达医疗科技有限公司',
+      kpi: [182000,112000,266000,252000,252000,252000,196000,210000,280000,266000,294000,238000],
+      dso: [155000,95000,226000,214000,214000,214000,167000,178000,238000,226000,250000,202000],
+      end: [27000,17000,40000,38000,38000,38000,29000,32000,42000,40000,44000,36000] },
+    { region: '산동', type: '대리상', name: '青岛振全嘉泰医疗器械有限公司',
+      kpi: [90000,52000,128000,121000,121000,121000,95000,101000,135000,130000,141000,115000],
+      dso: [76000,44000,109000,103000,103000,103000,81000,86000,115000,110000,120000,98000],
+      end: [14000,8000,19000,18000,18000,18000,14000,15000,20000,20000,21000,17000] },
   ],
 };
 
@@ -750,15 +774,67 @@ const INITIAL_PSI_HN = {
 const _psiEmptyDealers = (regions) => regions.map((r, i) => ({
   region: r, type: '대리상', name: `대리상${i+1}`, kpi: _zero12(), dso: _zero12(), end: _zero12()
 }));
+// ⚠️ 화서본부 PSI — 임시(더미) 값. 실제 영업수치로 교체 필요.
 const INITIAL_PSI_HX = {
-  hqCumulative: { goal: _zero12(), actual: _zero12() },
-  hqMonthly: { goal: _zero12(), actual: _zero12() },
-  dealers: _psiEmptyDealers(['사천', '감숙', '섬서']),
+  hqCumulative: {
+    goal:   [1200,1900,3100,4300,5500,6700,7700,8900,10300,11600,12900,14100],
+    actual: [800,1500,2600,3700,4800,5900,6800,7900,9100,10300,11600,12900],
+  },
+  hqMonthly: {
+    goal:   [1200,700,1200,1200,1200,1200,1000,1200,1400,1300,1300,1200],
+    actual: [800,700,1100,1100,1100,1100,900,1100,1200,1200,1300,1300],
+  },
+  dealers: [
+    { region: '사천', type: '대리상', name: '成都普瑞赛司医疗器械有限公司',
+      kpi: [200,140,270,260,260,255,215,240,280,280,320,280],
+      dso: [180,130,250,240,230,235,200,220,260,260,290,260],
+      end: [20,10,20,20,30,20,15,20,20,20,30,20] },
+    { region: '감숙', type: '대리상', name: '兰州连联荣光商贸有限公司',
+      kpi: [14,10,16,18,18,18,15,15,19,19,19,19],
+      dso: [10,8,13,15,15,15,12,12,16,16,16,16],
+      end: [4,2,3,3,3,3,3,3,3,3,3,3] },
+    { region: '섬서', type: '대리상', name: '陕西璐玟医疗器械有限公司',
+      kpi: [18,12,23,22,22,22,18,19,25,24,25,21],
+      dso: [15,10,19,18,18,18,15,16,21,20,21,18],
+      end: [3,2,4,4,4,4,3,3,4,4,4,3] },
+    { region: '운남', type: '대리상', name: '云南东幸医疗器械有限公司',
+      kpi: [14,9,19,18,18,19,15,16,20,18,20,21],
+      dso: [11,7,15,15,15,15,12,13,17,15,17,18],
+      end: [3,2,4,3,3,4,3,3,3,3,3,3] },
+    { region: '산서', type: '대리상', name: '山西康美雅泰医疗器械有限公司',
+      kpi: [35,22,53,50,50,50,38,41,55,52,57,47],
+      dso: [30,18,45,43,43,43,32,35,47,44,49,40],
+      end: [5,4,8,7,7,7,6,6,8,8,8,7] },
+  ],
 };
+// ⚠️ 화동본부 PSI — 임시(더미) 값. 실제 영업수치로 교체 필요.
 const INITIAL_PSI_HD = {
-  hqCumulative: { goal: _zero12(), actual: _zero12() },
-  hqMonthly: { goal: _zero12(), actual: _zero12() },
-  dealers: _psiEmptyDealers(['상해', '강소', '산동']),
+  hqCumulative: {
+    goal:   [3200,5000,9500,14000,18500,23000,26500,30500,35000,39500,44000,48000],
+    actual: [2000,3800,7500,11500,15500,19500,23000,27000,31500,36000,41000,45500],
+  },
+  hqMonthly: {
+    goal:   [3200,1800,4500,4500,4500,4500,3500,4000,4500,4500,4500,4000],
+    actual: [2000,1800,3700,4000,4000,4000,3500,4000,4500,4500,5000,4500],
+  },
+  dealers: [
+    { region: '상해', type: '대리상', name: '上海保贞医疗器械有限公司',
+      kpi: [20,10,30,40,40,40,40,45,35,30,30,40],
+      dso: [16,8,24,33,33,33,33,37,29,25,25,33],
+      end: [4,2,6,7,7,7,7,8,6,5,5,7] },
+    { region: '강소', type: '대리상', name: '南京康睿达医疗科技有限公司',
+      kpi: [182,112,266,252,252,252,196,210,280,266,294,238],
+      dso: [155,95,226,214,214,214,167,178,238,226,250,202],
+      end: [27,17,40,38,38,38,29,32,42,40,44,36] },
+    { region: '산동', type: '대리상', name: '青岛振全嘉泰医疗器械有限公司',
+      kpi: [90,52,128,121,121,121,95,101,135,130,141,115],
+      dso: [76,44,109,103,103,103,81,86,115,110,120,98],
+      end: [14,8,19,18,18,18,14,15,20,20,21,17] },
+    { region: '산동', type: '대리상', name: '济南辰帆医疗器械有限公司',
+      kpi: [17,11,25,23,23,23,18,20,26,25,27,22],
+      dso: [14,9,21,20,20,20,15,17,22,21,23,19],
+      end: [3,2,4,3,3,3,3,3,4,4,4,3] },
+  ],
 };
 // DSO 진입현황 기본 데이터 (첨부 기준) — 본부/대구/지역/문진수/연종식량/DSO수량/진입수량/S합계/S진입/A합계/A진입/기타합계/기타진입
 const DSO_ENTRY_DATA = [
@@ -3530,7 +3606,7 @@ function NoteBoard({ noteKey, weeklyEntries, setWeeklyEntries, label }) {
 }
 
 
-function DealerMasterTab({ hq, weeklyEntries, setWeeklyEntries, logChange }) {
+function DealerMasterTab({ hq, weeklyEntries, setWeeklyEntries, logChange, initialDealer, embedded }) {
   const psiKey = 'psiAnnual_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
   const extraKey = 'psiExtra_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
   const extraDealers = (() => { try { const v = weeklyEntries[extraKey]; if (v) return JSON.parse(v); } catch(e){} return []; })();
@@ -3558,7 +3634,10 @@ function DealerMasterTab({ hq, weeklyEntries, setWeeklyEntries, logChange }) {
   };
   const defaultMaster = () => ({ photo:'', years:'', since:'', ceo:'', staff:'', products:'', priceHistory:[], dso:[], subCust:[], marketing:[] });
 
-  const [selected, setSelected] = React.useState(dealers[0] ? dealers[0].name : null);
+  const [selected, setSelected] = React.useState(
+    (initialDealer && dealers.some(d => d.name === initialDealer)) ? initialDealer
+    : (dealers[0] ? dealers[0].name : null)
+  );
   const [tab, setTab] = React.useState('price'); // price | supply | marketing
   const [editBasic, setEditBasic] = React.useState(false);
 
@@ -3606,6 +3685,7 @@ function DealerMasterTab({ hq, weeklyEntries, setWeeklyEntries, logChange }) {
   return (
     <div className="bg-white border border-slate-200 rounded-md p-4">
       {/* 대리상 선택 */}
+      {!embedded && (
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <span className="text-xs font-semibold text-slate-600">대리상:</span>
         <select value={selected} onChange={e=>{setSelected(e.target.value);}} className="px-2 py-1 text-sm border border-slate-300 rounded bg-white max-w-xs">
@@ -3623,6 +3703,7 @@ function DealerMasterTab({ hq, weeklyEntries, setWeeklyEntries, logChange }) {
         }} className="px-2 py-1 text-xs border border-blue-300 text-blue-700 rounded hover:bg-blue-50 font-semibold">+ 대리상 추가</button>
         <span className="text-[11px] text-slate-400">추가하면 계약실적현황·PSI 관리에도 함께 반영됩니다</span>
       </div>
+      )}
 
       {/* 기본현황 (상단 고정) */}
       <div className="flex items-center gap-4 mb-4">
@@ -3832,6 +3913,8 @@ function PriceHistoryView({ ph, onChange }) {
 function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logChange }) {
   const psiKey = 'psiAnnual_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
   const extraKey = 'psiExtra_' + (hq === '화서본부' ? 'HX' : hq === '화동본부' ? 'HD' : 'HN');
+  // 대리상 마스터 상세 패널 (대리상명 클릭 시)
+  const [masterPanel, setMasterPanel] = React.useState(null); // 대리상명 or null
   // 추가 대리상 (사용자가 추가, weeklyEntries에 저장 → 세 탭 공유)
   const extraDealers = (() => { try { const v = weeklyEntries[extraKey]; if (v) return JSON.parse(v); } catch(e){} return []; })();
   const rows = [...(PSI_ANNUAL_DATA[hq] || []), ...extraDealers];
@@ -3891,11 +3974,15 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
   const visMonths = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m => visibleMonths[m-1]);
   const visCount = visibleMonths.filter(Boolean).length;
 
+  // 선택월(visMonths) 최대까지 누계
+  const maxVisM = visMonths.length ? Math.max(...visMonths) : 12;
+  const sumToSel = (arr) => { let s=0; for(let i=0;i<maxVisM;i++) s+=(arr[i]||0); return s; };
   // 각 행 계산 + 등급
   const computed = rows.map(r => {
     const con = r.con.map((d, mi) => getCell(r.name, 'con', mi, d));
     const act = r.act.map((d, mi) => getCell(r.name, 'act', mi, d));
-    const conT = sum12(con), actT = sum12(act);
+    const conT = sum12(con);              // 계약 합계 = 1~12월 전체
+    const actT = sumToSel(act);           // 실적 합계 = 1~선택월 누계
     const grade = conT >= 1500 ? 'A' : conT >= 1000 ? 'B' : conT >= 500 ? 'C' : 'D';
     return { ...r, con, act, conT, actT, grade };
   });
@@ -3916,7 +4003,7 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
   const sumTargets = filteredBase.filter(c => !hiddenRows.includes(c.name));
   const totCon = Array(12).fill(0), totAct = Array(12).fill(0);
   sumTargets.forEach(c => { for (let mi=0; mi<12; mi++) { totCon[mi]+=c.con[mi]; totAct[mi]+=c.act[mi]; } });
-  const totConT = sum12(totCon), totActT = sum12(totAct);
+  const totConT = sum12(totCon), totActT = sumToSel(totAct);
   const hiddenCount = hiddenRows.length;
 
   const gradeCls = (g) => g==='A' ? 'bg-emerald-100 text-emerald-700' : g==='B' ? 'bg-blue-100 text-blue-700' : g==='C' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500';
@@ -4010,7 +4097,9 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
                   </td>
                   <td rowSpan={3} className="px-2 py-1 border-r border-slate-300 text-slate-800 bg-white align-middle truncate" title={c.name}>
                     <div className="flex items-center gap-1">
-                      <span className="truncate flex-1">{c.name}</span>
+                      <button onClick={() => setMasterPanel(c.name)}
+                        className="truncate flex-1 text-left text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer"
+                        title="클릭하여 대리상 상세 보기">{c.name}</button>
                       {extraDealers.some(d => d.name === c.name) && (
                         <button onClick={()=>handleRemoveDealer(c.name)} className="text-slate-300 hover:text-rose-600 text-xs flex-shrink-0" title="추가 대리상 삭제">✕</button>
                       )}
@@ -4041,7 +4130,7 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
                     const r = rate(c.act[m-1], c.con[m-1]);
                     return <td key={'rate'+m} className={`px-0.5 py-1 border-r border-slate-100 text-right text-sm bg-slate-50 ${rateCls(r)}`}>{c.con[m-1]!==0?r+'%':'-'}</td>;
                   })}
-                  <td className={`px-1 py-1 text-right text-sm bg-slate-100 ${rateCls(rate(c.actT,c.conT))}`}>{c.conT!==0?rate(c.actT,c.conT)+'%':'-'}</td>
+                  <td className={`px-1 py-1 text-right text-sm bg-slate-100 ${rateCls(rate(c.actT, sumToSel(c.con)))}`}>{sumToSel(c.con)!==0?rate(c.actT,sumToSel(c.con))+'%':'-'}</td>
                 </tr>
               </React.Fragment>
             ))}
@@ -4063,12 +4152,33 @@ function PsiAnnualTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logC
               <td colSpan={3} className="px-1 py-1 border-r border-slate-300 text-center bg-slate-100"></td>
               <td className="px-1 py-1.5 border-r border-slate-200 text-center text-xs text-slate-600 bg-slate-50">달성율</td>
               {visMonths.map(m => { const r=rate(totAct[m-1],totCon[m-1]); return <td key={'tr'+m} className={`px-0.5 py-1.5 border-r border-slate-100 text-right text-sm bg-slate-50 ${rateCls(r)}`}>{totCon[m-1]!==0?r+'%':'-'}</td>; })}
-              <td className={`px-1 py-1.5 text-right bg-slate-100 ${rateCls(rate(totActT,totConT))}`}>{totConT!==0?rate(totActT,totConT)+'%':'-'}</td>
+              <td className={`px-1 py-1.5 text-right bg-slate-100 ${rateCls(rate(totActT, sumToSel(totCon)))}`}>{sumToSel(totCon)!==0?rate(totActT,sumToSel(totCon))+'%':'-'}</td>
             </tr>
           </tfoot>
         </table>
       </div>
-      <div className="text-xs text-slate-500 mt-2">* 단위: 만 RMB · 계약·실적 셀 클릭 수정 가능 · 달성율 = 실적 ÷ 계약 · 등급: 계약합계 1,500만↑ A / 1,000만↑ B / 500만↑ C / 미만 D</div>
+      <div className="text-xs text-slate-500 mt-2">* 단위: 만 RMB · 계약·실적 셀 클릭 수정 가능 · 달성율 = 실적 ÷ 계약 · <strong>합계: 계약은 1~12월 전체, 실적·달성율은 1~선택월 누계</strong> · 등급: 계약합계 1,500만↑ A / 1,000만↑ B / 500만↑ C / 미만 D · <strong className="text-blue-600">대리상명 클릭 시 상세 보기</strong></div>
+
+      {/* === 대리상 마스터 상세 패널 (대리상명 클릭) === */}
+      {masterPanel && (
+        <div className="fixed inset-0 z-40 flex justify-end" onClick={() => setMasterPanel(null)}>
+          <div className="absolute inset-0 bg-black/30"></div>
+          <div className="relative bg-white w-full max-w-[1100px] h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">대리상 상세 - {masterPanel}</h3>
+                <div className="text-xs text-slate-500 mt-0.5">{hq} · 자동 저장</div>
+              </div>
+              <button onClick={() => setMasterPanel(null)} className="text-slate-400 hover:text-slate-700 p-1">
+                <Icon name="x" className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5">
+              <DealerMasterTab hq={hq} weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} logChange={logChange} initialDealer={masterPanel} embedded={true} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -4306,9 +4416,13 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
   const rateSel = kpiSel!==0 ? Math.round(actSel/kpiSel*100) : 0;
   // 성장율 = (금년실적 누계 − 전년도실적 누계) ÷ 전년도실적 누계 (선택월까지)
   const growSel = y25Sel!==0 ? Math.round((actSel - y25Sel)/y25Sel*100) : null;
+  // 반대 단위(수량/금액) 실적 누계 — 실적 카드 보조 표기용
+  const aggOther = computeCorpTotals(tab==='amount'?'qty':'amount', weeklyEntries, sk);
+  const actSelOther = selSumA(aggOther.act);
+  const otherUnit = tab==='amount' ? '개' : '만RMB';
   const aggCards = [
     { label:'2026년 KPI',     value: fmtAgg(agg.kpiT), unit: aggUnit, color:'text-slate-900' },
-    { label:'2026년 실적',    value: fmtAgg(actSel), unit: aggUnit, color:'text-slate-900' },
+    { label:'2026년 실적',    value: fmtAgg(actSel), unit: aggUnit, color:'text-slate-900', sub: fmtAgg(actSelOther)+' '+otherUnit },
     { label:'달성율',         value: (kpiSel? rateSel : 0)+'%', unit: '', color: rateSel<80?'text-rose-600':(rateSel>=100?'text-emerald-600':'text-blue-600') },
     { label:'전년도 전체실적', value: fmtAgg(agg.y25T), unit: aggUnit, color:'text-slate-900' },
     { label:'전년도누적실적',  value: fmtAgg(y25Sel), unit: aggUnit, color:'text-slate-900' },
@@ -4349,6 +4463,7 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
                   <span className={`text-2xl font-bold ${c.color}`}>{c.value}</span>
                   {c.unit && <span className="text-sm font-semibold text-slate-700">{c.unit}</span>}
                 </div>
+                {c.sub && <div className="text-[11px] text-slate-400 text-center mt-0.5">{c.sub}</div>}
               </div>
             ))}
           </div>
@@ -8267,12 +8382,12 @@ function App() {
     const monthLabelP = `${displayMonthP}월`;
     const is5월P = displayMonthP === 5;
 
-    // 대리상 PSI 관리 - "보고 있는 월(yearMonthP)"마다 선택 세트를 따로 저장
-    // 예: 6월 화면에서 선택한 것과 5월 화면에서 선택한 것이 각각 독립 저장됨
-    const psiVisibleMonths = psiVisMonthsByYear[yearMonthP] || Array(12).fill(true);
+    // 대리상 PSI 관리 - 상단에서 고른 월(displayMonthP) 하나만 기본 표시
+    // (누적합계는 1~선택월 누계, 월 컬럼은 선택월 1개) — picker로 직접 바꿀 수도 있음
+    const psiVisibleMonths = psiVisMonthsByYear[yearMonthP] || Array(12).fill(false).map((_,i)=> i === (displayMonthP-1));
     const setPsiVisibleMonths = (updater) => {
       setPsiVisMonthsByYear(prev => {
-        const cur = prev[yearMonthP] || Array(12).fill(true);
+        const cur = prev[yearMonthP] || Array(12).fill(false).map((_,i)=> i === (displayMonthP-1));
         const next = typeof updater === 'function' ? updater(cur) : updater;
         return { ...prev, [yearMonthP]: next };
       });
@@ -8697,6 +8812,8 @@ function App() {
                 <span className="text-xs font-semibold text-slate-600">{curYearP}년 {displayMonthP}월 화면 — 표시 월:</span>
                 <button onClick={() => setPsiVisibleMonths(Array(12).fill(true))}
                   className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+                <button onClick={() => setPsiVisibleMonths(Array(12).fill(false))}
+                  className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 해제</button>
                 <div className="relative inline-block">
                   <button onClick={() => setPsiMonthPickerOpen(!psiMonthPickerOpen)}
                     className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">
@@ -8731,11 +8848,9 @@ function App() {
                     <div className="absolute left-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 flex flex-col gap-1 w-44">
                       {[
                         { key:'months', label:'월별(구매/판매/재고/비율)' },
-                        { key:'selSum', label:'선택합계' },
+                        { key:'selSum', label:'누적합계' },
                         { key:'stockY25', label:'25년재고' },
                         { key:'target', label:'목표수량' },
-                        { key:'purchaseQty', label:'구매수량(연간)' },
-                        { key:'salesQty', label:'판매수량(연간)' },
                         { key:'status', label:'상태' },
                       ].map(c => (
                         <label key={c.key} className="flex items-center gap-1.5 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
@@ -8754,11 +8869,15 @@ function App() {
                 const rows = psiVisibleAll;
                 const selMonths = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]);
                 let totP=0, totS=0, totI=0, totTarget=0, totPurchaseQty=0;
+                const lastM = selMonths.length ? selMonths[selMonths.length-1] : 0;
                 rows.forEach(r => {
                   selMonths.forEach(m => { totP+=Number(r[`m${m}_P`])||0; totS+=Number(r[`m${m}_S`])||0; });
-                  // 재고는 선택 월 중 마지막 월의 월말재고
-                  const lastM = selMonths.length ? selMonths[selMonths.length-1] : 0;
-                  if (lastM) totI += Number(r[`m${lastM}_I`])||0;
+                  // 기말재고 = 25년재고 + Σ(1~선택최종월)(구매−판매) (PSI 누적)
+                  if (lastM) {
+                    let inv = Number(r.stockY25)||0;
+                    for (let m=1; m<=lastM; m++) inv += (Number(r[`m${m}_P`])||0) - (Number(r[`m${m}_S`])||0);
+                    totI += inv;
+                  }
                   totTarget += Number(r.targetQty)||0;
                   const autoP=[1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(Number(r[`m${m}_P`])||0),0);
                   totPurchaseQty += (r.purchaseQtyManual!==undefined&&r.purchaseQtyManual!==null&&r.purchaseQtyManual!=='')?Number(r.purchaseQtyManual):autoP;
@@ -8775,7 +8894,7 @@ function App() {
                 const cards = [
                   { label:`구매 (${selLabel})`, value: formatNumber(totP), unit:'개', color:'text-blue-600' },
                   { label:`판매 (${selLabel})`, value: formatNumber(totS), unit:'개', color:'text-emerald-600' },
-                  { label:'기말 재고', value: formatNumber(totI), unit:'개', color:'text-amber-600' },
+                  { label: lastM? `기말 재고(${lastM}월)`:'기말 재고', value: formatNumber(totI), unit:'개', color:'text-amber-600' },
                   { label:'평균 재고비율', value: avgRatio.toFixed(1), unit:'배', color: avgRatio>=5?'text-rose-600':'text-slate-900' },
                   { label:'목표달성 대리상', value: `${achievers}`, unit:`/${rows.length}`, color:'text-indigo-600' },
                 ];
@@ -8795,10 +8914,12 @@ function App() {
               })()}
               {!psiMgmtCollapsed && (
               <div className="border border-slate-300 rounded overflow-x-auto">
-                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (210 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*52 : 0) + (psiCols.selSum?3*64:0) + (psiCols.stockY25?90:0)+(psiCols.target?90:0)+(psiCols.purchaseQty?100:0)+(psiCols.salesQty?100:0)+(psiCols.status?70:0)+60) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
+                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (210 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*52 : 0) + (psiCols.selSum?3*64:0) + (psiCols.stockY25?42:0)+(psiCols.target?56:0)+(psiCols.status?70:0)+60) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
                   <colgroup>
                     <col style={{ width: '60px' }} />
                     <col style={{ width: '150px' }} />
+                    {psiCols.stockY25 && <col style={{ width: '42px' }} />}
+                    {psiCols.target && <col style={{ width: '56px' }} />}
                     {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
                       <React.Fragment key={m}>
                         <col style={{ width: '52px' }} />
@@ -8808,10 +8929,6 @@ function App() {
                       </React.Fragment>
                     ))}
                     {psiCols.selSum && <><col style={{ width: '64px' }} /><col style={{ width: '64px' }} /><col style={{ width: '64px' }} /></>}
-                    {psiCols.stockY25 && <col style={{ width: '90px' }} />}
-                    {psiCols.target && <col style={{ width: '90px' }} />}
-                    {psiCols.purchaseQty && <col style={{ width: '100px' }} />}
-                    {psiCols.salesQty && <col style={{ width: '100px' }} />}
                     {psiCols.status && <col style={{ width: '70px' }} />}
                     <col style={{ width: '60px' }} />
                   </colgroup>
@@ -8820,14 +8937,12 @@ function App() {
                     <tr className="bg-slate-200 border-b border-slate-300">
                       <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200">지역</th>
                       <th rowSpan={2} className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left align-middle bg-slate-200">대리상명</th>
+                      {psiCols.stockY25 && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap">25년<br/>재고</th>}
+                      {psiCols.target && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap">목표<br/>수량</th>}
                       {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
                         <th key={m} colSpan={4} className="px-1 py-1.5 border-r border-slate-400 font-bold text-slate-800 bg-slate-200 text-center">{m}월</th>
                       ))}
-                      {psiCols.selSum && <th colSpan={3} className="px-1 py-1.5 border-r border-slate-400 font-bold text-indigo-800 bg-indigo-100 text-center">선택합계</th>}
-                      {psiCols.stockY25 && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-amber-100 whitespace-nowrap">25년<br/>재고</th>}
-                      {psiCols.target && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-blue-50 whitespace-nowrap">목표<br/>수량</th>}
-                      {psiCols.purchaseQty && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-emerald-50 whitespace-nowrap">구매수량<br/>(연간)</th>}
-                      {psiCols.salesQty && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-emerald-50 whitespace-nowrap">판매수량<br/>(연간)</th>}
+                      {psiCols.selSum && <th colSpan={3} className="px-1 py-1.5 border-r border-slate-400 font-bold text-slate-800 bg-slate-200 text-center">누적합계</th>}
                       {psiCols.status && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle">상태</th>}
                       <th rowSpan={2} className="px-1 py-1.5 font-semibold text-slate-700 align-middle">관리</th>
                     </tr>
@@ -8842,28 +8957,40 @@ function App() {
                         </React.Fragment>
                       ))}
                       {psiCols.selSum && <>
-                      <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-indigo-700 bg-indigo-50 text-sm">구매</th>
-                      <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-indigo-700 bg-indigo-50 text-sm">판매</th>
-                      <th className="px-0.5 py-1 border-r border-slate-400 font-semibold text-indigo-700 bg-indigo-50 text-sm">재고</th>
+                      <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">구매</th>
+                      <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">판매</th>
+                      <th className="px-0.5 py-1 border-r border-slate-400 font-semibold text-slate-600 bg-slate-100 text-sm">재고</th>
                       </>}
                     </tr>
                   </thead>
                   <tbody>
                     {psiSortedRows.length === 0 ? (
-                      <tr><td colSpan={3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.purchaseQty?1:0)+(psiCols.salesQty?1:0)+(psiCols.status?1:0)} className="px-2 py-4 text-center text-slate-400">
+                      <tr><td colSpan={3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.status?1:0)} className="px-2 py-4 text-center text-slate-400">
                         {isShowingHiddenPSI ? '숨김 처리된 행이 없습니다.' : '표시할 데이터가 없습니다. 아래 [대리상 추가] 버튼을 눌러주세요.'}
                       </td></tr>
                     ) : psiSortedRows.map(row => {
-                      // 1~12월 구매/판매 합계 (수동값 우선)
-                      const sumPurchase = [1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(Number(row[`m${m}_P`])||0),0);
-                      const sumSales = [1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(Number(row[`m${m}_S`])||0),0);
-                      const purchaseQty = (row.purchaseQtyManual!==undefined && row.purchaseQtyManual!==null && row.purchaseQtyManual!=='') ? Number(row.purchaseQtyManual) : sumPurchase;
-                      const salesQty = (row.salesQtyManual!==undefined && row.salesQtyManual!==null && row.salesQtyManual!=='') ? Number(row.salesQtyManual) : sumSales;
-                      // 선택합계: 체크된 월(psiVisibleMonths)만 합산
+                      const y25Stock = Number(row.stockY25)||0;
+                      // 월별 재고 자동계산 (PSI): I[1]=25년재고+P1-S1, I[m]=I[m-1]+P[m]-S[m]
+                      const monthInv = {};
+                      let prevInv = y25Stock;
+                      for (let m=1; m<=12; m++){
+                        const p = Number(row[`m${m}_P`])||0;
+                        const s = Number(row[`m${m}_S`])||0;
+                        prevInv = prevInv + p - s;
+                        monthInv[m] = prevInv;
+                      }
+                      // 선택월 (체크된 월)
                       const selMonths = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]);
-                      const selP = selMonths.reduce((s,m)=>s+(Number(row[`m${m}_P`])||0),0);
-                      const selS = selMonths.reduce((s,m)=>s+(Number(row[`m${m}_S`])||0),0);
-                      const selI = selMonths.reduce((s,m)=>s+(Number(row[`m${m}_I`])||0),0);
+                      const maxSel = selMonths.length ? Math.max(...selMonths) : 12;
+                      // 누적(1~선택월) 구매/판매
+                      const cumMonths = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>m<=maxSel);
+                      const purchaseQty = cumMonths.reduce((s,m)=>s+(Number(row[`m${m}_P`])||0),0);
+                      const salesQty = cumMonths.reduce((s,m)=>s+(Number(row[`m${m}_S`])||0),0);
+                      const sumPurchase = purchaseQty, sumSales = salesQty;
+                      // 누적합계: 구매·판매 = 1~선택최대월 누계, 재고 = 25년재고 + 누적(구매−판매)
+                      const selP = cumMonths.reduce((s,m)=>s+(Number(row[`m${m}_P`])||0),0);
+                      const selS = cumMonths.reduce((s,m)=>s+(Number(row[`m${m}_S`])||0),0);
+                      const selI = y25Stock + cumMonths.reduce((s,m)=>s+((Number(row[`m${m}_P`])||0)-(Number(row[`m${m}_S`])||0)),0);
                       return (
                       <React.Fragment key={row.id}>
                       <tr className="border-b border-slate-200 hover:bg-slate-50 group">
@@ -8882,11 +9009,31 @@ function App() {
                             <div className="truncate flex-1"><EditableCell value={row.dealer} onSave={(v) => updateFocus(row.id, 'dealer', v)} /></div>
                           </div>
                         </td>
+                        {/* 25년 재고 (1월 앞 · 색 없음) */}
+                        {psiCols.stockY25 && <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-white text-sm">
+                          <EditableCell value={row.stockY25 ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'stockY25', v)} />
+                        </td>}
+                        {/* 목표 수량 (1월 앞) */}
+                        {psiCols.target && <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-white text-sm">
+                          <EditableCell value={row.targetQty ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'targetQty', v)} />
+                        </td>}
                         {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => {
-                          // 库存比 = 월말재고 ÷ 목표월평균(合同任务月平均销量=targetQty) — 첨부표 검증 공식
-                          const mI = Number(row[`m${m}_I`]) || 0;
-                          const tgtAvg = Number(row.targetQty) || 0;
-                          const ratio = tgtAvg > 0 ? (mI / tgtAvg) : 0;
+                          // 그 달까지 구매·판매가 전혀 입력 안 됐는지 (1~m 합)
+                          const hasFlow = [1,2,3,4,5,6,7,8,9,10,11,12].filter(x=>x<=m)
+                            .some(x => (Number(row[`m${x}_P`])||0)!==0 || (Number(row[`m${x}_S`])||0)!==0);
+                          // 재고 = PSI 누적 (25년재고 + Σ(구매-판매)) — 흐름 없으면 빈칸
+                          const mI = hasFlow ? monthInv[m] : null;
+                          // 재고비 = 월말재고 ÷ (연초~당월 월별 판매실적의 실제 평균)  [엑셀 AVERAGE 방식]
+                          // 분모: 1~m월 중 판매가 발생한 달의 판매수량 평균
+                          const _salesVals = [1,2,3,4,5,6,7,8,9,10,11,12]
+                            .filter(x => x <= m)
+                            .map(x => Number(row[`m${x}_S`]) || 0)
+                            .filter(v => v !== 0);
+                          const salesAvg = _salesVals.length ? _salesVals.reduce((a,b)=>a+b,0)/_salesVals.length : 0;
+                          const ratio = (mI!==null && salesAvg > 0) ? (mI / salesAvg) : null;
+                          // 상태: 3.0 초과 = 주의(빨강), 3.0 이하 = 정상(초록)
+                          const ratioCls = ratio===null ? 'text-slate-600'
+                            : (ratio > 3.0 ? 'text-rose-600 font-bold' : 'text-emerald-600 font-semibold');
                           return (
                           <React.Fragment key={m}>
                             <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-white">
@@ -8895,46 +9042,20 @@ function App() {
                             <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-white">
                               <EditableCell value={row[`m${m}_S`] ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, `m${m}_S`, v)} />
                             </td>
-                            <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-white">
-                              <EditableCell value={row[`m${m}_I`] ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, `m${m}_I`, v)} />
+                            <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-slate-50 text-slate-700 font-medium" title="재고 = 25년재고 + 누적(구매−판매) · 자동계산">
+                              {mI===null ? '' : Math.round(mI*10)/10}
                             </td>
-                            <td className="px-0.5 py-0.5 border-r border-slate-400 text-right bg-slate-50 text-slate-600 text-sm" title="월말재고 ÷ 목표월평균 (자동)">
-                              {tgtAvg > 0 ? ratio.toFixed(1) : '-'}
+                            <td className={`px-0.5 py-0.5 border-r border-slate-400 text-right bg-slate-50 text-sm ${ratioCls}`} title="재고비 = 월말재고 ÷ 연초~당월 판매평균 · 3.0 초과=주의 / 3.0 이하=정상 (자동)">
+                              {ratio===null ? '' : ratio.toFixed(1)}
                             </td>
                           </React.Fragment>
                         );})}
-                        {/* 선택합계 (구매/판매/재고) */}
+                        {/* 누적합계 (구매/판매/재고) */}
                         {psiCols.selSum && <>
-                        <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-indigo-50 font-semibold text-indigo-800 text-sm">{formatNumber(selP)}</td>
-                        <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-indigo-50 font-semibold text-indigo-800 text-sm">{formatNumber(selS)}</td>
-                        <td className="px-0.5 py-0.5 border-r border-slate-400 text-right bg-indigo-50 font-semibold text-indigo-800 text-sm">{formatNumber(selI)}</td>
+                        <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-slate-50 font-semibold text-slate-700 text-sm">{formatNumber(selP)}</td>
+                        <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-slate-50 font-semibold text-slate-700 text-sm">{formatNumber(selS)}</td>
+                        <td className="px-0.5 py-0.5 border-r border-slate-400 text-right bg-slate-50 font-semibold text-slate-700 text-sm">{formatNumber(selI)}</td>
                         </>}
-                        {/* 25년 재고 */}
-                        {psiCols.stockY25 && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-amber-50">
-                          <EditableCell value={row.stockY25 ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'stockY25', v)} />
-                        </td>}
-                        {/* 목표 수량 */}
-                        {psiCols.target && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-blue-50">
-                          <EditableCell value={row.targetQty ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'targetQty', v)} />
-                        </td>}
-                        {/* 구매수량 (1~12월 구매 합, 수정 가능) */}
-                        {psiCols.purchaseQty && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-emerald-50 font-semibold relative group" title="1~12월 구매 합계 (자동) · 클릭하여 수동 수정 · ↻로 자동 복귀">
-                          <div className="flex items-center justify-end gap-1">
-                            <EditableCell value={purchaseQty} type="number" align="right" onSave={(v) => updateFocus(row.id, 'purchaseQtyManual', parseFloat(v) || 0)} />
-                            {row.purchaseQtyManual!==undefined && row.purchaseQtyManual!==null && row.purchaseQtyManual!=='' && (
-                              <button onClick={() => updateFocus(row.id, 'purchaseQtyManual', null)} className="text-[10px] text-slate-400 hover:text-blue-600 flex-shrink-0" title="자동(합계)으로 복귀">↻</button>
-                            )}
-                          </div>
-                        </td>}
-                        {/* 판매수량 (1~12월 판매 합, 수정 가능) */}
-                        {psiCols.salesQty && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-emerald-50 font-semibold relative group" title="1~12월 판매 합계 (자동) · 클릭하여 수동 수정 · ↻로 자동 복귀">
-                          <div className="flex items-center justify-end gap-1">
-                            <EditableCell value={salesQty} type="number" align="right" onSave={(v) => updateFocus(row.id, 'salesQtyManual', parseFloat(v) || 0)} />
-                            {row.salesQtyManual!==undefined && row.salesQtyManual!==null && row.salesQtyManual!=='' && (
-                              <button onClick={() => updateFocus(row.id, 'salesQtyManual', null)} className="text-[10px] text-slate-400 hover:text-blue-600 flex-shrink-0" title="자동(합계)으로 복귀">↻</button>
-                            )}
-                          </div>
-                        </td>}
                         {/* 상태: 목표 대비 구매수량 */}
                         {psiCols.status && <td className="px-2 py-1.5 border-r border-slate-200 text-center bg-white">
                           {(() => {
@@ -8956,21 +9077,32 @@ function App() {
                       </tr>
                       {psiExpandedRow === row.id && (() => {
                         const tgtAvg = Number(row.targetQty) || 0;
-                        const chartData = [1,2,3,4,5,6,7,8,9,10,11,12].map(m => {
-                          const mI = Number(row[`m${m}_I`])||0;
+                        // 선택한 최대월까지만 (1~선택월)
+                        const selMs2 = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]);
+                        const lastM2 = selMs2.length ? Math.max(...selMs2) : 12;
+                        // PSI 누적 재고
+                        let invAcc = Number(row.stockY25)||0;
+                        const invByM = {};
+                        for (let m=1;m<=12;m++){ invAcc += (Number(row[`m${m}_P`])||0)-(Number(row[`m${m}_S`])||0); invByM[m]=invAcc; }
+                        const chartData = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>m<=lastM2).map(m => {
+                          const hasFlow = [1,2,3,4,5,6,7,8,9,10,11,12].filter(x=>x<=m).some(x=>(Number(row[`m${x}_P`])||0)!==0||(Number(row[`m${x}_S`])||0)!==0);
+                          const mI = hasFlow ? invByM[m] : 0;
+                          // 재고비 = 월말재고 ÷ 연초~당월 판매평균 (엑셀 AVERAGE 방식)
+                          const _sv = [1,2,3,4,5,6,7,8,9,10,11,12].filter(x=>x<=m).map(x=>Number(row[`m${x}_S`])||0).filter(v=>v!==0);
+                          const _savg = _sv.length ? _sv.reduce((a,b)=>a+b,0)/_sv.length : 0;
                           return {
                             월: `${m}월`,
                             구매: Number(row[`m${m}_P`])||0,
                             판매: Number(row[`m${m}_S`])||0,
                             재고: mI,
-                            비율: tgtAvg>0 ? +(mI/tgtAvg).toFixed(1) : 0,
+                            비율: (hasFlow && _savg>0) ? +(mI/_savg).toFixed(1) : 0,
                           };
                         });
-                        const totalCols = 3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.purchaseQty?1:0)+(psiCols.salesQty?1:0)+(psiCols.status?1:0);
+                        const totalCols = 3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.status?1:0);
                         // X축 아래에 "N월" + 그 달 비율 숫자 함께 표기
                         const renderMonthTick = ({ x, y, payload }) => {
                           const d = chartData.find(c => c.월 === payload.value);
-                          const ratioTxt = d && tgtAvg>0 ? d.비율 : null;
+                          const ratioTxt = d ? d.비율 : null;
                           return (
                             <g transform={`translate(${x},${y})`}>
                               <text x={0} y={0} dy={12} textAnchor="middle" fontSize={12} fill="#475569">{payload.value}</text>
@@ -9016,29 +9148,46 @@ function App() {
                       const auto=[1,2,3,4,5,6,7,8,9,10,11,12].reduce((ss,m)=>ss+(Number(r[`m${m}_S`])||0),0);
                       const v=(r.salesQtyManual!==undefined&&r.salesQtyManual!==null&&r.salesQtyManual!=='')?Number(r.salesQtyManual):auto;
                       return s+v;},0);
+                    // 누적합계 재고 = Σ(25년재고 + 1~선택최종월(P-S))
+                    const selMs = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]);
+                    const lastSel = selMs.length ? Math.max(...selMs) : 0;
+                    const cumMs = [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>m<=lastSel);
+                    const sumSelP = cumMs.reduce((s,m)=>s+sumByMonth(m,'P'),0);
+                    const sumSelS = cumMs.reduce((s,m)=>s+sumByMonth(m,'S'),0);
+                    const sumSelI = focusForSum.reduce((s,r)=>{
+                      let inv=Number(r.stockY25)||0;
+                      for(let m=1;m<=lastSel;m++) inv+=(Number(r[`m${m}_P`])||0)-(Number(r[`m${m}_S`])||0);
+                      return s+(lastSel?inv:0);},0);
+                    // 월별 재고 합 (PSI 누적, 각 월말)
+                    const sumInvByMonth = (mm) => focusForSum.reduce((s,r)=>{
+                      let inv=Number(r.stockY25)||0;
+                      for(let m=1;m<=mm;m++) inv+=(Number(r[`m${m}_P`])||0)-(Number(r[`m${m}_S`])||0);
+                      return s+inv;},0);
                     return (
                       <tfoot>
                         <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
                           <td className="px-1 py-1.5 border-r border-slate-300 text-center bg-slate-100">합계</td>
                           <td className="px-1 py-1.5 border-r border-slate-300 text-center bg-slate-100"></td>
-                          {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
+                          {psiCols.stockY25 && <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-slate-100 text-sm">{formatNumber(sumStockY25)}</td>}
+                          {psiCols.target && <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-slate-100 text-sm">{formatNumber(sumTarget)}</td>}
+                          {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => {
+                            const invSum = sumInvByMonth(m);
+                            const ratioAvg = sumTarget>0 ? (invSum/sumTarget) : null;
+                            return (
                             <React.Fragment key={m}>
                               <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm">{formatNumber(sumByMonth(m,'P'))}</td>
                               <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm">{formatNumber(sumByMonth(m,'S'))}</td>
-                              <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm">{formatNumber(sumByMonth(m,'I'))}</td>
-                              <td className="px-0.5 py-1.5 border-r border-slate-400 text-right text-sm text-slate-400">-</td>
+                              <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm">{formatNumber(invSum)}</td>
+                              <td className="px-0.5 py-1.5 border-r border-slate-400 text-right text-sm text-slate-500" title="재고합 ÷ 목표합 (평균 비율)">{ratioAvg===null?'-':ratioAvg.toFixed(1)}</td>
                             </React.Fragment>
-                          ))}
-                          {/* 선택합계 */}
+                            );
+                          })}
+                          {/* 누적합계 */}
                           {psiCols.selSum && <>
-                          <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm bg-indigo-100 text-indigo-800">{formatNumber([1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).reduce((s,m)=>s+sumByMonth(m,'P'),0))}</td>
-                          <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm bg-indigo-100 text-indigo-800">{formatNumber([1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).reduce((s,m)=>s+sumByMonth(m,'S'),0))}</td>
-                          <td className="px-0.5 py-1.5 border-r border-slate-400 text-right text-sm bg-indigo-100 text-indigo-800">{formatNumber([1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).reduce((s,m)=>s+sumByMonth(m,'I'),0))}</td>
+                          <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm bg-slate-200 text-slate-700">{formatNumber(sumSelP)}</td>
+                          <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm bg-slate-200 text-slate-700">{formatNumber(sumSelS)}</td>
+                          <td className="px-0.5 py-1.5 border-r border-slate-400 text-right text-sm bg-slate-200 text-slate-700">{formatNumber(sumSelI)}</td>
                           </>}
-                          {psiCols.stockY25 && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-amber-100">{formatNumber(sumStockY25)}</td>}
-                          {psiCols.target && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-blue-100">{formatNumber(sumTarget)}</td>}
-                          {psiCols.purchaseQty && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-emerald-100">{formatNumber(sumPurchaseTot)}</td>}
-                          {psiCols.salesQty && <td className="px-2 py-1.5 border-r border-slate-300 text-right bg-emerald-100">{formatNumber(sumSalesTot)}</td>}
                           {psiCols.status && <td className="px-2 py-1.5 border-r border-slate-200 text-center text-slate-500">-</td>}
                           <td className="px-2 py-1.5 text-center text-slate-500">-</td>
                         </tr>
@@ -12591,16 +12740,35 @@ function App() {
       {/* === DSO 상세 사이드 패널 === */}
       {dsoDetailPanel && (() => {
         const { hq: panelHQ, dsoId, dsoRow } = dsoDetailPanel;
-        // 키 형식: dso_*|hq|dsoId  (월별 분리 안 함 - DSO는 영구 데이터)
-        const k업체현황 = `dso_업체현황|${panelHQ}|${dsoId}`;
-        const k대응방안 = `dso_대응방안|${panelHQ}|${dsoId}`;
-        const k메모 = `dso_메모|${panelHQ}|${dsoId}`;
-        const k시스템 = `dso_시스템|${panelHQ}|${dsoId}`;
+        // 현재 선택된 월 (상단 월 선택과 연동)
+        const { year: _pYear } = parseWeekValue(filterWeek);
+        const _pMonth = filterMonth || 5;
+        const _pYM = `${_pYear}-${_pMonth}`;
+        const _pMonthLabel = `${_pMonth}월`;
+        // 주요시스템·DSO 메타(25년실적/26년목표/진입시기)는 월별 분리 저장
+        const k시스템 = `dso_시스템|${panelHQ}|${dsoId}|${_pYM}`;
+        const k메타 = `dso_메타|${panelHQ}|${dsoId}`; // 진입시기/25년실적/26년목표 (영구)
         const k활동 = `dso_활동|${panelHQ}|${dsoId}`;
-        // 데이터 추출
+        const k업체현황 = `dso_업체현황|${panelHQ}|${dsoId}`;
+        const k메모 = `dso_메모|${panelHQ}|${dsoId}`;
         const text업체 = weeklyEntries[k업체현황] ?? '';
-        const text대응 = weeklyEntries[k대응방안] ?? '';
         const text메모 = weeklyEntries[k메모] ?? '';
+        const updateText = (key, value) => {
+          setWeeklyEntries(prev => ({ ...prev, [key]: value }));
+        };
+        // DSO 메타 데이터 (진입시기/25년실적/26년목표) - 수정 가능
+        let meta = {};
+        try {
+          const raw = weeklyEntries[k메타];
+          meta = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
+        } catch (e) { meta = {}; }
+        const metaEnterDate = meta.enterDate ?? (dsoRow.enterDate || '');
+        const metaY25 = meta.year25 ?? (dsoRow.year25 || 0);
+        const metaY26 = meta.yearTarget ?? (dsoRow.yearTarget || 0);
+        const updateMeta = (field, value) => {
+          const next = { ...meta, [field]: value };
+          setWeeklyEntries(prev => ({ ...prev, [k메타]: JSON.stringify(next) }));
+        };
         let systems = [];
         try {
           const raw = weeklyEntries[k시스템];
@@ -12612,9 +12780,6 @@ function App() {
           activities = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
         } catch (e) { activities = []; }
 
-        const updateText = (key, value) => {
-          setWeeklyEntries(prev => ({ ...prev, [key]: value }));
-        };
         const updateSystems = (newArr) => {
           setWeeklyEntries(prev => ({ ...prev, [k시스템]: JSON.stringify(newArr) }));
         };
@@ -12625,16 +12790,11 @@ function App() {
         // 시스템 합계 계산
         const sysSumQty = systems.reduce((s, r) => s + (Number(r.qty) || 0), 0);
         const sysSumPrice = systems.reduce((s, r) => s + ((Number(r.qty) || 0) * (Number(r.price) || 0)), 0);
-        const sysSumPatients = systems.reduce((s, r) => s + (Number(r.patients) || 0), 0);
 
         // 활동 합계
         const actSumCost = activities.reduce((s, r) => s + (Number(r.cost) || 0), 0);
         const actSumSales = activities.reduce((s, r) => s + (Number(r.sales) || 0), 0);
         const actRate = actSumCost > 0 ? +(actSumSales / actSumCost * 100).toFixed(1) : 0;
-
-        // 표 3 요약 (이미지 1 상단)
-        const achRate = (dsoRow.monthSales || 0) > 0 ? +((dsoRow.monthRev || 0) / dsoRow.monthSales * 100).toFixed(1) : 0;
-        const progRate = (dsoRow.yearTarget || 0) > 0 ? +((dsoRow.cumQty || 0) / dsoRow.yearTarget * 100).toFixed(1) : 0;
 
         return (
           <div className="fixed inset-0 z-40 flex justify-end" onClick={() => setDsoDetailPanel(null)}>
@@ -12646,7 +12806,7 @@ function App() {
               <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">DSO 상세 - {dsoRow.customer}</h3>
-                  <div className="text-xs text-slate-500 mt-0.5">{panelHQ} · {dsoRow.region} · 등급 {dsoRow.grade || 'C'} · 자동 저장</div>
+                  <div className="text-sm text-slate-500 mt-0.5">{panelHQ} · {dsoRow.region} · 등급 {dsoRow.grade || 'C'} · 자동 저장</div>
                 </div>
                 <button onClick={() => setDsoDetailPanel(null)}
                   className="text-slate-400 hover:text-slate-700 p-1">
@@ -12655,176 +12815,159 @@ function App() {
               </div>
 
               <div className="p-5 space-y-4">
-                {/* === 1. 상단 행 요약 (이미지 1 상단) === */}
+                {/* === 1. 상단 행 요약 === */}
                 <div className="border border-slate-200 rounded overflow-hidden">
                   <table className="w-full text-sm" style={{ tableLayout: 'fixed' }}>
                     <thead>
                       <tr className="bg-slate-100">
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">지역</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">등급</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">DSO 명칭</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">지점수</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">년수량</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">당월목표</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">당월실적</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">달성율</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">26년목표</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">누적실적</th>
-                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-xs">진도율</th>
-                        <th className="px-2 py-2 font-semibold text-slate-700 text-xs">진입/미진입</th>
+                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'9%'}}>지역</th>
+                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'7%'}}>등급</th>
+                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'30%'}}>DSO 명칭</th>
+                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'13%'}}>년수량</th>
+                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'14%'}}>진입시기</th>
+                        <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'13%'}}>25년도실적</th>
+                        <th className="px-2 py-2 font-semibold text-slate-700 text-sm" style={{width:'14%'}}>26년도목표</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="px-2 py-2 border-r border-slate-300 text-center text-xs">{dsoRow.region}</td>
-                        <td className="px-2 py-2 border-r border-slate-300 text-center text-xs font-bold">{dsoRow.grade || 'C'}</td>
-                        <td className="px-2 py-2 border-r border-slate-300 text-left text-xs text-blue-600 font-semibold">{dsoRow.customer}</td>
-                        <td className="px-2 py-2 border-r border-slate-300 text-right text-xs">{formatNumber(dsoRow.branchCount || 0)}</td>
-                        <td className="px-2 py-2 border-r border-slate-300 text-right text-xs">{formatNumber(dsoRow.annualQty || 0)}</td>
-                        <td className="px-2 py-2 border-r border-slate-300 text-right text-xs">{formatNumber(dsoRow.monthSales || 0)}</td>
-                        <td className="px-2 py-2 border-r border-slate-300 text-right text-xs">{formatNumber(dsoRow.monthRev || 0)}</td>
-                        <td className={`px-2 py-2 border-r border-slate-300 text-right text-xs font-semibold ${achRate >= 80 ? 'text-emerald-600' : achRate >= 50 ? 'text-blue-600' : achRate >= 30 ? 'text-amber-600' : 'text-rose-600'}`}>{achRate}%</td>
-                        <td className="px-2 py-2 border-r border-slate-300 text-right text-xs">{formatNumber(dsoRow.yearTarget || 0)}</td>
-                        <td className="px-2 py-2 border-r border-slate-300 text-right text-xs">{formatNumber(dsoRow.cumQty || 0)}</td>
-                        <td className={`px-2 py-2 border-r border-slate-300 text-right text-xs font-semibold ${progRate >= 70 ? 'text-emerald-600' : progRate >= 40 ? 'text-blue-600' : 'text-slate-600'}`}>{progRate}%</td>
-                        <td className="px-2 py-2 text-center text-xs">
-                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${dsoRow.enter ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>{dsoRow.enter ? '진입' : '미진입'}</span>
+                        <td className="px-2 py-2 border-r border-slate-300 text-center text-sm">{dsoRow.region}</td>
+                        <td className="px-2 py-2 border-r border-slate-300 text-center text-sm font-bold">{dsoRow.grade || 'C'}</td>
+                        <td className="px-2 py-2 border-r border-slate-300 text-left text-sm text-blue-600 font-semibold whitespace-nowrap overflow-hidden text-ellipsis" title={dsoRow.customer}>{dsoRow.customer}</td>
+                        <td className="px-2 py-2 border-r border-slate-300 text-right text-sm">{formatNumber(dsoRow.annualQty || 0)}</td>
+                        <td className="px-2 py-2 border-r border-slate-300 text-center text-sm">
+                          <EditableCell value={metaEnterDate} placeholder="예: 2026.03" onSave={(v) => updateMeta('enterDate', v)} />
+                        </td>
+                        <td className="px-2 py-2 border-r border-slate-300 text-right text-sm">
+                          <EditableCell value={metaY25} type="number" align="right" onSave={(v) => updateMeta('year25', parseFloat(v) || 0)} />
+                        </td>
+                        <td className="px-2 py-2 text-right text-sm">
+                          <EditableCell value={metaY26} type="number" align="right" onSave={(v) => updateMeta('yearTarget', parseFloat(v) || 0)} />
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
 
-                {/* === 2. 업체현황 + 주요 시스템 (좌우 분할) === */}
+                {/* === 2. 주요 시스템 (전체 폭, 월별 분리 저장) === */}
+                <div className="border border-slate-200 rounded p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-base font-bold text-slate-900">주요 시스템 <span className="text-sm font-normal text-slate-400">({_pMonthLabel} · 월별 저장)</span></h4>
+                    <button onClick={() => {
+                      const newRow = { id: Date.now() + Math.random(), tier: '프리미엄', company: '', country: '', system: '', qty: 0, price: 0, patientPrice: 0, note: '' };
+                      updateSystems([...systems, newRow]);
+                    }}
+                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold">
+                      + 추가
+                    </button>
+                  </div>
+                  <div className="border border-slate-200 rounded overflow-x-auto text-sm">
+                    <table className="w-full" style={{ minWidth: '900px' }}>
+                      <thead>
+                        <tr className="bg-slate-100">
+                          <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'90px'}}>구분</th>
+                          <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-sm text-left">업체명</th>
+                          <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'70px'}}>국가</th>
+                          <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-sm text-left">시스템</th>
+                          <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'80px'}}>계약수량</th>
+                          <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'80px'}}>공급가격</th>
+                          <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'80px'}}>환자수가</th>
+                          <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-sm" style={{width:'70px'}}>판매비중</th>
+                          <th className="px-2 py-1.5 font-semibold text-slate-700 text-sm text-left" style={{width:'110px'}}>비고</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {systems.length === 0 ? (
+                          <tr><td colSpan={9} className="px-2 py-4 text-center text-slate-400">데이터 없음. + 추가 버튼을 누르세요.</td></tr>
+                        ) : systems.map((s, idx) => {
+                          const subTotal = (Number(s.qty) || 0) * (Number(s.price) || 0);
+                          const subTotalForRatio = systems.reduce((sum, x) => sum + ((Number(x.qty) || 0) * (Number(x.price) || 0)), 0);
+                          const ratio = subTotalForRatio > 0 ? +(subTotal / subTotalForRatio * 100).toFixed(1) : 0;
+                          const setField = (field, val) => updateSystems(systems.map((x, i) => i === idx ? { ...x, [field]: val } : x));
+                          return (
+                            <tr key={s.id || idx} className="border-t border-slate-200 hover:bg-slate-50 group">
+                              <td className="px-1 py-1 border-r border-slate-200 text-center">
+                                <select value={s.tier || '프리미엄'} onChange={(e) => setField('tier', e.target.value)}
+                                  className="w-full px-1 py-0.5 text-sm border-0 bg-transparent outline-none cursor-pointer hover:bg-slate-100 rounded">
+                                  <option value="프리미엄">프리미엄</option>
+                                  <option value="밸류">밸류</option>
+                                  <option value="볼륨">볼륨</option>
+                                </select>
+                              </td>
+                              <td className="px-2 py-1 border-r border-slate-200">
+                                <EditableCell value={s.company || ''} onSave={(v) => setField('company', v)} />
+                              </td>
+                              <td className="px-2 py-1 border-r border-slate-200 text-center">
+                                <EditableCell value={s.country || ''} onSave={(v) => setField('country', v)} />
+                              </td>
+                              <td className="px-2 py-1 border-r border-slate-200">
+                                <EditableCell value={s.system || ''} onSave={(v) => setField('system', v)} />
+                              </td>
+                              <td className="px-2 py-1 border-r border-slate-200 text-right">
+                                <EditableCell value={s.qty || 0} type="number" align="right" onSave={(v) => setField('qty', parseFloat(v) || 0)} />
+                              </td>
+                              <td className="px-2 py-1 border-r border-slate-200 text-right">
+                                <EditableCell value={s.price || 0} type="number" align="right" onSave={(v) => setField('price', parseFloat(v) || 0)} />
+                              </td>
+                              <td className="px-2 py-1 border-r border-slate-200 text-right">
+                                <EditableCell value={s.patientPrice || 0} type="number" align="right" onSave={(v) => setField('patientPrice', parseFloat(v) || 0)} />
+                              </td>
+                              <td className="px-2 py-1 border-r border-slate-200 text-right">{ratio}%</td>
+                              <td className="px-2 py-1 relative">
+                                <EditableCell value={s.note || ''} onSave={(v) => setField('note', v)} />
+                                <button onClick={() => {
+                                  if (confirm('이 행을 삭제할까요?')) {
+                                    updateSystems(systems.filter((_, i) => i !== idx));
+                                  }
+                                }}
+                                  className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-600 transition">
+                                  <Icon name="x" className="w-3 h-3" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {systems.length > 0 && (
+                          <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
+                            <td className="px-2 py-1.5 border-r border-slate-200 text-center" colSpan={4}>합계</td>
+                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(sysSumQty)}</td>
+                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(sysSumPrice)}</td>
+                            <td className="px-2 py-1.5 border-r border-slate-200 text-right text-slate-500">-</td>
+                            <td className="px-2 py-1.5 border-r border-slate-200 text-right">100.0%</td>
+                            <td className="px-2 py-1.5 text-center text-slate-500">-</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* === 3. 업체현황 + 메모 (좌우 분할) === */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  {/* 업체현황 */}
                   <div className="border border-slate-200 rounded p-3">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-bold text-slate-900">업체현황</h4>
+                      <h4 className="text-base font-bold text-slate-900">업체현황</h4>
                       <Icon name="edit" className="w-3.5 h-3.5 text-slate-400" />
                     </div>
                     <textarea value={text업체} onChange={(e) => updateText(k업체현황, e.target.value)}
                       placeholder="내용을 입력하세요."
-                      className="w-full min-h-[180px] px-2 py-1.5 text-sm border border-slate-200 rounded outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y" />
-                  </div>
-
-                  {/* 주요 시스템 */}
-                  <div className="border border-slate-200 rounded p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-bold text-slate-900">주요 시스템</h4>
-                      <button onClick={() => {
-                        const newRow = { id: Date.now(), system: '신규 시스템', qty: 0, price: 0, patients: 0, ratio: 0, note: '' };
-                        updateSystems([...systems, newRow]);
-                      }}
-                        className="text-xs text-blue-600 hover:text-blue-800 font-semibold">
-                        + 추가
-                      </button>
-                    </div>
-                    <div className="border border-slate-200 rounded overflow-hidden text-xs">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="bg-slate-100">
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left">시스템</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">수량</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">공급가격</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">환자수</th>
-                            <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700">비중</th>
-                            <th className="px-2 py-1.5 font-semibold text-slate-700">비고</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {systems.length === 0 ? (
-                            <tr><td colSpan={6} className="px-2 py-4 text-center text-slate-400">데이터 없음. + 추가 버튼을 누르세요.</td></tr>
-                          ) : systems.map((s, idx) => {
-                            const subTotal = (Number(s.qty) || 0) * (Number(s.price) || 0);
-                            const subTotalForRatio = systems.reduce((sum, x) => sum + ((Number(x.qty) || 0) * (Number(x.price) || 0)), 0);
-                            const ratio = subTotalForRatio > 0 ? +(subTotal / subTotalForRatio * 100).toFixed(1) : 0;
-                            return (
-                              <tr key={s.id || idx} className="border-t border-slate-200 hover:bg-slate-50 group">
-                                <td className="px-2 py-1 border-r border-slate-200">
-                                  <EditableCell value={s.system || ''} onSave={(v) => {
-                                    const newArr = systems.map((x, i) => i === idx ? { ...x, system: v } : x);
-                                    updateSystems(newArr);
-                                  }} />
-                                </td>
-                                <td className="px-2 py-1 border-r border-slate-200 text-right">
-                                  <EditableCell value={s.qty || 0} type="number" align="right" onSave={(v) => {
-                                    const newArr = systems.map((x, i) => i === idx ? { ...x, qty: parseFloat(v) || 0 } : x);
-                                    updateSystems(newArr);
-                                  }} />
-                                </td>
-                                <td className="px-2 py-1 border-r border-slate-200 text-right">
-                                  <EditableCell value={s.price || 0} type="number" align="right" onSave={(v) => {
-                                    const newArr = systems.map((x, i) => i === idx ? { ...x, price: parseFloat(v) || 0 } : x);
-                                    updateSystems(newArr);
-                                  }} />
-                                </td>
-                                <td className="px-2 py-1 border-r border-slate-200 text-right">
-                                  <EditableCell value={s.patients || 0} type="number" align="right" onSave={(v) => {
-                                    const newArr = systems.map((x, i) => i === idx ? { ...x, patients: parseFloat(v) || 0 } : x);
-                                    updateSystems(newArr);
-                                  }} />
-                                </td>
-                                <td className="px-2 py-1 border-r border-slate-200 text-right">{ratio}%</td>
-                                <td className="px-2 py-1 relative">
-                                  <EditableCell value={s.note || ''} onSave={(v) => {
-                                    const newArr = systems.map((x, i) => i === idx ? { ...x, note: v } : x);
-                                    updateSystems(newArr);
-                                  }} />
-                                  <button onClick={() => {
-                                    if (confirm('이 행을 삭제할까요?')) {
-                                      updateSystems(systems.filter((_, i) => i !== idx));
-                                    }
-                                  }}
-                                    className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-600 transition">
-                                    <Icon name="x" className="w-3 h-3" />
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                          {systems.length > 0 && (
-                            <tr className="bg-slate-100 font-bold border-t-2 border-slate-400">
-                              <td className="px-2 py-1.5 border-r border-slate-200 text-center">합계</td>
-                              <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(sysSumQty)}</td>
-                              <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(sysSumPrice)}</td>
-                              <td className="px-2 py-1.5 border-r border-slate-200 text-right">{formatNumber(sysSumPatients)}</td>
-                              <td className="px-2 py-1.5 border-r border-slate-200 text-right">100.0%</td>
-                              <td className="px-2 py-1.5 text-center text-slate-500">-</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-                {/* === 3. 대응 방안 + 메모 (좌우 분할) === */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  <div className="border border-slate-200 rounded p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-bold text-slate-900">대응 방안</h4>
-                      <Icon name="edit" className="w-3.5 h-3.5 text-slate-400" />
-                    </div>
-                    <textarea value={text대응} onChange={(e) => updateText(k대응방안, e.target.value)}
-                      placeholder="내용을 입력하세요."
-                      className="w-full min-h-[100px] px-2 py-1.5 text-sm border border-slate-200 rounded outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y" />
+                      className="w-full min-h-[120px] px-2 py-1.5 text-base border border-slate-200 rounded outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y" />
                   </div>
                   <div className="border border-slate-200 rounded p-3">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-bold text-slate-900">메모</h4>
+                      <h4 className="text-base font-bold text-slate-900">메모</h4>
                       <Icon name="edit" className="w-3.5 h-3.5 text-slate-400" />
                     </div>
                     <textarea value={text메모} onChange={(e) => updateText(k메모, e.target.value)}
                       placeholder="내용을 입력하세요."
-                      className="w-full min-h-[100px] px-2 py-1.5 text-sm border border-slate-200 rounded outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y" />
+                      className="w-full min-h-[120px] px-2 py-1.5 text-base border border-slate-200 rounded outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200 resize-y" />
                   </div>
                 </div>
 
                 {/* === 4. 활동 현황 === */}
                 <div className="border border-slate-200 rounded p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-bold text-slate-900">활동 현황</h4>
+                    <h4 className="text-base font-bold text-slate-900">활동 현황</h4>
                     <button onClick={() => {
                       const today = new Date().toISOString().slice(0, 10);
                       const newRow = {
@@ -12840,12 +12983,12 @@ function App() {
                       };
                       updateActivities([...activities, newRow]);
                     }}
-                      className="text-xs text-blue-600 hover:text-blue-800 font-semibold">
+                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold">
                       + 활동 추가
                     </button>
                   </div>
                   <div className="border border-slate-200 rounded overflow-x-auto">
-                    <table className="w-full text-xs">
+                    <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-slate-100">
                           <th className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left min-w-[120px]">활동명</th>
