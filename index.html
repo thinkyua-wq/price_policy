@@ -549,7 +549,7 @@
 <script type="text/plain" id="app-babel-script">
 const { useState, useMemo, useEffect, useRef } = React;
 const {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  LineChart, Line, BarChart, Bar, ComposedChart, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } = Recharts;
 
@@ -1899,17 +1899,25 @@ const initialDSO = {
     { id: 2, no: 2, customer: '상해 푸시 의료', region: '상해', medType: '구강병원', annualQty: 28000, annualRev: 720, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 1450, cumProposal: 950, cumContract: 450, cumShip: 180, probability: 88, status: '정착 중', owner: '문지영', updated: '2026-05-13', branchCount: 8, system: 'ARi', yearTarget: 28000, monthSales: 2333, cumQty: 14400, grade: 'A', dealer: '직접', headquarter: '상해', sales25: 0 },
     { id: 3, no: 3, customer: '남경 강소 의료', region: '강소', medType: 'DSO', annualQty: 25000, annualRev: 620, contact: true, propose: true, risk: false, discuss: true, enter: false, cumPotential: 1200, cumProposal: 780, cumContract: 320, cumShip: 110, probability: 72, status: '계약 진행', owner: '백승현', updated: '2026-05-11', branchCount: 8, system: 'ARi', yearTarget: 25000, monthSales: 2083, cumQty: 8800, grade: 'A', dealer: '직접', headquarter: '강소', sales25: 0 },
     { id: 4, no: 4, customer: '청도 산동 의료', region: '산동', medType: 'DSO', annualQty: 22000, annualRev: 540, contact: true, propose: true, risk: false, discuss: true, enter: false, cumPotential: 1050, cumProposal: 650, cumContract: 250, cumShip: 80, probability: 65, status: '협의 진행', owner: '신예린', updated: '2026-05-10', branchCount: 4, system: 'AR', yearTarget: 22000, monthSales: 1833, cumQty: 6400, grade: 'B', dealer: '직접', headquarter: '산동', sales25: 0 },
-    { id: 101, no: 101, customer: '苏州牙博士口腔', region: '강소', medType: 'DSO', annualQty: 148000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 90, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 47, system: 'ARi', yearTarget: 30000, monthSales: 2500, cumQty: 0, grade: 'S', dealer: '江苏湖康', headquarter: '苏州', sales25: 26645 },
-    { id: 102, no: 102, customer: '北极星口腔', region: '강소', medType: 'DSO', annualQty: 30000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 90, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 13, system: 'ARi', yearTarget: 10000, monthSales: 833, cumQty: 0, grade: 'S', dealer: '江苏湖康', headquarter: '常州', sales25: 10234 },
-    { id: 103, no: 103, customer: '薄荷博士', region: '강소', medType: 'DSO', annualQty: 6000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 85, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 4, system: 'ARi', yearTarget: 6000, monthSales: 500, cumQty: 0, grade: 'A', dealer: '江苏湖康', headquarter: '南通', sales25: 6298 },
-    { id: 104, no: 104, customer: '金铂利口腔', region: '강소', medType: 'DSO', annualQty: 15000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 85, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 19, system: 'ARi', yearTarget: 5000, monthSales: 417, cumQty: 0, grade: 'A', dealer: '江苏湖康', headquarter: '南京', sales25: 1775 },
-    { id: 105, no: 105, customer: '惠州廖军贤口腔', region: '강소', medType: 'DSO', annualQty: 4000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 466 },
-    { id: 106, no: 106, customer: '牙洁仕', region: '강소', medType: 'DSO', annualQty: 2000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 6, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 1115 },
-    { id: 107, no: 107, customer: '菲特口腔医院', region: '강소', medType: 'DSO', annualQty: 2000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 4, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '扬州', sales25: 1072 },
-    { id: 108, no: 108, customer: '苏州市口腔', region: '강소', medType: 'DSO', annualQty: 15000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 70, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 14, system: 'ARi', yearTarget: 3000, monthSales: 250, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 1857 },
-    { id: 109, no: 109, customer: '南京六合值得', region: '강소', medType: 'DSO', annualQty: 5000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 70, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 3, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '淮安', sales25: 420 },
-    { id: 110, no: 110, customer: '苏州吴江丁月铎口腔', region: '강소', medType: 'DSO', annualQty: 5000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 65, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 6, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'C', dealer: '江苏湖康', headquarter: '苏州', sales25: 1350 },
-    { id: 111, no: 111, customer: '泰州玲珑口腔', region: '강소', medType: 'DSO', annualQty: 2500, annualRev: 0, contact: true, propose: true, risk: false, discuss: false, enter: false, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 50, status: '未进入', owner: '', updated: '2026-06-01', branchCount: 3, system: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'C', dealer: '江苏湖康', headquarter: '泰州', sales25: 374 },
+    { id: 101, no: 1, customer: '苏州牙博士口腔', region: '강소', medType: 'DSO', annualQty: 148000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 90, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 47, system: 'ARi', enterModel: 'ARi', yearTarget: 30000, monthSales: 2500, cumQty: 0, grade: 'S', dealer: '江苏湖康', headquarter: '苏州', sales25: 26645 },
+    { id: 102, no: 2, customer: '北极星口腔', region: '강소', medType: 'DSO', annualQty: 30000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 90, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 13, system: 'ARi', enterModel: 'ARi', yearTarget: 10000, monthSales: 833, cumQty: 0, grade: 'S', dealer: '江苏湖康', headquarter: '常州', sales25: 10234 },
+    { id: 103, no: 3, customer: '薄荷博士', region: '강소', medType: 'DSO', annualQty: 6000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 85, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 4, system: 'ARi', enterModel: 'ARi', yearTarget: 6000, monthSales: 500, cumQty: 0, grade: 'A', dealer: '江苏湖康', headquarter: '南通', sales25: 6298 },
+    { id: 104, no: 4, customer: '金铂利口腔', region: '강소', medType: 'DSO', annualQty: 15000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 85, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 19, system: 'ARi', enterModel: 'ARi', yearTarget: 5000, monthSales: 417, cumQty: 0, grade: 'A', dealer: '江苏湖康', headquarter: '南京', sales25: 1775 },
+    { id: 105, no: 5, customer: '海安医博口腔', region: '강소', medType: 'DSO', annualQty: 2500, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 2500, monthSales: 208, cumQty: 0, grade: 'B', dealer: '国药康尔诺', headquarter: '南通', sales25: 1907 },
+    { id: 106, no: 6, customer: '南通如皋固德', region: '강소', medType: 'DSO', annualQty: 2000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 2000, monthSales: 167, cumQty: 0, grade: 'B', dealer: '康尔诺', headquarter: '南通', sales25: 1212 },
+    { id: 107, no: 7, customer: '惠州廖军贤口腔', region: '강소', medType: 'DSO', annualQty: 4000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 466 },
+    { id: 108, no: 8, customer: '牙洁仕', region: '강소', medType: 'DSO', annualQty: 2000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 6, system: 'ARi', enterModel: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 1115 },
+    { id: 109, no: 9, customer: '菲特口腔医院', region: '강소', medType: 'DSO', annualQty: 2000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 4, system: 'ARi', enterModel: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '扬州', sales25: 1072 },
+    { id: 110, no: 10, customer: '苏州市口腔', region: '강소', medType: 'DSO', annualQty: 15000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: false, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 70, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 14, system: 'ARi', enterModel: 'ARi', yearTarget: 3000, monthSales: 250, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 1857 },
+    { id: 111, no: 11, customer: '南京六合值得', region: '강소', medType: 'DSO', annualQty: 5000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: false, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 70, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 3, system: 'ARi', enterModel: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '淮安', sales25: 420 },
+    { id: 112, no: 12, customer: '苏州吴江丁月铎口腔', region: '강소', medType: 'DSO', annualQty: 5000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 65, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 6, system: 'ARi', enterModel: 'ARi', yearTarget: 1000, monthSales: 83, cumQty: 0, grade: 'B', dealer: '江苏湖康', headquarter: '苏州', sales25: 1350 },
+    { id: 201, no: 1, customer: '华齿口腔', region: '상해', medType: 'DSO', annualQty: 25000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 85, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 8000, monthSales: 667, cumQty: 0, grade: 'A', dealer: '上海贺中', headquarter: '上海', sales25: 4242 },
+    { id: 202, no: 2, customer: '雅悦口腔', region: '상해', medType: 'DSO', annualQty: 25000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 80, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 3000, monthSales: 250, cumQty: 0, grade: 'B', dealer: '上海贺中', headquarter: '上海', sales25: 2218 },
+    { id: 203, no: 3, customer: '维佳康', region: '상해', medType: 'DSO', annualQty: 10000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 80, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 2000, monthSales: 167, cumQty: 0, grade: 'B', dealer: '上海贺中', headquarter: '上海', sales25: 1450 },
+    { id: 204, no: 4, customer: '名冠口腔', region: '상해', medType: 'DSO', annualQty: 5000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 80, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 3000, monthSales: 250, cumQty: 0, grade: 'B', dealer: '上海贺中', headquarter: '上海', sales25: 2220 },
+    { id: 205, no: 5, customer: '美乐口腔', region: '상해', medType: 'DSO', annualQty: 5000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 2000, monthSales: 167, cumQty: 0, grade: 'B', dealer: '上海贺中', headquarter: '上海', sales25: 1350 },
+    { id: 206, no: 6, customer: '中喜口腔', region: '상해', medType: 'DSO', annualQty: 50000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 2000, monthSales: 167, cumQty: 0, grade: 'B', dealer: '上海贺中', headquarter: '上海', sales25: 716 },
+    { id: 207, no: 7, customer: '永信口腔', region: '상해', medType: 'DSO', annualQty: 3000, annualRev: 0, contact: true, propose: true, risk: false, discuss: true, enter: true, cumPotential: 0, cumProposal: 0, cumContract: 0, cumShip: 0, probability: 75, status: '已合作', owner: '', updated: '2026-06-01', branchCount: 1, system: 'ARi', enterModel: 'ARi', yearTarget: 1500, monthSales: 125, cumQty: 0, grade: 'B', dealer: '上海贺中', headquarter: '上海', sales25: 607 },
   ],
 };
 
@@ -3364,6 +3372,7 @@ function computeCorpTotals(tab, weeklyEntries, storeKey) {
   const am=act.map((v,mi)=>v!==0?mi:-1).filter(i=>i>=0);
   const aS=am.reduce((s,mi)=>s+act[mi],0), yS=am.reduce((s,mi)=>s+y25[mi],0);
   return {
+    kpi, act, y25,
     kpiT, actT, y25T,
     rateT: kpiT!==0?Math.round(actT/kpiT*100):0,
     growT: yS!==0?Math.round((aS-yS)/yS*100):null,
@@ -4197,7 +4206,16 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
                   {visMonthIdxs.map(mi=>(
                     <td key={mi} className={`px-1 py-0.5 border-r border-slate-300 bg-white ${f.isPct?'text-right px-2 py-1':''}`}>{f.render(ent.name, c)(mi)}</td>
                   ))}
-                  <td className="px-2 py-1 text-right font-bold border-r border-slate-300 bg-white">{f.total(c)}</td>
+                  <td className="px-2 py-1 text-right font-bold border-r border-slate-300 bg-white">
+                    {f.isPct ? f.total(c) : (() => {
+                      const tk = `${sk}${tab==='amount'?'AMT':'QTY'}|${ent.name}|${f.label}_total|ovr`;
+                      const ov = weeklyEntries[tk];
+                      const val = (ov!==undefined && ov!=='') ? ov : f.total(c);
+                      return <EditableCell value={val} type="number" align="right"
+                        className="font-bold text-slate-900"
+                        onSave={(v)=> setWeeklyEntries(prev=>({...prev,[tk]: v}))} />;
+                    })()}
+                  </td>
                   <td className="px-2 py-1 text-right font-bold bg-blue-50 text-blue-800">{f.selTotal(c)}</td>
                 </tr>
               ))}
@@ -4223,11 +4241,12 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
   );
 }
 
-function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, viewLabel }) {
+function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, viewLabel, selMonthLimit }) {
   const vk = viewKey || 'all';
   const sk = 'corp';
   const blockTitle = '법인 매출 관리';
   const [tab, setTab] = React.useState('amount');
+  const [corpTableTab, setCorpTableTab] = React.useState('current'); // current: KPI·실적·달성율 / prev: 전년도·성장율
   const [collapsed, setCollapsed] = React.useState(false);
   const [visibleMonths, setVisibleMonths] = React.useState(() => {
     try { const s = localStorage.getItem(`corpSales_${sk}_${vk}_visMonths_v1`); if (s) return JSON.parse(s); } catch(e){}
@@ -4245,14 +4264,19 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
   const [prevPickerOpen, setPrevPickerOpen] = React.useState(false);
   const [prevSortConfig, setPrevSortConfig] = React.useState(null);
 
-  // 보는 월(vk) 변경 시 해당 월의 선택 재로드
+  // 보는 월(vk) 변경 시 해당 월의 선택 재로드 (단, 전체 대시보드는 selMonthLimit 우선)
   React.useEffect(()=>{
+    if (selMonthLimit) {
+      const arr = Array(12).fill(false).map((_, i) => i < selMonthLimit);
+      setVisibleMonths(arr); setPrevVisibleMonths(arr);
+      return;
+    }
     try { const s = localStorage.getItem(`corpSales_${sk}_${vk}_visMonths_v1`); setVisibleMonths(s?JSON.parse(s):Array(12).fill(true)); } catch(e){ setVisibleMonths(Array(12).fill(true)); }
     try { const s2 = localStorage.getItem(`corpSales_${sk}_${vk}_prevVisMonths_v1`); setPrevVisibleMonths(s2?JSON.parse(s2):Array(12).fill(true)); } catch(e){ setPrevVisibleMonths(Array(12).fill(true)); }
-  }, [vk, sk]);
+  }, [vk, sk, selMonthLimit]);
 
-  React.useEffect(()=>{ try{ localStorage.setItem(`corpSales_${sk}_${vk}_visMonths_v1`, JSON.stringify(visibleMonths)); }catch(e){} }, [visibleMonths, sk, vk]);
-  React.useEffect(()=>{ try{ localStorage.setItem(`corpSales_${sk}_${vk}_prevVisMonths_v1`, JSON.stringify(prevVisibleMonths)); }catch(e){} }, [prevVisibleMonths, sk, vk]);
+  React.useEffect(()=>{ if(selMonthLimit) return; try{ localStorage.setItem(`corpSales_${sk}_${vk}_visMonths_v1`, JSON.stringify(visibleMonths)); }catch(e){} }, [visibleMonths, sk, vk, selMonthLimit]);
+  React.useEffect(()=>{ if(selMonthLimit) return; try{ localStorage.setItem(`corpSales_${sk}_${vk}_prevVisMonths_v1`, JSON.stringify(prevVisibleMonths)); }catch(e){} }, [prevVisibleMonths, sk, vk, selMonthLimit]);
 
   const onSort = (key) => setSortConfig(prev => {
     if (!prev || prev.key !== key) return { key, dir:'asc' };
@@ -4273,12 +4297,22 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
   const agg = computeCorpTotals(tab, weeklyEntries, sk);
   const fmtAgg = (v) => Math.round(v).toLocaleString();
   const aggUnit = tab === 'amount' ? '만RMB' : '개';
+  // 1~선택월 누계 기준 (visibleMonths = 선택된 월)
+  const selIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
+  const selSumA = (arr)=> selIdxs.reduce((s,i)=>s+(arr[i]||0),0);
+  const kpiSel = selSumA(agg.kpi);
+  const actSel = selSumA(agg.act);
+  const y25Sel = selSumA(agg.y25);          // 선택월까지의 전년도 실적 누계
+  const rateSel = kpiSel!==0 ? Math.round(actSel/kpiSel*100) : 0;
+  // 성장율 = (금년실적 누계 − 전년도실적 누계) ÷ 전년도실적 누계 (선택월까지)
+  const growSel = y25Sel!==0 ? Math.round((actSel - y25Sel)/y25Sel*100) : null;
   const aggCards = [
-    { label:'총 KPI',      value: fmtAgg(agg.kpiT), unit: aggUnit, color:'text-slate-900' },
-    { label:'총 실적',     value: fmtAgg(agg.actT), unit: aggUnit, color:'text-slate-900' },
-    { label:'달성율',      value: (agg.kpiT? agg.rateT : 0)+'%', unit: '', color: agg.rateT<80?'text-rose-600':(agg.rateT>=100?'text-emerald-600':'text-blue-600') },
-    { label:'총 전년도실적', value: fmtAgg(agg.y25T), unit: aggUnit, color:'text-slate-900' },
-    { label:'성장율',      value: (agg.growT===null||agg.growT===undefined?'-':(agg.growT>=0?'+':'')+agg.growT+'%'), unit:'', color: (agg.growT===null||agg.growT===undefined)?'text-slate-400':(agg.growT>=0?'text-emerald-600':'text-rose-600') },
+    { label:'2026년 KPI',     value: fmtAgg(agg.kpiT), unit: aggUnit, color:'text-slate-900' },
+    { label:'2026년 실적',    value: fmtAgg(actSel), unit: aggUnit, color:'text-slate-900' },
+    { label:'달성율',         value: (kpiSel? rateSel : 0)+'%', unit: '', color: rateSel<80?'text-rose-600':(rateSel>=100?'text-emerald-600':'text-blue-600') },
+    { label:'전년도 전체실적', value: fmtAgg(agg.y25T), unit: aggUnit, color:'text-slate-900' },
+    { label:'전년도누적실적',  value: fmtAgg(y25Sel), unit: aggUnit, color:'text-slate-900' },
+    { label:'성장율',         value: (growSel===null?'-':(growSel>=0?'+':'')+growSel+'%'), unit:'', color: (growSel===null)?'text-slate-400':(growSel>=0?'text-emerald-600':'text-rose-600') },
   ];
 
   return (
@@ -4307,7 +4341,7 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
       {!collapsed && (
         <div className="space-y-4">
           {/* 집계 KPI 카드 */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {aggCards.map(c=>(
               <div key={c.label} className="bg-slate-50 border border-slate-200 rounded-md p-3">
                 <div className="text-[12px] text-slate-500 text-center mb-1">{c.label}</div>
@@ -4318,9 +4352,54 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
               </div>
             ))}
           </div>
-          <div className="text-[11px] text-slate-500 -mt-2">* 집계 카드는 위 탭(금액/수량) 기준 · 전체 본부 1~12월 합산 (자동) · 월 표시 선택은 <span className="font-semibold text-slate-600">{viewLabel || '현재'} 화면</span> 전용으로 저장됩니다</div>
+          <div className="text-[11px] text-slate-500 -mt-2">* 집계 카드는 위 탭(금액/수량) 기준 · 전체 본부 <span className="font-semibold text-slate-600">1~선택월 누계</span> · 전년도실적·성장율도 선택월까지 누계 기준 · 성장율 = (금년실적−전년도실적)÷전년도실적</div>
+
+          {/* 방안 A: KPI vs 실적 + 달성율 콤보 차트 (1~선택월) */}
+          {(() => {
+            const visIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
+            const idxs = visIdxs.length>0 ? visIdxs : [0,1,2,3,4];
+            const chartData = idxs.map(mi => ({
+              month: MONTH_LABELS[mi],
+              KPI: Math.round(agg.kpi[mi]),
+              실적: Math.round(agg.act[mi]),
+              달성율: agg.kpi[mi] !== 0 ? Math.round(agg.act[mi]/agg.kpi[mi]*100) : 0,
+            }));
+            const unit = tab==='amount' ? '만RMB' : '개';
+            return (
+              <div className="border border-slate-200 rounded-lg p-3 bg-white">
+                <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
+                  <div className="text-sm font-semibold text-slate-700">📈 월별 KPI · 실적 · 달성율 추세 <span className="text-[11px] font-normal text-slate-400">(1~선택월 · {tab==='amount'?'금액':'수량'})</span></div>
+                </div>
+                <div style={{ width:'100%', height: 300 }}>
+                  <ResponsiveContainer>
+                    <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
+                      <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                      <YAxis yAxisId="left" tick={{ fontSize: 11 }} />
+                      <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} unit="%" domain={[0, dataMax => Math.max(120, Math.ceil(dataMax/20)*20)]} />
+                      <Tooltip formatter={(v,n)=> n==='달성율' ? v+'%' : v.toLocaleString()+' '+unit} />
+                      <Legend wrapperStyle={{ fontSize: '12px' }} />
+                      <Bar yAxisId="left" dataKey="KPI" fill="#bfdbfe" radius={[3,3,0,0]} maxBarSize={26} />
+                      <Bar yAxisId="left" dataKey="실적" fill="#2563eb" radius={[3,3,0,0]} maxBarSize={26} />
+                      <Line yAxisId="right" type="monotone" dataKey="달성율" stroke="#0F6E56" strokeWidth={2.5} dot={{ r: 3 }} />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="text-[11px] text-slate-400 mt-1">* 막대 = 월별 KPI·실적(좌측 축), 선 = 달성율 %(우측 축). 월 표시에서 선택한 월만 나타납니다.</div>
+              </div>
+            );
+          })()}
+
+          {/* 표 탭 (KPI·실적·달성율 / 전년도·성장율) */}
+          <div className="flex items-center gap-1 border-b border-slate-200">
+            <button onClick={()=>setCorpTableTab('current')}
+              className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 "+(corpTableTab==='current'?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>KPI · 실적 · 달성율</button>
+            <button onClick={()=>setCorpTableTab('prev')}
+              className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 "+(corpTableTab==='prev'?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>전년도(25년) 실적 · 성장율</button>
+          </div>
 
           {/* 위 표 */}
+          {corpTableTab==='current' && (
           <div>
             <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
               <div className="text-sm font-semibold text-slate-700">▶ KPI · 실적 · 달성율</div>
@@ -4347,7 +4426,9 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
               visibleMonths={visibleMonths} sortConfig={sortConfig} onSort={onSort} storeKey={sk} />
             <div className="mt-1 text-[11px] text-slate-500">* 달성율 = 실적 ÷ KPI × 100 (자동) · 합계 = 1~12월 합산 (자동) · KPI/실적 클릭하여 수정</div>
           </div>
+          )}
           {/* 아래 표 (독립 탭/월 설정) */}
+          {corpTableTab==='prev' && (
           <div>
             <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
               <div className="text-sm font-semibold text-slate-700">▶ 전년도(25년) 실적 · 성장율</div>
@@ -4374,6 +4455,7 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
               visibleMonths={prevVisibleMonths} sortConfig={prevSortConfig} onSort={onPrevSort} storeKey={sk} />
             <div className="mt-1 text-[11px] text-slate-500">* 성장율 = (실적 − 전년도실적) ÷ 전년도실적 × 100 (자동) · 합계 = 1~12월 합산 (자동) · 전년도실적 클릭하여 수정 · 위표와 독립된 탭/월 설정</div>
           </div>
+          )}
         </div>
       )}
     </div>
@@ -4549,10 +4631,33 @@ function App() {
   // 키: `${menu}|${hq}|${refId}|${field}|${year}-${week}`
   // 값: 이번 주 신규 추가량
   const [weeklyEntries, setWeeklyEntries] = useState(() => {
+    // 江苏 DSO(화동본부) 1~6월 실적 기본값 (id: [1월..6월])
+    const JS_DSO_MONTHLY = {
+      101:[1816,1092,2087,1770,1014,700], 102:[780,545,1065,1166,1020,300],
+      103:[444,370,821,978,590,200],      104:[171,53,92,69,55,20],
+      105:[191,50,126,61,217,50],         106:[80,10,205,58,100,20],
+      107:[50,0,0,30,0,0],                108:[55,10,32,41,11,0],
+      109:[71,68,125,62,60,20],           110:[105,78,122,58,55,10],
+      111:[50,50,0,0,0,0],                112:[0,0,910,0,100,10],
+      201:[597,203,612,582,577,120],      202:[215,68,105,155,150,25],
+      203:[150,32,155,135,105,20],        204:[225,62,225,245,226,45],
+      205:[35,12,35,45,35,8],             206:[76,28,110,78,205,10],
+      207:[55,18,55,55,50,8],
+    };
+    let base = {};
     try {
       const saved = localStorage.getItem('dashboard_weekly_entries_v1');
-      return saved ? JSON.parse(saved) : {};
-    } catch (e) { return {}; }
+      base = saved ? JSON.parse(saved) : {};
+    } catch (e) { base = {}; }
+    // 월별 실적 키가 아직 없으면 기본값 주입 (사용자가 입력한 값은 보존)
+    Object.keys(JS_DSO_MONTHLY).forEach(id => {
+      const key = `dso_monthly_t2|화동본부|${id}`;
+      if (base[key] === undefined) {
+        const v = JS_DSO_MONTHLY[id];
+        base[key] = JSON.stringify({ m1:v[0], m2:v[1], m3:v[2], m4:v[3], m5:v[4], m6:v[5], m7:0, m8:0, m9:0, m10:0, m11:0, m12:0 });
+      }
+    });
+    return base;
   });
 
   // localStorage 자동 저장
@@ -6254,6 +6359,7 @@ function App() {
           logChange={logChange}
           viewKey={yearMonthOV}
           viewLabel={`${curYearOV}년 ${filterMonth || 5}월`}
+          selMonthLimit={filterMonth || 5}
         />
         )}
       </div>
@@ -10726,7 +10832,7 @@ function App() {
                         const has만ual = row.yearResultManual !== null && row.yearResultManual !== undefined && row.yearResultManual !== '';
                         const monthSum = ['m1','m2','m3','m4','m5','m6','m7','m8','m9','m10','m11','m12']
                           .reduce((s, k) => s + (Number(monthlyData[k]) || 0), 0);
-                        const yearResult = has만ual ? Number(row.yearResultManual) : monthSum;
+                        const yearResult = monthSum;  // 26년 실적 = 1~12월 월별 합산
                         const progRateT2 = setTarget > 0 ? +(yearResult / setTarget * 100).toFixed(1) : 0;
 
                         const isExpanded = !!dsoMonthlyExpanded[row.id];
@@ -10737,13 +10843,11 @@ function App() {
                             <td className="px-2 py-2 border-r border-slate-300 text-right">
                               <EditableCell value={setTarget} type="number" align="right" onSave={(v) => updateRow(row.id, 'yearTarget', parseFloat(v) || 0)} />
                             </td>
-                            <td className="px-2 py-2 border-r border-slate-300 text-right" title="26년 실적 (셀 직접 수정)">
-                              <EditableCell
-                                value={yearResult}
-                                type="number"
-                                align="right"
-                                onSave={(v) => updateRow(row.id, 'yearResultManual', v === '' || v === null ? null : (parseFloat(v) || 0))}
-                              />
+                            <td className="px-2 py-2 border-r border-slate-300 text-right" title="클릭하면 1~12월 월별 실적 입력이 펼쳐지고, 그 합계가 26년 실적이 됩니다">
+                              <button onClick={toggleExp} className="w-full flex items-center justify-end gap-1 hover:text-blue-600 group/yr" title="월별 실적 입력 펼치기">
+                                <Icon name="chevronRight" className={`w-3.5 h-3.5 text-slate-400 group-hover/yr:text-blue-600 transition-transform ${isExpanded?'rotate-90':''}`} />
+                                <span className="font-semibold">{formatNumber(monthSum)}</span>
+                              </button>
                             </td>
                             <td className="px-2 py-2 border-r border-slate-300 text-right" title="(26년 실적 ÷ 26년 목표) × 100">
                               {setTarget > 0 ? <span>{progRateT2.toFixed(1)}%</span> : <span className="text-slate-400">-</span>}
@@ -10794,12 +10898,7 @@ function App() {
                               ))}
                             </div>
                             <div className="mt-2 text-xs text-slate-500 flex items-center justify-between flex-wrap gap-2">
-                              <span>* 1-12월 합산: <strong className="text-slate-800">{formatNumber(sum)}</strong> 개</span>
-                              {isManualSum ? (
-                                <span>* 26년 실적 수동값: <strong className="text-slate-800">{formatNumber(Number(row.yearResultManual))}</strong> 개 (자동 합산과 분리)</span>
-                              ) : (
-                                <span className="text-slate-400">* 26년 실적 = 1-12월 자동 합산</span>
-                              )}
+                              <span>* 1~12월 합산: <strong className="text-slate-800">{formatNumber(sum)}</strong> 개 → <strong className="text-blue-700">26년 실적</strong>에 자동 반영됩니다.</span>
                             </div>
                           </td>
                         </tr>
@@ -10831,10 +10930,6 @@ function App() {
                         // 표 2 자체 데이터 합계 (detailData 기준)
                         const sumSetTarget = detailData.reduce((s, r) => s + (Number(r.yearTarget) || 0), 0);
                         const sumYearResult = detailData.reduce((s, r) => {
-                          if (r.yearResultManual !== null && r.yearResultManual !== undefined && r.yearResultManual !== '') {
-                            return s + Number(r.yearResultManual);
-                          }
-                          // 월별 합산
                           let monthlyData = {};
                           try {
                             const raw = weeklyEntries[`dso_monthly_t2|${hq}|${r.id}`];
