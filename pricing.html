@@ -1859,6 +1859,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
   });
   useEffect(() => { try { localStorage.setItem('sim_main_confirmed_v1', JSON.stringify(confirmed)); } catch(e){} }, [confirmed]);
   const [showBasicInfo, setShowBasicInfo] = useState(false);  // 기본 정보 토글 (기본 숨김)
+  const [showGP, setShowGP] = useState(true);  // 정책환산GP/본사GP 일괄 표시 토글
 
   // ---------- 정책 활성화/요율 ----------
   const SM_POLICIES = [
@@ -2864,10 +2865,16 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                 <h2 className="text-lg font-bold text-slate-900">2. 가격 시뮬레이션</h2>
                 <p className="text-sm text-slate-500">선택한 정책이 적용되는 순서대로 계산됩니다.</p>
               </div>
-              <button onClick={handleDownload}
-                className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5">
-                <span>⬇</span> 계산내역 다운로드
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={()=>setShowGP(v=>!v)}
+                  className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5" title="정책환산GP·본사GP 표시/숨김">
+                  {showGP ? '👁 GP 숨기기' : '👁 GP 보기'}
+                </button>
+                <button onClick={handleDownload}
+                  className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5">
+                  <span>⬇</span> 계산내역 다운로드
+                </button>
+              </div>
             </div>
 
             {/* 계산 단계 테이블 */}
@@ -2890,7 +2897,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                     <th className="px-2 py-2.5 text-right font-bold border border-slate-300">기준가</th>
                     <th className="px-2 py-2.5 text-right font-bold border border-slate-300">할인금액</th>
                     <th className="px-2 py-2.5 text-right font-bold border border-slate-300">공급가</th>
-                    <th className="px-2 py-2.5 text-right font-bold border border-slate-300">정책환산GP</th>
+                    {showGP && <th className="px-2 py-2.5 text-right font-bold border border-slate-300">정책환산GP</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -2902,7 +2909,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                       <td className="px-3 py-2 border border-slate-300 text-right text-slate-700">{Math.round(s.basePrice)}</td>
                       <td className="px-3 py-2 border border-slate-300 text-right text-red-600">{s.discount === null ? "-" : `-${s.discount}`}</td>
                       <td className="px-3 py-2 border border-slate-300 text-right font-bold text-slate-900">{s.finalPrice}</td>
-                      <td className="px-3 py-2 border border-slate-300 text-right text-emerald-700 font-medium">{s.gp === null ? "-" : `${s.gp.toFixed(1)}%`}</td>
+                      {showGP && <td className="px-3 py-2 border border-slate-300 text-right text-emerald-700 font-medium">{s.gp === null ? "-" : `${s.gp.toFixed(1)}%`}</td>}
                     </tr>
                   ))}
                 </tbody>
@@ -2915,12 +2922,12 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                 <div className="text-xs text-slate-600 mb-0.5">최종 공급가</div>
                 <div className="text-2xl font-bold text-blue-600 leading-tight">¥{calculation.finalPrice}</div>
               </div>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center">
+              {showGP && <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center">
                 <div className="text-xs text-slate-600 mb-0.5">최종 정책환산GP</div>
                 <div className="text-2xl font-bold text-emerald-600 leading-tight">
                   {calculation.finalGP === null ? "-" : `${calculation.finalGP.toFixed(1)}%`}
                 </div>
-              </div>
+              </div>}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
                 <div className="text-xs text-slate-600 mb-0.5">총 할인율(누적)</div>
                 <div className="text-2xl font-bold text-slate-800 leading-tight">{calculation.totalDiscountRate.toFixed(2)}%</div>
@@ -2953,7 +2960,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300">대리상 등급</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300">판매가 기준</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">최종 공급가</th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP</th>
+                        {showGP && <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP</th>}
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 수익</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 마진율</th>
                       </tr>
@@ -2975,9 +2982,9 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                                 className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 수정 가능"/>
                             </td>
                             <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
+                            {showGP && <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
                               {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
-                            </td>
+                            </td>}
                             <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
@@ -2997,7 +3004,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300">대리상 등급</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300">판매가 기준</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">최종 공급가</th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP</th>
+                        {showGP && <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP</th>}
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 수익</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 마진율</th>
                       </tr>
@@ -3028,9 +3035,9 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
                                 className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 수정 가능"/>
                             </td>
                             <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
+                            {showGP && <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
                               {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
-                            </td>
+                            </td>}
                             <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
@@ -3813,6 +3820,7 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
   const [qtrType, setQtrType] = useState('제품');  // 분기리베이트: '제품'(분모) | '현금'(곱셈)
   const [sellOverride, setSellOverride] = useState({});  // 수익성 요약 판매가 수정값
   const [showBasicInfo, setShowBasicInfo] = useState(false);  // 기본 정보 토글 (기본 숨김)
+  const [showGP, setShowGP] = useState(true);  // 정책환산GP/본사GP 일괄 표시 토글
 
   // ---------- 정책 활성화/요율 ----------
   // 특별정책 전용: id8 = 익월리베이트(현금) 추가, 분기/연도 명칭·기본값 조정
@@ -4884,10 +4892,16 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                 <h2 className="text-lg font-bold text-slate-900">2. 가격 시뮬레이션</h2>
                 <p className="text-sm text-slate-500">선택한 정책이 적용되는 순서대로 계산됩니다.</p>
               </div>
-              <button onClick={handleDownload}
-                className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5">
-                <span>⬇</span> 계산내역 다운로드
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={()=>setShowGP(v=>!v)}
+                  className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5" title="정책환산GP·본사GP 표시/숨김">
+                  {showGP ? '👁 GP 숨기기' : '👁 GP 보기'}
+                </button>
+                <button onClick={handleDownload}
+                  className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 flex items-center gap-1.5">
+                  <span>⬇</span> 계산내역 다운로드
+                </button>
+              </div>
             </div>
 
             {/* 계산 단계 테이블 */}
@@ -4910,7 +4924,7 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                     <th className="px-2 py-2.5 text-right font-bold border border-slate-300">기준가</th>
                     <th className="px-2 py-2.5 text-right font-bold border border-slate-300">할인금액</th>
                     <th className="px-2 py-2.5 text-right font-bold border border-slate-300">공급가</th>
-                    <th className="px-2 py-2.5 text-right font-bold border border-slate-300">정책환산GP</th>
+                    {showGP && <th className="px-2 py-2.5 text-right font-bold border border-slate-300">정책환산GP</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -4922,7 +4936,7 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                       <td className="px-3 py-2 border border-slate-300 text-right text-slate-700">{Math.round(s.basePrice)}</td>
                       <td className="px-3 py-2 border border-slate-300 text-right text-red-600">{s.discount === null ? "-" : `-${s.discount}`}</td>
                       <td className="px-3 py-2 border border-slate-300 text-right font-bold text-slate-900">{s.finalPrice}</td>
-                      <td className="px-3 py-2 border border-slate-300 text-right text-emerald-700 font-medium">{s.gp === null ? "-" : `${s.gp.toFixed(1)}%`}</td>
+                      {showGP && <td className="px-3 py-2 border border-slate-300 text-right text-emerald-700 font-medium">{s.gp === null ? "-" : `${s.gp.toFixed(1)}%`}</td>}
                     </tr>
                   ))}
                 </tbody>
@@ -4935,12 +4949,12 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                 <div className="text-xs text-slate-600 mb-0.5">최종 공급가</div>
                 <div className="text-2xl font-bold text-blue-600 leading-tight">¥{calculation.finalPrice}</div>
               </div>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center">
+              {showGP && <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-center">
                 <div className="text-xs text-slate-600 mb-0.5">최종 정책환산GP</div>
                 <div className="text-2xl font-bold text-emerald-600 leading-tight">
                   {calculation.finalGP === null ? "-" : `${calculation.finalGP.toFixed(1)}%`}
                 </div>
-              </div>
+              </div>}
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
                 <div className="text-xs text-slate-600 mb-0.5">총 할인율(누적)</div>
                 <div className="text-2xl font-bold text-slate-800 leading-tight">{calculation.totalDiscountRate.toFixed(2)}%</div>
@@ -4973,7 +4987,7 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300">대리상 등급</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300">판매가 기준</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">최종 공급가</th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP</th>
+                        {showGP && <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP</th>}
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 수익</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 마진율</th>
                       </tr>
@@ -4995,9 +5009,9 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                                 className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 수정 가능"/>
                             </td>
                             <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
+                            {showGP && <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
                               {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
-                            </td>
+                            </td>}
                             <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
@@ -5017,7 +5031,7 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300">대리상 등급</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300">판매가 기준</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">최종 공급가</th>
-                        <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP</th>
+                        {showGP && <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-blue-50">본사 GP</th>}
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 수익</th>
                         <th className="px-3 py-2.5 text-center font-bold border border-slate-300 bg-emerald-50">대리상 마진율</th>
                       </tr>
@@ -5048,9 +5062,9 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
                                 className="w-20 text-center border-0 border-b-2 border-blue-300 bg-blue-50/40 rounded px-1 focus:outline-none focus:bg-blue-50" title="판매가 수정 가능"/>
                             </td>
                             <td className="px-3 py-2 border border-slate-300 text-center font-bold text-slate-900">{r.supply}</td>
-                            <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
+                            {showGP && <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">
                               {r.hqGP === null ? '-' : `${r.hqGP.toFixed(1)}%`}
-                            </td>
+                            </td>}
                             <td className="px-3 py-2 border border-slate-300 text-center font-semibold text-slate-900">{effProfit}</td>
                             <td className="px-3 py-2 border border-slate-300 text-center text-slate-900">{effMargin.toFixed(1)}%</td>
                           </tr>
@@ -5246,6 +5260,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
   });
   useEffect(() => { try { localStorage.setItem('corp_confirmed_v1', JSON.stringify(confirmed)); } catch(e){} }, [confirmed]);
   const [showBasicInfo, setShowBasicInfo] = useState(false);  // 基本信息 토글 (기본 숨김)
+  const [showGP, setShowGP] = useState(true);  // 政策换算GP/总部GP 일괄 표시 토글
 
   // ---------- 정책 활성화/요율 ----------
   const SM_POLICIES = [
