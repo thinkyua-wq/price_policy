@@ -1982,7 +1982,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
     if (productGroup === 'ST') {
       setPolicyEnabled(prev => ({
         ...prev,
-        1: false,  // 월목표달성 OFF
+        1: true,   // 월목표달성(부품) ON (1%)
         2: true,   // 특수정책 ON (2%)
         3: true,   // 현금결제 ON
         4: true,   // DSO 추가증정 ON (중요: 명시 ON)
@@ -1993,6 +1993,7 @@ function SimulationPage({ exportPrices, exchangeRate, dentalPrices, setDentalPri
       // ST DSO 추가증정 요율은 dsoGrade에 따라 별도 useEffect에서 동기화 (10/15/20%)
       setPolicyRates(prev => ({
         ...prev,
+        1: 1,    // 월목표달성 1%
         2: 2,    // 특수정책 2%
         3: 3,    // 현금결제 3%
       }));
@@ -3461,7 +3462,16 @@ function SimPolicyRow({ policy, enabled, rate, productGroup, compact, onToggle, 
       options = [];
     }
   } else if (policy.optionMode === "dso") {
-    options = SIM_DSO_GRADES.map(g => ({ label: `${g.value}급 ${g.rate}%`, value: g.rate }));
+    if (productGroup === 'ST') {
+      // ST는 ST 전용 추가증정율 (S 20 / A 15 / B/C 10)
+      options = [
+        { label: `S급 ${ST_DSO_CONFIG['S'].addRate}%`, value: ST_DSO_CONFIG['S'].addRate },
+        { label: `A급 ${ST_DSO_CONFIG['A'].addRate}%`, value: ST_DSO_CONFIG['A'].addRate },
+        { label: `B/C급 ${ST_DSO_CONFIG['B/C'].addRate}%`, value: ST_DSO_CONFIG['B/C'].addRate },
+      ];
+    } else {
+      options = SIM_DSO_GRADES.map(g => ({ label: `${g.value}급 ${g.rate}%`, value: g.rate }));
+    }
   }
 
   // 현재 적용률이 프리셋 옵션 중 하나와 일치하는지 (아니면 직접 입력값으로 간주)
@@ -5359,7 +5369,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
     if (productGroup === 'ST') {
       setPolicyEnabled(prev => ({
         ...prev,
-        1: false,  // 月目标达成 OFF
+        1: true,   // 月目标达成 ON (1%)
         2: true,   // 特殊政策 ON (2%)
         3: true,   // 现金结算 ON
         4: true,   // DSO追加赠品 ON (중요: 명시 ON)
@@ -5370,6 +5380,7 @@ function CorpSimPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices
       // ST DSO追加赠品 요율은 dsoGrade에 따라 별도 useEffect에서 동기화 (10/15/20%)
       setPolicyRates(prev => ({
         ...prev,
+        1: 1,    // 月目标达成 1%
         2: 2,    // 特殊政策 2%
         3: 3,    // 现金结算 3%
       }));
