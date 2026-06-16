@@ -4096,16 +4096,20 @@ function PriceHistoryView({ ph, onChange }) {
     let d;
     try { d = JSON.parse(text); } catch(e){ flashPaste('붙여넣기 형식이 올바르지 않습니다'); return; }
     if (!d || d.__type !== 'MEGAGEN_PRICE_POLICY') { flashPaste('가격 시뮬레이션에서 복사한 내용이 아닙니다'); return; }
+    const list = Array.isArray(d.items) ? d.items : [d];
+    if (list.length === 0) { flashPaste('붙여넣을 항목이 없습니다'); return; }
     const today = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\.\s?/g,'.').replace(/\.$/,'');
-    const tradeLabel = d.tradeType === 'DSO' ? ('DSO'+(d.dsoGrade?' '+d.dsoGrade+'급':'')) : (d.tradeType||'민영치과');
-    const periodLabel = `${today} · ${d.productGroup}/${d.dealerGrade}급 · ${d.title||''}`.trim();
-    const productLabel = `${d.productGroup} ${d.kitCategory} (${d.dealerGrade}급/${tradeLabel})`;
-    const polText = (d.policies||[]).map(p=>`${p.name} ${p.rate}%`).join(', ');
-    const note = `GP ${d.finalGP}% · 할인 ${Number(d.totalDiscountRate||0).toFixed(1)}% · 적용정책: ${polText||'없음'}`;
-    const newPeriod = { period: periodLabel, prices: [{ product: productLabel, price: d.finalPrice }], simNote: note, fromSim: true, simSteps: d.steps || [] };
-    const np = [...ph, newPeriod];
+    const newPeriods = list.map(it => {
+      const tradeLabel = it.tradeType === 'DSO' ? ('DSO'+(it.dsoGrade?' '+it.dsoGrade+'급':'')) : (it.tradeType||'민영치과');
+      const periodLabel = `${today} · ${it.productGroup}/${it.dealerGrade}급 · ${it.title||''}`.trim();
+      const productLabel = `${it.productGroup} ${it.kitCategory} (${it.dealerGrade}급/${tradeLabel})`;
+      const polText = (it.policies||[]).map(p=>`${p.name} ${p.rate}%`).join(', ');
+      const note = `GP ${it.finalGP}% · 할인 ${Number(it.totalDiscountRate||0).toFixed(1)}% · 적용정책: ${polText||'없음'}`;
+      return { period: periodLabel, prices: [{ product: productLabel, price: it.finalPrice }], simNote: note, fromSim: true, simSteps: it.steps || [] };
+    });
+    const np = [...ph, ...newPeriods];
     onChange(np); setSelIdx(np.length-1);
-    flashPaste('새 기간으로 추가되었습니다');
+    flashPaste(newPeriods.length+'건이 새 기간으로 추가되었습니다');
   };
   const cur = selIdx>=0 ? ph[selIdx] : null;
   const prevP = selIdx>0 ? ph[selIdx-1] : null;
