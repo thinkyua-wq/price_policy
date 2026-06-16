@@ -4082,6 +4082,30 @@ function PriceHistoryView({ ph, onChange }) {
   const [selIdx, setSelIdx] = React.useState(ph.length ? ph.length-1 : -1);
   const fmt=(v)=>Number(v||0).toLocaleString();
   const addPeriod = () => { const np=[...ph, {period:'', prices:[]}]; onChange(np); setSelIdx(np.length-1); };
+  const [pasteMsg, setPasteMsg] = React.useState('');
+  const flashPaste = (m) => { setPasteMsg(m); setTimeout(()=>setPasteMsg(''), 3500); };
+  // 시뮬레이션 붙여넣기 → 새 기간 한 줄 추가
+  const pasteFromSim = async () => {
+    let text = '';
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) text = await navigator.clipboard.readText();
+    } catch(e){ text = ''; }
+    if (!text) { text = prompt('복사한 시뮬레이션 내용을 붙여넣어 주세요 (Ctrl+V):') || ''; }
+    if (!text.trim()) return;
+    let d;
+    try { d = JSON.parse(text); } catch(e){ flashPaste('붙여넣기 형식이 올바르지 않습니다'); return; }
+    if (!d || d.__type !== 'MEGAGEN_PRICE_POLICY') { flashPaste('가격 시뮬레이션에서 복사한 내용이 아닙니다'); return; }
+    const today = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\.\s?/g,'.').replace(/\.$/,'');
+    const tradeLabel = d.tradeType === 'DSO' ? ('DSO'+(d.dsoGrade?' '+d.dsoGrade+'급':'')) : (d.tradeType||'민영치과');
+    const periodLabel = `${today} · ${d.productGroup}/${d.dealerGrade}급 · ${d.title||''}`.trim();
+    const productLabel = `${d.productGroup} ${d.kitCategory} (${d.dealerGrade}급/${tradeLabel})`;
+    const polText = (d.policies||[]).map(p=>`${p.name} ${p.rate}%`).join(', ');
+    const note = `GP ${d.finalGP}% · 할인 ${Number(d.totalDiscountRate||0).toFixed(1)}% · 적용정책: ${polText||'없음'}`;
+    const newPeriod = { period: periodLabel, prices: [{ product: productLabel, price: d.finalPrice }], simNote: note, fromSim: true };
+    const np = [...ph, newPeriod];
+    onChange(np); setSelIdx(np.length-1);
+    flashPaste('새 기간으로 추가되었습니다');
+  };
   const cur = selIdx>=0 ? ph[selIdx] : null;
   const prevP = selIdx>0 ? ph[selIdx-1] : null;
   const updPeriod = (patch) => { const a=[...ph]; a[selIdx]={...a[selIdx],...patch}; onChange(a); };
@@ -4098,12 +4122,16 @@ function PriceHistoryView({ ph, onChange }) {
 
   return (
     <div>
+      {pasteMsg && <div className="fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium bg-emerald-600 text-white">{pasteMsg}</div>}
       <div className="flex items-center gap-1.5 mb-3 flex-wrap">
         <span className="text-xs text-slate-500 mr-1">기간:</span>
         {ph.map((p,i)=>(
           <button key={i} onClick={()=>setSelIdx(i)} className={"text-xs px-2.5 py-1 rounded border "+(i===selIdx?'border-blue-500 bg-blue-50 text-blue-700 font-semibold':'border-slate-300 hover:bg-slate-50')}>{p.period||`기간${i+1}`}</button>
         ))}
-        <button onClick={addPeriod} className="text-xs px-2 py-1 border border-slate-300 rounded hover:bg-slate-50 ml-auto">+ 기간</button>
+        <div className="ml-auto flex gap-1.5">
+          <button onClick={pasteFromSim} className="text-xs px-2 py-1 border border-blue-300 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 font-semibold">📥 시뮬레이션 붙여넣기</button>
+          <button onClick={addPeriod} className="text-xs px-2 py-1 border border-slate-300 rounded hover:bg-slate-50">+ 기간</button>
+        </div>
       </div>
       {cur ? (
         <div>
@@ -4112,6 +4140,7 @@ function PriceHistoryView({ ph, onChange }) {
             <span className="text-sm font-semibold"><EC value={cur.period} placeholder="예: 2025.07~현재" onSave={v=>updPeriod({period:v})} /></span>
             <button onClick={delPeriod} className="text-xs text-slate-400 hover:text-rose-600 ml-auto">기간 삭제</button>
           </div>
+          {cur.simNote && <div className="text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded px-2 py-1 mb-2">📋 {cur.simNote}</div>}
           <div className="border border-slate-300 rounded overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-slate-100 text-slate-600 text-xs">
