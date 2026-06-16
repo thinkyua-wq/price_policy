@@ -3800,6 +3800,124 @@ function CostField({ label, value, onChange, suffix, type="number", step }) {
 
 
 // ============================================================
+// 江苏澍康 리포트 헬퍼 (인쇄 PDF / Excel) — GP 전부 제외
+// ============================================================
+function spRenderPrintReport(d, onError) {
+  const fmt = (v) => (v == null ? '-' : Number(v).toLocaleString());
+  const isDSO = d.profitType === 'DSO';
+  const stepRows = d.simSteps.map(s => `
+      <tr><td class="c">${s.step}</td><td>${s.name}</td>
+        <td class="r">${s.rate == null ? '-' : s.rate + '%'}</td>
+        <td class="r">${fmt(s.basePrice)}</td>
+        <td class="r">${s.discount ? '-' + fmt(s.discount) : '-'}</td>
+        <td class="r b">${fmt(s.finalPrice)}</td></tr>`).join('');
+  const profitHead = isDSO
+    ? `<th>DSO 등급</th><th>대리상 등급</th><th>판매가</th><th>최종 공급가</th><th>대리상 수익</th><th>마진율</th>`
+    : `<th>대리상 등급</th><th>판매가</th><th>최종 공급가</th><th>대리상 수익</th><th>마진율</th>`;
+  const profitBody = d.profitRows.map(r => isDSO
+    ? `<tr><td class="c">${r.dsoGrade}</td><td class="c">${r.dealerGrade}급</td><td class="r">${fmt(r.sellPrice)}</td><td class="r b">${fmt(r.supply)}</td><td class="r g">${fmt(r.profit)}</td><td class="r">${r.margin.toFixed(1)}%</td></tr>`
+    : `<tr><td class="c">${r.dealerGrade}급</td><td class="r">${fmt(r.sellPrice)}</td><td class="r b">${fmt(r.supply)}</td><td class="r g">${fmt(r.profit)}</td><td class="r">${r.margin.toFixed(1)}%</td></tr>`
+  ).join('');
+  const policyList = d.activePolicies.map(p => `<span class="tag">${p.name}${p.rate != null ? ' ' + p.rate + '%' : ''}</span>`).join(' ');
+  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>江苏澍康 대리상정책 리포트</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Malgun Gothic','맑은 고딕',sans-serif; color:#1e293b; margin:0; padding:28px 32px; font-size:12px; }
+  h1 { font-size:19px; margin:0 0 2px; }
+  .sub { color:#64748b; font-size:11px; margin-bottom:14px; }
+  .meta { display:flex; flex-wrap:wrap; gap:8px 18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px; margin-bottom:16px; }
+  .meta div { font-size:12px; } .meta b { color:#0f172a; }
+  h2 { font-size:14px; margin:18px 0 7px; padding-bottom:4px; border-bottom:2px solid #3b82f6; }
+  table { width:100%; border-collapse:collapse; margin-bottom:6px; }
+  th,td { border:1px solid #cbd5e1; padding:6px 8px; font-size:11px; }
+  th { background:#eef2ff; font-weight:700; text-align:center; }
+  td.r { text-align:right; } td.c { text-align:center; } td.b { font-weight:700; }
+  td.g { color:#059669; font-weight:600; }
+  .kpi { display:flex; gap:10px; margin-bottom:8px; }
+  .kpi .card { flex:1; border:1px solid #e2e8f0; border-radius:8px; padding:10px 12px; background:#fff; }
+  .kpi .lbl { font-size:10px; color:#64748b; margin-bottom:3px; }
+  .kpi .val { font-size:18px; font-weight:800; color:#2563eb; }
+  .kpi .val.dark { color:#1e293b; }
+  .tag { display:inline-block; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:5px; padding:2px 8px; font-size:11px; margin:2px 0; }
+  .foot { margin-top:18px; color:#94a3b8; font-size:10px; border-top:1px solid #e2e8f0; padding-top:8px; }
+  @media print { body { padding:14px 18px; } .noprint { display:none; } @page { margin:12mm; } }
+  .btnbar { position:fixed; top:10px; right:14px; }
+  .btnbar button { background:#2563eb; color:#fff; border:0; border-radius:6px; padding:8px 16px; font-size:13px; cursor:pointer; margin-left:6px; }
+</style></head><body>
+<div class="btnbar noprint"><button onclick="window.print()">🖨 인쇄 / PDF 저장</button><button onclick="window.close()" style="background:#64748b">닫기</button></div>
+<h1>江苏澍康 대리상정책 리포트</h1>
+<div class="sub">생성일시: ${d.dateStr}</div>
+<div class="meta">
+  <div>제품군: <b>${d.productGroup}</b></div>
+  <div>키트: <b>${d.kitCategory || '-'}</b></div>
+  <div>거래유형: <b>${d.tradeLabel}</b></div>
+  <div>대리상 등급: <b>${d.dealerGrade}급</b></div>
+  ${isDSO ? `<div>DSO 등급: <b>${d.dsoGrade}</b></div>` : ''}
+  <div>기본가격: <b>¥${fmt(d.listPrice)}</b></div>
+  <div>적용률: <b>${d.applyRate}%</b></div>
+</div>
+<h2>적용 정책</h2>
+<div style="margin-bottom:6px;">${policyList || '<span class="sub">적용된 정책이 없습니다.</span>'}</div>
+<h2>가격 시뮬레이션</h2>
+<table>
+  <thead><tr><th>단계</th><th>정책/항목</th><th>적용률</th><th>기준가</th><th>할인금액</th><th>공급가</th></tr></thead>
+  <tbody>${stepRows || '<tr><td colspan="6" class="c">데이터 없음</td></tr>'}</tbody>
+</table>
+<h2>KPI</h2>
+<div class="kpi">
+  <div class="card"><div class="lbl">최종 공급가</div><div class="val">¥${fmt(d.kpi.finalPrice)}</div></div>
+  <div class="card"><div class="lbl">총 할인율(누적)</div><div class="val dark">${(d.kpi.totalDiscountRate||0).toFixed(2)}%</div></div>
+  <div class="card"><div class="lbl">총 할인금액</div><div class="val dark">-¥${fmt(d.kpi.totalDiscount)}</div></div>
+  <div class="card"><div class="lbl">적용 정책 수</div><div class="val dark">${d.kpi.appliedCount}개</div></div>
+</div>
+<h2>대리상 수익성 요약 (${isDSO ? 'DSO치과' : '일반치과'})</h2>
+<table>
+  <thead><tr>${profitHead}</tr></thead>
+  <tbody>${profitBody || '<tr><td colspan="6" class="c">데이터 없음</td></tr>'}</tbody>
+</table>
+<div class="foot">※ 대리상 수익 = 판매가 − 최종 공급가 / 마진율 = 수익 ÷ 판매가 · 본 리포트는 참고용으로 자동 생성되었습니다.</div>
+</body></html>`;
+  const w = window.open('', '_blank');
+  if (!w) { if (onError) onError(); return; }
+  w.document.write(html); w.document.close();
+}
+
+function spDownloadExcelReport(d) {
+  const esc = (v) => (v == null ? '' : String(v));
+  const isDSO = d.profitType === 'DSO';
+  let rows = '';
+  rows += `<tr><td colspan="6" style="font-size:16px;font-weight:bold;">江苏澍康 대리상정책 리포트</td></tr>`;
+  rows += `<tr><td colspan="6">생성일시: ${esc(d.dateStr)}</td></tr><tr></tr>`;
+  rows += `<tr><td><b>제품군</b></td><td>${d.productGroup}</td><td><b>거래유형</b></td><td>${d.tradeLabel}</td><td><b>대리상등급</b></td><td>${d.dealerGrade}급</td></tr>`;
+  rows += `<tr><td><b>키트</b></td><td>${esc(d.kitCategory)}</td><td><b>기본가격</b></td><td>${d.listPrice}</td><td><b>적용률</b></td><td>${d.applyRate}%</td></tr><tr></tr>`;
+  rows += `<tr><td colspan="6" style="font-weight:bold;background:#eef2ff;">적용 정책</td></tr>`;
+  d.activePolicies.forEach(p => { rows += `<tr><td colspan="3">${esc(p.name)}</td><td>${p.rate != null ? p.rate + '%' : ''}</td></tr>`; });
+  rows += `<tr></tr><tr><td colspan="6" style="font-weight:bold;background:#eef2ff;">가격 시뮬레이션</td></tr>`;
+  rows += `<tr><td><b>단계</b></td><td><b>정책/항목</b></td><td><b>적용률</b></td><td><b>기준가</b></td><td><b>할인금액</b></td><td><b>공급가</b></td></tr>`;
+  d.simSteps.forEach(s => { rows += `<tr><td>${s.step}</td><td>${esc(s.name)}</td><td>${s.rate == null ? '' : s.rate + '%'}</td><td>${s.basePrice}</td><td>${s.discount ? -s.discount : ''}</td><td>${s.finalPrice}</td></tr>`; });
+  rows += `<tr></tr><tr><td colspan="6" style="font-weight:bold;background:#eef2ff;">KPI</td></tr>`;
+  rows += `<tr><td>최종 공급가</td><td>${d.kpi.finalPrice}</td><td>총 할인율</td><td>${(d.kpi.totalDiscountRate||0).toFixed(2)}%</td><td>적용 정책 수</td><td>${d.kpi.appliedCount}개</td></tr>`;
+  rows += `<tr><td>총 할인금액</td><td>${-d.kpi.totalDiscount}</td></tr>`;
+  rows += `<tr></tr><tr><td colspan="6" style="font-weight:bold;background:#eef2ff;">대리상 수익성 요약 (${isDSO ? 'DSO치과' : '일반치과'})</td></tr>`;
+  rows += isDSO
+    ? `<tr><td><b>DSO등급</b></td><td><b>대리상등급</b></td><td><b>판매가</b></td><td><b>최종공급가</b></td><td><b>대리상수익</b></td><td><b>마진율</b></td></tr>`
+    : `<tr><td><b>대리상등급</b></td><td><b>판매가</b></td><td><b>최종공급가</b></td><td><b>대리상수익</b></td><td><b>마진율</b></td></tr>`;
+  d.profitRows.forEach(r => {
+    rows += isDSO
+      ? `<tr><td>${esc(r.dsoGrade)}</td><td>${r.dealerGrade}급</td><td>${r.sellPrice}</td><td>${r.supply}</td><td>${r.profit}</td><td>${r.margin.toFixed(1)}%</td></tr>`
+      : `<tr><td>${r.dealerGrade}급</td><td>${r.sellPrice}</td><td>${r.supply}</td><td>${r.profit}</td><td>${r.margin.toFixed(1)}%</td></tr>`;
+  });
+  const table = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1">${rows}</table></body></html>`;
+  const blob = new Blob(['\ufeff' + table], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `江苏澍康_리포트_${d.productGroup}_${d.tradeLabel}_${new Date().toISOString().slice(0,10)}.xls`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
 // 별도 대리상 특별정책 (대리상가격 복사본)
 // ============================================================
 function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDentalPrices, simHistory, setSimHistory, setActiveMenu, setNegoSource, cloudConfirmed, setCloudConfirmed }) {
@@ -3826,9 +3944,9 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
   // 특별정책 전용: id8 = 익월리베이트(현금) 추가, 분기/연도 명칭·기본값 조정
   const SP_POLICIES = [
     { id: 1, name: "월목표달성(부품)", color: "blue",  base: "step", optionMode: "single", options: [{label:"1% 적용", value:1}] },
-    { id: 2, name: "특수정책(현금)",   color: "blue",  base: "list", optionMode: "product" },
+    { id: 2, name: productGroup === 'ST' ? "월특수정책(현금)" : "특수정책(현금)",   color: "blue",  base: "list", optionMode: "product" },
     { id: 9, name: "특별적용(10만위안 주문시)", color: "blue", base: "multiply", optionMode: "single", options: [{label:"97% 적용", value:3}] },
-    { id: 8, name: productGroup === 'AO' ? "익월리베이트(현금, 위안/EA)" : "익월리베이트(현금)", color: "blue", base: "multiply", optionMode: "single", options: productGroup === 'AO' ? [{label:"10위안 적용", value:10}] : [{label:"15% 적용", value:15}] },
+    { id: 8, name: productGroup === 'AO' ? "익월리베이트(현금, 위안/EA)" : "익월리베이트(현금)", color: "blue", base: "multiply", optionMode: "single", options: productGroup === 'AO' ? [{label:"10위안 적용", value:10}] : (productGroup === 'ST' ? [{label:"20% 적용", value:20}] : [{label:"15% 적용", value:15}]) },
     { id: 3, name: "현금결제(현금)",   color: "blue",  base: "step", optionMode: "single", options: [{label:"3% 할인", value:3}] },
     { id: 4, name: "DSO 등급(제품)",   color: "blue",  base: "step", optionMode: "dso" },
     { id: 5, name: "분기리베이트(제품/현금)", color: "amber", base: "list", optionMode: "quarterly", options: [{label:"3%", value:3},{label:"4%", value:4},{label:"2%", value:2}] },
@@ -3907,20 +4025,19 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
       setPolicyEnabled(prev => ({
         ...prev,
         1: true,   // 월목표달성 ON (1%)
-        2: false,  // 특수정책 OFF (ST는 미적용)
+        2: true,   // 월특수정책 ON (2%)
         9: false,  // 특별적용 OFF (ST는 미적용)
-        8: true,   // 익월리베이트 ON (현금 15%)
+        8: true,   // 익월리베이트 ON (현금 20%)
         3: false,  // 현금결제 OFF (ST는 미적용)
         4: false,  // DSO 등급 OFF (우선 미적용)
-        5: true,   // 분기리베이트 ON (3%)
-        6: true,   // 년간리베이트 ON (3%)
+        5: false,  // 분기리베이트 OFF (ST 미적용)
+        6: false,  // 년간리베이트 OFF (ST 미적용)
       }));
       setPolicyRates(prev => ({
         ...prev,
         1: 1,   // 월목표달성 1%
-        8: 15,  // 익월리베이트 15% (ST)
-        5: 3,   // 분기 3%
-        6: 3,   // 년간 3%
+        2: 2,   // 월특수정책 2% (ST 전용)
+        8: 20,  // 익월리베이트 20% (ST)
       }));
       setQtrType('현금');   // ST 분기리베이트는 현금
       setTradeType('DSO');  // ST는 DSO 체인치과만 공급
@@ -3928,7 +4045,7 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
       setPolicyEnabled(prev => ({
         ...prev,
         1: true,   // 월목표달성 ON (1%)
-        2: false,  // 특수정책 OFF
+        2: true,   // 특수정책 ON (2.5%)
         9: true,   // 특별적용(10만위안) ON (97%)
         8: true,   // 익월리베이트 ON (정액 10위안/EA)
         3: false,  // 현금결제 OFF
@@ -3939,6 +4056,7 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
       setPolicyRates(prev => ({
         ...prev,
         1: 1,    // 월목표달성 1%
+        2: 2.5,  // 특수정책 2.5% (AO)
         9: 3,    // 특별적용 97% (= 3% 차감)
         8: 10,   // 익월리베이트 10위안/EA (정액)
         5: 3,    // 분기 3%
@@ -4467,6 +4585,48 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
     showToast("초기화 완료");
   };
 
+  // ---------- 리포트 데이터 구성 (GP 전부 제외) ----------
+  const buildReportData = () => {
+    const tradeLabel = tradeType === 'DSO' ? 'DSO 체인치과' : '일반치과';
+    const activePolicies = SP_POLICIES
+      .filter(p => policyEnabled[p.id])
+      .map(p => ({ name: p.name, rate: policyRates[p.id] }));
+    const simSteps = (calculation.steps || []).map(s => ({
+      step: s.step, name: s.name, rate: s.rate,
+      basePrice: s.basePrice, discount: s.discount, finalPrice: s.finalPrice,
+    }));
+    const kpi = {
+      finalPrice: calculation.finalPrice,
+      totalDiscountRate: calculation.totalDiscountRate,
+      totalDiscount: calculation.totalDiscount,
+      appliedCount: calculation.appliedCount,
+    };
+    const profitRows = (profitSummary.rows || []).map((r, i) => {
+      const rk = `dso_${r.dsoGrade}_${r.dealerGrade}_${i}`;
+      const effSell = sellOverride[rk] != null ? sellOverride[rk] : r.sellPrice;
+      const effProfit = Math.round((effSell || 0) - r.supply);
+      const effMargin = (effSell || 0) > 0 ? (((effSell || 0) - r.supply) / (effSell || 0)) * 100 : 0;
+      return {
+        dsoGrade: r.dsoGrade || '', dealerGrade: r.dealerGrade,
+        sellPrice: effSell, supply: r.supply, profit: effProfit, margin: effMargin,
+      };
+    });
+    return {
+      dateStr: new Date().toLocaleString('ko-KR'),
+      tradeLabel, productGroup, kitCategory, dealerGrade, dsoGrade,
+      profitType: profitSummary.type, activePolicies, simSteps, kpi, profitRows,
+      listPrice: priceData.listPrice, applyRate: priceData.applyRate, supplyBase: priceData.supplyBase,
+    };
+  };
+  const handlePrintReport = () => {
+    spRenderPrintReport(buildReportData(), () => showToast('팝업이 차단되었습니다. 팝업 허용 후 다시 시도하세요.', 'error'));
+    showToast('리포트 창을 열었습니다');
+  };
+  const handleExcelReport = () => {
+    spDownloadExcelReport(buildReportData());
+    showToast('Excel 파일을 다운로드했습니다');
+  };
+
   // ---------- 함수: 이력저장 모달 열기 ----------
   const handleOpenHistoryModal = () => {
     // 자동 제목 (사용자가 비어두면 이 값 사용)
@@ -4597,6 +4757,14 @@ function SpecialPolicyPage({ exportPrices, exchangeRate, dentalPrices, setDental
             <p className="text-sm text-slate-500 mt-1">대리상가격과 동일한 방식이며, 江苏澍康 대리상에게 적용하는 정책입니다.</p>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={handlePrintReport}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 flex items-center gap-1.5">
+              <span>📄</span> 리포트 출력
+            </button>
+            <button onClick={handleExcelReport}
+              className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 flex items-center gap-1.5">
+              <span>📊</span> Excel
+            </button>
             <button onClick={handleReset}
               className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 flex items-center gap-1.5">
               <span>↻</span> 초기화
