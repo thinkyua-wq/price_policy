@@ -1533,7 +1533,14 @@ function SimulationHistoryPage({
       finalGP: Number(item.finalGP || 0).toFixed ? Math.round((item.finalGP || 0) * 10) / 10 : item.finalGP,
       totalDiscountRate: item.totalDiscountRate || 0,
       appliedCount: item.appliedCount || policies.length,
-      policies
+      policies,
+      steps: (item.calculationSteps || []).map(s => ({
+        step: s.step,
+        name: s.name,
+        rate: s.rate,
+        price: Math.round(s.finalPrice || 0),
+        gp: s.gp === null || s.gp === undefined ? null : Math.round(s.gp * 10) / 10
+      }))
     };
     const text = JSON.stringify(payload);
     const done = () => {
