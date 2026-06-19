@@ -899,6 +899,9 @@ function Sidebar({
     items: [{
       key: 'reverse-sim',
       label: '임플란트 시뮬레이션'
+    }, {
+      key: 'kit-sim',
+      label: '키트 시뮬레이션(ZBLC)'
     }]
   }];
   return /*#__PURE__*/React.createElement("aside", {
@@ -8937,6 +8940,25 @@ function CorpSimPage({
   }, toast.msg));
 }
 /* ========================================
+   키트 시뮬레이션 (역산: 본사공급가·딜러가·소비자가 → 마진율)
+   + 컴포넌트(구성품) 항목/가격/마진율 제시
+======================================== */
+// 3개 가격에서 단계별 마진율 역산
+function kitMargins(hq, dealer, retail) {
+  hq = +hq || 0; dealer = +dealer || 0; retail = +retail || 0;
+  return {
+    hq: hq, dealer: dealer, retail: retail,
+    upMarginOnDealer: dealer > 0 ? (dealer - hq) / dealer * 100 : 0, // 본사공급가→딜러가 (법인+본사 합산, 딜러가 기준)
+    upMarkup: hq > 0 ? (dealer - hq) / hq * 100 : 0,                 // 원가 대비 인상률
+    agentMargin: retail > 0 ? (retail - dealer) / retail * 100 : 0,  // 딜러가→소비자가 (대리상 마진, 소비자가 기준)
+    agentMarkup: dealer > 0 ? (retail - dealer) / dealer * 100 : 0,  // 대리상 매입 대비 인상률
+    totalMargin: retail > 0 ? (retail - hq) / retail * 100 : 0,      // 전체 (소비자가 기준)
+    multiple: hq > 0 ? retail / hq : 0                               // 본사공급가 대비 배수
+  };
+}
+const KIT_COMPONENT_SEED = [{"id":"cmp_1","name":"Handpiece Connector","model":"ZBBDNHCS06","royalty":11.4,"dealer":32,"retail":57},{"id":"cmp_2","name":"Handpiece Connector","model":"ZBBDNHCS08","royalty":11.4,"dealer":32,"retail":57},{"id":"cmp_3","name":"Handpiece Connector","model":"ZBBDNHCS10","royalty":11.4,"dealer":32,"retail":57},{"id":"cmp_4","name":"Handpiece Connector","model":"ZBBDRHCS06","royalty":11.4,"dealer":32,"retail":57},{"id":"cmp_5","name":"Handpiece Connector","model":"ZBBDRHCS08","royalty":11.4,"dealer":32,"retail":57},{"id":"cmp_6","name":"Handpiece Connector","model":"ZBBDRHCS10","royalty":11.4,"dealer":32,"retail":57},{"id":"cmp_7","name":"Ratchet Connector","model":"ZBBDNRCS06","royalty":9.6,"dealer":27,"retail":48},{"id":"cmp_8","name":"Ratchet Connector","model":"ZBBDNRCS08","royalty":9.6,"dealer":27,"retail":48},{"id":"cmp_9","name":"Ratchet Connector","model":"ZBBDNRCS10","royalty":9.6,"dealer":27,"retail":48},{"id":"cmp_10","name":"Ratchet Connector","model":"ZBBDRRCS06","royalty":9.6,"dealer":27,"retail":48},{"id":"cmp_11","name":"Ratchet Connector","model":"ZBBDRRCS08","royalty":9.6,"dealer":27,"retail":48},{"id":"cmp_12","name":"Ratchet Connector","model":"ZBBDRRCS10","royalty":9.6,"dealer":27,"retail":48},{"id":"cmp_13","name":"Multi unit Detector","model":"ZBBDMDNN0045","royalty":5.8,"dealer":16,"retail":29},{"id":"cmp_14","name":"Multi-Unit Detector Set","model":"ZBBDMDNO1745TC","royalty":6.2,"dealer":18,"retail":31},{"id":"cmp_15","name":"Multi-Unit Detector Set","model":"ZBBDMDNO3045TC","royalty":6.2,"dealer":18,"retail":31},{"id":"cmp_16","name":"Multi-Unit Detector","model":"ZBBDMDRN0045","royalty":5.8,"dealer":16,"retail":29},{"id":"cmp_17","name":"Multi-Unit Detector Set","model":"ZBBDMDRO1745TC","royalty":6.2,"dealer":18,"retail":31},{"id":"cmp_18","name":"Multi-Unit Detector Set","model":"ZBBDMDRO3045TC","royalty":6.2,"dealer":18,"retail":31},{"id":"cmp_19","name":"Ti-Base Detector Set","model":"ZBBDNOTDT","royalty":3.6,"dealer":10,"retail":18},{"id":"cmp_20","name":"Ti-Base Detector Set","model":"ZBBDROTDT","royalty":3.6,"dealer":10,"retail":18},{"id":"cmp_21","name":"Grafting Pin","model":"ZBBDNGP","royalty":2.2,"dealer":6,"retail":11},{"id":"cmp_22","name":"Grafting Pin","model":"ZBBDRGP","royalty":2.2,"dealer":6,"retail":11},{"id":"cmp_23","name":"Bone Profiler","model":"ZBCMBP52","royalty":13.2,"dealer":38,"retail":66},{"id":"cmp_24","name":"Bone Profiler","model":"ZBCMBP60","royalty":13.2,"dealer":38,"retail":66},{"id":"cmp_25","name":"Bone Profiler","model":"ZBCMBPT66","royalty":13.2,"dealer":38,"retail":66},{"id":"cmp_26","name":"Bone Profiler Guide Pin","model":"ZBBDNBPGP","royalty":4.4,"dealer":12,"retail":22},{"id":"cmp_27","name":"Bone Profiler Guide Pin","model":"ZBBDRBPGP","royalty":4.4,"dealer":12,"retail":22},{"id":"cmp_28","name":"Kit Case","model":"KZBLCBD2003","royalty":56,"dealer":160,"retail":280},{"id":"cmp_29","name":"Handpiece Connector","model":"ZBARHCS08","royalty":11.4,"dealer":32,"retail":57},{"id":"cmp_30","name":"Handpiece Connector","model":"ZBARHCS10","royalty":11.4,"dealer":32,"retail":57},{"id":"cmp_31","name":"Ratchet Connector","model":"ZBARRCS08","royalty":9.6,"dealer":27,"retail":48},{"id":"cmp_32","name":"Ratchet Connector","model":"ZBARRCS10","royalty":9.6,"dealer":27,"retail":48},{"id":"cmp_33","name":"Multi-unit-Detector","model":"ZBARMDN0045","royalty":5.8,"dealer":16,"retail":29},{"id":"cmp_34","name":"Multi-Unit Detector Set","model":"ZBARMDH1745TC","royalty":6.2,"dealer":18,"retail":31},{"id":"cmp_35","name":"Multi-Unit Detector Set","model":"ZBARMDH3045TC","royalty":6.6,"dealer":19,"retail":33},{"id":"cmp_36","name":"Ti-Base Detector Set","model":"ZBARTDT","royalty":3.6,"dealer":10,"retail":18},{"id":"cmp_37","name":"Grafting Pin","model":"ZBARGP","royalty":2.2,"dealer":6,"retail":11},{"id":"cmp_38","name":"Bone Profiler Guide Pin","model":"ZBARBPGP","royalty":4.4,"dealer":12,"retail":22},{"id":"cmp_39","name":"Kit Case","model":"KZBLCAR2003","royalty":49,"dealer":140,"retail":245}];
+const KIT_MASTER_SEED = [{"id":"kit_bd","name":"ZBLC Kit [BD]","model":"KZBLCBD3003","royalty":320,"dealer":900,"retail":1599,"lines":[{"compId":"cmp_1","qty":1},{"compId":"cmp_2","qty":1},{"compId":"cmp_3","qty":1},{"compId":"cmp_4","qty":1},{"compId":"cmp_5","qty":1},{"compId":"cmp_6","qty":1},{"compId":"cmp_7","qty":1},{"compId":"cmp_8","qty":1},{"compId":"cmp_9","qty":1},{"compId":"cmp_10","qty":1},{"compId":"cmp_11","qty":1},{"compId":"cmp_12","qty":1},{"compId":"cmp_13","qty":1},{"compId":"cmp_14","qty":1},{"compId":"cmp_15","qty":1},{"compId":"cmp_16","qty":1},{"compId":"cmp_17","qty":1},{"compId":"cmp_18","qty":1},{"compId":"cmp_19","qty":1},{"compId":"cmp_20","qty":1},{"compId":"cmp_21","qty":1},{"compId":"cmp_22","qty":1},{"compId":"cmp_23","qty":1},{"compId":"cmp_24","qty":1},{"compId":"cmp_25","qty":1},{"compId":"cmp_26","qty":1},{"compId":"cmp_27","qty":1},{"compId":"cmp_28","qty":1}]},{"id":"kit_ar","name":"ZBLC Kit [AR]","model":"KZBLCAR3003","royalty":180,"dealer":510,"retail":899,"lines":[{"compId":"cmp_29","qty":1},{"compId":"cmp_30","qty":1},{"compId":"cmp_31","qty":1},{"compId":"cmp_32","qty":1},{"compId":"cmp_33","qty":1},{"compId":"cmp_34","qty":1},{"compId":"cmp_35","qty":1},{"compId":"cmp_36","qty":1},{"compId":"cmp_37","qty":1},{"compId":"cmp_23","qty":1},{"compId":"cmp_24","qty":1},{"compId":"cmp_25","qty":1},{"compId":"cmp_38","qty":1},{"compId":"cmp_39","qty":1}]}];
+/* ========================================
    가격결정 시뮬레이션 - 임플란트 시뮬레이션 (역산)
    치과판매가 → 대리상 → 법인 → 본사  /  임플란트 본사공급가 역산
 ======================================== */
@@ -9489,9 +9511,421 @@ function ReverseCompare({
   }, r[1](s)))))))));
 }
 
-// ============================================================
-// 정책 행 컴포넌트 (버튼 그룹 방식)
-// ============================================================
+/* ========================================
+   키트 시뮬레이션 페이지 컴포넌트 (순산)
+   - 상단: 키트 선택/본사공급가 입력 → 순산 표
+   - 하단 탭: 키트 마스터 관리 / 공용 컴포넌트 풀 관리
+======================================== */
+/* 키트 순산 계산: 본사공급가(USD) + 마진율 → 치과판매가(CNY)
+   임플란트 시뮬과 동일 구조, 단 키트는 ÷100 배분 없음 */
+function kitForward(v) {
+  const hqSupply = +v.hqSupply || 0;
+  const gp = (+v.hqgp || 0) / 100;   // 본사 마진율
+  const cm = (+v.corp || 0) / 100;   // 법인 마진율
+  const am = (+v.agent || 0) / 100;  // 대리상 마진율
+  const fx = +v.fx || 7.2;
+  const tf = +v.tariff || 1.14;
+  const exportUsd = gp < 1 ? hqSupply / (1 - gp) : hqSupply; // ① 수출가
+  const hqProfit = exportUsd - hqSupply;                      // 본사 마진
+  const corpBuy = exportUsd * fx * tf;                        // ⑦ 법인 매입단가(CNY)
+  const agentBuy = cm < 1 ? corpBuy / (1 - cm) : corpBuy;     // ⑩ 대리상 매입단가
+  const corpProfit = agentBuy - corpBuy;                      // 법인 마진
+  const dental = am < 1 ? agentBuy / (1 - am) : agentBuy;     // ⑧ 치과 판매가
+  const agentProfit = dental - agentBuy;                      // 대리상 마진
+  return { hqSupply, exportUsd, hqProfit, corpBuy, corpProfit, agentBuy, agentProfit, dental };
+}
+const KIT_FWD_DEFAULTS = { hqSupply: 320, hqgp: 15, corp: 35, agent: 15, fx: 7.2, tariff: 1.14 };
+
+/* ========================================
+   키트 시뮬레이션(ZBLC) 페이지 — 순산 + 선택 키트 구성품
+======================================== */
+function KitSimPage({
+  kitMaster,
+  setKitMaster,
+  kitComponents,
+  setKitComponents
+}) {
+  const h = React.createElement;
+  const [tab, setTab] = React.useState('sim'); // sim | kits | pool
+  const [selKitId, setSelKitId] = React.useState(kitMaster.length ? kitMaster[0].id : null);
+  const [v, setV] = React.useState(KIT_FWD_DEFAULTS);
+  const [showFormula, setShowFormula] = React.useState(false);
+  const [showMargin, setShowMargin] = React.useState(true);
+  const [toast, setToast] = React.useState('');
+  const flash = m => { setToast(m); setTimeout(() => setToast(''), 1800); };
+
+  const selKit = kitMaster.find(k => k.id === selKitId) || null;
+  // 키트 선택 시 본사공급가(Royalty) 자동 입력
+  React.useEffect(() => {
+    if (selKit) setV(p => ({ ...p, hqSupply: selKit.royalty }));
+  }, [selKitId]);
+
+  const c = kitForward(v);
+  const setF = (k, val) => setV(p => ({ ...p, [k]: val }));
+  const usd = n => '$' + (Number(n) || 0).toFixed(1);
+  const cny = n => '¥' + (Number(n) || 0).toFixed(1);
+  const eur = n => '€' + (Number(n) || 0).toFixed(2);
+  const pct = n => (Number(n) || 0).toFixed(1) + '%';
+
+  // 선택 키트 구성품 합계
+  const compSum = React.useMemo(() => {
+    if (!selKit || !selKit.lines) return { royalty:0, dealer:0, retail:0, count:0 };
+    return selKit.lines.reduce((s, ln) => {
+      const cc = kitComponents.find(x => x.id === ln.compId); const q = ln.qty || 1;
+      if (cc) { s.royalty += cc.royalty*q; s.dealer += cc.dealer*q; s.retail += cc.retail*q; s.count += q; }
+      return s;
+    }, { royalty:0, dealer:0, retail:0, count:0 });
+  }, [selKit, kitComponents]);
+
+  const stageColor = { dental:'#8e44ad', agent:'#2563eb', corp:'#1f9d6b', hq:'#dc2626' };
+  const rowBg = { input:'#fdeddd', calc:'#ffffff', result:'#fff3cd' };
+  // 순산 표: [class,번호,항목,단위,값,산식,단계키,단계명,isMargin]
+  const rows = [
+    ['input','①','키트 본사공급가','USD',usd(c.hqSupply),'직접 입력 (키트 선택 시 자동)','hq','본사',false],
+    ['input','⑥','본사 마진율','%',pct(v.hqgp),'본사마진 ÷ 수출가','hq','본사',false],
+    ['calc','②','수출가 (본사→법인)','USD',usd(c.exportUsd),'본사공급가 ÷ (1 − 본사마진율)','hq','본사',false],
+    ['calc','⑤','본사 마진(개당)','USD',usd(c.hqProfit),'수출가 − 본사공급가','hq','본사',true],
+    ['input','⑬','법인 마진율','%',pct(v.corp),'법인마진 ÷ 대리상매입가','corp','법인',false],
+    ['calc','⑦','법인 매입단가','CNY',cny(c.corpBuy),'수출가 × 환율 × ' + v.tariff,'corp','법인',false],
+    ['calc','⑩','대리상 매입단가','CNY',cny(c.agentBuy),'법인매입가 ÷ (1 − 법인마진율)','corp','법인',false],
+    ['calc','⑫','법인 마진(개당)','CNY',cny(c.corpProfit),'대리상매입가 − 법인매입가','corp','법인',true],
+    ['input','⑨','대리상 마진율','%',pct(v.agent),'대리상마진 ÷ 치과판매가','agent','대리상',false],
+    ['calc','⑪','대리상 마진(개당)','CNY',cny(c.agentProfit),'치과판매가 − 대리상매입가','agent','대리상',true],
+    ['result','⑧','치과 판매가','CNY',cny(c.dental),'대리상매입가 ÷ (1 − 대리상마진율)  ← 결과','dental','치과',false]
+  ];
+
+  const inputFlds = [
+    ['hqgp','⑥ 본사 마진율 (%)','본사마진 ÷ 수출가'],
+    ['corp','⑬ 법인 마진율 (%)','법인마진 ÷ 대리상매입가'],
+    ['agent','⑨ 대리상 마진율 (%)','대리상마진 ÷ 치과판매가']
+  ];
+  const constFlds = [['fx','환율 (CNY/USD)'],['tariff','법인매입 계수 (관세 등)']];
+
+  const simView = h('div', null,
+    h('div', { className:'grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5 items-start' },
+      // 좌: 입력
+      h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' },
+        h('div', { className:'mb-3 border-b border-slate-200 pb-2' },
+          h('h3', { className:'text-sm font-bold text-emerald-700 tracking-wide' }, '키트 선택 / 입력값')),
+        h('div', { className:'mb-3' },
+          h('label', { className:'block text-[15px] font-bold text-slate-700 mb-1' }, '키트 선택 (ZBLC)'),
+          h('select', {
+            value: selKitId || '',
+            onChange: e => setSelKitId(e.target.value),
+            className:'w-full px-2.5 py-2 border border-slate-300 rounded-md text-[15px] font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500'
+          }, kitMaster.length === 0
+            ? h('option', { value:'' }, '등록된 키트 없음')
+            : kitMaster.map(k => h('option', { key:k.id, value:k.id }, k.name + ' (' + k.model + ')')))),
+        h('div', { className:'mb-3' },
+          h('label', { className:'block text-[15px] font-bold text-slate-700 mb-0.5' }, '① 키트 본사공급가 (USD)'),
+          h('div', { className:'text-[13px] text-slate-400 mb-1' }, '키트 선택 시 자동 입력 · 직접 수정 가능'),
+          h('input', {
+            type:'number', step:0.01, value:v.hqSupply,
+            onChange: e => setF('hqSupply', e.target.value),
+            className:'w-full px-2.5 py-2 border border-slate-300 rounded-md text-[17px] font-bold text-red-600 bg-orange-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white'
+          })),
+        inputFlds.map(([k,label,desc]) =>
+          h('div', { key:k, className:'mb-3' },
+            h('label', { className:'block text-[15px] font-bold text-slate-700 mb-0.5' }, label),
+            h('div', { className:'text-[13px] text-slate-400 mb-1' }, desc),
+            h('input', {
+              type:'number', step:0.1, value:v[k],
+              onChange: e => setF(k, e.target.value),
+              className:'w-full px-2.5 py-2 border border-slate-300 rounded-md text-[17px] font-bold text-red-600 bg-orange-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white'
+            }))),
+        h('h3', { className:'text-sm font-bold text-emerald-700 tracking-wide mt-4 mb-2' }, '전제 상수'),
+        constFlds.map(([k,label]) =>
+          h('div', { key:k, className:'mb-3' },
+            h('label', { className:'block text-[15px] font-bold text-slate-700 mb-0.5' }, label),
+            h('input', {
+              type:'number', step:0.01, value:v[k],
+              onChange: e => setF(k, e.target.value),
+              className:'w-full px-2.5 py-2 border border-slate-300 rounded-md text-[17px] font-bold text-red-600 bg-orange-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white'
+            }))),
+        h('button', {
+          onClick: () => setV({ ...KIT_FWD_DEFAULTS, hqSupply: selKit ? selKit.royalty : KIT_FWD_DEFAULTS.hqSupply }),
+          className:'w-full mt-1 text-xs border border-slate-300 rounded px-2 py-1.5 text-slate-500 hover:bg-slate-50'
+        }, '마진율 기본값으로')),
+      // 우: 순산 표
+      h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' },
+        h('div', { className:'flex items-center justify-between mb-3 flex-wrap gap-2' },
+          h('h3', { className:'text-sm font-bold text-emerald-700 tracking-wide' }, '키트 시뮬레이션 (본사공급가 → 치과판매가)'),
+          h('div', { className:'flex gap-1.5 flex-wrap' },
+            h('button', { onClick:()=>setShowFormula(s=>!s), className:'text-xs border border-slate-300 rounded px-2 py-1 text-slate-500 hover:bg-slate-50' }, showFormula?'산식 숨김':'산식 표시'),
+            h('button', { onClick:()=>setShowMargin(s=>!s), className:'text-xs border border-slate-300 rounded px-2 py-1 text-slate-500 hover:bg-slate-50' }, showMargin?'마진행 숨김':'마진행 표시'))),
+        h('div', { className:'overflow-x-auto' },
+          h('table', { className:'w-full text-[15px] border-collapse border border-slate-300' },
+            h('thead', null, h('tr', { className:'bg-slate-200 text-slate-900' },
+              h('th', { className:'px-2 py-2 text-left font-semibold border border-slate-300' }, '단계'),
+              h('th', { className:'px-2 py-2 text-left font-semibold border border-slate-300' }, '항목'),
+              h('th', { className:'px-2 py-2 text-center font-semibold border border-slate-300' }, '단위'),
+              h('th', { className:'px-2 py-2 text-right font-semibold border border-slate-300' }, '금액'),
+              showFormula && h('th', { className:'px-2 py-2 text-left font-semibold border border-slate-300' }, '산식'))),
+            h('tbody', null, rows.filter(r => showMargin || !r[8]).map((r,i) =>
+              h('tr', { key:i, style:{ background: rowBg[r[0]] || '#fff' } },
+                h('td', { className:'px-2 py-2 font-bold whitespace-nowrap border border-slate-300', style:{ borderLeft:'5px solid '+stageColor[r[6]], color:stageColor[r[6]] } }, r[7]),
+                h('td', { className:'px-2 py-2 font-medium text-slate-700 border border-slate-300' }, r[2]),
+                h('td', { className:'px-2 py-2 text-center text-[13px] text-slate-800 whitespace-nowrap border border-slate-300' }, r[3]),
+                h('td', { className:'px-2 py-2 text-right font-bold tabular-nums border border-slate-300 ' + (r[0]==='result'?'text-purple-700 text-[18px]':'text-slate-700') }, r[4]),
+                showFormula && h('td', { className:'px-2 py-2 text-[13px] text-slate-400 border border-slate-300' }, r[5])))))),
+        h('div', { className:'mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3' },
+          h('div', { className:'rounded-lg p-3 text-white', style:{ background:'#dc2626' } },
+            h('div', { className:'text-[12px] opacity-80 uppercase tracking-wide' }, '① 본사공급가'),
+            h('div', { className:'text-lg font-extrabold mt-0.5' }, usd(c.hqSupply))),
+          h('div', { className:'rounded-lg p-3 text-white bg-slate-800' },
+            h('div', { className:'text-[12px] opacity-70 uppercase tracking-wide' }, '② 수출가'),
+            h('div', { className:'text-lg font-extrabold mt-0.5' }, usd(c.exportUsd))),
+          h('div', { className:'rounded-lg p-3 text-white', style:{ background:'#1f9d6b' } },
+            h('div', { className:'text-[12px] opacity-80 uppercase tracking-wide' }, '⑩ 대리상매입가'),
+            h('div', { className:'text-lg font-extrabold mt-0.5' }, cny(c.agentBuy))),
+          h('div', { className:'rounded-lg p-3 text-white', style:{ background:'#8e44ad' } },
+            h('div', { className:'text-[12px] opacity-80 uppercase tracking-wide' }, '⑧ 치과판매가'),
+            h('div', { className:'text-lg font-extrabold mt-0.5' }, cny(c.dental)))),
+        h('div', { className:'mt-3 bg-emerald-50 border-l-4 border-emerald-500 px-3 py-2.5 text-[14px] rounded-r-md text-slate-600' },
+          h('b', { className:'text-emerald-700' }, '키트 원칙: '),
+          '키트는 자체 완제품이므로 ', h('b', null, '임플란트 수량(÷100) 배분 없이'), ' 본사공급가를 그대로 사용합니다. 환율(', v.fx, ')·법인계수(', v.tariff, ')는 임플란트와 동일.'))),
+    // 하단: 선택 키트 구성품 리스트
+    selKit && h('div', { className:'bg-white border border-slate-200 rounded-xl p-4 mt-4' },
+      h('div', { className:'flex items-center justify-between mb-3 flex-wrap gap-2' },
+        h('h3', { className:'text-sm font-bold text-emerald-700' }, selKit.name + ' · 구성품 (Components) ' + (selKit.lines||[]).length + '개'),
+        h('div', { className:'text-[13px] text-slate-400' }, '첨부 기준 본사/딜러/소비자 가격')),
+      (selKit.lines||[]).length === 0
+        ? h('div', { className:'text-slate-400 text-center py-6 text-sm' }, '구성품이 없습니다. "키트 관리" 탭에서 추가하세요.')
+        : h('div', { className:'overflow-x-auto' }, h('table', { className:'w-full text-[14px] border-collapse border border-slate-200' },
+          h('thead', null, h('tr', { className:'bg-slate-100 text-slate-700' },
+            h('th', { className:'px-2 py-2 text-left border border-slate-200' }, 'Product Name'),
+            h('th', { className:'px-2 py-2 text-left border border-slate-200' }, 'Model Name'),
+            h('th', { className:'px-2 py-2 text-right border border-slate-200' }, 'Royalty'),
+            h('th', { className:'px-2 py-2 text-right border border-slate-200' }, 'Dealer Price'),
+            h('th', { className:'px-2 py-2 text-right border border-slate-200' }, 'Retail Price'),
+            h('th', { className:'px-2 py-2 text-center border border-slate-200' }, 'Qty'))),
+          h('tbody', null, (selKit.lines||[]).map(ln => {
+            const cc = kitComponents.find(x => x.id === ln.compId);
+            if (!cc) return h('tr', { key:ln.compId }, h('td', { colSpan:6, className:'text-red-400 text-[12px] px-2 py-1.5 border border-slate-200' }, '삭제된 컴포넌트'));
+            return h('tr', { key:ln.compId, className:'hover:bg-slate-50' },
+              h('td', { className:'px-2 py-1.5 border border-slate-200 text-slate-700' }, cc.name),
+              h('td', { className:'px-2 py-1.5 border border-slate-200 text-slate-500 text-[13px]' }, cc.model),
+              h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(cc.royalty)),
+              h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(cc.dealer)),
+              h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(cc.retail)),
+              h('td', { className:'px-2 py-1.5 text-center border border-slate-200' }, ln.qty || 1));
+          })),
+          h('tfoot', null, h('tr', { className:'bg-emerald-50 font-bold text-emerald-800' },
+            h('td', { colSpan:2, className:'px-2 py-2 text-right border border-slate-200' }, '구성품 합계 (' + compSum.count + '개)'),
+            h('td', { className:'px-2 py-2 text-right border border-slate-200 tabular-nums' }, eur(compSum.royalty)),
+            h('td', { className:'px-2 py-2 text-right border border-slate-200 tabular-nums' }, eur(compSum.dealer)),
+            h('td', { className:'px-2 py-2 text-right border border-slate-200 tabular-nums' }, eur(compSum.retail)),
+            h('td', { className:'border border-slate-200' }))))),
+      h('div', { className:'mt-2 text-[12px] text-slate-400' }, '※ 위 시뮬레이션의 본사공급가는 키트 자체 값(', eur(selKit.royalty), ')을 사용합니다. 구성품 합계(', eur(compSum.royalty), ')는 참고용입니다.')));
+
+  return h('div', { className:'p-6' },
+    toast && h('div', { className:'fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast),
+    h('div', { className:'mb-4 border-b border-slate-200 flex gap-2' },
+      [['sim','키트 시뮬레이션'],['kits','키트 관리'],['pool','공용 컴포넌트 풀']].map(([k,label]) =>
+        h('button', {
+          key:k, onClick:()=>setTab(k),
+          className:'px-4 py-2 text-sm font-semibold border-b-2 -mb-px ' + (tab===k ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500')
+        }, label,
+          k==='kits' && kitMaster.length>0 ? ' ('+kitMaster.length+')' : '',
+          k==='pool' && kitComponents.length>0 ? ' ('+kitComponents.length+')' : ''))),
+    tab==='sim' && simView,
+    tab==='kits' && h(KitMasterManager, { kitMaster, setKitMaster, kitComponents, flash, eur }),
+    tab==='pool' && h(KitPoolManager, { kitComponents, setKitComponents, kitMaster, flash, eur, pct }));
+}
+
+function KitMasterManager({ kitMaster, setKitMaster, kitComponents, flash, eur }) {
+  const h = React.createElement;
+  const [editId, setEditId] = React.useState(kitMaster.length ? kitMaster[0].id : null);
+  const [adding, setAdding] = React.useState(false);
+  const [form, setForm] = React.useState({ name:'', model:'', royalty:'', dealer:'', retail:'' });
+  const [addCompId, setAddCompId] = React.useState('');
+
+  const editKit = kitMaster.find(k => k.id === editId) || null;
+  const sumOf = (kit) => {
+    if (!kit || !kit.lines) return { royalty:0, dealer:0, retail:0 };
+    return kit.lines.reduce((s,ln)=>{ const c=kitComponents.find(x=>x.id===ln.compId); const q=ln.qty||1; if(c){s.royalty+=c.royalty*q;s.dealer+=c.dealer*q;s.retail+=c.retail*q;} return s; }, {royalty:0,dealer:0,retail:0});
+  };
+
+  const saveNew = () => {
+    if (!form.name.trim()) { flash('키트 이름을 입력하세요'); return; }
+    const id = 'kit_' + Date.now();
+    setKitMaster([...kitMaster, { id, name:form.name.trim(), model:form.model.trim(), royalty:+form.royalty||0, dealer:+form.dealer||0, retail:+form.retail||0, lines:[] }]);
+    setForm({ name:'', model:'', royalty:'', dealer:'', retail:'' }); setAdding(false); setEditId(id); flash('키트가 추가되었습니다');
+  };
+  const updField = (id, k, val) => setKitMaster(kitMaster.map(x => x.id===id ? { ...x, [k]: (['royalty','dealer','retail'].includes(k)? (+val||0): val) } : x));
+  const delKit = (id) => { if(!confirm('이 키트를 삭제할까요?')) return; const nx = kitMaster.filter(x=>x.id!==id); setKitMaster(nx); if(editId===id) setEditId(nx.length?nx[0].id:null); };
+  const addLine = () => {
+    if (!editKit || !addCompId) return;
+    const exist = (editKit.lines||[]).find(l => l.compId===addCompId);
+    let lines;
+    if (exist) lines = editKit.lines.map(l => l.compId===addCompId ? { ...l, qty:(l.qty||1)+1 } : l);
+    else lines = [ ...(editKit.lines||[]), { compId:addCompId, qty:1 } ];
+    setKitMaster(kitMaster.map(x => x.id===editKit.id ? { ...x, lines } : x));
+    setAddCompId('');
+  };
+  const setLineQty = (compId, qty) => setKitMaster(kitMaster.map(x => x.id===editKit.id ? { ...x, lines:x.lines.map(l=>l.compId===compId?{...l,qty:Math.max(1,+qty||1)}:l) } : x));
+  const delLine = (compId) => setKitMaster(kitMaster.map(x => x.id===editKit.id ? { ...x, lines:x.lines.filter(l=>l.compId!==compId) } : x));
+
+  const s = sumOf(editKit);
+  return h('div', { className:'grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5 items-start' },
+    h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' },
+      h('div', { className:'flex items-center justify-between mb-3 border-b border-slate-200 pb-2' },
+        h('h3', { className:'text-sm font-bold text-emerald-700' }, '키트 목록 (' + kitMaster.length + ')'),
+        h('button', { onClick:()=>setAdding(a=>!a), className:'text-xs border border-emerald-300 text-emerald-700 rounded px-2 py-1 hover:bg-emerald-50' }, adding?'취소':'+ 키트')),
+      adding && h('div', { className:'mb-3 p-2.5 bg-emerald-50 rounded-lg border border-emerald-200' },
+        h('input', { value:form.name, onChange:e=>setForm({...form,name:e.target.value}), placeholder:'키트 이름', className:'w-full mb-1.5 px-2 py-1.5 border border-slate-300 rounded text-sm' }),
+        h('input', { value:form.model, onChange:e=>setForm({...form,model:e.target.value}), placeholder:'모델명', className:'w-full mb-1.5 px-2 py-1.5 border border-slate-300 rounded text-sm' }),
+        h('div', { className:'grid grid-cols-3 gap-1.5 mb-1.5' },
+          h('input', { type:'number', step:0.01, value:form.royalty, onChange:e=>setForm({...form,royalty:e.target.value}), placeholder:'본사', className:'px-2 py-1.5 border border-slate-300 rounded text-sm' }),
+          h('input', { type:'number', step:0.01, value:form.dealer, onChange:e=>setForm({...form,dealer:e.target.value}), placeholder:'딜러', className:'px-2 py-1.5 border border-slate-300 rounded text-sm' }),
+          h('input', { type:'number', step:0.01, value:form.retail, onChange:e=>setForm({...form,retail:e.target.value}), placeholder:'소비자', className:'px-2 py-1.5 border border-slate-300 rounded text-sm' })),
+        h('button', { onClick:saveNew, className:'w-full px-2 py-1.5 bg-emerald-600 text-white rounded text-sm font-semibold' }, '저장')),
+      h('div', { className:'flex flex-col gap-1.5' }, kitMaster.length===0
+        ? h('div', { className:'text-sm text-slate-400 py-4 text-center' }, '등록된 키트가 없습니다')
+        : kitMaster.map(k => h('div', {
+            key:k.id, onClick:()=>setEditId(k.id),
+            className:'cursor-pointer px-3 py-2 rounded-lg border text-sm ' + (editId===k.id?'border-emerald-500 bg-emerald-50':'border-slate-200 hover:bg-slate-50')
+          },
+          h('div', { className:'flex items-center justify-between' },
+            h('span', { className:'font-semibold text-slate-700' }, k.name),
+            h('button', { onClick:(e)=>{e.stopPropagation();delKit(k.id);}, className:'text-slate-300 hover:text-red-500 text-xs' }, '✕')),
+          h('div', { className:'text-[12px] text-slate-400' }, k.model, ' · ', eur(k.royalty), '/', eur(k.dealer), '/', eur(k.retail), ' · ', (k.lines||[]).length, '개'))))),
+    h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' }, !editKit
+      ? h('div', { className:'text-slate-400 text-center py-10 text-sm' }, '왼쪽에서 키트를 선택하세요')
+      : h('div', null,
+        h('div', { className:'grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4' },
+          h('div', { className:'col-span-2 sm:col-span-1' }, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '이름'),
+            h('input', { value:editKit.name, onChange:e=>updField(editKit.id,'name',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm' })),
+          h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '모델명'),
+            h('input', { value:editKit.model, onChange:e=>updField(editKit.id,'model',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm' })),
+          h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '본사공급가'),
+            h('input', { type:'number', step:0.01, value:editKit.royalty, onChange:e=>updField(editKit.id,'royalty',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm font-bold text-red-600' })),
+          h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '딜러가'),
+            h('input', { type:'number', step:0.01, value:editKit.dealer, onChange:e=>updField(editKit.id,'dealer',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm font-bold text-emerald-700' })),
+          h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '소비자가'),
+            h('input', { type:'number', step:0.01, value:editKit.retail, onChange:e=>updField(editKit.id,'retail',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm font-bold text-blue-700' }))),
+        h('div', { className:'flex items-end gap-2 mb-3 flex-wrap' },
+          h('div', { className:'flex-1 min-w-[200px]' }, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '구성품 추가'),
+            h('select', { value:addCompId, onChange:e=>setAddCompId(e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm' },
+              h('option', { value:'' }, '— 컴포넌트 선택 —'),
+              kitComponents.map(c => h('option', { key:c.id, value:c.id }, c.name + ' · ' + c.model + ' (' + eur(c.royalty) + ')')))),
+          h('button', { onClick:addLine, disabled:!addCompId, className:'px-3 py-1.5 bg-emerald-600 text-white rounded text-sm font-semibold disabled:opacity-40' }, '추가')),
+        h('div', { className:'overflow-x-auto' }, h('table', { className:'w-full text-sm border-collapse border border-slate-200' },
+          h('thead', null, h('tr', { className:'bg-slate-100 text-slate-700' },
+            h('th', { className:'px-2 py-1.5 text-left border border-slate-200' }, '구성품'),
+            h('th', { className:'px-2 py-1.5 text-left border border-slate-200' }, '모델명'),
+            h('th', { className:'px-2 py-1.5 text-center border border-slate-200 w-16' }, '수량'),
+            h('th', { className:'px-2 py-1.5 text-right border border-slate-200' }, '본사'),
+            h('th', { className:'px-2 py-1.5 text-right border border-slate-200' }, '딜러'),
+            h('th', { className:'px-2 py-1.5 text-right border border-slate-200' }, '소비자'),
+            h('th', { className:'px-2 py-1.5 border border-slate-200 w-10' }, ''))),
+          h('tbody', null, (editKit.lines||[]).length===0
+            ? h('tr', null, h('td', { colSpan:7, className:'text-center text-slate-400 py-4 border border-slate-200' }, '구성품을 추가하세요'))
+            : editKit.lines.map(ln => {
+                const c = kitComponents.find(x=>x.id===ln.compId);
+                if (!c) return h('tr', { key:ln.compId }, h('td', { colSpan:7, className:'text-red-500 text-[12px] px-2 py-1.5 border border-slate-200' }, '삭제된 컴포넌트 ', h('button', { onClick:()=>delLine(ln.compId), className:'underline ml-2' }, '제거')));
+                return h('tr', { key:ln.compId, className:'hover:bg-slate-50' },
+                  h('td', { className:'px-2 py-1.5 border border-slate-200 text-slate-700' }, c.name),
+                  h('td', { className:'px-2 py-1.5 border border-slate-200 text-slate-500 text-[13px]' }, c.model),
+                  h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
+                    h('input', { type:'number', min:1, value:ln.qty||1, onChange:e=>setLineQty(ln.compId,e.target.value), className:'w-12 px-1 py-0.5 border border-slate-300 rounded text-center text-sm' })),
+                  h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(c.royalty)),
+                  h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(c.dealer)),
+                  h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(c.retail)),
+                  h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
+                    h('button', { onClick:()=>delLine(ln.compId), className:'text-slate-300 hover:text-red-500' }, '✕')));
+              })),
+          h('tfoot', null, h('tr', { className:'bg-emerald-50 font-bold text-emerald-800' },
+            h('td', { colSpan:3, className:'px-2 py-2 text-right border border-slate-200' }, '합계'),
+            h('td', { className:'px-2 py-2 text-right border border-slate-200 tabular-nums' }, eur(s.royalty)),
+            h('td', { className:'px-2 py-2 text-right border border-slate-200 tabular-nums' }, eur(s.dealer)),
+            h('td', { className:'px-2 py-2 text-right border border-slate-200 tabular-nums' }, eur(s.retail)),
+            h('td', { className:'border border-slate-200' }))))),
+        h('div', { className:'mt-2 text-[12px] text-slate-400' }, '※ 키트 가격은 묶음 정책가입니다. 구성품 합계는 참고용입니다.'))));
+}
+
+/* ========================================
+   공용 컴포넌트 풀 관리 (3가격 + 마진율)
+======================================== */
+function KitPoolManager({ kitComponents, setKitComponents, kitMaster, flash, eur, pct }) {
+  const h = React.createElement;
+  const [q, setQ] = React.useState('');
+  const [adding, setAdding] = React.useState(false);
+  const [form, setForm] = React.useState({ name:'', model:'', royalty:'', dealer:'', retail:'' });
+
+  const usageCount = (compId) => kitMaster.filter(k => (k.lines||[]).some(l=>l.compId===compId)).length;
+  const filtered = kitComponents.filter(c =>
+    !q || c.name.toLowerCase().includes(q.toLowerCase()) || c.model.toLowerCase().includes(q.toLowerCase()));
+
+  const saveNew = () => {
+    if (!form.model.trim()) { flash('모델명을 입력하세요'); return; }
+    if (kitComponents.some(c => c.model.toLowerCase()===form.model.trim().toLowerCase())) { flash('이미 존재하는 모델명입니다'); return; }
+    setKitComponents([...kitComponents, { id:'cmp_'+Date.now(), name:form.name.trim()||form.model.trim(), model:form.model.trim(), royalty:+form.royalty||0, dealer:+form.dealer||0, retail:+form.retail||0 }]);
+    setForm({ name:'', model:'', royalty:'', dealer:'', retail:'' }); setAdding(false); flash('컴포넌트가 추가되었습니다');
+  };
+  const updField = (id, k, val) => setKitComponents(kitComponents.map(c => c.id===id ? { ...c, [k]: (['royalty','dealer','retail'].includes(k)?(+val||0):val) } : c));
+  const delComp = (id) => {
+    const used = usageCount(id);
+    if (used > 0) { if(!confirm(used + '개 키트에서 사용 중입니다. 삭제하면 해당 키트 구성에서도 빠집니다. 계속할까요?')) return; }
+    else { if(!confirm('이 컴포넌트를 삭제할까요?')) return; }
+    setKitComponents(kitComponents.filter(c => c.id !== id));
+  };
+
+  return h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' },
+    h('div', { className:'flex items-center justify-between mb-3 flex-wrap gap-2 border-b border-slate-200 pb-2' },
+      h('h3', { className:'text-sm font-bold text-emerald-700' }, '공용 컴포넌트 풀 (' + kitComponents.length + ')'),
+      h('div', { className:'flex gap-2 items-center flex-wrap' },
+        h('input', { value:q, onChange:e=>setQ(e.target.value), placeholder:'이름/모델 검색', className:'px-2.5 py-1.5 border border-slate-300 rounded text-sm w-44' }),
+        h('button', { onClick:()=>setAdding(a=>!a), className:'text-xs border border-emerald-300 text-emerald-700 rounded px-2.5 py-1.5 hover:bg-emerald-50 font-semibold' }, adding?'취소':'+ 컴포넌트'))),
+    adding && h('div', { className:'mb-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200 flex gap-2 flex-wrap items-end' },
+      h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '구성품명'),
+        h('input', { value:form.name, onChange:e=>setForm({...form,name:e.target.value}), placeholder:'예: Handpiece Connector', className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-48' })),
+      h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '모델명'),
+        h('input', { value:form.model, onChange:e=>setForm({...form,model:e.target.value}), placeholder:'예: ZBBDNHCS06', className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-40' })),
+      h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '본사'),
+        h('input', { type:'number', step:0.01, value:form.royalty, onChange:e=>setForm({...form,royalty:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-24' })),
+      h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '딜러'),
+        h('input', { type:'number', step:0.01, value:form.dealer, onChange:e=>setForm({...form,dealer:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-24' })),
+      h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '소비자'),
+        h('input', { type:'number', step:0.01, value:form.retail, onChange:e=>setForm({...form,retail:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-24' })),
+      h('button', { onClick:saveNew, className:'px-3 py-1.5 bg-emerald-600 text-white rounded text-sm font-semibold' }, '저장')),
+    h('div', { className:'overflow-x-auto' }, h('table', { className:'w-full text-sm border-collapse border border-slate-200' },
+      h('thead', null, h('tr', { className:'bg-slate-100 text-slate-700' },
+        h('th', { className:'px-2 py-2 text-left border border-slate-200' }, '구성품명'),
+        h('th', { className:'px-2 py-2 text-left border border-slate-200' }, '모델명'),
+        h('th', { className:'px-2 py-2 text-right border border-slate-200 w-24' }, '본사공급가'),
+        h('th', { className:'px-2 py-2 text-right border border-slate-200 w-24' }, '딜러가'),
+        h('th', { className:'px-2 py-2 text-right border border-slate-200 w-24' }, '소비자가'),
+        h('th', { className:'px-2 py-2 text-right border border-slate-200' }, '본사→딜러'),
+        h('th', { className:'px-2 py-2 text-right border border-slate-200' }, '대리상마진'),
+        h('th', { className:'px-2 py-2 text-center border border-slate-200 w-20' }, '사용'),
+        h('th', { className:'px-2 py-2 border border-slate-200 w-10' }, ''))),
+      h('tbody', null, filtered.length===0
+        ? h('tr', null, h('td', { colSpan:9, className:'text-center text-slate-400 py-6 border border-slate-200' }, '컴포넌트가 없습니다'))
+        : filtered.map(c => {
+            const used = usageCount(c.id);
+            const cm = kitMargins(c.royalty, c.dealer, c.retail);
+            return h('tr', { key:c.id, className:'hover:bg-slate-50' },
+              h('td', { className:'px-2 py-1.5 border border-slate-200' },
+                h('input', { value:c.name, onChange:e=>updField(c.id,'name',e.target.value), className:'w-full px-1.5 py-1 border border-transparent hover:border-slate-300 rounded text-slate-700' })),
+              h('td', { className:'px-2 py-1.5 border border-slate-200' },
+                h('input', { value:c.model, onChange:e=>updField(c.id,'model',e.target.value), className:'w-full px-1.5 py-1 border border-transparent hover:border-slate-300 rounded text-slate-500 text-[13px]' })),
+              h('td', { className:'px-2 py-1.5 border border-slate-200 text-right' },
+                h('input', { type:'number', step:0.01, value:c.royalty, onChange:e=>updField(c.id,'royalty',e.target.value), className:'w-20 px-1.5 py-1 border border-slate-300 rounded text-right tabular-nums font-semibold text-red-600' })),
+              h('td', { className:'px-2 py-1.5 border border-slate-200 text-right' },
+                h('input', { type:'number', step:0.01, value:c.dealer, onChange:e=>updField(c.id,'dealer',e.target.value), className:'w-20 px-1.5 py-1 border border-slate-300 rounded text-right tabular-nums font-semibold text-emerald-700' })),
+              h('td', { className:'px-2 py-1.5 border border-slate-200 text-right' },
+                h('input', { type:'number', step:0.01, value:c.retail, onChange:e=>updField(c.id,'retail',e.target.value), className:'w-20 px-1.5 py-1 border border-slate-300 rounded text-right tabular-nums font-semibold text-blue-700' })),
+              h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums text-emerald-700' }, pct(cm.upMarginOnDealer)),
+              h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums text-blue-700' }, pct(cm.agentMargin)),
+              h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
+                used>0 ? h('span', { className:'inline-block px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[12px] font-semibold' }, used+'키트') : h('span', { className:'text-slate-300 text-[12px]' }, '미사용')),
+              h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
+                h('button', { onClick:()=>delComp(c.id), className:'text-slate-300 hover:text-red-500' }, '✕')));
+          })))),
+    h('div', { className:'mt-2 text-[12px] text-slate-400' }, '※ 본사→딜러 마진은 (딜러가−본사공급가)÷딜러가, 대리상마진은 (소비자가−딜러가)÷소비자가 입니다.'));
+}
+
 function CostSimPage() {
   const [d, setD] = useState(costLoad);
   const [showFormula, setShowFormula] = useState(false);
@@ -11594,6 +12028,26 @@ function App() {
     } catch (e) {}
     return [];
   }); // 가격결정 시뮬레이션 - 저장된 시나리오 (클라우드 동기화)
+  const [kitMaster, setKitMaster] = useState(() => {
+    try {
+      const s = localStorage.getItem(STORAGE_KEY);
+      if (s) {
+        const d = JSON.parse(s);
+        if (d && Array.isArray(d.kitMaster)) return d.kitMaster;
+      }
+    } catch (e) {}
+    return KIT_MASTER_SEED;
+  }); // 키트 마스터 (클라우드 동기화)
+  const [kitComponents, setKitComponents] = useState(() => {
+    try {
+      const s = localStorage.getItem(STORAGE_KEY);
+      if (s) {
+        const d = JSON.parse(s);
+        if (d && Array.isArray(d.kitComponents)) return d.kitComponents;
+      }
+    } catch (e) {}
+    return KIT_COMPONENT_SEED;
+  }); // 공용 컴포넌트 풀 (클라우드 동기화)
 
   // 로컬스토리지 불러오기 (옛 용어 자동 마이그레이션 + ARi 자동 추가)
   useEffect(() => {
@@ -11647,6 +12101,8 @@ function App() {
         if (parsed.gpItems && Array.isArray(parsed.gpItems) && parsed.gpItems.length) setGpItems(gpFillBuy(parsed.gpItems.filter(it => !/R2 One2 Guide/i.test(it.kitName || ''))));
         if (parsed.gpHistory && Array.isArray(parsed.gpHistory)) setGpHistory(parsed.gpHistory);
         if (parsed.reverseScenarios && Array.isArray(parsed.reverseScenarios)) setReverseScenarios(parsed.reverseScenarios);
+        if (parsed.kitMaster && Array.isArray(parsed.kitMaster)) setKitMaster(parsed.kitMaster);
+        if (parsed.kitComponents && Array.isArray(parsed.kitComponents)) setKitComponents(parsed.kitComponents);
         // ⚠️ 이전 버전의 대리상 가격정책 데이터는 더 이상 로드되지 않으며 다음 저장 시 자동 제거됨
       }
     } catch (e) {
@@ -11669,6 +12125,8 @@ function App() {
           if (Array.isArray(remote.gpHistory)) setGpHistory(remote.gpHistory);
           if (remote.specialConfirmed && typeof remote.specialConfirmed === 'object') setSpecialConfirmed(remote.specialConfirmed);
           if (Array.isArray(remote.reverseScenarios)) setReverseScenarios(remote.reverseScenarios);
+          if (Array.isArray(remote.kitMaster)) setKitMaster(remote.kitMaster);
+          if (Array.isArray(remote.kitComponents)) setKitComponents(remote.kitComponents);
         }
         setSaveStatus('☁ 클라우드 동기화됨');
         setTimeout(() => setSaveStatus(''), 2000);
@@ -11690,7 +12148,9 @@ function App() {
       gpItems,
       gpHistory,
       specialConfirmed,
-      reverseScenarios
+      reverseScenarios,
+      kitMaster,
+      kitComponents
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -11702,7 +12162,7 @@ function App() {
     window.__pricingSaveTimer = setTimeout(() => {
       gasSavePricing(payload);
     }, 1200);
-  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory, gpItems, gpHistory, specialConfirmed, reverseScenarios]);
+  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory, gpItems, gpHistory, specialConfirmed, reverseScenarios, kitMaster, kitComponents]);
 
   // ── 상단 툴바 핸들러 ──
   const curPayload = () => ({
@@ -11714,7 +12174,9 @@ function App() {
     gpItems,
     gpHistory,
     specialConfirmed,
-    reverseScenarios
+    reverseScenarios,
+    kitMaster,
+    kitComponents
   });
   const applyData = d => {
     if (Array.isArray(d.exportPrices)) setExportPrices(d.exportPrices);
@@ -11729,6 +12191,8 @@ function App() {
     if (Array.isArray(d.gpHistory)) setGpHistory(d.gpHistory);
     if (d.specialConfirmed && typeof d.specialConfirmed === 'object') setSpecialConfirmed(d.specialConfirmed);
     if (Array.isArray(d.reverseScenarios)) setReverseScenarios(d.reverseScenarios);
+    if (Array.isArray(d.kitMaster)) setKitMaster(d.kitMaster);
+    if (Array.isArray(d.kitComponents)) setKitComponents(d.kitComponents);
   };
   const onCloudSave = () => {
     gasSavePricing(curPayload()).then(ok => {
@@ -12013,6 +12477,11 @@ function App() {
   }), activeMenu === 'cost-sim' && /*#__PURE__*/React.createElement(CostSimPage, null), activeMenu === 'reverse-sim' && /*#__PURE__*/React.createElement(ReverseSimPage, {
     scenarios: reverseScenarios,
     setScenarios: setReverseScenarios
+  }), activeMenu === 'kit-sim' && /*#__PURE__*/React.createElement(KitSimPage, {
+    kitMaster: kitMaster,
+    setKitMaster: setKitMaster,
+    kitComponents: kitComponents,
+    setKitComponents: setKitComponents
   }), activeMenu === 'gp-analysis' && /*#__PURE__*/React.createElement(GpAnalysisPage, {
     gpItems: gpItems,
     setGpItems: setGpItems,
