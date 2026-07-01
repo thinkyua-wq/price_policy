@@ -581,6 +581,7 @@ const Icon = ({ name, className = "w-4 h-4" }) => {
     settings: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
     check: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
     barchart: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>,
+    pieChart: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
     target: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
     layers: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
     users: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
@@ -3252,6 +3253,58 @@ function AlertBadge({ level }) {
 /* ================ 화남본부 연간 월별 실적표 ================ */
 const MONTH_LABELS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
+// === 시장현황 M/S 기본 데이터 (26년 1-5월 규모 기준) ===
+// 브랜드 순서: 메가젠, 스트라우만, 오스템, 덴티움, DIO, 네오
+// 각 지역: 규모(size), 브랜드별 수량. M/S는 자동계산.
+// type: 'row'(성) | 'sub'(小计) | 'nb'(宁波合计) | 'bj'(北京合计) | 'total'(总计)
+const MS_BRANDS = ['메가젠','스트라우만','오스템','덴티움','DIO','네오'];
+const MS_BASE = [
+  { region:'1지역', prov:'浙江', size:420000, q:[67148,58000,90000,55000,23000,20000] },
+  { region:'2지역', prov:'福建', size:140000, q:[13920,16000,31000,19000,7500,8000] },
+  { region:'2지역', prov:'江西', size:63000,  q:[4408,7000,14000,12000,5500,4500] },
+  { region:'2지역', prov:'小计', size:203000, q:[18328,23000,45000,31000,13000,12500], type:'sub' },
+  { region:'3지역', prov:'上海', size:435000, q:[22910,64000,74000,100000,35000,18000] },
+  { region:'4지역', prov:'江苏', size:400000, q:[28791,54000,70000,60000,30000,13000] },
+  { region:'5지역', prov:'山东', size:350000, q:[31378,28000,68000,45000,30000,17000] },
+  { region:'6지역', prov:'湖北', size:260000, q:[19615,28000,58000,47000,33000,10000] },
+  { region:'6지역', prov:'河南', size:225000, q:[21088,25000,42000,43000,15000,8000] },
+  { region:'6지역', prov:'安徽', size:112000, q:[6219,14000,29000,25000,10000,7000] },
+  { region:'6지역', prov:'小计', size:597000, q:[46922,67000,129000,115000,58000,25000], type:'sub' },
+  { region:'7지역', prov:'云南', size:145000, q:[3935,14000,36000,34000,10000,8000] },
+  { region:'7지역', prov:'重庆', size:150000, q:[14122,14000,27000,29000,14000,4500] },
+  { region:'7지역', prov:'湖南', size:125000, q:[6793,14000,32000,27000,8000,5000] },
+  { region:'7지역', prov:'贵州', size:55000,  q:[3322,5000,12000,13000,5500,5000] },
+  { region:'7지역', prov:'小计', size:475000, q:[28172,47000,107000,103000,37500,22500], type:'sub' },
+  { region:'8지역', prov:'四川', size:270000, q:[34174,39000,36000,43000,19000,21000] },
+  { region:'8지역', prov:'甘肃', size:95000,  q:[2345,11000,22000,14000,6000,4500] },
+  { region:'8지역', prov:'青海', size:15000,  q:[16,2500,3300,2300,600,500] },
+  { region:'8지역', prov:'新疆', size:58000,  q:[1143,5500,16000,12000,2300,1400] },
+  { region:'8지역', prov:'小计', size:438000, q:[37678,58000,77300,71300,27900,27400], type:'sub' },
+  { region:'9지역', prov:'山西', size:115000, q:[7902,15000,18000,21000,8000,8000] },
+  { region:'9지역', prov:'陕西', size:112000, q:[2679,12000,22000,14000,8000,6000] },
+  { region:'9지역', prov:'宁夏', size:19000,  q:[963,2500,4000,3200,1800,1200] },
+  { region:'9지역', prov:'小计', size:246000, q:[11544,29500,44000,38200,17800,15200], type:'sub' },
+  { region:'10지역', prov:'广东', size:530000, q:[16693,45000,72000,100000,48000,26000] },
+  { region:'10지역', prov:'广西', size:85000,  q:[2558,10000,22000,15000,6000,8000] },
+  { region:'10지역', prov:'海南', size:31000,  q:[864,5000,8000,6000,1000,2500] },
+  { region:'10지역', prov:'小计', size:646000, q:[20115,60000,102000,121000,55000,36500], type:'sub' },
+  { region:'10지역', prov:'其他', size:0, q:[909,0,0,0,0,0] },
+  { region:'', prov:'宁波合计', size:4210000, q:[313895,488500,806300,739500,327200,207100], type:'nb' },
+  { region:'11지역', prov:'北京', size:425000, q:[30684,55000,87000,55000,28000,16000] },
+  { region:'11지역', prov:'内蒙古', size:45000, q:[1326,5000,9500,13000,3000,2600] },
+  { region:'11지역', prov:'小计', size:470000, q:[32010,60000,96500,68000,31000,18600], type:'sub' },
+  { region:'12지역', prov:'河北', size:145000, q:[8620,21000,23000,29000,17000,10000] },
+  { region:'12지역', prov:'天津', size:45000,  q:[4714,7000,9000,7500,5500,2600] },
+  { region:'12지역', prov:'小计', size:190000, q:[13334,28000,32000,36500,22500,12600], type:'sub' },
+  { region:'13지역', prov:'辽宁', size:112000, q:[16378,14000,21000,18000,8000,5000] },
+  { region:'13지역', prov:'吉林', size:64000,  q:[5939,7000,12000,10000,3000,5300] },
+  { region:'13지역', prov:'黑龙江', size:65000, q:[7337,7000,12000,15000,3000,5200] },
+  { region:'13지역', prov:'小计', size:241000, q:[29654,28000,45000,43000,14000,15500], type:'sub' },
+  { region:'', prov:'北京合计', size:901000, q:[74998,116000,173500,147500,67500,46700], type:'bj' },
+  { region:'', prov:'总计', size:5111000, q:[388893,604500,979800,887000,394700,253800], type:'total' },
+];
+
+
 function AnnualPerfTable({ hq, year, month, weeklyEntries, setWeeklyEntries, logChange }) {
   // 금액/수량 탭 (수량은 빈 데이터 0 시작, 금액과 독립 저장)
   const [metric, setMetric] = React.useState('amount'); // 'amount' | 'qty'
@@ -4875,6 +4928,350 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
   );
 }
 
+
+/* ================ 시장현황 M/S (전체 대시보드 하위) ================ */
+// 브랜드 순서/색상: 메가젠(진파랑) → 스트라우만 → 오스템 → 덴티움 → DIO → 네오
+const MS_BRAND_COLORS = {
+  '메가젠':'#1e40af', '스트라우만':'#2563eb', '오스템':'#3b82f6',
+  '덴티움':'#60a5fa', 'DIO':'#93c5fd', '네오':'#bfdbfe',
+};
+
+function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year, month, filterMonth, setFilterMonth }) {
+  const displayMonth = filterMonth || 5;
+  const ym = `${year}-${displayMonth}`;
+  const [metric, setMetric] = React.useState('ms'); // 'ms'(占有率%) | 'qty'(수량)
+  // 성(省)별 경쟁사 펼침 상태: 기본은 메가젠만, 클릭 시 경쟁사 5개 표시
+  const [expandedProv, setExpandedProv] = React.useState(() => {
+    try { const s = localStorage.getItem('ms_expandedProv_v1'); if (s) return JSON.parse(s); } catch(e){}
+    return {};
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('ms_expandedProv_v1', JSON.stringify(expandedProv)); }catch(e){} }, [expandedProv]);
+  const provKey = (row) => `${row.region}|${row.prov}`;
+  const toggleProv = (row) => setExpandedProv(prev => ({ ...prev, [provKey(row)]: !prev[provKey(row)] }));
+  const [allExpanded, setAllExpanded] = React.useState(false);
+  const toggleAll = () => {
+    const nv = !allExpanded; setAllExpanded(nv);
+    if (!nv) { setExpandedProv({}); return; }
+    const all = {}; MS_BASE.forEach(r=>{ all[`${r.region}|${r.prov}`] = true; });
+    setExpandedProv(all);
+  };
+  const [visibleMonths, setVisibleMonths] = React.useState(() => {
+    try { const s = localStorage.getItem('ms_visMonths_v1'); if (s) return JSON.parse(s); } catch(e){}
+    return Array(12).fill(false).map((_,i)=> i < displayMonth);
+  });
+  const [pickerOpen, setPickerOpen] = React.useState(false);
+  React.useEffect(()=>{ try{ localStorage.setItem('ms_visMonths_v1', JSON.stringify(visibleMonths)); }catch(e){} }, [visibleMonths]);
+  const visIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
+  const visCount = visIdxs.length;
+
+  // 특정 지역·성·브랜드·월의 수량 조회 (사용자 입력 우선, 없으면 기본 데이터는 '해당 월'에만 채움)
+  // 저장 키: ms|지역|성|브랜드|년-월  (수량 저장)
+  const getQty = (row, bi, mIdx) => {
+    const key = `ms|${row.region}|${row.prov}|${MS_BRANDS[bi]}|${year}-${mIdx+1}`;
+    const v = weeklyEntries[key];
+    if (v !== undefined && v !== null && v !== '') return Number(v) || 0;
+    // 기본 데이터는 선택된 표시월(displayMonth)에만 시드로 노출
+    if (mIdx+1 === displayMonth) return row.q[bi] || 0;
+    return 0;
+  };
+  const setQty = (row, bi, mIdx, val) => {
+    const key = `ms|${row.region}|${row.prov}|${MS_BRANDS[bi]}|${year}-${mIdx+1}`;
+    setWeeklyEntries(prev => ({ ...prev, [key]: val }));
+    logChange('시장현황 M/S', `${row.prov} ${MS_BRANDS[bi]} ${mIdx+1}월 수량 수정`);
+  };
+  // 지역 시장규모 (월별 저장 가능, 없으면 기본)
+  const getSize = (row, mIdx) => {
+    const key = `ms|${row.region}|${row.prov}|__size__|${year}-${mIdx+1}`;
+    const v = weeklyEntries[key];
+    if (v !== undefined && v !== null && v !== '') return Number(v) || 0;
+    if (mIdx+1 === displayMonth) return row.size || 0;
+    return 0;
+  };
+
+  // 표시월(displayMonth) 기준 브랜드별 전국 합계 → 차트
+  const totalRow = MS_BASE.find(r=>r.type==='total');
+  const chartData = MS_BRANDS.map((b, bi) => {
+    const qty = getQty(totalRow, bi, displayMonth-1);
+    const size = getSize(totalRow, displayMonth-1) || totalRow.size;
+    return { name: b, qty, ms: size>0 ? Math.round(qty/size*1000)/10 : 0, color: MS_BRAND_COLORS[b] };
+  });
+
+  // 이전월 복사: displayMonth-1 → displayMonth 로 전체 값 복사
+  const copyPrevMonth = () => {
+    if (displayMonth <= 1) { alert('1월은 이전월이 없습니다.'); return; }
+    if (!confirm(`${displayMonth-1}월 데이터를 ${displayMonth}월로 복사합니다.\n\n현재 ${displayMonth}월에 입력된 값은 덮어써집니다.\n계속하시겠습니까?`)) return;
+    setWeeklyEntries(prev => {
+      const next = { ...prev };
+      MS_BASE.forEach(row => {
+        // 규모 복사
+        const skFrom = `ms|${row.region}|${row.prov}|__size__|${year}-${displayMonth-1}`;
+        const skTo   = `ms|${row.region}|${row.prov}|__size__|${year}-${displayMonth}`;
+        const sv = (prev[skFrom]!==undefined && prev[skFrom]!=='') ? prev[skFrom] : (displayMonth-1===displayMonth?row.size:undefined);
+        if (sv !== undefined) next[skTo] = sv;
+        MS_BRANDS.forEach((b,bi) => {
+          const kFrom = `ms|${row.region}|${row.prov}|${b}|${year}-${displayMonth-1}`;
+          const kTo   = `ms|${row.region}|${row.prov}|${b}|${year}-${displayMonth}`;
+          if (prev[kFrom]!==undefined && prev[kFrom]!=='') next[kTo] = prev[kFrom];
+        });
+      });
+      return next;
+    });
+    logChange('시장현황 M/S', `${displayMonth-1}월 → ${displayMonth}월 데이터 복사`);
+    alert(`✅ ${displayMonth-1}월 → ${displayMonth}월 복사 완료`);
+  };
+
+  const resetDefaults = () => {
+    if(!confirm('시장현황 M/S 표를 기본 데이터로 다시 채웁니다.\n\n직접 수정한 값은 삭제됩니다. (다른 메뉴 영향 없음)\n계속하시겠습니까?')) return;
+    setWeeklyEntries(prev => {
+      const next = {...prev};
+      Object.keys(next).forEach(k=>{ if(k.startsWith('ms|')) delete next[k]; });
+      return next;
+    });
+    logChange('시장현황 M/S', '기본 데이터로 초기화');
+    alert('✅ 기본 데이터로 교체되었습니다.');
+  };
+
+  // CSV 다운로드 (표시월 기준)
+  const downloadMS = () => {
+    const rows = MS_BASE.map(row => {
+      const size = getSize(row, displayMonth-1);
+      const rec = { 판매지역: row.region, 성份: row.prov, 시장규모: size };
+      MS_BRANDS.forEach((b,bi)=>{
+        const q = getQty(row, bi, displayMonth-1);
+        rec[`${b}_수량`] = q;
+        rec[`${b}_MS`] = size>0 ? (Math.round(q/size*1000)/10)+'%' : '';
+      });
+      return rec;
+    });
+    downloadCSV(rows, `시장현황MS_${year}년${displayMonth}월_${new Date().toISOString().slice(0,10)}`);
+  };
+
+  // 집계 카드
+  const totSize = getSize(totalRow, displayMonth-1) || totalRow.size;
+  const mgnQty = getQty(totalRow, 0, displayMonth-1);
+  const mgnMS = totSize>0 ? Math.round(mgnQty/totSize*1000)/10 : 0;
+  const ranked = [...chartData].sort((a,b)=> b.ms - a.ms);
+  const topBrand = ranked[0];
+  const mgnRank = ranked.findIndex(x=>x.name==='메가젠') + 1;
+  const gap = Math.round((topBrand.ms - mgnMS)*10)/10;
+
+  const aggCards = [
+    { label:'전체 시장규모', value: totSize.toLocaleString(), unit:'개', color:'text-slate-900' },
+    { label:'메가젠 식립수량', value: mgnQty.toLocaleString(), unit:'개', color:'text-slate-900', sub:`${displayMonth}월 기준` },
+    { label:'메가젠 M/S', value: mgnMS+'%', unit:'', color:'text-blue-700' },
+    { label:`시장 1위 (${topBrand.name})`, value: topBrand.ms+'%', unit:'', color:'text-slate-900', sub:`${topBrand.qty.toLocaleString()} 개` },
+    { label:'메가젠 시장순위', value: mgnRank, unit:'위', color:'text-slate-900', sub:'6개 브랜드 중' },
+    { label:'1위 대비 격차', value: '-'+gap+'%p', unit:'', color:'text-rose-600' },
+  ];
+
+  const fmtCell = (row, bi, mIdx) => {
+    const q = getQty(row, bi, mIdx);
+    if (metric === 'qty') return q.toLocaleString();
+    const size = getSize(row, mIdx);
+    return size>0 ? (Math.round(q/size*1000)/10).toFixed(1)+'%' : '-';
+  };
+
+  // 편집 셀 (수량만 편집. M/S 모드에서도 클릭 시 수량 입력)
+  const EditQty = ({ row, bi, mIdx }) => {
+    const [editing, setEditing] = React.useState(false);
+    const q = getQty(row, bi, mIdx);
+    const [temp, setTemp] = React.useState(q);
+    React.useEffect(()=>{ setTemp(q); }, [q, editing]);
+    const isSummary = row.type === 'sub' || row.type === 'nb' || row.type === 'bj' || row.type === 'total';
+    if (isSummary) {
+      // 합계행은 편집 불가 (자동 표시)
+      const size = getSize(row, mIdx);
+      return <span>{metric==='qty' ? q.toLocaleString() : (size>0?(Math.round(q/size*1000)/10).toFixed(1)+'%':'-')}</span>;
+    }
+    if (editing) return <input type="number" value={temp} autoFocus
+      onChange={e=>setTemp(e.target.value)}
+      onBlur={()=>{ setQty(row,bi,mIdx,temp); setEditing(false); }}
+      onKeyDown={e=>{ if(e.key==='Enter'){ setQty(row,bi,mIdx,temp); setEditing(false); } if(e.key==='Escape') setEditing(false); }}
+      className="w-16 px-1 py-0.5 border border-blue-400 rounded outline-none text-right text-xs" />;
+    const size = getSize(row, mIdx);
+    const msVal = size>0 ? Math.round(q/size*1000)/10 : 0;
+    const isMgn = MS_BRANDS[bi]==='메가젠';
+    const lowCls = isMgn && msVal < 8 ? 'text-rose-600 font-bold' : '';
+    return <div onClick={()=>setEditing(true)} title="클릭하여 수량 수정"
+      className={`cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded text-right ${lowCls}`}>
+      {metric==='qty' ? q.toLocaleString() : (size>0?msVal.toFixed(1)+'%':'-')}
+    </div>;
+  };
+
+  // 표: 지역별로 6개 브랜드 행
+  const rowClass = (row) => {
+    if (row.type==='total') return 'bg-orange-50 font-bold';
+    if (row.type==='nb' || row.type==='bj') return 'bg-yellow-50 font-semibold';
+    if (row.type==='sub') return 'bg-amber-50/40 font-semibold';
+    return '';
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* 헤더 */}
+      <div className="flex items-baseline justify-between mb-2">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-2xl font-bold text-slate-900">시장현황 M/S</h1>
+          <span className="text-sm text-slate-500">중국 임플란트 시장 점유율 (임원용)</span>
+        </div>
+        <span className="text-xs text-slate-500 flex items-center gap-1">
+          <Icon name="refresh" className="w-3 h-3" /> {year}년 {displayMonth}월 기준
+        </span>
+      </div>
+
+      {/* 액션 버튼 */}
+      <div className="flex items-center justify-end gap-2 -mt-1">
+        <button onClick={copyPrevMonth}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-purple-300 bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 font-semibold">
+          <Icon name="copy" className="w-4 h-4" /> 이전월 복사
+        </button>
+        <button onClick={downloadMS}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">
+          <Icon name="download" className="w-4 h-4" /> 엑셀 다운로드
+        </button>
+        <button onClick={resetDefaults}
+          className="flex items-center gap-1 px-2.5 py-1.5 text-xs border border-amber-300 bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 font-semibold">
+          ↻ 기본값으로 다시 채우기
+        </button>
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-md p-4 space-y-4">
+        <div className="flex items-center gap-2">
+          <h3 className="text-base font-bold text-slate-900">시장 점유율(M/S) 관리</h3>
+          <span className="text-xs text-slate-500">단위: 식립수량(개) / 占有率(%)</span>
+        </div>
+
+        {/* 집계 카드 6개 */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {aggCards.map(c=>(
+            <div key={c.label} className="bg-slate-50 border border-slate-200 rounded-md p-3">
+              <div className="text-[12px] text-slate-500 text-center mb-1">{c.label}</div>
+              <div className="flex items-baseline justify-center gap-0.5 min-h-[28px]">
+                <span className={`text-2xl font-bold ${c.color}`}>{c.value}</span>
+                {c.unit && <span className="text-sm font-semibold text-slate-700">{c.unit}</span>}
+              </div>
+              {c.sub && <div className="text-[11px] text-slate-400 text-center mt-0.5">{c.sub}</div>}
+            </div>
+          ))}
+        </div>
+        <div className="text-[11px] text-slate-500 -mt-2">* 집계 카드는 {displayMonth}월 시장규모 기준 · M/S = 브랜드 식립수량 ÷ 시장규모 · 순위는 6개 주요 브랜드 기준</div>
+
+        {/* 콤보차트: 브랜드별 수량 막대 + M/S% 라인 */}
+        <div className="border border-slate-200 rounded-lg p-3 bg-white">
+          <div className="text-sm font-semibold text-slate-700 mb-2">📈 브랜드별 식립수량 · M/S 비교 <span className="text-[11px] font-normal text-slate-400">({displayMonth}월 기준)</span></div>
+          <div style={{ width:'100%', height: 320 }}>
+            <ResponsiveContainer>
+              <ComposedChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
+                <XAxis dataKey="name" tick={{ fontSize: 13 }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11 }} tickFormatter={v=>(v/1000)+'k'} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} unit="%" domain={[0, 25]} />
+                <Tooltip formatter={(v,n)=> n==='M/S' ? v+'%' : v.toLocaleString()+' 개'} />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Bar yAxisId="left" dataKey="qty" name="식립수량" radius={[3,3,0,0]} maxBarSize={48}>
+                  {chartData.map((d,i)=><Cell key={i} fill={d.color} />)}
+                </Bar>
+                <Line yAxisId="right" type="monotone" dataKey="ms" name="M/S" stroke="#0F6E56" strokeWidth={2.5} dot={{ r: 4 }} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1">* 막대 = 브랜드별 식립수량(좌측 축), 선 = M/S %(우측 축). 메가젠은 진파랑 강조.</div>
+        </div>
+
+        {/* 표 컨트롤 */}
+        <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+          <div className="text-sm font-semibold text-slate-700">▶ 판매지역 × 브랜드 월별 M/S</div>
+          <div className="flex items-center gap-2 relative">
+            <div className="flex rounded overflow-hidden border border-slate-300 text-xs">
+              <button onClick={()=>setMetric('ms')} className={"px-3 py-1 "+(metric==='ms'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>M/S(%)</button>
+              <button onClick={()=>setMetric('qty')} className={"px-3 py-1 "+(metric==='qty'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>수량</button>
+            </div>
+            <button onClick={toggleAll} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">{allExpanded?'전체 접기':'전체 펼치기'}</button>
+            <button onClick={()=>setVisibleMonths(Array(12).fill(true))} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+            <button onClick={()=>setPickerOpen(!pickerOpen)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">월 표시 ({visCount}/12) ▼</button>
+            {pickerOpen && (
+              <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
+                {MONTH_LABELS.map((m,i)=>(
+                  <label key={i} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                    <input type="checkbox" checked={visibleMonths[i]} onChange={()=>setVisibleMonths(prev=>prev.map((v,idx)=>idx===i?!v:v))} />{m}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 지역 × 브랜드 × 월별 표 */}
+        <div className="overflow-x-auto border border-slate-300 rounded">
+          <table className="text-xs border-collapse" style={{ minWidth:'100%' }}>
+            <thead>
+              <tr className="bg-slate-100 border-b border-slate-300">
+                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-center" style={{ minWidth:'90px' }}>판매지역</th>
+                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-center" style={{ minWidth:'80px' }}>省份</th>
+                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-center" style={{ minWidth:'70px' }}>브랜드</th>
+                {visIdxs.map(mi=>(
+                  <th key={mi} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right" style={{ minWidth:'68px' }}>{MONTH_LABELS[mi]}</th>
+                ))}
+                <th className="px-2 py-2 font-semibold text-blue-700 text-right bg-blue-50" style={{ minWidth:'72px' }}>{displayMonth}월</th>
+              </tr>
+            </thead>
+            <tbody>
+              {MS_BASE.map((row, ri)=>{
+                const pk = provKey(row);
+                const isExpanded = !!expandedProv[pk];
+                const size = getSize(row, displayMonth-1) || 0;
+                // 표시할 브랜드: 접힘=메가젠만, 펼침=6개 전부
+                const shownBrands = isExpanded ? MS_BRANDS.map((b,bi)=>bi) : [0];
+                return (
+                  <React.Fragment key={ri}>
+                    {shownBrands.map((bi, idx)=>{
+                      const b = MS_BRANDS[bi];
+                      const isMgn = b==='메가젠';
+                      const first = idx===0;
+                      return (
+                        <tr key={bi} className={"border-b border-slate-200 "+rowClass(row)}>
+                          {first && (
+                            <td rowSpan={shownBrands.length} className="px-2 py-1 border-r border-slate-300 text-center font-semibold align-middle">
+                              <div>{row.region}</div>
+                            </td>
+                          )}
+                          {first && (
+                            <td rowSpan={shownBrands.length} className="px-2 py-1 border-r border-slate-300 text-center align-middle cursor-pointer hover:bg-slate-50" onClick={()=>toggleProv(row)} title={isExpanded?'경쟁사 접기':'경쟁사 펼치기'}>
+                              <div className="font-semibold text-slate-700 flex items-center justify-center gap-1">
+                                <span className="text-[10px] text-slate-400">{isExpanded?'▼':'▶'}</span>{row.prov}
+                              </div>
+                              <div className="text-[10px] text-blue-600 mt-0.5">{size.toLocaleString()}</div>
+                            </td>
+                          )}
+                          <td className={"px-2 py-1 border-r border-slate-300 text-center font-semibold "+(isMgn?'text-rose-600':'text-slate-600')}>{b}</td>
+                          {visIdxs.map(mi=>(
+                            <td key={mi} className="px-1 py-0.5 border-r border-slate-300 text-right">
+                              <EditQty row={row} bi={bi} mIdx={mi} />
+                            </td>
+                          ))}
+                          <td className="px-2 py-1 text-right font-bold bg-blue-50 text-blue-800">{fmtCell(row, bi, displayMonth-1)}</td>
+                        </tr>
+                      );
+                    })}
+                    {!isExpanded && (
+                      <tr className={"border-b border-slate-200 "+rowClass(row)}>
+                        <td colSpan={3 + visIdxs.length + 1} className="px-2 py-0.5 text-[10px] text-slate-400 text-center cursor-pointer hover:bg-slate-50" onClick={()=>toggleProv(row)}>
+                          ▶ 경쟁사 5개 펼치기 (스트라우만·오스템·덴티움·DIO·네오)
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className="text-[11px] text-slate-500">* M/S = 브랜드 식립수량 ÷ 지역 시장규모 (자동) · 기본은 <strong>메가젠만 표시</strong>, 省份(성) 클릭 시 경쟁사 5개 펼침 · 수량 셀 클릭하여 수정(즉시 저장) · 월별 데이터 분리 · "이전월 복사"로 전월값을 현재월로 복사 · 메가젠 M/S 8% 미만은 빨강 강조</div>
+      </div>
+    </div>
+  );
+}
+
 /* ================ 메인 앱 ================ */
 function App() {
   const [selectedHQ, setSelectedHQ] = useState('overview');
@@ -6285,6 +6682,10 @@ function App() {
           <button onClick={() => { setSelectedHQ('overview'); setOverviewTab('all'); }}
             className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded ${selectedHQ === 'overview' && overviewTab === 'all' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
             <Icon name="dashboard" className="w-4 h-4" /><span>전체 대시보드</span>
+          </button>
+          <button onClick={() => { setSelectedHQ('marketshare'); }}
+            className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded ${selectedHQ === 'marketshare' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
+            <Icon name="pieChart" className="w-4 h-4" /><span>시장현황 M/S</span>
           </button>
         </div>
       </div>
@@ -13388,6 +13789,18 @@ function App() {
 
   /* ===== 라우팅 ===== */
   const renderContent = () => {
+    if (selectedHQ === 'marketshare') {
+      const { year: _msYear } = parseWeekValue(filterWeek);
+      return <MarketShareOverview
+        weeklyEntries={weeklyEntries}
+        setWeeklyEntries={setWeeklyEntries}
+        logChange={logChange}
+        year={_msYear}
+        month={filterMonth || 5}
+        filterMonth={filterMonth}
+        setFilterMonth={setFilterMonth}
+      />;
+    }
     if (selectedHQ === 'overview') return renderOverview();
     const hq = selectedHQ;
     const { year: _bnYear } = parseWeekValue(filterWeek);
