@@ -6186,18 +6186,7 @@ function App() {
     try { const s = localStorage.getItem('dashboard_psi_v2'); return s ? JSON.parse(s) : initialPSI; } catch (e) { return initialPSI; }
   });
   const [psiFocus, setPSIFocus] = useState(() => {
-    try {
-      const s = localStorage.getItem('dashboard_psiFocus_v4');
-      const saved = s ? JSON.parse(s) : null;
-      if (!saved) return initialPSIFocus;
-      // 화남본부는 이미지 기준 신규 명단으로 1회 마이그레이션 (다른 본부는 저장값 보존)
-      const migrated = localStorage.getItem('psiFocus_huanan_migrated_v1');
-      if (!migrated) {
-        saved['화남본부'] = initialPSIFocus['화남본부'];
-        try { localStorage.setItem('psiFocus_huanan_migrated_v1', '1'); } catch(e){}
-      }
-      return saved;
-    } catch (e) { return initialPSIFocus; }
+    try { const s = localStorage.getItem('dashboard_psiFocus_v4'); return s ? JSON.parse(s) : initialPSIFocus; } catch (e) { return initialPSIFocus; }
   });
   const [hiddenSalesRows, setHiddenSalesRows] = useState(() => {
     try { const s = localStorage.getItem('dashboard_sales_emp_progress_hiddenRows_v1'); if (s) return JSON.parse(s); } catch(e){}
@@ -9342,6 +9331,30 @@ function App() {
                     {kpiTableCollapsed ? '▶' : '▼'}
                   </button>
                   주요 지표 KPI ({monthLabelM})
+                  <button
+                    onClick={() => {
+                      const cm = displayMonthM;
+                      if (cm <= 1) { alert('1월은 이전월이 없습니다.'); return; }
+                      const fromYM = `${curYearM}-${cm-1}`;
+                      const toYM = `${curYearM}-${cm}`;
+                      if (!confirm(`${cm-1}월 KPI 데이터를 ${cm}월로 복사합니다.\n\n현재 ${cm}월에 입력된 값은 덮어써집니다. (${cm-1}월은 그대로 유지)\n계속하시겠습니까?`)) return;
+                      setWeeklyEntries(prev => {
+                        const next = { ...prev };
+                        taskRows.forEach(r => {
+                          ['monthGoal','monthActual','monthForecast','cumActual','status'].forEach(f => {
+                            const fromKey = `task_field|${hq}|${r.id}|${f}|${fromYM}`;
+                            const toKey = `task_field|${hq}|${r.id}|${f}|${toYM}`;
+                            if (prev[fromKey] !== undefined) next[toKey] = prev[fromKey];
+                          });
+                        });
+                        return next;
+                      });
+                      logChange(`주요 지표 KPI - ${hq}`, `${cm-1}월 → ${cm}월 복사`);
+                      alert(`✅ ${cm-1}월 → ${cm}월 복사 완료`);
+                    }}
+                    className="ml-2 flex items-center gap-1 px-2.5 py-1 text-xs border border-purple-300 bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 font-semibold">
+                    <Icon name="copy" className="w-3.5 h-3.5" /> 이전월({displayMonthM>1?displayMonthM-1:12}월) → {displayMonthM}월 복사
+                  </button>
                 </h3>
                 {!kpiTableCollapsed && (
                 <div className="border border-slate-300 rounded overflow-hidden">
