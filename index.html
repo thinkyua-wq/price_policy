@@ -560,7 +560,7 @@
 const { useState, useMemo, useEffect, useRef } = React;
 const {
   LineChart, Line, BarChart, Bar, ComposedChart, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine
 } = Recharts;
 
 /* ================ 아이콘 (인라인 SVG) ================ */
@@ -3253,6 +3253,11 @@ function AlertBadge({ level }) {
 /* ================ 화남본부 연간 월별 실적표 ================ */
 const MONTH_LABELS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
+// 법인 모델별 매출 (26년 1~6월 실제 / 7~12월 계획) - 첫 시트 추출
+// months[m] = [수량, 단가, 매출액]
+const MODEL_SALES = [{"dae": "Fixture", "mid": "AR", "type": "row", "months": [[4357, 414.8, 1807067.0], [3126, 396.3, 1238688.3], [3471, 384.6, 1335024.3], [4006, 380.2, 1522942.9], [3537, 395.3, 1398062.3], [5258, 355.3, 1868132.7], [3780, 355.2, 1342657.1], [4054, 355.2, 1439981.6], [5397, 355.2, 1917015.1], [5123, 355.2, 1819690.6], [5671, 355.2, 2014339.6], [4577, 355.2, 1625749.4]]}, {"dae": "Fixture", "mid": "AO", "type": "row", "months": [[30225, 329.9, 9969921.2], [22188, 315.2, 6993357.0], [41964, 314.3, 13190897.1], [39688, 299.8, 11899669.8], [34964, 296.6, 10370892.5], [47821, 279.1, 13348087.7], [35525, 279.1, 9913978.6], [38094, 279.1, 10630908.2], [50718, 279.1, 14153898.3], [48149, 279.1, 13436968.6], [53287, 279.1, 14870827.9], [43010, 279.1, 12002829.6]]}, {"dae": "Fixture", "mid": "ST", "type": "row", "months": [[28130, 222.9, 6271316.1], [20022, 210.9, 4223216.5], [53442, 243.1, 12994144], [39754, 194.4, 7727983.7], [41916, 212.5, 8906475.0], [51928, 197.0, 10228918.2], [36025, 197.5, 7115405.6], [38631, 197.5, 7630115.7], [51432, 197.5, 10158498.9], [48826, 197.5, 9643788.8], [54038, 197.5, 10673209.0], [43615, 197.5, 8614569.8]]}, {"dae": "Fixture", "mid": "BD", "type": "row", "months": [[2531, 459.2, 1162323.5], [2003, 469.2, 939900], [4344, 498.3, 2164435], [4274, 475.5, 2032214], [3129, 412.9, 1291871], [4603, 419.6, 1931273.2], [3845, 418.5, 1609034.2], [4123, 418.5, 1725369.1], [5490, 418.5, 2297427.0], [5212, 418.5, 2181092.1], [5768, 418.5, 2413761.8], [4655, 418.5, 1948001.3]]}, {"dae": "Fixture", "mid": "BD Cuff", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Fixture", "mid": "Ari", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1000, 481.4, 481385.2], [1000, 481.4, 481385.2], [1500, 481.4, 722077.8], [1500, 481.4, 722077.8], [1500, 481.4, 722077.8], [1500, 481.4, 722077.8]]}, {"dae": "Fixture", "mid": "MN", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Fixture", "mid": "기타(EZ등)", "type": "row", "months": [[494, 289.7, 143119.2], [215, 272.6, 58619], [428, 265.6, 113674.3], [329, 248.6, 81804.4], [343, 239.5, 82158.1], [478, 237.4, 113462.2], [325, 237.4, 77144.8], [348, 237.4, 82604.3], [463, 237.4, 109901.7], [440, 237.4, 104442.2], [486, 237.4, 115361.2], [393, 237.4, 93285.9]]}, {"dae": "Fixture", "mid": "(소 계)", "type": "sub", "months": [[65737, 294.4, 19353747.0], [47554, 282.9, 13453780.7], [103649, 287.5, 29798174.7], [88051, 264.2, 23264614.9], [83889, 262.8, 22049458.9], [110088, 249.7, 27489874.1], [80500, 255.2, 20539605.5], [86250, 255.0, 21990364.0], [115000, 255.3, 29358818.7], [109250, 255.5, 27908060.2], [120750, 255.2, 30809577.2], [97750, 255.8, 25006513.7]]}, {"dae": "Abutment", "mid": "AR", "type": "row", "months": [[2385, 36.2, 86353.2], [1071, 21.8, 23378.7], [2161, 33.2, 71652.8], [1699, 23.3, 39587.0], [1767, 16.8, 29619.1], [1700, 27.2, 46305.2], [2091, 27.4, 57330.7], [2296, 27.2, 62364.8], [2952, 27.5, 81302.3], [2847, 27.4, 77957.4], [3057.5, 27.7, 84656.0], [2520.5, 27.5, 69288.2]]}, {"dae": "Abutment", "mid": "AO", "type": "row", "months": [[11711, 32.3, 377964.0], [5650, 24.8, 140320.6], [11975, 24.1, 288366.9], [10798, 21.7, 234478.1], [10254, 17.4, 178452.3], [8600, 24.9, 214140.8], [8680, 24.9, 216195.8], [9371, 24.8, 232253.4], [12328, 25, 308210.3], [11836, 24.8, 293880.1], [12919, 25.0, 323391.4], [10554, 24.9, 262641.3]]}, {"dae": "Abutment", "mid": "ST", "type": "row", "months": [[117, 0.8, 89.5], [91, 39.2, 3571], [140, 15.6, 2188.9], [209, 16.6, 3460.3], [117, 8.7, 1022.3], [110, 15.3, 1678.7], [409, 15.3, 6241.6], [439, 15.3, 6699.4], [585, 15.3, 8927.4], [555, 15.3, 8469.6], [614, 15.3, 9370.0], [497, 15.3, 7584.5]]}, {"dae": "Abutment", "mid": "BD", "type": "row", "months": [[1710, 29.5, 50365.3], [1293, 35.7, 46155], [2415, 26.1, 62958.2], [2180, 24.2, 52706.5], [1800, 27.0, 48538.0], [1108, 29.0, 32133.4], [1450, 29.3, 42553.0], [1583, 29.0, 45914.9], [2052, 29.5, 60559.4], [1972, 29.3, 57788.2], [2132.3, 29.7, 63353.4], [1750.3, 29.4, 51538.3]]}, {"dae": "Abutment", "mid": "Ari", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Abutment", "mid": "MN", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Abutment", "mid": "AXA", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Abutment", "mid": "CM", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Abutment", "mid": "기타(EZ등)", "type": "row", "months": [[4168, 25.0, 104084.6], [1546, 20.6, 31924.1], [4130, 24.3, 100407.1], [2723, 19.6, 53284.0], [2615, 21.2, 55335.6], [691, 22.8, 15725.2], [538, 22.8, 12243.3], [576, 22.8, 13108.1], [768, 22.8, 17477.5], [730, 22.8, 16612.7], [806, 22.8, 18342.3], [653, 22.8, 14860.4]]}, {"dae": "Abutment", "mid": "(소 계)", "type": "sub", "months": [[20091, 30.8, 618856.6], [9651, 25.4, 245349.4], [20821, 25.2, 525573.9], [17609, 21.8, 383515.9], [16553, 18.9, 312967.4], [12209, 25.4, 309983.2], [13168, 25.4, 334564.4], [14265, 25.3, 360340.6], [18685, 25.5, 476476.9], [17940, 25.3, 454708.1], [19528.8, 25.6, 499113.1], [15974.8, 25.4, 405912.7]]}, {"dae": "Kit", "mid": "AR", "type": "row", "months": [[20, 0, 0], [14, 0, 0], [11, 0, 0], [12, 0, 0], [21, 0, 0], [34, 0, 0], [25, 0, 0], [26, 0, 0], [35, 0, 0], [33, 0, 0], [36, 0, 0], [30, 0, 0]]}, {"dae": "Kit", "mid": "AO_Standard", "type": "row", "months": [[217, 0, 0], [81, 0, 0], [166, 0, 0], [142, 0, 0], [127, 0, 0], [240, 0, 0], [178, 0, 0], [191, 0, 0], [255, 0, 0], [241, 0, 0], [267, 0, 0], [216, 0, 0]]}, {"dae": "Kit", "mid": "AO_Full", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [151, 0, 0], [112, 0, 0], [120, 0, 0], [159, 0, 0], [151, 0, 0], [167, 0, 0], [135, 0, 0]]}, {"dae": "Kit", "mid": "ST_Standard", "type": "row", "months": [[111, 0, 0], [50, 0, 0], [175, 0, 0], [111, 0, 0], [75, 0, 0], [347, 0, 0], [241, 0, 0], [258, 0, 0], [344, 0, 0], [327, 0, 0], [361, 0, 0], [291, 0, 0]]}, {"dae": "Kit", "mid": "ST_Full", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [53, 0, 0], [37, 0, 0], [40, 0, 0], [52, 0, 0], [49, 0, 0], [55, 0, 0], [44, 0, 0]]}, {"dae": "Kit", "mid": "BD_Standard", "type": "row", "months": [[35, 0, 0], [20, 0, 0], [44, 0, 0], [75, 0, 0], [18, 0, 0], [30, 0, 0], [25, 0, 0], [26, 0, 0], [35, 0, 0], [34, 0, 0], [37, 0, 0], [30, 0, 0]]}, {"dae": "Kit", "mid": "BD_Full", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [15, 0, 0], [13, 0, 0], [14, 0, 0], [18, 0, 0], [18, 0, 0], [19, 0, 0], [15, 0, 0]]}, {"dae": "Kit", "mid": "Ari", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [20, 0, 0], [20, 0, 0], [30, 0, 0], [30, 0, 0], [30, 0, 0], [30, 0, 0]]}, {"dae": "Kit", "mid": "MN", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Kit", "mid": "AXA", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Kit", "mid": "CM", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Kit", "mid": "기타(EZ등)", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [2, 0, 0], [9, 0, 0], [-22, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Kit", "mid": "(소 계)", "type": "sub", "months": [[383, 0, 0], [165, 0, 0], [398, 0, 0], [349, 0, 0], [219, 0, 0], [870, 0, 0], [651, 0, 0], [695, 0, 0], [928, 0, 0], [883, 0, 0], [972, 0, 0], [791, 0, 0]]}, {"dae": "Instrument", "mid": "Torque Wrench", "type": "row", "months": [[63, 32.1, 2025], [24, 251.6, 6037.5], [71, 194.9, 13837.5], [34, 17.6, 600], [58, 193.3, 11212.5], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "Drill류", "type": "row", "months": [[248, 21.0, 5210.5], [32, 13.9, 446], [265, 2.5, 653.5], [64, 86.6, 5545], [64, 10.2, 654.8], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "Connector류", "type": "row", "months": [[260, 46.5, 12081], [10, -899.7, -8997], [98, 0, 0], [79, 3.8, 300], [105, 10.0, 1047.9], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "Driver류", "type": "row", "months": [[198, 63.2, 12517.4], [87, 34.8, 3030.8], [221, 81.2, 17954.5], [179, 26.5, 4750.2], [233, 71.5, 16655.0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "기타", "type": "row", "months": [[36, 285.9, 10291.6], [20, 334.2, 6683.7], [68, 404.0, 27470], [68, 54.7, 3721], [32, 233.3, 7467.2], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "(소 계)", "type": "sub", "months": [[805, 52.3, 42125.5], [173, 41.6, 7200.9], [723, 82.9, 59915.5], [424, 35.2, 14916.2], [492, 75.3, 37037.4], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "체어", "mid": "N1", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "체어", "mid": "N2", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "체어", "mid": "단품판대", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "체어", "mid": "(소 계)", "type": "sub", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "기타제품", "mid": "Bone Matrix I 등", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "제품매출 計", "mid": null, "type": "grand", "months": [[87016, 230.0, 20014729.1], [57543, 238.2, 13706331.1], [125591, 241.9, 30383664.0], [106433, 222.3, 23663047.0], [101153, 221.4, 22399463.7], [123167, 225.7, 27799857.3], [94319, 221.3, 20874169.9], [101210, 220.8, 22350704.7], [134613, 221.6, 29835295.6], [128073, 221.5, 28362768.2], [141250.8, 221.7, 31308690.3], [114515.8, 221.9, 25412426.4]]}];
+
+
 // === 시장현황 M/S 기본 데이터 (26년 1-5월 규모 기준) ===
 // 브랜드 순서: 메가젠, 스트라우만, 오스템, 덴티움, DIO, 네오
 // 각 지역: 규모(size), 브랜드별 수량. M/S는 자동계산.
@@ -4704,12 +4709,13 @@ function CorpSalesTable({ tab, variant, weeklyEntries, setWeeklyEntries, logChan
   );
 }
 
-function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, viewLabel, selMonthLimit }) {
+function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, viewLabel, selMonthLimit, year }) {
   const vk = viewKey || 'all';
   const sk = 'corp';
   const blockTitle = '법인 매출 관리';
   const [tab, setTab] = React.useState('amount');
-  const [corpTableTab, setCorpTableTab] = React.useState('current'); // current: KPI·실적·달성율 / prev: 전년도·성장율
+  const [corpTableTab, setCorpTableTab] = React.useState('current'); // current: KPI·실적·달성율 / prev: 전년도·성장율 / model: 모델별
+  const [modelMetric, setModelMetric] = React.useState('q'); // q:수량 p:단가 rev:매출액
   const [collapsed, setCollapsed] = React.useState(false);
   const [visibleMonths, setVisibleMonths] = React.useState(() => {
     try { const s = localStorage.getItem(`corpSales_${sk}_${vk}_visMonths_v1`); if (s) return JSON.parse(s); } catch(e){}
@@ -4822,8 +4828,8 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
           </div>
           <div className="text-[11px] text-slate-500 -mt-2">* 집계 카드는 위 탭(금액/수량) 기준 · 전체 본부 <span className="font-semibold text-slate-600">1~선택월 누계</span> · 전년도실적·성장율도 선택월까지 누계 기준 · 성장율 = (금년실적−전년도실적)÷전년도실적</div>
 
-          {/* 방안 A: KPI vs 실적 + 달성율 콤보 차트 (1~선택월) */}
-          {(() => {
+          {/* 방안 A: KPI vs 실적 + 달성율 콤보 차트 (1~선택월) — model 탭이 아닐 때 */}
+          {corpTableTab!=='model' && (() => {
             const visIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
             const idxs = visIdxs.length>0 ? visIdxs : [0,1,2,3,4];
             const chartData = idxs.map(mi => ({
@@ -4858,12 +4864,48 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
             );
           })()}
 
+          {/* 모델별 월 추세 차트 (수량·단가·매출액) — model 탭일 때 */}
+          {corpTableTab==='model' && (() => {
+            const grand = MODEL_SALES.find(r=>r.type==='grand');
+            const inputRows = MODEL_SALES.filter(r=>r.type==='row');
+            const _rawQ = (row,mi)=>{ const k=`model|${row.dae}|${row.mid}|q|${year}-${mi+1}`; const v=weeklyEntries[k]; return (v!==undefined&&v!=='')?(Number(v)||0):(row.months[mi][0]||0); };
+            const _rawP = (row,mi)=>{ const k=`model|${row.dae}|${row.mid}|p|${year}-${mi+1}`; const v=weeklyEntries[k]; return (v!==undefined&&v!=='')?(Number(v)||0):(row.months[mi][1]||0); };
+            const md = MONTH_LABELS.map((lb,mi)=>{
+              const q = inputRows.reduce((s,r)=>s+_rawQ(r,mi),0);
+              const rev = inputRows.reduce((s,r)=>s+Math.round(_rawQ(r,mi)*_rawP(r,mi)),0);
+              return { month: lb, 수량: q, 매출액: Math.round(rev/10000), 단가: q>0?Math.round(rev/q):0, plan: mi>=6 };
+            });
+            return (
+              <div className="border border-slate-200 rounded-lg p-3 bg-white">
+                <div className="text-sm font-semibold text-slate-700 mb-2">📈 모델별 월 추세 <span className="text-[11px] font-normal text-slate-400">(수량·단가·매출액 · 1~6월 실제 / 7~12월 계획)</span></div>
+                <div style={{ width:'100%', height: 300 }}>
+                  <ResponsiveContainer>
+                    <ComposedChart data={md} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
+                      <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                      <YAxis yAxisId="left" tick={{ fontSize: 11 }} />
+                      <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
+                      <Tooltip formatter={(v,n)=> n==='매출액' ? v.toLocaleString()+' 만' : n==='단가' ? v.toLocaleString()+' 원' : v.toLocaleString()+' 개' } />
+                      <Legend wrapperStyle={{ fontSize: '12px' }} />
+                      <Bar yAxisId="left" dataKey="수량" fill="#2563eb" radius={[3,3,0,0]} maxBarSize={26} />
+                      <Bar yAxisId="right" dataKey="매출액" name="매출액(만)" fill="#bfdbfe" radius={[3,3,0,0]} maxBarSize={26} />
+                      <Line yAxisId="right" type="monotone" dataKey="단가" stroke="#0F6E56" strokeWidth={2.5} dot={{ r: 3 }} />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="text-[11px] text-slate-400 mt-1">* 막대 = 수량(좌축)·매출액 만원(우축), 선 = 평균단가(우축). 7~12월은 계획값.</div>
+              </div>
+            );
+          })()}
+
           {/* 표 탭 (KPI·실적·달성율 / 전년도·성장율) */}
           <div className="flex items-center gap-1 border-b border-slate-200">
             <button onClick={()=>setCorpTableTab('current')}
               className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 "+(corpTableTab==='current'?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>KPI · 실적 · 달성율</button>
             <button onClick={()=>setCorpTableTab('prev')}
               className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 "+(corpTableTab==='prev'?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>전년도(25년) 실적 · 성장율</button>
+            <button onClick={()=>setCorpTableTab('model')}
+              className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 "+(corpTableTab==='model'?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>모델별 수량·단가·매출액</button>
           </div>
 
           {/* 위 표 */}
@@ -4924,12 +4966,174 @@ function CorpSalesBlock({ weeklyEntries, setWeeklyEntries, logChange, viewKey, v
             <div className="mt-1 text-[11px] text-slate-500">* 성장율 = (실적 − 전년도실적) ÷ 전년도실적 × 100 (자동) · 합계 = 1~12월 합산 (자동) · 전년도실적 클릭하여 수정 · 위표와 독립된 탭/월 설정</div>
           </div>
           )}
+          {/* 모델별 수량·단가·매출액 표 */}
+          {corpTableTab==='model' && (
+          <div>
+            <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+              <div className="text-sm font-semibold text-slate-700">▶ 모델별 {modelMetric==='q'?'수량':modelMetric==='p'?'단가':'매출액'} <span className="text-[11px] font-normal text-slate-400">(1~6월 실적 / 7~12월 계획)</span></div>
+              <div className="flex items-center gap-2 relative">
+                <div className="flex rounded overflow-hidden border border-slate-300 text-xs">
+                  <button onClick={()=>setModelMetric('q')} className={"px-3 py-1 "+(modelMetric==='q'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>수량</button>
+                  <button onClick={()=>setModelMetric('p')} className={"px-3 py-1 "+(modelMetric==='p'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>단가</button>
+                  <button onClick={()=>setModelMetric('rev')} className={"px-3 py-1 "+(modelMetric==='rev'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>매출액</button>
+                </div>
+                <button onClick={()=>setVisibleMonths(Array(12).fill(true))} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50">전체 월</button>
+                <button onClick={()=>setPickerOpen(!pickerOpen)} className="px-2 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 flex items-center gap-1">월 표시 ({visCount}/12) ▼</button>
+                {pickerOpen && (
+                  <div className="absolute right-0 top-8 z-50 bg-white border border-slate-300 rounded-md shadow-xl p-2 grid grid-cols-3 gap-1 w-48">
+                    {MONTH_LABELS.map((m,i)=>(
+                      <label key={i} className="flex items-center gap-1 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
+                        <input type="checkbox" checked={visibleMonths[i]} onChange={()=>setVisibleMonths(prev=>prev.map((v,idx)=>idx===i?!v:v))} />{m}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <ModelSalesTable weeklyEntries={weeklyEntries} setWeeklyEntries={setWeeklyEntries} logChange={logChange}
+              visibleMonths={visibleMonths} year={year} metric={modelMetric} setMetric={setModelMetric} />
+            <div className="mt-1 text-[11px] text-slate-500">* 탭으로 수량/단가/매출액 전환 · 매출액 = 수량 × 단가 (자동) · 소계·제품매출計 자동합산 · 수량·단가 셀 클릭 수정(자동저장) · 소수점 절삭 · 1~6월 실적 / 7~12월 계획</div>
+          </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
+
+
+/* ================ 모델별 매출 표 (전체 대시보드 하단 탭) ================ */
+function ModelSalesTable({ weeklyEntries, setWeeklyEntries, logChange, visibleMonths, year, metric, setMetric }) {
+  const visIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
+  const idxs = visIdxs.length>0 ? visIdxs : [0,1,2,3,4,5];
+
+  const fmtN = (v) => { if (!v || v===0) return ''; const s=Math.abs(Math.round(v)).toLocaleString(); return v<0?`(${s})`:s; };
+  const isInput = (row) => row.type === 'row';
+
+  // 저장 키: model|대분류|모델|q(수량)|년-월,  model|대분류|모델|p(단가)|년-월
+  const rawQ = (row, mi) => {
+    const k = `model|${row.dae}|${row.mid}|q|${year}-${mi+1}`;
+    const v = weeklyEntries[k];
+    if (v!==undefined && v!=='') return Number(v)||0;
+    return row.months[mi][0] || 0;
+  };
+  const rawP = (row, mi) => {
+    const k = `model|${row.dae}|${row.mid}|p|${year}-${mi+1}`;
+    const v = weeklyEntries[k];
+    if (v!==undefined && v!=='') return Number(v)||0;
+    return row.months[mi][1] || 0;
+  };
+  const inputRows = MODEL_SALES.filter(r=>r.type==='row');
+  const rowsInDae = (dae) => inputRows.filter(r=>r.dae===dae);
+
+  const getQ = (row, mi) => {
+    if (isInput(row)) return rawQ(row, mi);
+    if (row.type==='sub') return rowsInDae(row.dae).reduce((s,r)=>s+rawQ(r,mi),0);
+    if (row.type==='grand') return inputRows.reduce((s,r)=>s+rawQ(r,mi),0);
+    return 0;
+  };
+  const getRev = (row, mi) => {
+    if (isInput(row)) return Math.round(rawQ(row,mi)*rawP(row,mi));
+    if (row.type==='sub') return rowsInDae(row.dae).reduce((s,r)=>s+Math.round(rawQ(r,mi)*rawP(r,mi)),0);
+    if (row.type==='grand') return inputRows.reduce((s,r)=>s+Math.round(rawQ(r,mi)*rawP(r,mi)),0);
+    return 0;
+  };
+  const getP = (row, mi) => {
+    if (isInput(row)) return Math.round(rawP(row, mi));
+    const q = getQ(row, mi); return q>0 ? Math.round(getRev(row,mi)/q) : 0;
+  };
+  // 현재 지표값
+  const cellVal = (row, mi) => metric==='q' ? getQ(row,mi) : metric==='p' ? getP(row,mi) : getRev(row,mi);
+
+  const setQ = (row, mi, val) => {
+    const k = `model|${row.dae}|${row.mid}|q|${year}-${mi+1}`;
+    setWeeklyEntries(prev=>{ const n={...prev}; if(val===''||val==null) delete n[k]; else n[k]=String(Math.round(Number(val)||0)); return n; });
+    logChange('법인 모델별 매출', `${row.dae} ${row.mid} ${mi+1}월 수량 → ${val}`);
+  };
+  const setP = (row, mi, val) => {
+    const k = `model|${row.dae}|${row.mid}|p|${year}-${mi+1}`;
+    setWeeklyEntries(prev=>{ const n={...prev}; if(val===''||val==null) delete n[k]; else n[k]=String(Math.round(Number(val)||0)); return n; });
+    logChange('법인 모델별 매출', `${row.dae} ${row.mid} ${mi+1}월 단가 → ${val}`);
+  };
+
+  // 합계 / 선택합계
+  const rowTotal = (row) => Array.from({length:12},(_,mi)=>mi).reduce((s,mi)=> s + (metric==='q'?getQ(row,mi):metric==='p'?0:getRev(row,mi)),0);
+  const rowSelTotal = (row) => idxs.reduce((s,mi)=> s + (metric==='q'?getQ(row,mi):metric==='p'?0:getRev(row,mi)),0);
+  // 단가는 합계 대신 평균(전체=총매출/총수량)
+  const rowTotalP = (row) => { const q=Array.from({length:12},(_,mi)=>getQ(row,mi)).reduce((a,b)=>a+b,0); const r=Array.from({length:12},(_,mi)=>getRev(row,mi)).reduce((a,b)=>a+b,0); return q>0?Math.round(r/q):0; };
+  const rowSelP = (row) => { const q=idxs.reduce((s,mi)=>s+getQ(row,mi),0); const r=idxs.reduce((s,mi)=>s+getRev(row,mi),0); return q>0?Math.round(r/q):0; };
+
+  // 편집 셀 (수량 탭=수량 입력, 단가 탭=단가 입력, 매출액 탭=읽기전용 자동)
+  const EditCellM = ({ row, mi }) => {
+    const editable = isInput(row) && (metric==='q' || metric==='p');
+    const val = cellVal(row, mi);
+    const [editing, setEditing] = React.useState(false);
+    const [temp, setTemp] = React.useState(val);
+    React.useEffect(()=>{ setTemp(metric==='q'?rawQ(row,mi):metric==='p'?rawP(row,mi):val); }, [val, editing]);
+    if (!editable) return <div className="px-1 py-0.5 text-right min-h-[22px]">{fmtN(val)}</div>;
+    const save = () => { metric==='q'?setQ(row,mi,temp):setP(row,mi,temp); setEditing(false); };
+    if (editing) return <input type="number" value={temp} autoFocus
+      onChange={e=>setTemp(e.target.value)} onBlur={save}
+      onKeyDown={e=>{ if(e.key==='Enter')save(); if(e.key==='Escape')setEditing(false); }}
+      className="w-full px-1 py-0.5 border border-blue-400 rounded outline-none text-right text-sm" />;
+    return <div onClick={()=>setEditing(true)} title="클릭하여 수정"
+      className="cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded text-right min-h-[22px]">{fmtN(val)}</div>;
+  };
+
+  const daeList = [];
+  MODEL_SALES.forEach(r=>{ if(r.type!=='grand' && !daeList.includes(r.dae)) daeList.push(r.dae); });
+  const daeCount = (dae) => MODEL_SALES.filter(r=>r.dae===dae).length;
+
+  return (
+    <div className="overflow-x-auto border border-slate-300 rounded">
+      <table className="text-sm border-collapse" style={{ minWidth:'100%' }}>
+        <thead>
+          <tr className="bg-slate-100 border-b border-slate-300">
+            <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth:'96px' }}>대분류</th>
+            <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700" style={{ minWidth:'110px' }}>모델</th>
+            {idxs.map(mi => (
+              <th key={mi} className={"px-2 py-2 border-r border-slate-300 font-semibold text-right "+(mi<6?'text-slate-700':'text-slate-500')} style={{ minWidth:'80px' }}>
+                {MONTH_LABELS[mi]}<span className="text-[10px] font-normal">{mi<6?' 실':' 계'}</span>
+              </th>
+            ))}
+            <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right bg-slate-200" style={{ minWidth:'90px' }}>{metric==='p'?'평균단가':'합계'}</th>
+            <th className="px-2 py-2 font-semibold text-blue-700 text-right bg-blue-50" style={{ minWidth:'90px' }} title="월 표시로 선택된 월만 합산">{metric==='p'?'선택평균':'선택합계'}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {MODEL_SALES.map((row, ri)=>{
+            const isFirstOfDae = row.type!=='grand' && MODEL_SALES.findIndex(r=>r.dae===row.dae)===ri;
+            const rowBg = row.type==='grand' ? 'bg-orange-50 font-bold' : row.type==='sub' ? 'bg-amber-50 font-semibold' : '';
+            return (
+              <tr key={ri} className={"border-b border-slate-200 "+rowBg}>
+                {row.type==='grand' ? (
+                  <td colSpan={2} className="px-2 py-1 border-r border-slate-300 text-center font-bold">제품매출 計</td>
+                ) : (
+                  <React.Fragment>
+                    {isFirstOfDae && <td rowSpan={daeCount(row.dae)} className="px-2 py-1 border-r border-slate-300 text-center font-medium align-middle bg-white">{row.dae}</td>}
+                    <td className={"px-2 py-1 border-r border-slate-300 "+(row.type==='sub'?'text-center font-semibold':'text-center text-slate-600')}>{row.mid}</td>
+                  </React.Fragment>
+                )}
+                {idxs.map(mi=>(
+                  <td key={mi} className={"px-1 py-0.5 border-r border-slate-300 "+(row.type==='row'?'bg-white':'')}>
+                    <EditCellM row={row} mi={mi} />
+                  </td>
+                ))}
+                <td className="px-2 py-1 text-right font-bold border-r border-slate-300 bg-slate-100">
+                  {metric==='p' ? fmtN(rowTotalP(row)) : fmtN(rowTotal(row))}
+                </td>
+                <td className="px-2 py-1 text-right font-bold bg-blue-50 text-blue-800">
+                  {metric==='p' ? fmtN(rowSelP(row)) : fmtN(rowSelTotal(row))}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 /* ================ 시장현황 M/S (전체 대시보드 하위) ================ */
 // 브랜드 순서/색상: 메가젠(진파랑) → 스트라우만 → 오스템 → 덴티움 → DIO → 네오
@@ -7460,6 +7664,7 @@ function App() {
           viewKey={yearMonthOV}
           viewLabel={`${curYearOV}년 ${filterMonth || 5}월`}
           selMonthLimit={filterMonth || 5}
+          year={curYearOV}
         />
         )}
       </div>
@@ -10580,12 +10785,20 @@ function App() {
     let _baseData = (salesPersonMonth[hq] && salesPersonMonth[hq][yearMonthSP])
       ? salesPersonMonth[hq][yearMonthSP]
       : (is5월SP ? (salesPerson[hq] || []) : emptySalesPerson);
-    // 저장본 명단이 코드 기본 명단과 다르면(조직 개편 등) 기본 명단으로 시작 (수치는 0)
+    // 저장본 명단이 코드 기본 명단과 다르면(조직 개편 등) 기본 명단 구조로 맞추되,
+    // 저장된 수치(shipGoal/actual 등)는 id 매칭으로 보존한다 (입력값 손실 방지)
     {
       const baseNames = (salesPerson[hq] || []).map(d => d.name).join('|');
       const savedNames = (_baseData || []).map(d => d.name).join('|');
       if (baseNames && savedNames !== baseNames) {
-        _baseData = is5월SP ? (salesPerson[hq] || []) : emptySalesPerson;
+        const savedById = {};
+        (_baseData || []).forEach(d => { if (d && d.id != null) savedById[d.id] = d; });
+        const template = is5월SP ? (salesPerson[hq] || []) : emptySalesPerson;
+        _baseData = template.map(base => {
+          const saved = savedById[base.id];
+          // 식별필드는 기본 명단, 수치필드는 저장값 우선(있으면)
+          return saved ? { ...base, ...saved, name: base.name, region: base.region, subType: base.subType, role: base.role } : base;
+        });
       }
     }
     const data = _baseData;
@@ -10732,6 +10945,27 @@ function App() {
       { week: '4주차', 목표: Math.round(emp.shipGoal * 0.88), 실적: emp.w4Actual ? (emp.w1Actual || 0) + (emp.w2Actual || 0) + (emp.w3Actual || 0) + (emp.w4Actual || 0) : null },
       { week: '5주차', 목표: emp.shipGoal, 실적: emp.w5Actual ? emp.actual + (emp.w5Actual || 0) : null },
     ];
+
+    // 영업사원별 월별 KPI 대비 달성율 (1~12월)
+    const buildMonthlyRate = (emp) => {
+      const rows = [];
+      for (let m = 1; m <= 12; m++) {
+        const ym = `${curYearSP}-${m}`;
+        // 목표: 해당 월 데이터의 shipGoal (해당 월 명단에서 같은 id 찾기)
+        const monthArr = (salesPersonMonth[hq] && salesPersonMonth[hq][ym]) ? salesPersonMonth[hq][ym]
+          : (m === 5 ? (salesPerson[hq] || []) : null);
+        let goal = 0;
+        if (monthArr) { const found = monthArr.find(d => d.id === emp.id); goal = found ? (found.shipGoal || 0) : 0; }
+        // 수량 목표를 weeklyEntries에 저장한 경우 우선 적용
+        const _gq = weeklyEntries[`empGoalQ|${hq}|${emp.id}|${ym}`];
+        if (_gq !== undefined && _gq !== '') goal = Number(_gq) || 0;
+        // 실적: 월별 실적 키
+        const act = Number(weeklyEntries[`empMonthly|${hq}|${emp.id}|${ym}`] ?? 0);
+        const rate = goal > 0 ? Math.round(act / goal * 1000) / 10 : null;
+        rows.push({ month: m + '월', 달성율: rate, 목표: goal, 실적: act });
+      }
+      return rows;
+    };
 
     return (
       <div className="space-y-4">
@@ -10937,18 +11171,30 @@ function App() {
         {spSubTab === 'progress' && (<>
         {/* === 상단 KPI 카드 5개 === */}
         {(() => {
-          // 우수/위험 사원 계산 (대구경리 제외, 사원만)
-          const empsOnly = filteredEmps.filter(e => e.role === '사원');
+          // 표와 동일한 소스(weeklyEntries)로 계산 — empMetric(금액/수량) 반영
+          const _mp = empMetric === 'amount' ? 'A' : '';
+          const _hidden = hiddenSalesRows[hq] || [];
+          const _calcEmps = filteredEmps.filter(d => !_hidden.includes(d.id));
+          const goalOf = (e) => empMetric === 'amount'
+            ? Number(weeklyEntries[`empGoalA|${hq}|${e.id}|${yearMonthSP}`] ?? 0)
+            : (() => { const s = weeklyEntries[`empGoalQ|${hq}|${e.id}|${yearMonthSP}`]; return (s !== undefined && s !== '') ? Number(s) : (Number(e.shipGoal) || 0); })();
+          const monthOf = (e) => Number(weeklyEntries[`empMonthly${_mp}|${hq}|${e.id}|${yearMonthSP}`] ?? 0);
+          const cumOf = (e) => Number(weeklyEntries[`empCum${_mp}|${hq}|${e.id}|${yearMonthSP}`] ?? 0);
+          const cardTotalGoal = _calcEmps.reduce((s, e) => s + goalOf(e), 0);
+          const cardTotalMonth = _calcEmps.reduce((s, e) => s + monthOf(e), 0);
+          const cardTotalCum = _calcEmps.reduce((s, e) => s + cumOf(e), 0);
+          const cardRate = cardTotalGoal > 0 ? +(cardTotalMonth / cardTotalGoal * 100).toFixed(1) : 0;
+          const unitLabel = empMetric === 'amount' ? '만RMB' : '수량';
+          // 우수/위험 사원: 월별 실적 ÷ 월 목표 기준 (표와 동일)
+          const empsOnly = _calcEmps.filter(e => e.role === '사원');
           const empsWithRate = empsOnly
-            .filter(e => (Number(e.shipGoal) || 0) > 0)
+            .filter(e => goalOf(e) > 0)
             .map(e => {
-              const cum = (Number(e.w1Actual) || 0) + (Number(e.w2Actual) || 0) + (Number(e.w3Actual) || 0) + (Number(e.w4Actual) || 0) + (Number(e.w5Actual) || 0);
-              const r = +(cum / Number(e.shipGoal) * 100).toFixed(1);
-              return { name: e.name, region: e.region, cum, rate: r };
+              const mv = monthOf(e);
+              const r = +(mv / goalOf(e) * 100).toFixed(1);
+              return { name: e.name, region: e.region, cum: mv, rate: r };
             });
-          // 우수: 달성률 상위 (최대 3명 표시)
           const topPerformers = [...empsWithRate].sort((a, b) => b.rate - a.rate).slice(0, 3);
-          // 위험: 달성률 하위 (최대 3명 표시)
           const riskPerformers = [...empsWithRate].sort((a, b) => a.rate - b.rate).slice(0, 3);
           return (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -10956,17 +11202,17 @@ function App() {
           <div className="bg-white border border-slate-200 rounded-md p-3">
               <div className="text-xs text-slate-500 mb-1 line-clamp-1">총 목표</div>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-slate-900">{formatNumber(total.monthGoal)}</span>
-                <span className="text-xs text-slate-500">수량</span>
+                <span className="text-xl font-bold text-slate-900">{formatNumber(cardTotalGoal)}</span>
+                <span className="text-xs text-slate-500">{unitLabel}</span>
               </div>
             </div>
 
-          {/* 누적 실적 */}
+          {/* 월별 실적 */}
           <div className="bg-white border border-slate-200 rounded-md p-3">
-              <div className="text-xs text-slate-500 mb-1 line-clamp-1">누적 실적</div>
+              <div className="text-xs text-slate-500 mb-1 line-clamp-1">월별 실적</div>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-slate-900">{formatNumber(total.cumActual)}</span>
-                <span className="text-xs text-slate-500">수량</span>
+                <span className="text-xl font-bold text-slate-900">{formatNumber(cardTotalMonth)}</span>
+                <span className="text-xs text-slate-500">{unitLabel}</span>
               </div>
             </div>
 
@@ -10974,7 +11220,7 @@ function App() {
           <div className="bg-white border border-slate-200 rounded-md p-3">
               <div className="text-xs text-slate-500 mb-1 line-clamp-1">달성률</div>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-slate-900">{total.rate.toFixed(1)}</span>
+                <span className="text-xl font-bold text-slate-900">{cardRate.toFixed(1)}</span>
                 <span className="text-xs text-slate-500">%</span>
               </div>
             </div>
@@ -11060,7 +11306,10 @@ function App() {
                     const _cKey = `empCum${_mp}|${hq}|${emp.id}|${yearMonthSP}`;
                     const _sKey = `empStatus${_mp}|${hq}|${emp.id}|${yearMonthSP}`;
                     const _gKey = `empGoalA|${hq}|${emp.id}|${yearMonthSP}`; // 금액 목표(독립)
-                    const goalVal = empMetric === 'amount' ? Number(weeklyEntries[_gKey] ?? 0) : emp.shipGoal;
+                    const _gKeyQ = `empGoalQ|${hq}|${emp.id}|${yearMonthSP}`; // 수량 목표(독립, weeklyEntries 저장)
+                    const _gqStored = weeklyEntries[_gKeyQ];
+                    const qtyGoal = (_gqStored !== undefined && _gqStored !== '') ? Number(_gqStored) : (Number(emp.shipGoal) || 0);
+                    const goalVal = empMetric === 'amount' ? Number(weeklyEntries[_gKey] ?? 0) : qtyGoal;
                     const monthActual = Number(weeklyEntries[_mKey] ?? 0);
                     const cumActual = Number(weeklyEntries[_cKey] ?? 0);
                     const statusNote = weeklyEntries[_sKey] ?? '';
@@ -11092,7 +11341,8 @@ function App() {
                             <EditableCell value={goalVal} type="number" align="right"
                               onSave={(v) => { setWeeklyEntries(prev => ({ ...prev, [_gKey]: parseFloat(v) || 0 })); logChange(`${hq} - 영업사원 (${monthLabelSP})`, `${emp.name} 월 목표(금액) 수정`); }} />
                           ) : (
-                            <EditableCell value={emp.shipGoal} type="number" align="right" onSave={(v) => updateRow(emp.id, 'shipGoal', v)} />
+                            <EditableCell value={goalVal} type="number" align="right"
+                              onSave={(v) => { setWeeklyEntries(prev => ({ ...prev, [_gKeyQ]: parseFloat(v) || 0 })); logChange(`${hq} - 영업사원 (${monthLabelSP})`, `${emp.name} 월 목표(수량) 수정`); }} />
                           )}
                         </td>
                         <td className="px-2 py-1 border-r border-slate-300 text-right">
@@ -11124,7 +11374,7 @@ function App() {
                     const _calcEmps = filteredEmps.filter(d => !_hidden.includes(d.id));
                     const sumGoal = _calcEmps.reduce((s, d) => s + (empMetric === 'amount'
                       ? Number(weeklyEntries[`empGoalA|${hq}|${d.id}|${yearMonthSP}`] ?? 0)
-                      : (d.shipGoal || 0)), 0);
+                      : ((() => { const q = weeklyEntries[`empGoalQ|${hq}|${d.id}|${yearMonthSP}`]; return (q !== undefined && q !== '') ? Number(q) : (d.shipGoal || 0); })())), 0);
                     const sumMonth = _calcEmps.reduce((s, d) => s + Number(weeklyEntries[`empMonthly${_mp}|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
                     const sumCum = _calcEmps.reduce((s, d) => s + Number(weeklyEntries[`empCum${_mp}|${hq}|${d.id}|${yearMonthSP}`] ?? 0), 0);
                     const sumRate = sumGoal > 0 ? +(sumMonth / sumGoal * 100).toFixed(1) : 0;
@@ -11205,20 +11455,20 @@ function App() {
             <div className="mt-2 text-[11px] text-slate-500">* 달성률 = 누적 실적 ÷ 월 목표 · 누적 실적은 1~5주차 합계로 자동 계산됩니다.</div>
           </div>
 
-          {/* 주차별 실적 추이 (아래로 이동) */}
+          {/* 영업사원별 월별 KPI 대비 달성율 */}
           <div className="bg-white border border-slate-200 rounded-md p-4">
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-              <h3 className="text-base font-bold text-slate-900">주차별 실적 추이 <span className="text-xs font-normal text-slate-500">(영업사원별)</span></h3>
+              <h3 className="text-base font-bold text-slate-900">월별 KPI 대비 달성율 <span className="text-xs font-normal text-slate-500">(영업사원별 · {curYearSP}년)</span></h3>
               <div className="flex items-center gap-3 text-[11px]">
                 {!weeklyChartCollapsed[hq] && (
                   <>
-                    <span className="flex items-center gap-1 text-slate-500">
-                      <span className="inline-block w-4 border-t-2 border-dashed border-slate-400"></span>
-                      목표
+                    <span className="flex items-center gap-1 text-slate-400">
+                      <span className="inline-block w-4 border-t-2 border-dashed border-slate-300"></span>
+                      100%
                     </span>
                     <span className="flex items-center gap-1 text-blue-600">
                       <span className="inline-block w-4 border-t-2 border-blue-600"></span>
-                      실적
+                      달성율
                     </span>
                   </>
                 )}
@@ -11237,21 +11487,21 @@ function App() {
               {filteredEmps.length === 0 ? (
                 <div className="col-span-2 md:col-span-3 lg:col-span-4 text-center py-12 text-slate-400 text-sm">표시할 데이터가 없습니다.</div>
               ) : filteredEmps.slice(0, 16).map((emp) => {
-                const chartData = buildChartData(emp);
+                const chartData = buildMonthlyRate(emp);
                 return (
                   <div key={emp.id} className="border border-slate-100 rounded p-2">
                     <div className="text-xs font-semibold text-slate-800 mb-1.5 truncate" title={emp.name}>{emp.name}</div>
-                    <ResponsiveContainer width="100%" height={100}>
-                      <LineChart data={chartData} margin={{ top: 8, right: 6, left: -12, bottom: 0 }}>
+                    <ResponsiveContainer width="100%" height={110}>
+                      <ComposedChart data={chartData} margin={{ top: 10, right: 6, left: -14, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                        <XAxis dataKey="week" tick={{ fontSize: 9, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} />
-                        <YAxis tick={{ fontSize: 8, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} width={28} />
-                        <Tooltip formatter={(v) => v === null ? '-' : formatNumber(v)} contentStyle={{ fontSize: 10, padding: '3px 6px' }} />
-                        <Line type="linear" dataKey="목표" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 2, fill: '#cbd5e1' }} connectNulls />
-                        <Line type="linear" dataKey="실적" stroke="#2563eb" strokeWidth={2} dot={{ r: 2.5, fill: '#2563eb' }}
-                          label={{ position: 'top', fontSize: 8, fill: '#475569', formatter: (v) => v == null ? '' : formatNumber(v) }}
+                        <XAxis dataKey="month" tick={{ fontSize: 8, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} interval={0} />
+                        <YAxis tick={{ fontSize: 8, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} width={30} unit="%" domain={[0, dataMax => Math.max(120, Math.ceil((dataMax||0)/20)*20)]} />
+                        <Tooltip formatter={(v, n) => v === null ? '-' : (n === '달성율' ? v + '%' : formatNumber(v))} contentStyle={{ fontSize: 10, padding: '3px 6px' }} />
+                        <ReferenceLine y={100} stroke="#cbd5e1" strokeDasharray="4 4" />
+                        <Line type="monotone" dataKey="달성율" stroke="#2563eb" strokeWidth={2} dot={{ r: 2.5, fill: '#2563eb' }}
+                          label={{ position: 'top', fontSize: 8, fill: '#475569', formatter: (v) => v == null ? '' : v + '%' }}
                           connectNulls={false} />
-                      </LineChart>
+                      </ComposedChart>
                     </ResponsiveContainer>
                   </div>
                 );
@@ -11261,6 +11511,7 @@ function App() {
               )}
             </div>
             )}
+            <div className="mt-2 text-[11px] text-slate-400">* 달성율 = 월별 실적 ÷ 월 목표(KPI) × 100 · 점선 = 100% 기준선 · 목표·실적이 없는 월은 표시되지 않습니다.</div>
           </div>
         </div>
 
