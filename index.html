@@ -3258,48 +3258,50 @@ const MONTH_LABELS = ['1월','2월','3월','4월','5월','6월','7월','8월','9
 // 각 지역: 규모(size), 브랜드별 수량. M/S는 자동계산.
 // type: 'row'(성) | 'sub'(小计) | 'nb'(宁波合计) | 'bj'(北京合计) | 'total'(总计)
 const MS_BRANDS = ['메가젠','스트라우만','오스템','덴티움','DIO','네오'];
+// grp: 이 성이 속한 小计 지역키(자동합계용) / bloc: 'nb'(宁波) | 'bj'(北京)
+// type: 'row'(일반 성, 입력가능) | 'sub'(小计,자동) | 'nb'/'bj'(합계,자동) | 'total'(총계,자동)
 const MS_BASE = [
-  { region:'1지역', prov:'浙江', size:420000, q:[67148,58000,90000,55000,23000,20000] },
-  { region:'2지역', prov:'福建', size:140000, q:[13920,16000,31000,19000,7500,8000] },
-  { region:'2지역', prov:'江西', size:63000,  q:[4408,7000,14000,12000,5500,4500] },
-  { region:'2지역', prov:'小计', size:203000, q:[18328,23000,45000,31000,13000,12500], type:'sub' },
-  { region:'3지역', prov:'上海', size:435000, q:[22910,64000,74000,100000,35000,18000] },
-  { region:'4지역', prov:'江苏', size:400000, q:[28791,54000,70000,60000,30000,13000] },
-  { region:'5지역', prov:'山东', size:350000, q:[31378,28000,68000,45000,30000,17000] },
-  { region:'6지역', prov:'湖北', size:260000, q:[19615,28000,58000,47000,33000,10000] },
-  { region:'6지역', prov:'河南', size:225000, q:[21088,25000,42000,43000,15000,8000] },
-  { region:'6지역', prov:'安徽', size:112000, q:[6219,14000,29000,25000,10000,7000] },
-  { region:'6지역', prov:'小计', size:597000, q:[46922,67000,129000,115000,58000,25000], type:'sub' },
-  { region:'7지역', prov:'云南', size:145000, q:[3935,14000,36000,34000,10000,8000] },
-  { region:'7지역', prov:'重庆', size:150000, q:[14122,14000,27000,29000,14000,4500] },
-  { region:'7지역', prov:'湖南', size:125000, q:[6793,14000,32000,27000,8000,5000] },
-  { region:'7지역', prov:'贵州', size:55000,  q:[3322,5000,12000,13000,5500,5000] },
-  { region:'7지역', prov:'小计', size:475000, q:[28172,47000,107000,103000,37500,22500], type:'sub' },
-  { region:'8지역', prov:'四川', size:270000, q:[34174,39000,36000,43000,19000,21000] },
-  { region:'8지역', prov:'甘肃', size:95000,  q:[2345,11000,22000,14000,6000,4500] },
-  { region:'8지역', prov:'青海', size:15000,  q:[16,2500,3300,2300,600,500] },
-  { region:'8지역', prov:'新疆', size:58000,  q:[1143,5500,16000,12000,2300,1400] },
-  { region:'8지역', prov:'小计', size:438000, q:[37678,58000,77300,71300,27900,27400], type:'sub' },
-  { region:'9지역', prov:'山西', size:115000, q:[7902,15000,18000,21000,8000,8000] },
-  { region:'9지역', prov:'陕西', size:112000, q:[2679,12000,22000,14000,8000,6000] },
-  { region:'9지역', prov:'宁夏', size:19000,  q:[963,2500,4000,3200,1800,1200] },
-  { region:'9지역', prov:'小计', size:246000, q:[11544,29500,44000,38200,17800,15200], type:'sub' },
-  { region:'10지역', prov:'广东', size:530000, q:[16693,45000,72000,100000,48000,26000] },
-  { region:'10지역', prov:'广西', size:85000,  q:[2558,10000,22000,15000,6000,8000] },
-  { region:'10지역', prov:'海南', size:31000,  q:[864,5000,8000,6000,1000,2500] },
-  { region:'10지역', prov:'小计', size:646000, q:[20115,60000,102000,121000,55000,36500], type:'sub' },
-  { region:'10지역', prov:'其他', size:0, q:[909,0,0,0,0,0] },
+  { region:'1지역', prov:'浙江', size:420000, q:[67148,58000,90000,55000,23000,20000], grp:'1지역', bloc:'nb' },
+  { region:'2지역', prov:'福建', size:140000, q:[13920,16000,31000,19000,7500,8000], grp:'2지역', bloc:'nb' },
+  { region:'2지역', prov:'江西', size:63000,  q:[4408,7000,14000,12000,5500,4500], grp:'2지역', bloc:'nb' },
+  { region:'2지역', prov:'小计', size:203000, q:[18328,23000,45000,31000,13000,12500], type:'sub', grp:'2지역', bloc:'nb' },
+  { region:'3지역', prov:'上海', size:435000, q:[22910,64000,74000,100000,35000,18000], grp:'3지역', bloc:'nb' },
+  { region:'4지역', prov:'江苏', size:400000, q:[28791,54000,70000,60000,30000,13000], grp:'4지역', bloc:'nb' },
+  { region:'5지역', prov:'山东', size:350000, q:[31378,28000,68000,45000,30000,17000], grp:'5지역', bloc:'nb' },
+  { region:'6지역', prov:'湖北', size:260000, q:[19615,28000,58000,47000,33000,10000], grp:'6지역', bloc:'nb' },
+  { region:'6지역', prov:'河南', size:225000, q:[21088,25000,42000,43000,15000,8000], grp:'6지역', bloc:'nb' },
+  { region:'6지역', prov:'安徽', size:112000, q:[6219,14000,29000,25000,10000,7000], grp:'6지역', bloc:'nb' },
+  { region:'6지역', prov:'小计', size:597000, q:[46922,67000,129000,115000,58000,25000], type:'sub', grp:'6지역', bloc:'nb' },
+  { region:'7지역', prov:'云南', size:145000, q:[3935,14000,36000,34000,10000,8000], grp:'7지역', bloc:'nb' },
+  { region:'7지역', prov:'重庆', size:150000, q:[14122,14000,27000,29000,14000,4500], grp:'7지역', bloc:'nb' },
+  { region:'7지역', prov:'湖南', size:125000, q:[6793,14000,32000,27000,8000,5000], grp:'7지역', bloc:'nb' },
+  { region:'7지역', prov:'贵州', size:55000,  q:[3322,5000,12000,13000,5500,5000], grp:'7지역', bloc:'nb' },
+  { region:'7지역', prov:'小计', size:475000, q:[28172,47000,107000,103000,37500,22500], type:'sub', grp:'7지역', bloc:'nb' },
+  { region:'8지역', prov:'四川', size:270000, q:[34174,39000,36000,43000,19000,21000], grp:'8지역', bloc:'nb' },
+  { region:'8지역', prov:'甘肃', size:95000,  q:[2345,11000,22000,14000,6000,4500], grp:'8지역', bloc:'nb' },
+  { region:'8지역', prov:'青海', size:15000,  q:[16,2500,3300,2300,600,500], grp:'8지역', bloc:'nb' },
+  { region:'8지역', prov:'新疆', size:58000,  q:[1143,5500,16000,12000,2300,1400], grp:'8지역', bloc:'nb' },
+  { region:'8지역', prov:'小计', size:438000, q:[37678,58000,77300,71300,27900,27400], type:'sub', grp:'8지역', bloc:'nb' },
+  { region:'9지역', prov:'山西', size:115000, q:[7902,15000,18000,21000,8000,8000], grp:'9지역', bloc:'nb' },
+  { region:'9지역', prov:'陕西', size:112000, q:[2679,12000,22000,14000,8000,6000], grp:'9지역', bloc:'nb' },
+  { region:'9지역', prov:'宁夏', size:19000,  q:[963,2500,4000,3200,1800,1200], grp:'9지역', bloc:'nb' },
+  { region:'9지역', prov:'小计', size:246000, q:[11544,29500,44000,38200,17800,15200], type:'sub', grp:'9지역', bloc:'nb' },
+  { region:'10지역', prov:'广东', size:530000, q:[16693,45000,72000,100000,48000,26000], grp:'10지역', bloc:'nb' },
+  { region:'10지역', prov:'广西', size:85000,  q:[2558,10000,22000,15000,6000,8000], grp:'10지역', bloc:'nb' },
+  { region:'10지역', prov:'海南', size:31000,  q:[864,5000,8000,6000,1000,2500], grp:'10지역', bloc:'nb' },
+  { region:'10지역', prov:'小计', size:646000, q:[20115,60000,102000,121000,55000,36500], type:'sub', grp:'10지역', bloc:'nb' },
+  { region:'10지역', prov:'其他', size:0, q:[909,0,0,0,0,0], grp:'기타', bloc:'nb' },
   { region:'', prov:'宁波合计', size:4210000, q:[313895,488500,806300,739500,327200,207100], type:'nb' },
-  { region:'11지역', prov:'北京', size:425000, q:[30684,55000,87000,55000,28000,16000] },
-  { region:'11지역', prov:'内蒙古', size:45000, q:[1326,5000,9500,13000,3000,2600] },
-  { region:'11지역', prov:'小计', size:470000, q:[32010,60000,96500,68000,31000,18600], type:'sub' },
-  { region:'12지역', prov:'河北', size:145000, q:[8620,21000,23000,29000,17000,10000] },
-  { region:'12지역', prov:'天津', size:45000,  q:[4714,7000,9000,7500,5500,2600] },
-  { region:'12지역', prov:'小计', size:190000, q:[13334,28000,32000,36500,22500,12600], type:'sub' },
-  { region:'13지역', prov:'辽宁', size:112000, q:[16378,14000,21000,18000,8000,5000] },
-  { region:'13지역', prov:'吉林', size:64000,  q:[5939,7000,12000,10000,3000,5300] },
-  { region:'13지역', prov:'黑龙江', size:65000, q:[7337,7000,12000,15000,3000,5200] },
-  { region:'13지역', prov:'小计', size:241000, q:[29654,28000,45000,43000,14000,15500], type:'sub' },
+  { region:'11지역', prov:'北京', size:425000, q:[30684,55000,87000,55000,28000,16000], grp:'11지역', bloc:'bj' },
+  { region:'11지역', prov:'内蒙古', size:45000, q:[1326,5000,9500,13000,3000,2600], grp:'11지역', bloc:'bj' },
+  { region:'11지역', prov:'小计', size:470000, q:[32010,60000,96500,68000,31000,18600], type:'sub', grp:'11지역', bloc:'bj' },
+  { region:'12지역', prov:'河北', size:145000, q:[8620,21000,23000,29000,17000,10000], grp:'12지역', bloc:'bj' },
+  { region:'12지역', prov:'天津', size:45000,  q:[4714,7000,9000,7500,5500,2600], grp:'12지역', bloc:'bj' },
+  { region:'12지역', prov:'小计', size:190000, q:[13334,28000,32000,36500,22500,12600], type:'sub', grp:'12지역', bloc:'bj' },
+  { region:'13지역', prov:'辽宁', size:112000, q:[16378,14000,21000,18000,8000,5000], grp:'13지역', bloc:'bj' },
+  { region:'13지역', prov:'吉林', size:64000,  q:[5939,7000,12000,10000,3000,5300], grp:'13지역', bloc:'bj' },
+  { region:'13지역', prov:'黑龙江', size:65000, q:[7337,7000,12000,15000,3000,5200], grp:'13지역', bloc:'bj' },
+  { region:'13지역', prov:'小计', size:241000, q:[29654,28000,45000,43000,14000,15500], type:'sub', grp:'13지역', bloc:'bj' },
   { region:'', prov:'北京合计', size:901000, q:[74998,116000,173500,147500,67500,46700], type:'bj' },
   { region:'', prov:'总计', size:5111000, q:[388893,604500,979800,887000,394700,253800], type:'total' },
 ];
@@ -4936,11 +4938,11 @@ const MS_BRAND_COLORS = {
   '덴티움':'#60a5fa', 'DIO':'#93c5fd', '네오':'#bfdbfe',
 };
 
-function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year, month, filterMonth, setFilterMonth }) {
-  const displayMonth = filterMonth || 5;
-  const ym = `${year}-${displayMonth}`;
-  const [metric, setMetric] = React.useState('ms'); // 'ms'(占有率%) | 'qty'(수량)
-  // 성(省)별 경쟁사 펼침 상태: 기본은 메가젠만, 클릭 시 경쟁사 5개 표시
+function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year, filterMonth }) {
+  const displayMonth = filterMonth || 5;   // 표시/입력 대상 월
+  const [metric, setMetric] = React.useState('ms'); // 'ms' | 'qty'
+
+  // 성(省)별 경쟁사 펼침
   const [expandedProv, setExpandedProv] = React.useState(() => {
     try { const s = localStorage.getItem('ms_expandedProv_v1'); if (s) return JSON.parse(s); } catch(e){}
     return {};
@@ -4952,157 +4954,231 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
   const toggleAll = () => {
     const nv = !allExpanded; setAllExpanded(nv);
     if (!nv) { setExpandedProv({}); return; }
-    const all = {}; MS_BASE.forEach(r=>{ all[`${r.region}|${r.prov}`] = true; });
+    const all = {}; MS_BASE.forEach(r=>{ if(!r.type) all[`${r.region}|${r.prov}`] = true; });
     setExpandedProv(all);
   };
+
+  // 월 표시 선택
   const [visibleMonths, setVisibleMonths] = React.useState(() => {
     try { const s = localStorage.getItem('ms_visMonths_v1'); if (s) return JSON.parse(s); } catch(e){}
-    return Array(12).fill(false).map((_,i)=> i < displayMonth);
+    return Array(12).fill(false).map((_,i)=> i === (displayMonth-1));
   });
-  const [pickerOpen, setPickerOpen] = React.useState(false);
   React.useEffect(()=>{ try{ localStorage.setItem('ms_visMonths_v1', JSON.stringify(visibleMonths)); }catch(e){} }, [visibleMonths]);
   const visIdxs = visibleMonths.map((v,i)=>v?i:-1).filter(i=>i>=0);
   const visCount = visIdxs.length;
+  const [pickerOpen, setPickerOpen] = React.useState(false);
 
-  // 특정 지역·성·브랜드·월의 수량 조회 (사용자 입력 우선, 없으면 기본 데이터는 '해당 월'에만 채움)
-  // 저장 키: ms|지역|성|브랜드|년-월  (수량 저장)
-  const getQty = (row, bi, mIdx) => {
+  // 카피 대상 월
+  const [copyTarget, setCopyTarget] = React.useState(displayMonth < 12 ? displayMonth+1 : displayMonth);
+
+  // ── 저장 키: ms|지역|성|브랜드|년-월(수량),  ms|지역|성|__size__|년-월(시장규모)
+  const isInputRow = (row) => !row.type; // 일반 성만 입력 가능 (합계행은 자동)
+
+  const rawQty = (row, bi, mIdx) => {
     const key = `ms|${row.region}|${row.prov}|${MS_BRANDS[bi]}|${year}-${mIdx+1}`;
     const v = weeklyEntries[key];
     if (v !== undefined && v !== null && v !== '') return Number(v) || 0;
-    // 기본 데이터는 선택된 표시월(displayMonth)에만 시드로 노출
-    if (mIdx+1 === displayMonth) return row.q[bi] || 0;
     return 0;
   };
-  const setQty = (row, bi, mIdx, val) => {
-    const key = `ms|${row.region}|${row.prov}|${MS_BRANDS[bi]}|${year}-${mIdx+1}`;
-    setWeeklyEntries(prev => ({ ...prev, [key]: val }));
-    logChange('시장현황 M/S', `${row.prov} ${MS_BRANDS[bi]} ${mIdx+1}월 수량 수정`);
-  };
-  // 지역 시장규모 (월별 저장 가능, 없으면 기본)
-  const getSize = (row, mIdx) => {
+  const rawSize = (row, mIdx) => {
     const key = `ms|${row.region}|${row.prov}|__size__|${year}-${mIdx+1}`;
     const v = weeklyEntries[key];
     if (v !== undefined && v !== null && v !== '') return Number(v) || 0;
-    if (mIdx+1 === displayMonth) return row.size || 0;
     return 0;
   };
 
-  // 표시월(displayMonth) 기준 브랜드별 전국 합계 → 차트
-  const totalRow = MS_BASE.find(r=>r.type==='total');
-  const chartData = MS_BRANDS.map((b, bi) => {
-    const qty = getQty(totalRow, bi, displayMonth-1);
-    const size = getSize(totalRow, displayMonth-1) || totalRow.size;
-    return { name: b, qty, ms: size>0 ? Math.round(qty/size*1000)/10 : 0, color: MS_BRAND_COLORS[b] };
-  });
+  // 자동 합계 계산: 합계행은 하위 성들의 합
+  const getQty = (row, bi, mIdx) => {
+    if (isInputRow(row)) return rawQty(row, bi, mIdx);
+    if (row.type === 'sub') {
+      return MS_BASE.filter(r=>isInputRow(r) && r.grp===row.grp)
+                    .reduce((s,r)=> s + rawQty(r, bi, mIdx), 0);
+    }
+    if (row.type === 'nb') {
+      return MS_BASE.filter(r=>isInputRow(r) && r.bloc==='nb')
+                    .reduce((s,r)=> s + rawQty(r, bi, mIdx), 0);
+    }
+    if (row.type === 'bj') {
+      return MS_BASE.filter(r=>isInputRow(r) && r.bloc==='bj')
+                    .reduce((s,r)=> s + rawQty(r, bi, mIdx), 0);
+    }
+    if (row.type === 'total') {
+      return MS_BASE.filter(r=>isInputRow(r))
+                    .reduce((s,r)=> s + rawQty(r, bi, mIdx), 0);
+    }
+    return 0;
+  };
+  const getSize = (row, mIdx) => {
+    if (isInputRow(row)) return rawSize(row, mIdx);
+    if (row.type === 'sub') return MS_BASE.filter(r=>isInputRow(r) && r.grp===row.grp).reduce((s,r)=>s+rawSize(r,mIdx),0);
+    if (row.type === 'nb')  return MS_BASE.filter(r=>isInputRow(r) && r.bloc==='nb').reduce((s,r)=>s+rawSize(r,mIdx),0);
+    if (row.type === 'bj')  return MS_BASE.filter(r=>isInputRow(r) && r.bloc==='bj').reduce((s,r)=>s+rawSize(r,mIdx),0);
+    if (row.type === 'total') return MS_BASE.filter(r=>isInputRow(r)).reduce((s,r)=>s+rawSize(r,mIdx),0);
+    return 0;
+  };
 
-  // 이전월 복사: displayMonth-1 → displayMonth 로 전체 값 복사
-  const copyPrevMonth = () => {
-    if (displayMonth <= 1) { alert('1월은 이전월이 없습니다.'); return; }
-    if (!confirm(`${displayMonth-1}월 데이터를 ${displayMonth}월로 복사합니다.\n\n현재 ${displayMonth}월에 입력된 값은 덮어써집니다.\n계속하시겠습니까?`)) return;
+  // 저장 (자동저장)
+  const setQty = (row, bi, mIdx, val) => {
+    const key = `ms|${row.region}|${row.prov}|${MS_BRANDS[bi]}|${year}-${mIdx+1}`;
     setWeeklyEntries(prev => {
       const next = { ...prev };
-      MS_BASE.forEach(row => {
-        // 규모 복사
-        const skFrom = `ms|${row.region}|${row.prov}|__size__|${year}-${displayMonth-1}`;
-        const skTo   = `ms|${row.region}|${row.prov}|__size__|${year}-${displayMonth}`;
-        const sv = (prev[skFrom]!==undefined && prev[skFrom]!=='') ? prev[skFrom] : (displayMonth-1===displayMonth?row.size:undefined);
-        if (sv !== undefined) next[skTo] = sv;
-        MS_BRANDS.forEach((b,bi) => {
-          const kFrom = `ms|${row.region}|${row.prov}|${b}|${year}-${displayMonth-1}`;
-          const kTo   = `ms|${row.region}|${row.prov}|${b}|${year}-${displayMonth}`;
-          if (prev[kFrom]!==undefined && prev[kFrom]!=='') next[kTo] = prev[kFrom];
+      if (val === '' || val === null || val === undefined) delete next[key];
+      else next[key] = String(val);
+      return next;
+    });
+    logChange('시장현황 M/S', `${row.prov} ${MS_BRANDS[bi]} ${mIdx+1}월 수량 → ${val}`);
+  };
+  const setSize = (row, mIdx, val) => {
+    const key = `ms|${row.region}|${row.prov}|__size__|${year}-${mIdx+1}`;
+    setWeeklyEntries(prev => {
+      const next = { ...prev };
+      if (val === '' || val === null || val === undefined) delete next[key];
+      else next[key] = String(val);
+      return next;
+    });
+    logChange('시장현황 M/S', `${row.prov} ${mIdx+1}월 시장규모 → ${val}`);
+  };
+
+  const msVal = (q, size) => size>0 ? Math.round(q/size*1000)/10 : 0;
+
+  // 표시월에 기본값 시드 (해당 월에만, 다른 월 영향 없음)
+  const seedMonth = (m) => {
+    if(!confirm(`${m}월에 기본 데이터를 채웁니다.\n\n현재 ${m}월에 입력된 값은 덮어써집니다. (다른 월/메뉴 영향 없음)\n계속하시겠습니까?`)) return;
+    setWeeklyEntries(prev => {
+      const next = { ...prev };
+      MS_BASE.filter(isInputRow).forEach(row => {
+        next[`ms|${row.region}|${row.prov}|__size__|${year}-${m}`] = String(row.size);
+        MS_BRANDS.forEach((b,bi)=>{ next[`ms|${row.region}|${row.prov}|${b}|${year}-${m}`] = String(row.q[bi]); });
+      });
+      return next;
+    });
+    logChange('시장현황 M/S', `${m}월 기본 데이터 채우기`);
+    alert(`✅ ${m}월에 기본 데이터를 채웠습니다.`);
+  };
+
+  // 전체 표 카피: displayMonth → copyTarget
+  const copyToMonth = () => {
+    const from = displayMonth, to = Number(copyTarget);
+    if (from === to) { alert('원본월과 대상월이 같습니다.'); return; }
+    if(!confirm(`${from}월 전체 표를 ${to}월로 복사합니다.\n\n현재 ${to}월에 입력된 값은 덮어써집니다.\n계속하시겠습니까?`)) return;
+    setWeeklyEntries(prev => {
+      const next = { ...prev };
+      MS_BASE.filter(isInputRow).forEach(row => {
+        const sFrom = prev[`ms|${row.region}|${row.prov}|__size__|${year}-${from}`];
+        if (sFrom !== undefined && sFrom !== '') next[`ms|${row.region}|${row.prov}|__size__|${year}-${to}`] = sFrom;
+        MS_BRANDS.forEach((b,bi)=>{
+          const qFrom = prev[`ms|${row.region}|${row.prov}|${b}|${year}-${from}`];
+          if (qFrom !== undefined && qFrom !== '') next[`ms|${row.region}|${row.prov}|${b}|${year}-${to}`] = qFrom;
         });
       });
       return next;
     });
-    logChange('시장현황 M/S', `${displayMonth-1}월 → ${displayMonth}월 데이터 복사`);
-    alert(`✅ ${displayMonth-1}월 → ${displayMonth}월 복사 완료`);
+    logChange('시장현황 M/S', `${from}월 → ${to}월 전체 복사`);
+    alert(`✅ ${from}월 → ${to}월 복사 완료`);
   };
 
   const resetDefaults = () => {
-    if(!confirm('시장현황 M/S 표를 기본 데이터로 다시 채웁니다.\n\n직접 수정한 값은 삭제됩니다. (다른 메뉴 영향 없음)\n계속하시겠습니까?')) return;
+    if(!confirm('시장현황 M/S의 모든 월 데이터를 삭제합니다.\n\n(다른 메뉴 영향 없음)\n계속하시겠습니까?')) return;
     setWeeklyEntries(prev => {
       const next = {...prev};
       Object.keys(next).forEach(k=>{ if(k.startsWith('ms|')) delete next[k]; });
       return next;
     });
-    logChange('시장현황 M/S', '기본 데이터로 초기화');
-    alert('✅ 기본 데이터로 교체되었습니다.');
+    logChange('시장현황 M/S', '전체 초기화');
+    alert('✅ 초기화되었습니다. "기본값 채우기"로 원하는 월에 데이터를 넣으세요.');
   };
 
-  // CSV 다운로드 (표시월 기준)
   const downloadMS = () => {
     const rows = MS_BASE.map(row => {
       const size = getSize(row, displayMonth-1);
-      const rec = { 판매지역: row.region, 성份: row.prov, 시장규모: size };
+      const rec = { 판매지역: row.region, 省份: row.prov, 시장규모: size };
       MS_BRANDS.forEach((b,bi)=>{
         const q = getQty(row, bi, displayMonth-1);
         rec[`${b}_수량`] = q;
-        rec[`${b}_MS`] = size>0 ? (Math.round(q/size*1000)/10)+'%' : '';
+        rec[`${b}_MS`] = size>0 ? msVal(q,size)+'%' : '';
       });
       return rec;
     });
     downloadCSV(rows, `시장현황MS_${year}년${displayMonth}월_${new Date().toISOString().slice(0,10)}`);
   };
 
+  // 차트 (표시월 총계)
+  const totalRow = MS_BASE.find(r=>r.type==='total');
+  const totSize = getSize(totalRow, displayMonth-1);
+  const chartData = MS_BRANDS.map((b, bi) => {
+    const qty = getQty(totalRow, bi, displayMonth-1);
+    return { name: b, qty, ms: msVal(qty, totSize), color: MS_BRAND_COLORS[b] };
+  });
+
   // 집계 카드
-  const totSize = getSize(totalRow, displayMonth-1) || totalRow.size;
   const mgnQty = getQty(totalRow, 0, displayMonth-1);
-  const mgnMS = totSize>0 ? Math.round(mgnQty/totSize*1000)/10 : 0;
+  const mgnMS = msVal(mgnQty, totSize);
   const ranked = [...chartData].sort((a,b)=> b.ms - a.ms);
-  const topBrand = ranked[0];
+  const topBrand = ranked[0] || {name:'-', ms:0, qty:0};
   const mgnRank = ranked.findIndex(x=>x.name==='메가젠') + 1;
   const gap = Math.round((topBrand.ms - mgnMS)*10)/10;
+  const hasData = totSize > 0;
 
   const aggCards = [
     { label:'전체 시장규모', value: totSize.toLocaleString(), unit:'개', color:'text-slate-900' },
     { label:'메가젠 식립수량', value: mgnQty.toLocaleString(), unit:'개', color:'text-slate-900', sub:`${displayMonth}월 기준` },
     { label:'메가젠 M/S', value: mgnMS+'%', unit:'', color:'text-blue-700' },
     { label:`시장 1위 (${topBrand.name})`, value: topBrand.ms+'%', unit:'', color:'text-slate-900', sub:`${topBrand.qty.toLocaleString()} 개` },
-    { label:'메가젠 시장순위', value: mgnRank, unit:'위', color:'text-slate-900', sub:'6개 브랜드 중' },
-    { label:'1위 대비 격차', value: '-'+gap+'%p', unit:'', color:'text-rose-600' },
+    { label:'메가젠 시장순위', value: mgnRank||'-', unit: mgnRank?'위':'', color:'text-slate-900', sub:'6개 브랜드 중' },
+    { label:'1위 대비 격차', value: (gap>=0?'-':'+')+Math.abs(gap)+'%p', unit:'', color:'text-rose-600' },
   ];
 
   const fmtCell = (row, bi, mIdx) => {
     const q = getQty(row, bi, mIdx);
     if (metric === 'qty') return q.toLocaleString();
     const size = getSize(row, mIdx);
-    return size>0 ? (Math.round(q/size*1000)/10).toFixed(1)+'%' : '-';
+    return size>0 ? msVal(q,size).toFixed(1)+'%' : '-';
   };
 
-  // 편집 셀 (수량만 편집. M/S 모드에서도 클릭 시 수량 입력)
+  // 편집 셀 (일반 성만 수량 입력, 합계행은 자동표시)
   const EditQty = ({ row, bi, mIdx }) => {
     const [editing, setEditing] = React.useState(false);
     const q = getQty(row, bi, mIdx);
     const [temp, setTemp] = React.useState(q);
-    React.useEffect(()=>{ setTemp(q); }, [q, editing]);
-    const isSummary = row.type === 'sub' || row.type === 'nb' || row.type === 'bj' || row.type === 'total';
-    if (isSummary) {
-      // 합계행은 편집 불가 (자동 표시)
-      const size = getSize(row, mIdx);
-      return <span>{metric==='qty' ? q.toLocaleString() : (size>0?(Math.round(q/size*1000)/10).toFixed(1)+'%':'-')}</span>;
+    React.useEffect(()=>{ setTemp(rawQty(row, bi, mIdx)); }, [q, editing]);
+    const size = getSize(row, mIdx);
+    const v = size>0 ? msVal(q,size) : 0;
+    const isMgn = MS_BRANDS[bi]==='메가젠';
+    if (!isInputRow(row)) {
+      return <span className={isMgn && v<8 && size>0 ? 'text-rose-600 font-bold':''}>{metric==='qty' ? q.toLocaleString() : (size>0?v.toFixed(1)+'%':'-')}</span>;
     }
     if (editing) return <input type="number" value={temp} autoFocus
       onChange={e=>setTemp(e.target.value)}
       onBlur={()=>{ setQty(row,bi,mIdx,temp); setEditing(false); }}
       onKeyDown={e=>{ if(e.key==='Enter'){ setQty(row,bi,mIdx,temp); setEditing(false); } if(e.key==='Escape') setEditing(false); }}
       className="w-16 px-1 py-0.5 border border-blue-400 rounded outline-none text-right text-xs" />;
-    const size = getSize(row, mIdx);
-    const msVal = size>0 ? Math.round(q/size*1000)/10 : 0;
-    const isMgn = MS_BRANDS[bi]==='메가젠';
-    const lowCls = isMgn && msVal < 8 ? 'text-rose-600 font-bold' : '';
+    const lowCls = isMgn && v < 8 && size>0 ? 'text-rose-600 font-bold' : '';
     return <div onClick={()=>setEditing(true)} title="클릭하여 수량 수정"
-      className={`cursor-pointer hover:bg-slate-100 px-1 py-0.5 rounded text-right ${lowCls}`}>
-      {metric==='qty' ? q.toLocaleString() : (size>0?msVal.toFixed(1)+'%':'-')}
+      className={`cursor-pointer hover:bg-blue-50 px-1 py-0.5 rounded text-right ${lowCls} ${q===0?'text-slate-300':''}`}>
+      {metric==='qty' ? q.toLocaleString() : (size>0?v.toFixed(1)+'%':'—')}
     </div>;
   };
 
-  // 표: 지역별로 6개 브랜드 행
+  // 시장규모 편집 셀 (성별, 표시월)
+  const EditSize = ({ row }) => {
+    const [editing, setEditing] = React.useState(false);
+    const sz = getSize(row, displayMonth-1);
+    const [temp, setTemp] = React.useState(rawSize(row, displayMonth-1));
+    React.useEffect(()=>{ setTemp(rawSize(row, displayMonth-1)); }, [sz, editing]);
+    if (!isInputRow(row)) return <span className="text-[10px] text-blue-600">{sz.toLocaleString()}</span>;
+    if (editing) return <input type="number" value={temp} autoFocus
+      onChange={e=>setTemp(e.target.value)}
+      onBlur={()=>{ setSize(row,displayMonth-1,temp); setEditing(false); }}
+      onKeyDown={e=>{ if(e.key==='Enter'){ setSize(row,displayMonth-1,temp); setEditing(false); } if(e.key==='Escape') setEditing(false); }}
+      className="w-14 px-1 py-0.5 border border-blue-400 rounded outline-none text-right text-[10px]" />;
+    return <div onClick={(e)=>{ e.stopPropagation(); setEditing(true); }} title="클릭하여 시장규모 수정"
+      className={`text-[10px] cursor-pointer hover:bg-blue-50 rounded ${sz===0?'text-slate-300':'text-blue-600'}`}>{sz>0?sz.toLocaleString():'규모입력'}</div>;
+  };
+
   const rowClass = (row) => {
     if (row.type==='total') return 'bg-orange-50 font-bold';
     if (row.type==='nb' || row.type==='bj') return 'bg-yellow-50 font-semibold';
-    if (row.type==='sub') return 'bg-amber-50/40 font-semibold';
+    if (row.type==='sub') return 'bg-amber-50 font-semibold';
     return '';
   };
 
@@ -5120,26 +5196,42 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
       </div>
 
       {/* 액션 버튼 */}
-      <div className="flex items-center justify-end gap-2 -mt-1">
-        <button onClick={copyPrevMonth}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-purple-300 bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 font-semibold">
-          <Icon name="copy" className="w-4 h-4" /> 이전월 복사
+      <div className="flex items-center justify-end gap-2 -mt-1 flex-wrap">
+        <div className="flex items-center gap-1 border border-purple-300 bg-purple-50 rounded-md px-2 py-1">
+          <span className="text-xs text-purple-700 font-semibold">{displayMonth}월 →</span>
+          <select value={copyTarget} onChange={e=>setCopyTarget(e.target.value)} className="text-xs bg-white border border-purple-200 rounded px-1 py-0.5 text-purple-700">
+            {MONTH_LABELS.map((m,i)=><option key={i} value={i+1}>{m}</option>)}
+          </select>
+          <button onClick={copyToMonth} className="flex items-center gap-1 text-xs text-purple-700 font-semibold hover:underline">
+            <Icon name="copy" className="w-3.5 h-3.5" /> 표 복사
+          </button>
+        </div>
+        <button onClick={()=>seedMonth(displayMonth)}
+          className="flex items-center gap-1 px-2.5 py-1.5 text-xs border border-emerald-300 bg-emerald-50 text-emerald-700 rounded-md hover:bg-emerald-100 font-semibold">
+          ＋ {displayMonth}월 기본값 채우기
         </button>
         <button onClick={downloadMS}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-300 rounded-md hover:bg-slate-50">
           <Icon name="download" className="w-4 h-4" /> 엑셀 다운로드
         </button>
         <button onClick={resetDefaults}
-          className="flex items-center gap-1 px-2.5 py-1.5 text-xs border border-amber-300 bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 font-semibold">
-          ↻ 기본값으로 다시 채우기
+          className="flex items-center gap-1 px-2.5 py-1.5 text-xs border border-rose-300 bg-rose-50 text-rose-700 rounded-md hover:bg-rose-100 font-semibold">
+          🗑 전체 초기화
         </button>
       </div>
 
       <div className="bg-white border border-slate-200 rounded-md p-4 space-y-4">
         <div className="flex items-center gap-2">
           <h3 className="text-base font-bold text-slate-900">시장 점유율(M/S) 관리</h3>
-          <span className="text-xs text-slate-500">단위: 식립수량(개) / 占有率(%)</span>
+          <span className="text-xs text-slate-500">단위: 식립수량(개) / 占有率(%) · {displayMonth}월</span>
         </div>
+
+        {!hasData && (
+          <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-800">
+            📌 {displayMonth}월 데이터가 비어 있습니다. 상단의 <strong>"＋ {displayMonth}월 기본값 채우기"</strong>를 누르거나, 표에서 직접 수량을 입력하세요.
+            (또는 <strong>"표 복사"</strong>로 다른 월 데이터를 가져올 수 있습니다.)
+          </div>
+        )}
 
         {/* 집계 카드 6개 */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -5154,9 +5246,9 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
             </div>
           ))}
         </div>
-        <div className="text-[11px] text-slate-500 -mt-2">* 집계 카드는 {displayMonth}월 시장규모 기준 · M/S = 브랜드 식립수량 ÷ 시장규모 · 순위는 6개 주요 브랜드 기준</div>
+        <div className="text-[11px] text-slate-500 -mt-2">* 집계 카드는 {displayMonth}월 기준 · M/S = 브랜드 식립수량 ÷ 시장규모 · 합계행(小计·合计·总计)은 하위 성 값을 자동 합산</div>
 
-        {/* 콤보차트: 브랜드별 수량 막대 + M/S% 라인 */}
+        {/* 콤보차트 */}
         <div className="border border-slate-200 rounded-lg p-3 bg-white">
           <div className="text-sm font-semibold text-slate-700 mb-2">📈 브랜드별 식립수량 · M/S 비교 <span className="text-[11px] font-normal text-slate-400">({displayMonth}월 기준)</span></div>
           <div style={{ width:'100%', height: 320 }}>
@@ -5180,7 +5272,7 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
 
         {/* 표 컨트롤 */}
         <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
-          <div className="text-sm font-semibold text-slate-700">▶ 판매지역 × 브랜드 월별 M/S</div>
+          <div className="text-sm font-semibold text-slate-700">▶ 판매지역 × 브랜드 월별 M/S <span className="text-[11px] font-normal text-slate-400">(수량 셀 클릭 → 입력 · 자동저장)</span></div>
           <div className="flex items-center gap-2 relative">
             <div className="flex rounded overflow-hidden border border-slate-300 text-xs">
               <button onClick={()=>setMetric('ms')} className={"px-3 py-1 "+(metric==='ms'?'bg-blue-600 text-white':'bg-white text-slate-700 hover:bg-slate-50')}>M/S(%)</button>
@@ -5206,21 +5298,18 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
           <table className="text-xs border-collapse" style={{ minWidth:'100%' }}>
             <thead>
               <tr className="bg-slate-100 border-b border-slate-300">
-                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-center" style={{ minWidth:'90px' }}>판매지역</th>
-                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-center" style={{ minWidth:'80px' }}>省份</th>
+                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-center" style={{ minWidth:'80px' }}>판매지역</th>
+                <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-center" style={{ minWidth:'96px' }}>省份 / 시장규모</th>
                 <th className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-center" style={{ minWidth:'70px' }}>브랜드</th>
                 {visIdxs.map(mi=>(
-                  <th key={mi} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-right" style={{ minWidth:'68px' }}>{MONTH_LABELS[mi]}</th>
+                  <th key={mi} className={"px-2 py-2 border-r border-slate-300 font-semibold text-right "+(mi===displayMonth-1?'text-blue-700 bg-blue-50':'text-slate-700')} style={{ minWidth:'68px' }}>{MONTH_LABELS[mi]}</th>
                 ))}
-                <th className="px-2 py-2 font-semibold text-blue-700 text-right bg-blue-50" style={{ minWidth:'72px' }}>{displayMonth}월</th>
               </tr>
             </thead>
             <tbody>
               {MS_BASE.map((row, ri)=>{
                 const pk = provKey(row);
                 const isExpanded = !!expandedProv[pk];
-                const size = getSize(row, displayMonth-1) || 0;
-                // 표시할 브랜드: 접힘=메가젠만, 펼침=6개 전부
                 const shownBrands = isExpanded ? MS_BRANDS.map((b,bi)=>bi) : [0];
                 return (
                   <React.Fragment key={ri}>
@@ -5236,26 +5325,25 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
                             </td>
                           )}
                           {first && (
-                            <td rowSpan={shownBrands.length} className="px-2 py-1 border-r border-slate-300 text-center align-middle cursor-pointer hover:bg-slate-50" onClick={()=>toggleProv(row)} title={isExpanded?'경쟁사 접기':'경쟁사 펼치기'}>
-                              <div className="font-semibold text-slate-700 flex items-center justify-center gap-1">
+                            <td rowSpan={shownBrands.length} className="px-2 py-1 border-r border-slate-300 text-center align-middle">
+                              <div className="font-semibold text-slate-700 flex items-center justify-center gap-1 cursor-pointer hover:text-blue-600" onClick={()=>toggleProv(row)} title={isExpanded?'경쟁사 접기':'경쟁사 펼치기'}>
                                 <span className="text-[10px] text-slate-400">{isExpanded?'▼':'▶'}</span>{row.prov}
                               </div>
-                              <div className="text-[10px] text-blue-600 mt-0.5">{size.toLocaleString()}</div>
+                              <div className="mt-0.5"><EditSize row={row} /></div>
                             </td>
                           )}
                           <td className={"px-2 py-1 border-r border-slate-300 text-center font-semibold "+(isMgn?'text-rose-600':'text-slate-600')}>{b}</td>
                           {visIdxs.map(mi=>(
-                            <td key={mi} className="px-1 py-0.5 border-r border-slate-300 text-right">
+                            <td key={mi} className={"px-1 py-0.5 border-r border-slate-300 text-right "+(mi===displayMonth-1?'bg-blue-50/40':'')}>
                               <EditQty row={row} bi={bi} mIdx={mi} />
                             </td>
                           ))}
-                          <td className="px-2 py-1 text-right font-bold bg-blue-50 text-blue-800">{fmtCell(row, bi, displayMonth-1)}</td>
                         </tr>
                       );
                     })}
-                    {!isExpanded && (
-                      <tr className={"border-b border-slate-200 "+rowClass(row)}>
-                        <td colSpan={3 + visIdxs.length + 1} className="px-2 py-0.5 text-[10px] text-slate-400 text-center cursor-pointer hover:bg-slate-50" onClick={()=>toggleProv(row)}>
+                    {!isExpanded && !row.type && (
+                      <tr className="border-b border-slate-200">
+                        <td colSpan={3 + visIdxs.length} className="px-2 py-0.5 text-[10px] text-slate-400 text-center cursor-pointer hover:bg-slate-50" onClick={()=>toggleProv(row)}>
                           ▶ 경쟁사 5개 펼치기 (스트라우만·오스템·덴티움·DIO·네오)
                         </td>
                       </tr>
@@ -5266,7 +5354,7 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
             </tbody>
           </table>
         </div>
-        <div className="text-[11px] text-slate-500">* M/S = 브랜드 식립수량 ÷ 지역 시장규모 (자동) · 기본은 <strong>메가젠만 표시</strong>, 省份(성) 클릭 시 경쟁사 5개 펼침 · 수량 셀 클릭하여 수정(즉시 저장) · 월별 데이터 분리 · "이전월 복사"로 전월값을 현재월로 복사 · 메가젠 M/S 8% 미만은 빨강 강조</div>
+        <div className="text-[11px] text-slate-500">* M/S = 브랜드 식립수량 ÷ 지역 시장규모 (자동) · 기본은 <strong>메가젠만 표시</strong>, 省份(성) 클릭 시 경쟁사 펼침 · <strong>수량·시장규모 셀 클릭 → 입력(자동저장)</strong> · 월별 데이터 독립 · 小计·合计·总计는 자동 합산 · "표 복사"로 원하는 월에 복사</div>
       </div>
     </div>
   );
@@ -6740,7 +6828,7 @@ function App() {
       </div>
 
       {/* 그룹 3: 본부별 매뉴 */}
-      {selectedHQ !== 'overview' && (
+      {selectedHQ !== 'overview' && selectedHQ !== 'marketshare' && (
         <div className="px-3 py-2 border-t border-slate-700/50">
           <div className="px-2 py-1.5 text-xs text-slate-400">{selectedHQ} 매뉴</div>
           <nav className="mt-1 space-y-0.5">
