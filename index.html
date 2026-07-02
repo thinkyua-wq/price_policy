@@ -3253,6 +3253,32 @@ function AlertBadge({ level }) {
 /* ================ 화남본부 연간 월별 실적표 ================ */
 const MONTH_LABELS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 
+// DSO 연간 동향 분석 기본 데이터 (2026년, 이미지 기준)
+// 물량: 목표고객별 월별 물량(颗) + 전체목표
+const DSO_VOL_DEFAULT = {
+  customers: ['格伦菲尔','麦芽口腔','牙加美'],
+  // 월별 물량 (Top3 각각) — 이미지 스택 막대 근사
+  data: {
+    '格伦菲尔': [8000,9000,14000,20000,22000,30000,32000,36000,40000,42000,46000,48000],
+    '麦芽口腔': [6000,7000,11000,16000,18000,24000,26000,28000,30000,32000,34000,36000],
+    '牙加美':   [3000,4000,6000,12000,10000,18000,18000,18000,22000,22000,20000,16000],
+  },
+  // 전체 목표(달성률 분모)
+  target: [12000,17000,26000,42000,50000,60000,72000,82000,92000,98000,105000,100000],
+};
+// 가격: 제품별 월별 평균 공급가(RMB)
+const DSO_PRICE_DEFAULT = {
+  products: ['士卓曼','奥齿泰','自社 AR','自社 BD','경쟁사 D'],
+  data: {
+    '士卓曼':   [1200,1000,1000,1000,1000,870,820,820,820,820,820,820],
+    '奥齿泰':   [720,720,670,670,670,680,520,570,550,570,570,570],
+    '自社 AR':  [480,480,470,470,550,480,430,430,430,430,430,430],
+    '自社 BD':  [400,400,400,400,400,400,400,400,400,400,400,400],
+    '경쟁사 D': [150,180,210,210,230,230,230,220,250,250,270,250],
+  },
+};
+
+
 // 법인 모델별 매출 (26년 1~6월 실제 / 7~12월 계획) - 첫 시트 추출
 // months[m] = [수량, 단가, 매출액]
 const MODEL_SALES = [{"dae": "Fixture", "mid": "AR", "type": "row", "months": [[4357, 414.8, 1807067.0], [3126, 396.3, 1238688.3], [3471, 384.6, 1335024.3], [4006, 380.2, 1522942.9], [3537, 395.3, 1398062.3], [5258, 355.3, 1868132.7], [3780, 355.2, 1342657.1], [4054, 355.2, 1439981.6], [5397, 355.2, 1917015.1], [5123, 355.2, 1819690.6], [5671, 355.2, 2014339.6], [4577, 355.2, 1625749.4]]}, {"dae": "Fixture", "mid": "AO", "type": "row", "months": [[30225, 329.9, 9969921.2], [22188, 315.2, 6993357.0], [41964, 314.3, 13190897.1], [39688, 299.8, 11899669.8], [34964, 296.6, 10370892.5], [47821, 279.1, 13348087.7], [35525, 279.1, 9913978.6], [38094, 279.1, 10630908.2], [50718, 279.1, 14153898.3], [48149, 279.1, 13436968.6], [53287, 279.1, 14870827.9], [43010, 279.1, 12002829.6]]}, {"dae": "Fixture", "mid": "ST", "type": "row", "months": [[28130, 222.9, 6271316.1], [20022, 210.9, 4223216.5], [53442, 243.1, 12994144], [39754, 194.4, 7727983.7], [41916, 212.5, 8906475.0], [51928, 197.0, 10228918.2], [36025, 197.5, 7115405.6], [38631, 197.5, 7630115.7], [51432, 197.5, 10158498.9], [48826, 197.5, 9643788.8], [54038, 197.5, 10673209.0], [43615, 197.5, 8614569.8]]}, {"dae": "Fixture", "mid": "BD", "type": "row", "months": [[2531, 459.2, 1162323.5], [2003, 469.2, 939900], [4344, 498.3, 2164435], [4274, 475.5, 2032214], [3129, 412.9, 1291871], [4603, 419.6, 1931273.2], [3845, 418.5, 1609034.2], [4123, 418.5, 1725369.1], [5490, 418.5, 2297427.0], [5212, 418.5, 2181092.1], [5768, 418.5, 2413761.8], [4655, 418.5, 1948001.3]]}, {"dae": "Fixture", "mid": "BD Cuff", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Fixture", "mid": "Ari", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1000, 481.4, 481385.2], [1000, 481.4, 481385.2], [1500, 481.4, 722077.8], [1500, 481.4, 722077.8], [1500, 481.4, 722077.8], [1500, 481.4, 722077.8]]}, {"dae": "Fixture", "mid": "MN", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Fixture", "mid": "기타(EZ등)", "type": "row", "months": [[494, 289.7, 143119.2], [215, 272.6, 58619], [428, 265.6, 113674.3], [329, 248.6, 81804.4], [343, 239.5, 82158.1], [478, 237.4, 113462.2], [325, 237.4, 77144.8], [348, 237.4, 82604.3], [463, 237.4, 109901.7], [440, 237.4, 104442.2], [486, 237.4, 115361.2], [393, 237.4, 93285.9]]}, {"dae": "Fixture", "mid": "(소 계)", "type": "sub", "months": [[65737, 294.4, 19353747.0], [47554, 282.9, 13453780.7], [103649, 287.5, 29798174.7], [88051, 264.2, 23264614.9], [83889, 262.8, 22049458.9], [110088, 249.7, 27489874.1], [80500, 255.2, 20539605.5], [86250, 255.0, 21990364.0], [115000, 255.3, 29358818.7], [109250, 255.5, 27908060.2], [120750, 255.2, 30809577.2], [97750, 255.8, 25006513.7]]}, {"dae": "Abutment", "mid": "AR", "type": "row", "months": [[2385, 36.2, 86353.2], [1071, 21.8, 23378.7], [2161, 33.2, 71652.8], [1699, 23.3, 39587.0], [1767, 16.8, 29619.1], [1700, 27.2, 46305.2], [2091, 27.4, 57330.7], [2296, 27.2, 62364.8], [2952, 27.5, 81302.3], [2847, 27.4, 77957.4], [3057.5, 27.7, 84656.0], [2520.5, 27.5, 69288.2]]}, {"dae": "Abutment", "mid": "AO", "type": "row", "months": [[11711, 32.3, 377964.0], [5650, 24.8, 140320.6], [11975, 24.1, 288366.9], [10798, 21.7, 234478.1], [10254, 17.4, 178452.3], [8600, 24.9, 214140.8], [8680, 24.9, 216195.8], [9371, 24.8, 232253.4], [12328, 25, 308210.3], [11836, 24.8, 293880.1], [12919, 25.0, 323391.4], [10554, 24.9, 262641.3]]}, {"dae": "Abutment", "mid": "ST", "type": "row", "months": [[117, 0.8, 89.5], [91, 39.2, 3571], [140, 15.6, 2188.9], [209, 16.6, 3460.3], [117, 8.7, 1022.3], [110, 15.3, 1678.7], [409, 15.3, 6241.6], [439, 15.3, 6699.4], [585, 15.3, 8927.4], [555, 15.3, 8469.6], [614, 15.3, 9370.0], [497, 15.3, 7584.5]]}, {"dae": "Abutment", "mid": "BD", "type": "row", "months": [[1710, 29.5, 50365.3], [1293, 35.7, 46155], [2415, 26.1, 62958.2], [2180, 24.2, 52706.5], [1800, 27.0, 48538.0], [1108, 29.0, 32133.4], [1450, 29.3, 42553.0], [1583, 29.0, 45914.9], [2052, 29.5, 60559.4], [1972, 29.3, 57788.2], [2132.3, 29.7, 63353.4], [1750.3, 29.4, 51538.3]]}, {"dae": "Abutment", "mid": "Ari", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Abutment", "mid": "MN", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Abutment", "mid": "AXA", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Abutment", "mid": "CM", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Abutment", "mid": "기타(EZ등)", "type": "row", "months": [[4168, 25.0, 104084.6], [1546, 20.6, 31924.1], [4130, 24.3, 100407.1], [2723, 19.6, 53284.0], [2615, 21.2, 55335.6], [691, 22.8, 15725.2], [538, 22.8, 12243.3], [576, 22.8, 13108.1], [768, 22.8, 17477.5], [730, 22.8, 16612.7], [806, 22.8, 18342.3], [653, 22.8, 14860.4]]}, {"dae": "Abutment", "mid": "(소 계)", "type": "sub", "months": [[20091, 30.8, 618856.6], [9651, 25.4, 245349.4], [20821, 25.2, 525573.9], [17609, 21.8, 383515.9], [16553, 18.9, 312967.4], [12209, 25.4, 309983.2], [13168, 25.4, 334564.4], [14265, 25.3, 360340.6], [18685, 25.5, 476476.9], [17940, 25.3, 454708.1], [19528.8, 25.6, 499113.1], [15974.8, 25.4, 405912.7]]}, {"dae": "Kit", "mid": "AR", "type": "row", "months": [[20, 0, 0], [14, 0, 0], [11, 0, 0], [12, 0, 0], [21, 0, 0], [34, 0, 0], [25, 0, 0], [26, 0, 0], [35, 0, 0], [33, 0, 0], [36, 0, 0], [30, 0, 0]]}, {"dae": "Kit", "mid": "AO_Standard", "type": "row", "months": [[217, 0, 0], [81, 0, 0], [166, 0, 0], [142, 0, 0], [127, 0, 0], [240, 0, 0], [178, 0, 0], [191, 0, 0], [255, 0, 0], [241, 0, 0], [267, 0, 0], [216, 0, 0]]}, {"dae": "Kit", "mid": "AO_Full", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [151, 0, 0], [112, 0, 0], [120, 0, 0], [159, 0, 0], [151, 0, 0], [167, 0, 0], [135, 0, 0]]}, {"dae": "Kit", "mid": "ST_Standard", "type": "row", "months": [[111, 0, 0], [50, 0, 0], [175, 0, 0], [111, 0, 0], [75, 0, 0], [347, 0, 0], [241, 0, 0], [258, 0, 0], [344, 0, 0], [327, 0, 0], [361, 0, 0], [291, 0, 0]]}, {"dae": "Kit", "mid": "ST_Full", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [53, 0, 0], [37, 0, 0], [40, 0, 0], [52, 0, 0], [49, 0, 0], [55, 0, 0], [44, 0, 0]]}, {"dae": "Kit", "mid": "BD_Standard", "type": "row", "months": [[35, 0, 0], [20, 0, 0], [44, 0, 0], [75, 0, 0], [18, 0, 0], [30, 0, 0], [25, 0, 0], [26, 0, 0], [35, 0, 0], [34, 0, 0], [37, 0, 0], [30, 0, 0]]}, {"dae": "Kit", "mid": "BD_Full", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [15, 0, 0], [13, 0, 0], [14, 0, 0], [18, 0, 0], [18, 0, 0], [19, 0, 0], [15, 0, 0]]}, {"dae": "Kit", "mid": "Ari", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [20, 0, 0], [20, 0, 0], [30, 0, 0], [30, 0, 0], [30, 0, 0], [30, 0, 0]]}, {"dae": "Kit", "mid": "MN", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Kit", "mid": "AXA", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Kit", "mid": "CM", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Kit", "mid": "기타(EZ등)", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [2, 0, 0], [9, 0, 0], [-22, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Kit", "mid": "(소 계)", "type": "sub", "months": [[383, 0, 0], [165, 0, 0], [398, 0, 0], [349, 0, 0], [219, 0, 0], [870, 0, 0], [651, 0, 0], [695, 0, 0], [928, 0, 0], [883, 0, 0], [972, 0, 0], [791, 0, 0]]}, {"dae": "Instrument", "mid": "Torque Wrench", "type": "row", "months": [[63, 32.1, 2025], [24, 251.6, 6037.5], [71, 194.9, 13837.5], [34, 17.6, 600], [58, 193.3, 11212.5], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "Drill류", "type": "row", "months": [[248, 21.0, 5210.5], [32, 13.9, 446], [265, 2.5, 653.5], [64, 86.6, 5545], [64, 10.2, 654.8], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "Connector류", "type": "row", "months": [[260, 46.5, 12081], [10, -899.7, -8997], [98, 0, 0], [79, 3.8, 300], [105, 10.0, 1047.9], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "Driver류", "type": "row", "months": [[198, 63.2, 12517.4], [87, 34.8, 3030.8], [221, 81.2, 17954.5], [179, 26.5, 4750.2], [233, 71.5, 16655.0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "기타", "type": "row", "months": [[36, 285.9, 10291.6], [20, 334.2, 6683.7], [68, 404.0, 27470], [68, 54.7, 3721], [32, 233.3, 7467.2], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "Instrument", "mid": "(소 계)", "type": "sub", "months": [[805, 52.3, 42125.5], [173, 41.6, 7200.9], [723, 82.9, 59915.5], [424, 35.2, 14916.2], [492, 75.3, 37037.4], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "체어", "mid": "N1", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "체어", "mid": "N2", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "체어", "mid": "단품판대", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "체어", "mid": "(소 계)", "type": "sub", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "기타제품", "mid": "Bone Matrix I 등", "type": "row", "months": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]}, {"dae": "제품매출 計", "mid": null, "type": "grand", "months": [[87016, 230.0, 20014729.1], [57543, 238.2, 13706331.1], [125591, 241.9, 30383664.0], [106433, 222.3, 23663047.0], [101153, 221.4, 22399463.7], [123167, 225.7, 27799857.3], [94319, 221.3, 20874169.9], [101210, 220.8, 22350704.7], [134613, 221.6, 29835295.6], [128073, 221.5, 28362768.2], [141250.8, 221.7, 31308690.3], [114515.8, 221.9, 25412426.4]]}];
@@ -5145,6 +5171,11 @@ const MS_BRAND_COLORS = {
 function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year, filterMonth }) {
   const displayMonth = filterMonth || 5;   // 표시/입력 대상 월
   const [metric, setMetric] = React.useState('ms'); // 'ms' | 'qty'
+  // 시장현황 탭: 'trend'(연간 동향 분석) | 'ms'(판매지역×브랜드 M/S)
+  const [msTab, setMsTab] = React.useState(() => {
+    try { return localStorage.getItem('ms_mainTab_v1') || 'trend'; } catch(e){ return 'trend'; }
+  });
+  React.useEffect(()=>{ try{ localStorage.setItem('ms_mainTab_v1', msTab); }catch(e){} }, [msTab]);
 
   // 성(省)별 경쟁사 펼침
   const [expandedProv, setExpandedProv] = React.useState(() => {
@@ -5399,7 +5430,16 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
         </span>
       </div>
 
-      {/* 액션 버튼 */}
+      {/* 탭 버튼 */}
+      <div className="flex items-center gap-1 border-b border-slate-200">
+        <button onClick={()=>setMsTab('trend')}
+          className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 transition-colors "+(msTab==='trend'?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>연간 동향 분석</button>
+        <button onClick={()=>setMsTab('ms')}
+          className={"px-4 py-2 text-sm font-semibold -mb-px border-b-2 transition-colors "+(msTab==='ms'?'border-blue-600 text-blue-600':'border-transparent text-slate-500 hover:text-slate-700')}>판매지역 × 브랜드 M/S</button>
+      </div>
+
+      {/* 액션 버튼 (M/S 탭에서만) */}
+      {msTab==='ms' && (
       <div className="flex items-center justify-end gap-2 -mt-1 flex-wrap">
         <div className="flex items-center gap-1 border border-purple-300 bg-purple-50 rounded-md px-2 py-1">
           <span className="text-xs text-purple-700 font-semibold">{displayMonth}월 →</span>
@@ -5423,8 +5463,10 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
           🗑 전체 초기화
         </button>
       </div>
+      )}
 
       <div className="bg-white border border-slate-200 rounded-md p-4 space-y-4">
+        {msTab==='ms' && (<>
         <div className="flex items-center gap-2">
           <h3 className="text-base font-bold text-slate-900">시장 점유율(M/S) 관리</h3>
           <span className="text-xs text-slate-500">단위: 식립수량(개) / 占有率(%) · {displayMonth}월</span>
@@ -5559,6 +5601,284 @@ function MarketShareOverview({ weeklyEntries, setWeeklyEntries, logChange, year,
           </table>
         </div>
         <div className="text-[11px] text-slate-500">* M/S = 브랜드 식립수량 ÷ 지역 시장규모 (자동) · 기본은 <strong>메가젠만 표시</strong>, 省份(성) 클릭 시 경쟁사 펼침 · <strong>수량·시장규모 셀 클릭 → 입력(자동저장)</strong> · 월별 데이터 독립 · 小计·合计·总计는 자동 합산 · "표 복사"로 원하는 월에 복사</div>
+        </>)}
+        {/* === 시장현황 연간 동향 분석 === */}
+        {msTab==='trend' && (() => {
+          const yr = year;
+          const hq = '전국';
+          // 저장 키: mstrend|hq|vol|고객명|년-월(물량), mstrend|hq|price|제품명|년-월(가격)
+          //          mstrend|hq|target|년-월(전체목표), mstrend|hq|volCustomers(고객목록), mstrend|hq|priceProducts(제품목록)
+          const gv = (k, d) => { const v = weeklyEntries[k]; return (v !== undefined && v !== '') ? v : d; };
+          const gnum = (k, d) => { const v = weeklyEntries[k]; return (v !== undefined && v !== '') ? (Number(v)||0) : d; };
+
+          // 목록 (편집 가능, 기본값은 DEFAULT)
+          const volCustomers = (() => { try { const s = weeklyEntries[`mstrend|${hq}|volCustomers`]; return s ? JSON.parse(s) : DSO_VOL_DEFAULT.customers.slice(); } catch(e){ return DSO_VOL_DEFAULT.customers.slice(); } })();
+          const priceProducts = (() => { try { const s = weeklyEntries[`mstrend|${hq}|priceProducts`]; return s ? JSON.parse(s) : DSO_PRICE_DEFAULT.products.slice(); } catch(e){ return DSO_PRICE_DEFAULT.products.slice(); } })();
+
+          const volOf = (cust, mi) => gnum(`mstrend|${hq}|vol|${cust}|${yr}-${mi+1}`, 0);
+          const targetOf = (mi) => gnum(`mstrend|${hq}|target|${yr}-${mi+1}`, 0);
+          const priceOf = (prod, mi) => gnum(`mstrend|${hq}|price|${prod}|${yr}-${mi+1}`, 0);
+
+          const setVal = (key, val) => { setWeeklyEntries(prev => { const n = {...prev}; if (val===''||val==null) delete n[key]; else n[key] = String(val); return n; }); logChange(`시장현황 동향`, `${key} 수정`); };
+          const setList = (key, arr) => { setWeeklyEntries(prev => ({ ...prev, [key]: JSON.stringify(arr) })); };
+
+          // 데이터 유무 (현재 연도)
+          const trendHasData = volCustomers.some((c,ci)=> MONTH_LABELS.some((_,mi)=> weeklyEntries[`mstrend|${hq}|vol|${c}|${yr}-${mi+1}`] !== undefined))
+            || MONTH_LABELS.some((_,mi)=> weeklyEntries[`mstrend|${hq}|target|${yr}-${mi+1}`] !== undefined);
+
+          // 기본값 채우기 (현재 연도에만)
+          const seedTrend = () => {
+            if(!confirm(`${yr}년 동향 데이터를 기본값(예시)으로 채웁니다.\n\n현재 ${yr}년에 입력된 값은 덮어써집니다. (다른 연도 영향 없음)\n계속하시겠습니까?`)) return;
+            setWeeklyEntries(prev => {
+              const n = {...prev};
+              n[`mstrend|${hq}|volCustomers`] = JSON.stringify(DSO_VOL_DEFAULT.customers);
+              n[`mstrend|${hq}|priceProducts`] = JSON.stringify(DSO_PRICE_DEFAULT.products);
+              DSO_VOL_DEFAULT.customers.forEach(c => { MONTH_LABELS.forEach((_,mi)=>{ n[`mstrend|${hq}|vol|${c}|${yr}-${mi+1}`] = String(DSO_VOL_DEFAULT.data[c][mi]); }); });
+              MONTH_LABELS.forEach((_,mi)=>{ n[`mstrend|${hq}|target|${yr}-${mi+1}`] = String(DSO_VOL_DEFAULT.target[mi]); });
+              DSO_PRICE_DEFAULT.products.forEach(p => { MONTH_LABELS.forEach((_,mi)=>{ n[`mstrend|${hq}|price|${p}|${yr}-${mi+1}`] = String(DSO_PRICE_DEFAULT.data[p][mi]); }); });
+              return n;
+            });
+            logChange('시장현황 동향', `${yr}년 기본값 채우기`);
+            alert(`✅ ${yr}년에 기본 데이터를 채웠습니다.`);
+          };
+
+          // 연도 복사: 현재 yr → 대상 연도
+          const copyTrendYear = () => {
+            const toStr = prompt(`${yr}년 동향 데이터를 몇 년도로 복사할까요? (예: ${yr+1})`, String(yr+1));
+            if (!toStr) return;
+            const to = Number(toStr);
+            if (!to || to === yr) { alert('올바른 다른 연도를 입력하세요.'); return; }
+            if(!confirm(`${yr}년 → ${to}년으로 전체 복사합니다.\n${to}년 기존 값은 덮어써집니다. 계속?`)) return;
+            setWeeklyEntries(prev => {
+              const n = {...prev};
+              volCustomers.forEach(c => { MONTH_LABELS.forEach((_,mi)=>{ const v=prev[`mstrend|${hq}|vol|${c}|${yr}-${mi+1}`]; if(v!==undefined&&v!=='') n[`mstrend|${hq}|vol|${c}|${to}-${mi+1}`]=v; }); });
+              MONTH_LABELS.forEach((_,mi)=>{ const v=prev[`mstrend|${hq}|target|${yr}-${mi+1}`]; if(v!==undefined&&v!=='') n[`mstrend|${hq}|target|${to}-${mi+1}`]=v; });
+              priceProducts.forEach(p => { MONTH_LABELS.forEach((_,mi)=>{ const v=prev[`mstrend|${hq}|price|${p}|${yr}-${mi+1}`]; if(v!==undefined&&v!=='') n[`mstrend|${hq}|price|${p}|${to}-${mi+1}`]=v; }); });
+              return n;
+            });
+            logChange('시장현황 동향', `${yr}년 → ${to}년 복사`);
+            alert(`✅ ${yr}년 → ${to}년 복사 완료`);
+          };
+
+          // 물량 차트 데이터 (스택 + 달성률)
+          const volChart = MONTH_LABELS.map((lb, mi) => {
+            const row = { month: lb };
+            let sum = 0;
+            volCustomers.forEach(c => { const v = volOf(c, mi); row[c] = v; sum += v; });
+            const tgt = targetOf(mi);
+            row['달성률'] = tgt > 0 ? Math.round(sum / tgt * 1000)/10 : 0;
+            row['_sum'] = sum; row['_target'] = tgt;
+            return row;
+          });
+          // 가격 차트 데이터 (라인 5개 + 시장평균)
+          const priceChart = MONTH_LABELS.map((lb, mi) => {
+            const row = { month: lb };
+            let sum = 0, cnt = 0;
+            priceProducts.forEach(p => { const v = priceOf(p, mi); row[p] = v; if (v>0){ sum+=v; cnt++; } });
+            row['시장평균'] = cnt > 0 ? Math.round(sum/cnt) : 0;
+            return row;
+          });
+
+          const volColors = ['#2563eb','#22c55e','#f59e0b','#a855f7','#ef4444','#14b8a6','#eab308'];
+          const priceColors = ['#1e3a8a','#16a34a','#a855f7','#f59e0b','#dc2626','#0891b2','#7c3aed'];
+
+          // KPI 카드 (물량)
+          const annualVol = volCustomers.reduce((s,c)=> s + MONTH_LABELS.reduce((ss,_,mi)=> ss+volOf(c,mi),0), 0);
+          const annualTarget = MONTH_LABELS.reduce((s,_,mi)=> s+targetOf(mi),0);
+          const annualRate = annualTarget>0 ? Math.round(annualVol/annualTarget*1000)/10 : 0;
+          const junCum = volCustomers.reduce((s,c)=> s + [0,1,2,3,4,5].reduce((ss,mi)=> ss+volOf(c,mi),0), 0);
+
+          // 편집 셀
+          const NumCell = ({ value, onSave, w='w-14' }) => {
+            const [ed, setEd] = React.useState(false);
+            const [t, setT] = React.useState(value);
+            React.useEffect(()=>{ setT(value); }, [value, ed]);
+            if (ed) return <input type="number" value={t} autoFocus onChange={e=>setT(e.target.value)}
+              onBlur={()=>{ onSave(t); setEd(false); }}
+              onKeyDown={e=>{ if(e.key==='Enter'){ onSave(t); setEd(false);} if(e.key==='Escape') setEd(false); }}
+              className={`${w} px-1 py-0.5 border border-blue-400 rounded outline-none text-right text-xs`} />;
+            return <div onClick={()=>setEd(true)} className="cursor-pointer hover:bg-blue-50 px-1 py-0.5 rounded text-right">{value ? Number(value).toLocaleString() : '-'}</div>;
+          };
+          const NameCell = ({ value, onSave }) => {
+            const [ed, setEd] = React.useState(false);
+            const [t, setT] = React.useState(value);
+            React.useEffect(()=>{ setT(value); }, [value, ed]);
+            if (ed) return <input value={t} autoFocus onChange={e=>setT(e.target.value)}
+              onBlur={()=>{ onSave(t); setEd(false); }}
+              onKeyDown={e=>{ if(e.key==='Enter'){ onSave(t); setEd(false);} if(e.key==='Escape') setEd(false); }}
+              className="w-24 px-1 py-0.5 border border-blue-400 rounded outline-none text-xs" />;
+            return <div onClick={()=>setEd(true)} className="cursor-pointer hover:bg-blue-50 px-1 py-0.5 rounded font-semibold">{value}</div>;
+          };
+
+          return (
+            <div className="space-y-4">
+              {/* 동향 액션 버튼 */}
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-sm font-semibold text-slate-700">{yr}년 연간 동향</span>
+                <div className="flex items-center gap-2">
+                  <button onClick={copyTrendYear}
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs border border-purple-300 bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 font-semibold">
+                    <Icon name="copy" className="w-3.5 h-3.5" /> 다른 연도로 복사
+                  </button>
+                  <button onClick={seedTrend}
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs border border-emerald-300 bg-emerald-50 text-emerald-700 rounded-md hover:bg-emerald-100 font-semibold">
+                    ＋ {yr}년 기본값(예시) 채우기
+                  </button>
+                </div>
+              </div>
+              {!trendHasData && (
+                <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-800">
+                  📌 {yr}년 동향 데이터가 비어 있습니다. <strong>"＋ {yr}년 기본값(예시) 채우기"</strong>를 누르거나, 아래 표에서 직접 입력하세요. (연도별로 데이터가 독립 저장됩니다.)
+                </div>
+              )}
+              {/* KPI 카드 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="bg-slate-50 border border-slate-200 rounded-md p-3 text-center">
+                  <div className="text-xs text-slate-500 mb-1">연간 총 물량</div>
+                  <div className="text-2xl font-bold text-slate-900">{annualVol.toLocaleString()}<span className="text-sm ml-1">颗</span></div>
+                </div>
+                <div className="bg-slate-50 border border-slate-200 rounded-md p-3 text-center">
+                  <div className="text-xs text-slate-500 mb-1">연간 목표</div>
+                  <div className="text-2xl font-bold text-slate-900">{annualTarget.toLocaleString()}<span className="text-sm ml-1">颗</span></div>
+                </div>
+                <div className="bg-slate-50 border border-slate-200 rounded-md p-3 text-center">
+                  <div className="text-xs text-slate-500 mb-1">목표 대비 달성률</div>
+                  <div className="text-2xl font-bold text-blue-700">{annualRate}%</div>
+                </div>
+                <div className="bg-slate-50 border border-slate-200 rounded-md p-3 text-center">
+                  <div className="text-xs text-slate-500 mb-1">6월 누적 물량</div>
+                  <div className="text-2xl font-bold text-slate-900">{junCum.toLocaleString()}<span className="text-sm ml-1">颗</span></div>
+                </div>
+              </div>
+
+              {/* 물량 / 가격 (세로 배치로 각 표 전체 너비 사용) */}
+              <div className="grid grid-cols-1 gap-4">
+                {/* ── 물량 동향 ── */}
+                <div className="bg-white border border-slate-200 rounded-md p-4">
+                  <h3 className="text-base font-bold text-slate-900 mb-3">📊 매월 물량 동향 <span className="text-xs font-normal text-slate-500">(Top {volCustomers.length} 목표고객)</span></h3>
+                  <div style={{ width:'100%', height: 300 }}>
+                    <ResponsiveContainer>
+                      <ComposedChart data={volChart} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
+                        <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                        <YAxis yAxisId="left" tick={{ fontSize: 10 }} tickFormatter={v=>(v/1000)+'k'} />
+                        <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} unit="%" domain={[0, dataMax=>Math.max(110, Math.ceil((dataMax||0)/20)*20)]} />
+                        <Tooltip formatter={(v,n)=> n==='달성률' ? v+'%' : (v?v.toLocaleString():0)+' 颗'} />
+                        <Legend wrapperStyle={{ fontSize: '11px' }} />
+                        {volCustomers.map((c,i)=> <Bar key={c} yAxisId="left" dataKey={c} stackId="v" fill={volColors[i % volColors.length]} maxBarSize={30} />)}
+                        <Line yAxisId="right" type="monotone" dataKey="달성률" stroke="#334155" strokeWidth={2} dot={{ r: 3 }} />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {/* 물량 표 */}
+                  <div className="mt-3 overflow-x-auto border border-slate-300 rounded">
+                    <table className="text-[11px] border-collapse" style={{minWidth:'100%'}}>
+                      <thead>
+                        <tr className="bg-slate-100 border-b border-slate-300">
+                          <th className="px-2 py-1.5 border-r border-slate-300 text-left" style={{minWidth:'90px'}}>목표고객</th>
+                          {MONTH_LABELS.map((m,i)=><th key={i} className="px-1 py-1.5 border-r border-slate-200 text-right" style={{minWidth:'46px'}}>{m}</th>)}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {volCustomers.map((c, ci)=>(
+                          <tr key={c} className="border-b border-slate-200">
+                            <td className="px-2 py-1 border-r border-slate-300">
+                              <div className="flex items-center gap-1">
+                                <span className="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{background: volColors[ci % volColors.length]}}></span>
+                                <NameCell value={c} onSave={(v)=>{ const arr=volCustomers.slice(); arr[ci]=v; setList(`mstrend|${hq}|volCustomers`, arr); }} />
+                              </div>
+                            </td>
+                            {MONTH_LABELS.map((_,mi)=>(
+                              <td key={mi} className="px-1 py-0.5 border-r border-slate-200">
+                                <NumCell value={volOf(c,mi)} onSave={(v)=>setVal(`mstrend|${hq}|vol|${c}|${yr}-${mi+1}`, v)} />
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                        <tr className="border-b border-slate-200 bg-amber-50 font-semibold">
+                          <td className="px-2 py-1 border-r border-slate-300">전체 목표</td>
+                          {MONTH_LABELS.map((_,mi)=>(
+                            <td key={mi} className="px-1 py-0.5 border-r border-slate-200">
+                              <NumCell value={targetOf(mi)} onSave={(v)=>setVal(`mstrend|${hq}|target|${yr}-${mi+1}`, v)} />
+                            </td>
+                          ))}
+                        </tr>
+                        <tr className="bg-slate-100 font-bold">
+                          <td className="px-2 py-1 border-r border-slate-300">달성률</td>
+                          {volChart.map((r,mi)=><td key={mi} className="px-1 py-1 border-r border-slate-200 text-right text-blue-700">{r['달성률']}%</td>)}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={()=>{ const arr=[...volCustomers, '신규고객'+(volCustomers.length+1)]; setList(`mstrend|${hq}|volCustomers`, arr); }}
+                      className="px-2 py-1 text-xs border border-blue-300 text-blue-600 rounded hover:bg-blue-50">+ 고객 추가</button>
+                    {volCustomers.length > 1 && <button onClick={()=>{ const arr=volCustomers.slice(0,-1); setList(`mstrend|${hq}|volCustomers`, arr); }}
+                      className="px-2 py-1 text-xs border border-rose-300 text-rose-600 rounded hover:bg-rose-50">마지막 고객 삭제</button>}
+                  </div>
+                </div>
+
+                {/* ── 가격 동향 ── */}
+                <div className="bg-white border border-slate-200 rounded-md p-4">
+                  <h3 className="text-base font-bold text-slate-900 mb-3">💰 매월 가격 동향 <span className="text-xs font-normal text-slate-500">(제품별 평균 공급가 · RMB)</span></h3>
+                  <div style={{ width:'100%', height: 300 }}>
+                    <ResponsiveContainer>
+                      <ComposedChart data={priceChart} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
+                        <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 10 }} />
+                        <Tooltip formatter={(v)=> (v?v.toLocaleString():0)+' RMB'} />
+                        <Legend wrapperStyle={{ fontSize: '11px' }} />
+                        {priceProducts.map((p,i)=> <Line key={p} type="monotone" dataKey={p} stroke={priceColors[i % priceColors.length]} strokeWidth={2} dot={{ r: 2.5 }} connectNulls />)}
+                        <Line type="monotone" dataKey="시장평균" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="5 4" dot={false} />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {/* 가격 표 */}
+                  <div className="mt-3 overflow-x-auto border border-slate-300 rounded">
+                    <table className="text-[11px] border-collapse" style={{minWidth:'100%'}}>
+                      <thead>
+                        <tr className="bg-slate-100 border-b border-slate-300">
+                          <th className="px-2 py-1.5 border-r border-slate-300 text-left" style={{minWidth:'90px'}}>제품</th>
+                          {MONTH_LABELS.map((m,i)=><th key={i} className="px-1 py-1.5 border-r border-slate-200 text-right" style={{minWidth:'46px'}}>{m}</th>)}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {priceProducts.map((p, pi)=>(
+                          <tr key={p} className="border-b border-slate-200">
+                            <td className="px-2 py-1 border-r border-slate-300">
+                              <div className="flex items-center gap-1">
+                                <span className="inline-block w-3 h-0.5 flex-shrink-0" style={{background: priceColors[pi % priceColors.length]}}></span>
+                                <NameCell value={p} onSave={(v)=>{ const arr=priceProducts.slice(); arr[pi]=v; setList(`mstrend|${hq}|priceProducts`, arr); }} />
+                              </div>
+                            </td>
+                            {MONTH_LABELS.map((_,mi)=>(
+                              <td key={mi} className="px-1 py-0.5 border-r border-slate-200">
+                                <NumCell value={priceOf(p,mi)} onSave={(v)=>setVal(`mstrend|${hq}|price|${p}|${yr}-${mi+1}`, v)} />
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                        <tr className="bg-slate-100 font-bold">
+                          <td className="px-2 py-1 border-r border-slate-300">시장 평균</td>
+                          {priceChart.map((r,mi)=><td key={mi} className="px-1 py-1 border-r border-slate-200 text-right text-slate-600">{r['시장평균']?r['시장평균'].toLocaleString():'-'}</td>)}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={()=>{ const arr=[...priceProducts, '신규제품'+(priceProducts.length+1)]; setList(`mstrend|${hq}|priceProducts`, arr); }}
+                      className="px-2 py-1 text-xs border border-blue-300 text-blue-600 rounded hover:bg-blue-50">+ 제품 추가</button>
+                    {priceProducts.length > 1 && <button onClick={()=>{ const arr=priceProducts.slice(0,-1); setList(`mstrend|${hq}|priceProducts`, arr); }}
+                      className="px-2 py-1 text-xs border border-rose-300 text-rose-600 rounded hover:bg-rose-50">마지막 제품 삭제</button>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-500">* 물량: 스택 막대 = 목표고객별 물량, 라인 = 전체 목표 대비 달성률. · 가격: 라인 = 제품별 평균 공급가, 점선 = 시장 평균(자동). · 고객/제품명·수치 셀 클릭하여 수정(자동저장). · 연도별 분리 저장.</div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
@@ -10107,23 +10427,23 @@ function App() {
               })()}
               {!psiMgmtCollapsed && (
               <div className="border border-slate-300 rounded overflow-x-auto">
-                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (210 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*52 : 0) + (psiCols.selSum?3*64:0) + (psiCols.stockY25?46:0)+(psiCols.target?56:0)+(psiCols.status?70:0)+60) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
+                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (240 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*58 : 0) + (psiCols.selSum?3*70:0) + (psiCols.stockY25?58:0)+(psiCols.target?58:0)+(psiCols.status?76:0)+64) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
                   <colgroup>
-                    <col style={{ width: '60px' }} />
-                    <col style={{ width: '150px' }} />
-                    {psiCols.stockY25 && <col style={{ width: '46px', minWidth: '46px', maxWidth: '46px' }} />}
-                    {psiCols.target && <col style={{ width: '56px' }} />}
+                    <col style={{ width: '64px' }} />
+                    <col style={{ width: '190px' }} />
+                    {psiCols.stockY25 && <col style={{ width: '58px', minWidth: '58px', maxWidth: '58px' }} />}
+                    {psiCols.target && <col style={{ width: '58px' }} />}
                     {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
                       <React.Fragment key={m}>
-                        <col style={{ width: '52px' }} />
-                        <col style={{ width: '52px' }} />
-                        <col style={{ width: '52px' }} />
-                        <col style={{ width: '52px' }} />
+                        <col style={{ width: '58px' }} />
+                        <col style={{ width: '58px' }} />
+                        <col style={{ width: '58px' }} />
+                        <col style={{ width: '58px' }} />
                       </React.Fragment>
                     ))}
-                    {psiCols.selSum && <><col style={{ width: '64px' }} /><col style={{ width: '64px' }} /><col style={{ width: '64px' }} /></>}
-                    {psiCols.status && <col style={{ width: '70px' }} />}
-                    <col style={{ width: '60px' }} />
+                    {psiCols.selSum && <><col style={{ width: '70px' }} /><col style={{ width: '70px' }} /><col style={{ width: '70px' }} /></>}
+                    {psiCols.status && <col style={{ width: '76px' }} />}
+                    <col style={{ width: '64px' }} />
                   </colgroup>
                   <thead>
                     {/* 1단: 그룹 헤더 */}
@@ -12428,6 +12748,7 @@ function App() {
           </span>
         </div>
         </>);})()}
+
       </div>
     );
   };
