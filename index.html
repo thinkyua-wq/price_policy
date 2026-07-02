@@ -6135,7 +6135,7 @@ function App() {
   // 대리상 PSI 관리 - 컬럼 그룹 표시 토글 (보고 싶은 컬럼만)
   const [psiCols, setPsiCols] = useState(() => {
     try { const s = localStorage.getItem('dashboard_psiCols_v1'); if (s) return JSON.parse(s); } catch(e){}
-    return { months:true, selSum:true, stockY25:true, target:true, purchaseQty:true, salesQty:true, status:true };
+    return { months:true, selSum:true, stockY25:true, target:true, curTarget:true, purchaseQty:true, salesQty:true, status:true };
   });
   const [psiColPickerOpen, setPsiColPickerOpen] = useState(false);
   React.useEffect(()=>{ try{ localStorage.setItem('dashboard_psiCols_v1', JSON.stringify(psiCols)); }catch(e){} }, [psiCols]);
@@ -10541,7 +10541,8 @@ function App() {
                         { key:'months', label:'월별(구매/판매/재고/비율)' },
                         { key:'selSum', label:'누적합계' },
                         { key:'stockY25', label:'25년재고' },
-                        { key:'target', label:'목표수량' },
+                        { key:'target', label:'연간월평' },
+                        { key:'curTarget', label:'당월목표' },
                         { key:'status', label:'상태' },
                       ].map(c => (
                         <label key={c.key} className="flex items-center gap-1.5 text-xs cursor-pointer hover:bg-slate-50 px-1 py-0.5 rounded">
@@ -10605,12 +10606,13 @@ function App() {
               })()}
               {!psiMgmtCollapsed && (
               <div className="border border-slate-300 rounded overflow-x-auto">
-                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (240 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*58 : 0) + (psiCols.selSum?3*70:0) + (psiCols.stockY25?58:0)+(psiCols.target?58:0)+(psiCols.status?76:0)+64) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
+                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (240 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*58 : 0) + (psiCols.selSum?3*70:0) + (psiCols.stockY25?58:0)+(psiCols.target?58:0)+(psiCols.curTarget?58:0)+(psiCols.status?76:0)+64) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
                   <colgroup>
                     <col style={{ width: '64px' }} />
                     <col style={{ width: '190px' }} />
                     {psiCols.stockY25 && <col style={{ width: '58px', minWidth: '58px', maxWidth: '58px' }} />}
                     {psiCols.target && <col style={{ width: '58px' }} />}
+                    {psiCols.curTarget && <col style={{ width: '58px' }} />}
                     {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
                       <React.Fragment key={m}>
                         <col style={{ width: '58px' }} />
@@ -10629,7 +10631,8 @@ function App() {
                       <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200">지역</th>
                       <th rowSpan={2} className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left align-middle bg-slate-200">대리상명</th>
                       {psiCols.stockY25 && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap">25년<br/>재고</th>}
-                      {psiCols.target && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap">목표<br/>수량</th>}
+                      {psiCols.target && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap">연간<br/>월평</th>}
+                      {psiCols.curTarget && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-blue-700 align-middle bg-blue-50 whitespace-nowrap">당월<br/>목표</th>}
                       {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
                         <th key={m} colSpan={4} className="px-1 py-1.5 border-r border-slate-400 font-bold text-slate-800 bg-slate-200 text-center">{m}월</th>
                       ))}
@@ -10656,7 +10659,7 @@ function App() {
                   </thead>
                   <tbody>
                     {psiSortedRows.length === 0 ? (
-                      <tr><td colSpan={3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.status?1:0)} className="px-2 py-4 text-center text-slate-400">
+                      <tr><td colSpan={3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.curTarget?1:0)+(psiCols.status?1:0)} className="px-2 py-4 text-center text-slate-400">
                         {isShowingHiddenPSI ? '숨김 처리된 행이 없습니다.' : '표시할 데이터가 없습니다. 아래 [대리상 추가] 버튼을 눌러주세요.'}
                       </td></tr>
                     ) : psiSortedRows.map(row => {
@@ -10704,10 +10707,21 @@ function App() {
                         {psiCols.stockY25 && <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-white text-sm overflow-hidden">
                           <EditableCell value={row.stockY25 ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'stockY25', v)} />
                         </td>}
-                        {/* 목표 수량 (1월 앞) */}
+                        {/* 연간 월평 (1월 앞) */}
                         {psiCols.target && <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-white text-sm">
                           <EditableCell value={row.targetQty ?? 0} type="number" align="right" onSave={(v) => updateFocus(row.id, 'targetQty', v)} />
                         </td>}
+                        {/* 당월 목표 (선택 월 기준, 월별 저장) */}
+                        {psiCols.curTarget && (() => {
+                          const _cm = displayMonthP;
+                          const _ck = `psiCurTarget|${row.id}|${curYearP}-${_cm}`;
+                          const _cv = weeklyEntries[_ck];
+                          const _cval = (_cv !== undefined && _cv !== '') ? Number(_cv) : (row.targetQty ?? 0);
+                          return <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-blue-50/40 text-sm">
+                            <EditableCell value={_cval} type="number" align="right"
+                              onSave={(v) => { setWeeklyEntries(prev => ({ ...prev, [_ck]: parseFloat(v)||0 })); logChange('대리상 PSI', `${row.dealer} ${_cm}월 당월목표 → ${v}`); }} />
+                          </td>;
+                        })()}
                         {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => {
                           // 그 달까지 구매·판매가 전혀 입력 안 됐는지 (1~m 합)
                           const hasFlow = [1,2,3,4,5,6,7,8,9,10,11,12].filter(x=>x<=m)
@@ -10789,7 +10803,7 @@ function App() {
                             비율: (hasFlow && _savg>0) ? +(mI/_savg).toFixed(1) : 0,
                           };
                         });
-                        const totalCols = 3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.status?1:0);
+                        const totalCols = 3 + (psiCols.months?psiVisibleMonths.filter(Boolean).length*4:0) + (psiCols.selSum?3:0) + (psiCols.stockY25?1:0)+(psiCols.target?1:0)+(psiCols.curTarget?1:0)+(psiCols.status?1:0);
                         // X축 아래에 "N월" + 그 달 비율 숫자 함께 표기
                         const renderMonthTick = ({ x, y, payload }) => {
                           const d = chartData.find(c => c.월 === payload.value);
@@ -10861,6 +10875,10 @@ function App() {
                           <td className="px-1 py-1.5 border-r border-slate-300 text-center bg-slate-100"></td>
                           {psiCols.stockY25 && <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-slate-100 text-sm">{formatNumber(sumStockY25)}</td>}
                           {psiCols.target && <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-slate-100 text-sm">{formatNumber(sumTarget)}</td>}
+                          {psiCols.curTarget && (() => {
+                            const sumCur = focusForSum.reduce((s,r)=>{ const k=`psiCurTarget|${r.id}|${curYearP}-${displayMonthP}`; const v=weeklyEntries[k]; return s + ((v!==undefined&&v!=='')?Number(v):(Number(r.targetQty)||0)); },0);
+                            return <td className="px-1 py-1.5 border-r border-slate-300 text-right bg-blue-100 text-sm font-semibold text-blue-800">{formatNumber(sumCur)}</td>;
+                          })()}
                           {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => {
                             const invSum = sumInvByMonth(m);
                             const ratioAvg = sumTarget>0 ? (invSum/sumTarget) : null;
