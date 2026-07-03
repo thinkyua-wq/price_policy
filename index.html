@@ -10840,7 +10840,7 @@ function App() {
               })()}
               {!psiMgmtCollapsed && (
               <div className="border border-slate-300 rounded overflow-x-auto">
-                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (240 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*60 : 0) + (psiCols.selSum?3*60:0) + (psiCols.stockY25?60:0)+(psiCols.target?60:0)+(psiCols.curTarget?60:0)+(psiCols.status?76:0)+(psiCols.memo?160:0)) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
+                <table className="text-sm" data-table-id="dealer_psi_summary" data-sticky-first="off" style={{ minWidth: (240 + (psiCols.months ? psiVisibleMonths.filter(Boolean).length*4*60 : 0) + (psiCols.selSum?3*60:0) + (psiCols.stockY25?60:0)+(psiCols.target?60:0)+(psiCols.curTarget?60:0)+(psiCols.status?70:0)+(psiCols.memo?200:0)) + 'px', width: 'max-content', tableLayout: 'fixed' }}>
                   <colgroup>
                     <col style={{ width: '60px' }} />
                     <col style={{ width: '180px' }} />
@@ -10856,38 +10856,38 @@ function App() {
                       </React.Fragment>
                     ))}
                     {psiCols.selSum && <><col style={{ width: '60px' }} /><col style={{ width: '60px' }} /><col style={{ width: '60px' }} /></>}
-                    {psiCols.status && <col style={{ width: '76px' }} />}
-                    {psiCols.memo && <col style={{ width: '160px' }} />}
+                    {psiCols.memo && <col style={{ width: '200px' }} />}
+                    {psiCols.status && <col style={{ width: '70px' }} />}
                   </colgroup>
                   <thead>
-                    {/* 1단: 그룹 헤더 */}
+                    {/* 1단: 그룹 헤더 (전체 회색) */}
                     <tr className="bg-slate-200 border-b border-slate-300">
-                      <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200">지역</th>
-                      <th rowSpan={2} className="px-2 py-1.5 border-r border-slate-300 font-semibold text-slate-700 text-left align-middle bg-slate-200">대리상명</th>
-                      {psiCols.stockY25 && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap">25년<br/>재고</th>}
-                      {psiCols.target && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap">연간<br/>월평</th>}
-                      {psiCols.curTarget && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-blue-700 align-middle bg-blue-50 whitespace-nowrap">당월<br/>목표</th>}
+                      <th rowSpan={2} className="px-1 py-2 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 text-sm">지역</th>
+                      <th rowSpan={2} className="px-2 py-2 border-r border-slate-300 font-semibold text-slate-700 text-left align-middle bg-slate-200 text-sm">대리상명</th>
+                      {psiCols.stockY25 && <th rowSpan={2} className="px-1 py-2 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap text-sm">25년<br/>재고</th>}
+                      {psiCols.target && <th rowSpan={2} className="px-1 py-2 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap text-sm">연간<br/>월평</th>}
+                      {psiCols.curTarget && <th rowSpan={2} className="px-1 py-2 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 whitespace-nowrap text-sm">당월<br/>목표</th>}
                       {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
-                        <th key={m} colSpan={4} className="px-1 py-1.5 border-r border-slate-400 font-bold text-slate-800 bg-slate-200 text-center">{m}월</th>
+                        <th key={m} colSpan={4} className="px-1 py-2 border-r border-slate-400 font-bold text-slate-800 bg-slate-200 text-center text-sm">{m}월</th>
                       ))}
-                      {psiCols.selSum && <th colSpan={3} className="px-1 py-1.5 border-r border-slate-400 font-bold text-slate-800 bg-slate-200 text-center">누적합계</th>}
-                      {psiCols.status && <th rowSpan={2} className="px-1 py-1.5 border-r border-slate-300 font-semibold text-slate-700 align-middle">상태</th>}
-                      {psiCols.memo && <th rowSpan={2} className="px-1 py-1.5 font-semibold text-amber-700 align-middle bg-amber-50">메모</th>}
+                      {psiCols.selSum && <th colSpan={3} className="px-1 py-2 border-r border-slate-400 font-bold text-slate-800 bg-slate-200 text-center text-sm">누적합계</th>}
+                      {psiCols.memo && <th rowSpan={2} className="px-1 py-2 border-r border-slate-300 font-semibold text-slate-700 align-middle bg-slate-200 text-sm">메모</th>}
+                      {psiCols.status && <th rowSpan={2} className="px-1 py-2 font-semibold text-slate-700 align-middle bg-slate-200 text-sm">상태</th>}
                     </tr>
                     {/* 2단: 월별 P/S/I/R + 선택합계 P/S/I */}
-                    <tr className="bg-slate-100 border-b border-slate-300">
+                    <tr className="bg-slate-200 border-b border-slate-300">
                       {psiCols.months && [1,2,3,4,5,6,7,8,9,10,11,12].filter(m=>psiVisibleMonths[m-1]).map(m => (
                         <React.Fragment key={m}>
-                          <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">구매</th>
-                          <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">판매</th>
-                          <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">재고</th>
-                          <th className="px-0.5 py-1 border-r border-slate-400 font-semibold text-slate-600 bg-slate-100 text-sm">비율</th>
+                          <th className="px-0.5 py-1.5 border-r border-slate-300 font-semibold text-slate-600 bg-slate-200 text-sm">구매</th>
+                          <th className="px-0.5 py-1.5 border-r border-slate-300 font-semibold text-slate-600 bg-slate-200 text-sm">판매</th>
+                          <th className="px-0.5 py-1.5 border-r border-slate-300 font-semibold text-slate-600 bg-slate-200 text-sm">재고</th>
+                          <th className="px-0.5 py-1.5 border-r border-slate-400 font-semibold text-slate-600 bg-slate-200 text-sm">비율</th>
                         </React.Fragment>
                       ))}
                       {psiCols.selSum && <>
-                      <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">구매</th>
-                      <th className="px-0.5 py-1 border-r border-slate-200 font-semibold text-slate-600 bg-slate-100 text-sm">판매</th>
-                      <th className="px-0.5 py-1 border-r border-slate-400 font-semibold text-slate-600 bg-slate-100 text-sm">재고</th>
+                      <th className="px-0.5 py-1.5 border-r border-slate-300 font-semibold text-slate-600 bg-slate-200 text-sm">구매</th>
+                      <th className="px-0.5 py-1.5 border-r border-slate-300 font-semibold text-slate-600 bg-slate-200 text-sm">판매</th>
+                      <th className="px-0.5 py-1.5 border-r border-slate-400 font-semibold text-slate-600 bg-slate-200 text-sm">재고</th>
                       </>}
                     </tr>
                   </thead>
@@ -10995,26 +10995,27 @@ function App() {
                         <td className="px-0.5 py-0.5 border-r border-slate-200 text-right bg-slate-50 font-semibold text-slate-700 text-sm">{formatNumber(selS)}</td>
                         <td className="px-0.5 py-0.5 border-r border-slate-400 text-right bg-slate-50 font-semibold text-slate-700 text-sm">{formatNumber(selI)}</td>
                         </>}
-                        {/* 상태: 목표 대비 구매수량 */}
-                        {psiCols.status && <td className="px-2 py-1.5 border-r border-slate-200 text-center bg-white">
+                        {/* 메모 (상태 앞으로 이동, placeholder 없음, 흰색) */}
+                        {psiCols.memo && (() => {
+                          const _mk = `psiMemo|${row.id}`;
+                          const _mv = weeklyEntries[_mk] || '';
+                          return <td className="px-1 py-1.5 border-r border-slate-200 bg-white">
+                            <input value={_mv}
+                              onChange={(e)=>{ const val=e.target.value; setWeeklyEntries(prev => ({ ...prev, [_mk]: val })); }}
+                              className="w-full px-1 py-0.5 text-sm bg-transparent border border-transparent hover:border-slate-200 focus:border-amber-400 rounded outline-none" />
+                          </td>;
+                        })()}
+                        {/* 상태: 목표 대비 구매수량 (메모 뒤로 이동) */}
+                        {psiCols.status && <td className="px-2 py-1.5 text-center bg-white">
                           {(() => {
                             const tgt = Number(row.targetQty) || 0;
                             const rate = tgt > 0 ? (purchaseQty / tgt * 100) : 0;
                             let status='정상', cls='bg-emerald-50 text-emerald-700 border-emerald-200';
                             if (tgt===0) { status='-'; cls='bg-slate-50 text-slate-400 border-slate-200'; }
                             else if (rate < 80) { status='주의'; cls='bg-rose-50 text-rose-700 border-rose-200'; }
-                            return <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded border ${cls}`}>{status}</span>;
+                            return <span className={`inline-block px-2 py-0.5 text-sm font-semibold rounded border ${cls}`}>{status}</span>;
                           })()}
                         </td>}
-                        {psiCols.memo && (() => {
-                          const _mk = `psiMemo|${row.id}`;
-                          const _mv = weeklyEntries[_mk] || '';
-                          return <td className="px-1 py-1 bg-amber-50/30">
-                            <input value={_mv} placeholder="메모..."
-                              onChange={(e)=>{ const val=e.target.value; setWeeklyEntries(prev => ({ ...prev, [_mk]: val })); }}
-                              className="w-full px-1 py-0.5 text-xs bg-transparent border border-transparent hover:border-slate-200 focus:border-amber-400 rounded outline-none" />
-                          </td>;
-                        })()}
                       </tr>
                       {psiExpandedRow === row.id && (() => {
                         const tgtAvg = Number(row.targetQty) || 0;
@@ -11133,8 +11134,8 @@ function App() {
                           <td className="px-0.5 py-1.5 border-r border-slate-200 text-right text-sm bg-slate-200 text-slate-700">{formatNumber(sumSelS)}</td>
                           <td className="px-0.5 py-1.5 border-r border-slate-400 text-right text-sm bg-slate-200 text-slate-700">{formatNumber(sumSelI)}</td>
                           </>}
-                          {psiCols.status && <td className="px-2 py-1.5 border-r border-slate-200 text-center text-slate-500">-</td>}
-                          {psiCols.memo && <td className="px-1 py-1.5 text-center text-slate-400 bg-amber-50/30"></td>}
+                          {psiCols.memo && <td className="px-1 py-1.5 border-r border-slate-200 text-center text-slate-400 bg-white"></td>}
+                          {psiCols.status && <td className="px-2 py-1.5 text-center text-slate-500 bg-slate-100">-</td>}
                         </tr>
                       </tfoot>
                     );
@@ -11686,7 +11687,11 @@ function App() {
       });
 
       logChange(`4번 영업사원`, `${prevMonth}월 → ${monthLabelSP} 복사 (목표·실적 포함)`);
-      alert(`${prevMonth}월 데이터 → ${monthLabelSP}로 복사 완료!\n(목표·실적 모두 복사됨)`);
+      // 화면 즉시 반영: state 저장이 localStorage에 기록될 시간을 준 뒤 새로고침
+      setTimeout(() => {
+        alert(`${prevMonth}월 데이터 → ${monthLabelSP}로 복사 완료!\n(목표·실적 모두 복사됨)\n\n화면에 반영합니다.`);
+        window.location.reload();
+      }, 200);
     };
 
     // 도넛 차트 (달성률 표시용)
