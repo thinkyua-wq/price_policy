@@ -7356,6 +7356,31 @@ function App() {
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(changeLog), '변경이력');
       }
 
+      // ★★ 완전 백업: 클라우드 저장과 동일한 전체 데이터를 JSON으로 통째로 저장 ★★
+      // (월별 데이터 salesPersonMonth/dealersMonth/psiMonth 등이 기존 시트엔 누락되던 문제 해결)
+      try {
+        const fullPayload = {
+          coreTasks, dealers, dealerInsights, psi, psiFocus,
+          salesPerson, dso, dsoPipeline, bd, bdQty, bdCustomers,
+          subCustomer, weeklyEntries: weeklyForBackup, kpi, dsoByGrade, salesByOwner,
+          packagePerson, issues, msGoals, competitorMS, dsoDetail, actionPlans,
+          dealersMonth, psiMonth, salesPersonMonth, dsoMonth, bdMonth, bdQtyMonth,
+          bdCustomersMonth, subCustomerMonth, msGoalsMonth, competitorMSMonth,
+          dsoDetailMonth, actionPlansMonth, bdDevMonth, bdStructMonth,
+          dsoRevMonth, dsoEnterMonth, psiFocusMonth,
+          columnWidths, hiddenPSIRows, hiddenFocusRows, changeLog,
+          psiCols, psiVisMonthsByYear, bdVisMonthsByMonth
+        };
+        const fullJson = JSON.stringify(fullPayload);
+        // 셀 1개 크기 제한(32767자)을 넘을 수 있으므로 여러 조각으로 나눠 저장
+        const CHUNK = 30000;
+        const chunks = [];
+        for (let i = 0; i < fullJson.length; i += CHUNK) {
+          chunks.push({ idx: chunks.length, data: fullJson.slice(i, i + CHUNK) });
+        }
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(chunks), '_완전백업');
+      } catch(e) {}
+
       // 파일명: 대시보드_백업_2026-05-16.xlsx
       const today = new Date();
       const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -7395,7 +7420,65 @@ function App() {
 
         let restoreCount = 0;
 
-        // 각 시트별 복원 로직
+        // ★★ 완전백업(_완전백업) 시트가 있으면 그걸로 전체 복원 (월별 데이터 포함, 최신 방식) ★★
+        if (wb.Sheets['_완전백업']) {
+          try {
+            const chunkRows = XLSX.utils.sheet_to_json(wb.Sheets['_완전백업']);
+            chunkRows.sort((a,b) => (Number(a.idx)||0) - (Number(b.idx)||0));
+            const fullJson = chunkRows.map(r => r.data || '').join('');
+            const P = JSON.parse(fullJson);
+            // 각 항목을 해당 setter로 복원 (있는 것만)
+            if (P.coreTasks) setCoreTasks(P.coreTasks);
+            if (P.dealers) setDealers(P.dealers);
+            if (P.dealerInsights) setDealerInsights(P.dealerInsights);
+            if (P.psi) setPSI(P.psi);
+            if (P.psiFocus) setPSIFocus(P.psiFocus);
+            if (P.salesPerson) setSalesPerson(P.salesPerson);
+            if (P.dso) setDSO(P.dso);
+            if (P.dsoPipeline) setDSOPipeline(P.dsoPipeline);
+            if (P.bd) setBD(P.bd);
+            if (P.bdQty) setBDQty(P.bdQty);
+            if (P.bdCustomers) setBDCustomers(P.bdCustomers);
+            if (P.subCustomer) setSubCustomer(P.subCustomer);
+            if (P.weeklyEntries) { setWeeklyEntries(P.weeklyEntries); try { localStorage.setItem('dashboard_weekly_entries_v1', JSON.stringify(P.weeklyEntries)); } catch(e){} }
+            if (P.kpi) setKPI(P.kpi);
+            if (P.dsoByGrade) setDSOByGrade(P.dsoByGrade);
+            if (P.salesByOwner) setSalesByOwner(P.salesByOwner);
+            if (P.packagePerson) setPackagePerson(P.packagePerson);
+            if (P.issues) setIssues(P.issues);
+            if (P.msGoals) setMSGoals(P.msGoals);
+            if (P.competitorMS) setCompetitorMS(P.competitorMS);
+            if (P.dsoDetail) setDSODetail(P.dsoDetail);
+            if (P.actionPlans) setActionPlans(P.actionPlans);
+            // 월별 데이터 (핵심 — 기존 백업에서 누락되던 것)
+            if (P.dealersMonth) setDealersMonth(P.dealersMonth);
+            if (P.psiMonth) setPSIMonth(P.psiMonth);
+            if (P.salesPersonMonth) setSalesPersonMonth(P.salesPersonMonth);
+            if (P.dsoMonth) setDSOMonth(P.dsoMonth);
+            if (P.bdMonth) setBDMonth(P.bdMonth);
+            if (P.bdQtyMonth) setBDQtyMonth(P.bdQtyMonth);
+            if (P.bdCustomersMonth) setBDCustomersMonth(P.bdCustomersMonth);
+            if (P.subCustomerMonth) setSubCustomerMonth(P.subCustomerMonth);
+            if (P.msGoalsMonth) setMSGoalsMonth(P.msGoalsMonth);
+            if (P.competitorMSMonth) setCompetitorMSMonth(P.competitorMSMonth);
+            if (P.dsoDetailMonth) setDSODetailMonth(P.dsoDetailMonth);
+            if (P.actionPlansMonth) setActionPlansMonth(P.actionPlansMonth);
+            if (P.bdDevMonth) setBDDevMonth(P.bdDevMonth);
+            if (P.bdStructMonth) setBDStructMonth(P.bdStructMonth);
+            if (P.dsoRevMonth) setDSORevMonth(P.dsoRevMonth);
+            if (P.dsoEnterMonth) setDSOEnterMonth(P.dsoEnterMonth);
+            if (P.psiFocusMonth) setPSIFocusMonth(P.psiFocusMonth);
+            if (P.changeLog) setChangeLog(P.changeLog);
+            alert('✅ 완전 복원 완료!\n\n모든 데이터(월별 포함)를 백업 시점 그대로 복원했습니다.\n화면 반영을 위해 새로고침합니다.');
+            setTimeout(() => window.location.reload(), 800);
+            return;
+          } catch (err) {
+            // 완전백업 파싱 실패 시 아래 기존 방식으로 폴백
+            console.error('완전백업 복원 실패, 기존 방식 시도:', err);
+          }
+        }
+
+        // 각 시트별 복원 로직 (구버전 백업 호환)
         const restoreSheet = (sheetName, setter, keyExtractor) => {
           if (!wb.Sheets[sheetName]) return;
           const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName]);
