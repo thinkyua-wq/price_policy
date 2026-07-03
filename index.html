@@ -11674,7 +11674,7 @@ function App() {
       // 2) weeklyEntries의 영업사원 목표·실적 키 복사 (empGoalQ/empGoalA/empMonthly/empMonthlyA/empCum/empCumA)
       setWeeklyEntries(prev => {
         const next = { ...prev };
-        const prefixes = ['empGoalQ', 'empGoalA', 'empMonthly', 'empMonthlyA', 'empCum', 'empCumA'];
+        const prefixes = ['empGoalQ', 'empGoalA', 'empMonthly', 'empMonthlyA', 'empCum', 'empCumA', 'empDealer', 'empStatus', 'empStatusA'];
         Object.keys(prev).forEach(key => {
           // 형식: prefix|hq|empId|YYYY-M
           const parts = key.split('|');
