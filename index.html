@@ -6298,6 +6298,52 @@ function App() {
     }
   }, [weeklyEntries]);
 
+  // ★ 자동 클라우드 불러오기 (핸드폰 보기 전용) — URL에 ?auto 가 있으면 페이지 열릴 때 자동으로 최신 데이터 반영
+  React.useEffect(() => {
+    let params;
+    try { params = new URLSearchParams(window.location.search); } catch(e) { return; }
+    if (!params.has('auto')) return;                 // ?auto 없으면 아무것도 안 함 (컴퓨터는 영향 없음)
+    if (!GOOGLE_SCRIPT_URL) return;
+    // 무한 새로고침 방지: 이번 로드에서 이미 자동불러오기 했으면 중단
+    try { if (sessionStorage.getItem('autoCloudLoaded') === '1') return; } catch(e){}
+
+    (async () => {
+      try {
+        const res = await fetch(GOOGLE_SCRIPT_URL);
+        const raw = await res.json();
+        if (!raw || !raw.ok) return;
+        let d = raw.data || {};
+        // 압축 해제
+        if (d && d._z && d._c && typeof LZString !== 'undefined') {
+          try { const j = LZString.decompressFromBase64(d._c); if (j) d = JSON.parse(j); } catch(e){ return; }
+        }
+        if (d._photos && typeof d._photos === 'object') {
+          d.weeklyEntries = Object.assign({}, d.weeklyEntries || {}, d._photos);
+        }
+        // ★ 안전장치: 불러온 데이터가 비어있으면(0개) 화면을 날리지 않고 그냥 둠
+        const cnt = (d.weeklyEntries && typeof d.weeklyEntries === 'object') ? Object.keys(d.weeklyEntries).length : 0;
+        if (cnt === 0) return;
+        // 핵심 데이터를 localStorage에 직접 기록 후 새로고침 (한 번만)
+        try {
+          if (d.weeklyEntries) localStorage.setItem('dashboard_weekly_entries_v1', JSON.stringify(d.weeklyEntries));
+          if (d.dealers) localStorage.setItem('dashboard_dealers_v1', JSON.stringify(d.dealers));
+          if (d.psi) localStorage.setItem('dashboard_psi_v2', JSON.stringify(d.psi));
+          if (d.psiFocus) localStorage.setItem('dashboard_psiFocus_v4', JSON.stringify(d.psiFocus));
+          if (d.dso) localStorage.setItem('dashboard_dso_v1', JSON.stringify(d.dso));
+          if (d.bd) localStorage.setItem('dashboard_bd_v1', JSON.stringify(d.bd));
+          if (d.kpi) localStorage.setItem('dashboard_kpi_v1', JSON.stringify(d.kpi));
+          if (d.issues) localStorage.setItem('dashboard_issues_v1', JSON.stringify(d.issues));
+          if (d.salesPersonMonth) localStorage.setItem('dashboard_salesPersonMonth_v1', JSON.stringify(d.salesPersonMonth));
+          if (d.dealersMonth) localStorage.setItem('dashboard_dealersMonth_v1', JSON.stringify(d.dealersMonth));
+          if (d.psiMonth) localStorage.setItem('dashboard_psiMonth_v1', JSON.stringify(d.psiMonth));
+          if (d.dsoMonth) localStorage.setItem('dashboard_dsoMonth_v1', JSON.stringify(d.dsoMonth));
+        } catch(e){}
+        try { sessionStorage.setItem('autoCloudLoaded', '1'); } catch(e){}
+        window.location.reload();
+      } catch(e) { /* 실패 시 조용히 무시 (기존 화면 유지) */ }
+    })();
+  }, []);
+
   // 화면 크기 변경 시 사이드바 자동 조정 (모바일/데스크탑 전환)
   React.useEffect(() => {
     const handleResize = () => {
