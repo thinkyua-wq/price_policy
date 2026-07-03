@@ -8247,6 +8247,7 @@ function App() {
             const amtRate = amtGoal>0?Math.round(amtAct/amtGoal*100):0;
             const subCust = ovTask(hq,'ch_end','cumActual');
             const bdCust = ovTask(hq,'ch_bd','cumActual');
+            const ariCust = ovTask(hq,'ch_ari','cumActual');
             const dsoCust = ovTask(hq,'ch_dso','cumActual');
             const dealer = ovTask(hq,'ch_dealer','cumActual');
             const edu = ovTask(hq,'mkt_edu','cumActual');
@@ -8299,6 +8300,7 @@ function App() {
                 <div className="border-t border-slate-100 pt-1.5">
                   {row('하부고객 수', subCust, '개사')}
                   {row('BD 고객 수', bdCust, '개사')}
+                  {row('ARi 고객 수', ariCust, '개사')}
                   {row('DSO 고객 수', dsoCust, '개사')}
                   {row('대리상 수', dealer, '개사')}
                   {row('교육·세미나', edu, '회')}
@@ -8333,6 +8335,7 @@ function App() {
                   <th className="px-2 py-2 text-right font-bold text-slate-900">누적판매<br/>(M)</th>
                   <th className="px-2 py-2 text-right font-bold text-slate-900">하부<br/>고객</th>
                   <th className="px-2 py-2 text-right font-bold text-slate-900">BD<br/>고객</th>
+                  <th className="px-2 py-2 text-right font-bold text-slate-900">ARi<br/>고객</th>
                   <th className="px-2 py-2 text-right font-bold text-slate-900">대리상</th>
                   <th className="px-2 py-2 text-right font-bold text-slate-900">KOL</th>
                 </tr>
@@ -8360,6 +8363,7 @@ function App() {
                     <td className="px-2 py-2 text-right text-slate-900 font-semibold">{formatNumber(Math.round(amtCum))}</td>
                     <td className="px-2 py-2 text-right text-slate-900 font-semibold">{formatNumber(Math.round(ovTask(hq,'ch_end','cumActual')))}</td>
                     <td className="px-2 py-2 text-right text-slate-900 font-semibold">{formatNumber(Math.round(ovTask(hq,'ch_bd','cumActual')))}</td>
+                    <td className="px-2 py-2 text-right text-slate-900 font-semibold">{formatNumber(Math.round(ovTask(hq,'ch_ari','cumActual')))}</td>
                     <td className="px-2 py-2 text-right text-slate-900 font-semibold">{formatNumber(Math.round(ovTask(hq,'ch_dealer','cumActual')))}</td>
                     <td className="px-2 py-2 text-right text-slate-900 font-semibold">{formatNumber(Math.round(ovTask(hq,'mkt_kol','cumActual')))}</td>
                   </tr>
@@ -9130,6 +9134,7 @@ function App() {
               { id: 'collect', group: '법인판매', name: '수금금액', unit: 'M RMB' },
               { id: 'ch_end', group: '판매채널', name: '하부고객', unit: '개사' },
               { id: 'ch_bd', group: '판매채널', name: 'BD 고객', unit: '개사' },
+              { id: 'ch_ari', group: '판매채널', name: 'ARi 고객', unit: '개사' },
               { id: 'ch_dso', group: '판매채널', name: 'DSO 고객', unit: '개사' },
               { id: 'ch_dealer', group: '판매채널', name: '대리상', unit: '개사' },
               { id: 'mkt_edu', group: '시장마케팅', name: '교육/세미나', unit: '회' },
@@ -9382,6 +9387,7 @@ function App() {
             { id: 'collect', group: '법인판매', name: '수금금액', unit: 'M RMB' },
             { id: 'ch_end', group: '판매채널', name: '하부고객', unit: '개사' },
             { id: 'ch_bd', group: '판매채널', name: 'BD 고객', unit: '개사' },
+            { id: 'ch_ari', group: '판매채널', name: 'ARi 고객', unit: '개사' },
             { id: 'ch_dso', group: '판매채널', name: 'DSO 고객', unit: '개사' },
             { id: 'ch_dealer', group: '판매채널', name: '대리상', unit: '개사' },
             { id: 'mkt_edu', group: '시장마케팅', name: '교육/세미나', unit: '회' },
