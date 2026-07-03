@@ -11654,23 +11654,39 @@ function App() {
       const prevMonth = displayMonthSP - 1;
       if (prevMonth < 1) { alert('이전월이 없습니다 (1월에서는 사용 불가)'); return; }
       const prevYearMonth = `${curYearSP}-${prevMonth}`;
+      const curYM = yearMonthSP; // 현재 년-월
 
       const prevData = (salesPersonMonth[hq] && salesPersonMonth[hq][prevYearMonth])
         ? salesPersonMonth[hq][prevYearMonth]
         : (prevMonth === 5 ? salesPerson[hq] : null);
 
-      if (!prevData) {
-        alert(`${prevMonth}월에 데이터가 없습니다.`);
-        return;
-      }
-      if (!confirm(`${prevMonth}월의 영업사원 데이터를 ${monthLabelSP}에 복사하시겠습니까?\n현재 ${monthLabelSP}의 데이터는 덮어씌워집니다.`)) return;
+      if (!confirm(`${prevMonth}월의 영업사원 데이터(목표·실적)를 ${monthLabelSP}에 복사하시겠습니까?\n현재 ${monthLabelSP}의 데이터는 덮어씌워집니다.`)) return;
 
-      setSalesPersonMonth(prev => ({
-        ...prev,
-        [hq]: { ...(prev[hq] || {}), [yearMonthSP]: JSON.parse(JSON.stringify(prevData)) }
-      }));
-      logChange(`5번 영업사원`, `${prevMonth}월 → ${monthLabelSP} 복사`);
-      alert(`${prevMonth}월 데이터 → ${monthLabelSP}로 복사 완료!`);
+      // 1) 명단/구조(salesPersonMonth) 복사
+      if (prevData) {
+        setSalesPersonMonth(prev => ({
+          ...prev,
+          [hq]: { ...(prev[hq] || {}), [curYM]: JSON.parse(JSON.stringify(prevData)) }
+        }));
+      }
+
+      // 2) weeklyEntries의 영업사원 목표·실적 키 복사 (empGoalQ/empGoalA/empMonthly/empMonthlyA/empCum/empCumA)
+      setWeeklyEntries(prev => {
+        const next = { ...prev };
+        const prefixes = ['empGoalQ', 'empGoalA', 'empMonthly', 'empMonthlyA', 'empCum', 'empCumA'];
+        Object.keys(prev).forEach(key => {
+          // 형식: prefix|hq|empId|YYYY-M
+          const parts = key.split('|');
+          if (parts.length === 4 && prefixes.indexOf(parts[0]) !== -1 && parts[1] === hq && parts[3] === prevYearMonth) {
+            const newKey = `${parts[0]}|${parts[1]}|${parts[2]}|${curYM}`;
+            next[newKey] = prev[key];
+          }
+        });
+        return next;
+      });
+
+      logChange(`4번 영업사원`, `${prevMonth}월 → ${monthLabelSP} 복사 (목표·실적 포함)`);
+      alert(`${prevMonth}월 데이터 → ${monthLabelSP}로 복사 완료!\n(목표·실적 모두 복사됨)`);
     };
 
     // 도넛 차트 (달성률 표시용)
