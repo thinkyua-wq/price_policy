@@ -6076,7 +6076,12 @@ function App() {
     try { return localStorage.getItem('dashboard_selectedHQ_v1') || 'overview'; } catch(e){ return 'overview'; }
   });
   const [selectedSubmenu, setSelectedSubmenu] = useState(() => {
-    try { const v = localStorage.getItem('dashboard_selectedSubmenu_v1'); return v ? Number(v) : 1; } catch(e){ return 1; }
+    try {
+      const v = localStorage.getItem('dashboard_selectedSubmenu_v1');
+      const n = v ? Number(v) : 1;
+      // 5(패키지)·8(하부고객)은 별도 웹앱으로 분리 → 남아있으면 1번으로
+      return (n === 5 || n === 8) ? 1 : n;
+    } catch(e){ return 1; }
   });
   React.useEffect(() => { try { localStorage.setItem('dashboard_selectedHQ_v1', selectedHQ); } catch(e){} }, [selectedHQ]);
   React.useEffect(() => { try { localStorage.setItem('dashboard_selectedSubmenu_v1', String(selectedSubmenu)); } catch(e){} }, [selectedSubmenu]);
@@ -7745,25 +7750,7 @@ function App() {
                 </button>
               );
             })}
-            {/* 숨김 메뉴 (맨 밑, 토글로 펼침) */}
-            <button onClick={() => setShowHiddenMenus(!showHiddenMenus)}
-              className="w-full flex items-center gap-2 px-3 py-2 text-xs rounded text-left text-slate-500 hover:bg-slate-800">
-              <div className="flex-shrink-0"><Icon name={showHiddenMenus ? 'eye' : 'eyeOff'} className="w-3.5 h-3.5" /></div>
-              <span className="truncate">{showHiddenMenus ? '기타 메뉴 숨기기' : '기타 메뉴 보기'}</span>
-            </button>
-            {showHiddenMenus && [
-              { id: 5, label: '패키지 활동보고', icon: 'package' },
-              { id: 8, label: '하부고객 확대현황', icon: 'users' },
-            ].map(m => {
-              const active = selectedSubmenu === m.id;
-              return (
-                <button key={m.id} onClick={() => setSelectedSubmenu(m.id)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded text-left ${active ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
-                  <div className="flex-shrink-0"><Icon name={m.icon} className="w-4 h-4" /></div>
-                  <span className="truncate">{m.label}</span>
-                </button>
-              );
-            })}
+            {/* 패키지 활동보고 / 하부고객 확대현황 → 별도 웹앱 'MGG 교육마케팅활동'으로 분리 */}
           </nav>
         </div>
       )}
@@ -14982,10 +14969,8 @@ function App() {
       case 2: _body = renderMSDSO(hq); break;
       case 3: _body = renderPSI(hq); break;
       case 4: _body = renderSalesPerson(hq); break;
-      case 5: _body = renderPackage(hq); break;
       case 6: _body = renderDSONotEntered(hq); break;
       case 7: _body = renderBD(hq); break;
-      case 8: _body = renderSubCustomer(hq); break;
       default: _body = renderMSDSO(hq);
     }
     // 메뉴별 NOTE 키 prefix
