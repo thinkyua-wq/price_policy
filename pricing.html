@@ -920,6 +920,9 @@ function Sidebar({
     }, {
       key: 'kit-sim',
       label: '키트 시뮬레이션(ZBLC)'
+    }, {
+      key: 'kit-mgg',
+      label: '키트 시뮬레이션(MGG중국)'
     }]
   }];
   return /*#__PURE__*/React.createElement("aside", {
@@ -9568,6 +9571,242 @@ const KIT_QUOTE_SEED = {
   updatedAt: ''
 };
 
+/* ==== MGG 중국지역 키트 시뮬레이션 데이터 (229 items x 9 systems) ==== */
+const MGG_SYSTEMS = ["AO Standard", "AO Full", "AR Full", "ST Standard", "ST Full", "BD Standard", "BD Full", "EZ Standard", "EZ Full"];
+const MGG_ITEM_SEED = [
+{n:1,c:"MGD100L",d:"Lance Drill [CM]",b:8,a:6,q:{"AO Standard":1,"AO Full":1,"AR Full":1}},
+{n:2,c:"TANCDL3500",d:"Cortical Bone Drill [AR]",b:10,a:5,q:{"AR Full":1}},
+{n:3,c:"TANCDL4055",d:"Cortical Bone Drill [AR]",b:10,a:5,q:{"AR Full":1}},
+{n:4,c:"TANCDL6080",d:"Cortical Bone Drill [AR]",b:10,a:5,q:{"AR Full":1}},
+{n:5,c:"TANTDF2007",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:6,c:"TANTDF2008",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:7,c:"TANTDF2010",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:8,c:"TANTDF2011",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:9,c:"TANSDF3307",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:10,c:"TANSDF3308",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:11,c:"TANSDF3310",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:12,c:"TANSDF3311",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:13,c:"TANSDF4807",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:14,c:"TANSDF4808",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:15,c:"TANSDF4810",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:16,c:"TANSDF4811",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:17,c:"TANTDF2018",d:"Marking Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:18,c:"SD2518S",d:"Shaping Drill [CM]",b:8,a:6,q:{"AO Standard":1,"AO Full":1,"AR Full":1}},
+{n:19,c:"SD2818S",d:"Shaping Drill [CM]",b:8,a:6,q:{"AO Standard":1,"AO Full":1,"AR Full":1}},
+{n:20,c:"TANSDF3318",d:"Marking Drill [AR]",b:8,a:8,q:{"AR Full":1}},
+{n:21,c:"TANSDF3818",d:"Marking Drill [AR]",b:8,a:8,q:{"AR Full":1}},
+{n:22,c:"TANSDF4318",d:"Marking Drill [AR]",b:8,a:8,q:{"AR Full":1}},
+{n:23,c:"TANSDF4815",d:"Marking Drill [AR]",b:8,a:8,q:{"AR Full":1}},
+{n:24,c:"TANSDF5415",d:"Marking Drill [AR]",b:8,a:8,q:{"AR Full":1}},
+{n:25,c:"TANSDF5915",d:"Marking Drill [AR]",b:8,a:8,q:{"AR Full":1}},
+{n:26,c:"MDI100",d:"Direction Indicator [CM]",b:2,a:2,q:{"AO Standard":4,"AO Full":4,"AR Full":2,"EZ Standard":2,"EZ Full":2}},
+{n:27,c:"MDI3348",d:"Direction Indicator [AR]",b:2,a:2,q:{"AR Full":2}},
+{n:28,c:"TANPFF3580",d:"Path Finder [AR]",b:5,a:3,q:{"AR Full":2}},
+{n:29,c:"MTW300AT",d:"Torque Wrench [CM]",b:40,a:40,q:{"AO Standard":1,"AR Full":1}},
+{n:30,c:"MDE150",d:"Drill Extension [CM]",b:8,a:7,q:{"AO Standard":1,"AO Full":1,"AR Full":1,"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1,"EZ Standard":1,"EZ Full":1},u:1},
+{n:31,c:"TANMRD18",d:"Abutment Removal Driver",b:12,a:9,q:{"AR Full":1}},
+{n:32,c:"TCMHDS1200",d:"Hand Driver [CM]",b:8,a:9,q:{"AO Standard":1,"AO Full":1,"AR Full":1,"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1,"EZ Standard":1,"EZ Full":1},u:1},
+{n:33,c:"TCMHDL1200",d:"Hand Driver [CM]",b:8,a:9,q:{"AO Standard":1,"AO Full":1,"AR Full":1,"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1,"EZ Standard":1,"EZ Full":1},u:1},
+{n:34,c:"TANRES",d:"Ratchet Connector [AR]",b:5,a:9,q:{"AR Full":1}},
+{n:35,c:"TANREL",d:"Ratchet Connector [AR]",b:5,a:9,q:{"AR Full":1}},
+{n:36,c:"RCS17",d:"Ratchet Connector [MN]",b:5,a:7,q:{"AO Standard":1,"AO Full":1,"AR Full":1}},
+{n:37,c:"RCL17",d:"Ratchet Connector [MN]",b:5,a:7,q:{"AO Standard":1,"AO Full":1,"AR Full":1}},
+{n:38,c:"TANHCS",d:"Handpiece Connector [AR]",b:8,a:8,q:{"AR Full":1}},
+{n:39,c:"TANHCL",d:"Handpiece Connector [AR]",b:8,a:8,q:{"AR Full":1}},
+{n:40,c:"HCS17",d:"Handpiece Connector [MN]",b:8,a:6.5,q:{"AO Standard":1,"AO Full":1,"AR Full":1}},
+{n:41,c:"HCL17",d:"Handpiece Connector [MN]",b:8,a:6.5,q:{"AO Standard":1,"AO Full":1,"AR Full":1}},
+{n:42,c:"KARIN2001",d:"Kit Case [Noble]",b:20,a:20,q:{"AR Full":1}},
+{n:43,c:"SPTB4050",d:"Point Trephine Bur [CM]",b:12,a:15,q:{"AR Full":1}},
+{n:44,c:"TANTBL2535",d:"Trephine Bur [AR]",b:10,a:10,q:{"AR Full":1}},
+{n:45,c:"TANTBL4050",d:"Trephine Bur [AR]",b:10,a:10,q:{"AR Full":1}},
+{n:46,c:"SD2807M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1,"AR Full":1}},
+{n:47,c:"SD2808M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1,"AR Full":1}},
+{n:48,c:"SD2810M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1,"AR Full":1}},
+{n:49,c:"SD2811M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1,"AR Full":1}},
+{n:50,c:"TANSDF3807",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:51,c:"TANSDF3808",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:52,c:"TANSDF3810",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:53,c:"TANSDF3811",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:54,c:"TANSDF4307",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:55,c:"TANSDF4308",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:56,c:"TANSDF4310",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:57,c:"TANSDF4311",d:"Stopper Drill [AR]",b:8,a:9,q:{"AR Full":1}},
+{n:58,c:"SD2018S",d:"Shaping Drill [CM]",b:8,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:59,c:"SD3318S",d:"Shaping Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:60,c:"SD3618S",d:"Shaping Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:61,c:"SD4218S",d:"Shaping Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:62,c:"SD4818S",d:"Shaping Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:63,c:"SD5818S",d:"Shaping Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:64,c:"SD6918S",d:"Shaping Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:65,c:"DD39",d:"Dense Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:66,c:"DD43",d:"Dense Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:67,c:"DD48",d:"Dense Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:68,c:"DD53",d:"Dense Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:69,c:"DD63",d:"Dense Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:70,c:"DD73",d:"Dense Drill [AO]",b:10,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:71,c:"HCS25",d:"Handpiece Connector [AO]",b:8,a:6,q:{"AO Standard":1,"AO Full":1}},
+{n:72,c:"HCL25",d:"Handpiece Connector [AO]",b:8,a:6,q:{"AO Standard":1,"AO Full":1}},
+{n:73,c:"RCS25",d:"Ratchet Connector [AO]",b:5,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:74,c:"RCL25",d:"Ratchet Connector [AO]",b:5,a:7,q:{"AO Standard":1,"AO Full":1}},
+{n:75,c:"PF",d:"Path Finder [AO]",b:8,a:5,q:{"AO Standard":2,"AO Full":2}},
+{n:76,c:"KAOIN2003C",d:"Kit Case [AO]",b:20,a:20,q:{"AO Standard":1}},
+{n:77,c:"TW70T",d:"Torque Wrench [CM]",b:40,a:40,q:{"AO Full":1}},
+{n:78,c:"SD2007M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:79,c:"SD2008M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:80,c:"SD2010M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:81,c:"SD2011M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:82,c:"SD3307M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:83,c:"SD3308M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:84,c:"SD3310M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:85,c:"SD3311M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:86,c:"SD3607M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:87,c:"SD3608M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:88,c:"SD3610M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:89,c:"SD3611M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:90,c:"SD4207M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:91,c:"SD4208M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:92,c:"SD4210M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:93,c:"SD4211M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:94,c:"SD4807M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:95,c:"SD4808M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:96,c:"SD4810M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:97,c:"SD4811M",d:"Stopper Drill [AO]",b:7,a:7,q:{"AO Full":1}},
+{n:98,c:"TD35",d:"Tap Drill [AO]",b:7,a:6.5,q:{"AO Full":1}},
+{n:99,c:"TD40",d:"Tap Drill [AO]",b:7,a:6.5,q:{"AO Full":1}},
+{n:100,c:"TD45",d:"Tap Drill [AO]",b:7,a:6.5,q:{"AO Full":1}},
+{n:101,c:"TD50",d:"Tap Drill [AO]",b:7,a:6.5,q:{"AO Full":1}},
+{n:102,c:"TD60",d:"Tap Drill [AO]",b:7,a:6.5,q:{"AO Full":1}},
+{n:103,c:"TD70",d:"Tap Drill [AO]",b:7,a:6.5,q:{"AO Full":1}},
+{n:104,c:"KAOIN2001C",d:"AnyOne Surgical Kit Case [AO]",b:20,a:20,q:{"AO Full":1}},
+{n:105,c:"LDMD2515",d:"Lindermann Drill [CM]",b:2.8,a:2,q:{"AO Full":1,"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1,"EZ Standard":1,"EZ Full":1,"AO Standard":1,"AR Full":1},u:1},
+{n:106,c:"TEED200M",d:"Twist Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:107,c:"TEED2007",d:"Twist Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:108,c:"TEED2008",d:"Twist Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:109,c:"TEED2010",d:"Twist Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:110,c:"TEED2011",d:"Twist Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:111,c:"TEED280M",d:"Straight Drill [CM]",b:12,a:8,q:{"EZ Standard":1,"EZ Full":1}},
+{n:112,c:"TEED330M",d:"Straight Drill [CM]",b:12,a:8,q:{"EZ Standard":1,"EZ Full":1}},
+{n:113,c:"TEED380M",d:"Straight Drill [CM]",b:12,a:8,q:{"EZ Standard":1,"EZ Full":1}},
+{n:114,c:"TEED430M",d:"Straight Drill [CM]",b:12,a:8,q:{"EZ Standard":1,"EZ Full":1}},
+{n:115,c:"TEED2807",d:"Straight Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:116,c:"TEED2808",d:"Straight Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:117,c:"TEED2810",d:"Straight Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:118,c:"TEED2811",d:"Straight Drill [CM]",b:12,a:8,q:{"EZ Full":1}},
+{n:119,c:"MTP330L",d:"Tap [EX]",b:0,a:0,q:{}},
+{n:120,c:"MTP400L",d:"Tap [EX]",b:0,a:0,q:{}},
+{n:121,c:"MTP450L",d:"Tap [EX]",b:0,a:0,q:{}},
+{n:122,c:"MTP500S",d:"Tap [EX]",b:0,a:0,q:{}},
+{n:123,c:"MPD2833L",d:"Pilot Drill [CM]",b:0,a:0,q:{}},
+{n:124,c:"MPD3843L",d:"Pilot Drill [CM]",b:0,a:0,q:{}},
+{n:125,c:"MCS330N",d:"Countersink [EZ]",b:0,a:0,q:{}},
+{n:126,c:"MCS400N",d:"Countersink [EZ]",b:0,a:0,q:{}},
+{n:127,c:"MCS450N",d:"Countersink [EZ]",b:0,a:0,q:{}},
+{n:128,c:"MCS500N",d:"Countersink [EZ]",b:0,a:0,q:{}},
+{n:129,c:"MEIHC330L",d:"Handpiece Connector [EZ]",b:26,a:26,q:{"EZ Standard":1,"EZ Full":1}},
+{n:130,c:"MEIHC400L",d:"Handpiece Connector [EZ]",b:26,a:26,q:{"EZ Standard":1,"EZ Full":1}},
+{n:131,c:"MEIHC400S",d:"Handpiece Connector [EZ]",b:26,a:26,q:{"EZ Standard":1,"EZ Full":1}},
+{n:132,c:"MEIRE330L",d:"Ratchet Extension [EZ]",b:26,a:26,q:{"EZ Standard":1,"EZ Full":1}},
+{n:133,c:"MEIRE400L",d:"Ratchet Extension [EZ]",b:33,a:33,q:{"EZ Standard":1,"EZ Full":1}},
+{n:134,c:"MEIRE400S",d:"Ratchet Extension [EZ]",b:33,a:33,q:{"EZ Standard":1,"EZ Full":1}},
+{n:135,c:"MRE400S",d:"Carrier Extension [CM]",b:45,a:44.6,q:{"EZ Full":1}},
+{n:136,c:"MRW040S",d:"Ratchet Wrench [CM]",b:45,a:44.6,q:{}},
+{n:137,c:"MDG200",d:"Depth Gauge [EX]",b:10,a:9,q:{"EZ Full":1}},
+{n:138,c:"SGEZ2001_Re",d:"Surgical Kit Case [EZ]",b:0,a:0,q:{}},
+{n:139,c:"SGEZ2001",d:"Surgical Kit Case [EZ]",b:20,a:20,q:{"EZ Standard":1,"EZ Full":1}},
+{n:140,c:"LD2015",d:"Lance Drill [CM]",b:2.8,a:2,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1,"EZ Standard":1,"EZ Full":1}},
+{n:141,c:"FD5020",d:"Flattening Drill [CM]",b:25,a:27,q:{"ST Full":1,"BD Standard":1,"BD Full":1}},
+{n:142,c:"CMSD2518S",d:"Shaping Drill [CM]",b:2,a:2,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1}},
+{n:143,c:"CMSD2918S",d:"Shaping Drill [CM]",b:2,a:2,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1}},
+{n:144,c:"CMSD3318S",d:"Shaping Drill [CM]",b:2,a:2,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1}},
+{n:145,c:"CMSD3618S",d:"Shaping Drill [CM]",b:10,a:10,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1}},
+{n:146,c:"CMSD3918S",d:"Shaping Drill [CM]",b:10,a:10,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1}},
+{n:147,c:"CMSD4318S",d:"Shaping Drill [CM]",b:10,a:10,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1}},
+{n:148,c:"CMSD4818S",d:"Shaping Drill [CM]",b:10,a:10,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1}},
+{n:149,c:"STDD39",d:"Dense Drill [ST]",b:10,a:9.5,q:{"ST Standard":1,"ST Full":1}},
+{n:150,c:"STDD43",d:"Dense Drill [ST]",b:10,a:9.5,q:{"ST Standard":1,"ST Full":1}},
+{n:151,c:"STDD48",d:"Dense Drill [ST]",b:10,a:9.5,q:{"ST Standard":1,"ST Full":1}},
+{n:152,c:"STDD53",d:"Dense Drill [ST]",b:10,a:9.5,q:{"ST Standard":1,"ST Full":1}},
+{n:153,c:"CMDI2025",d:"Direction Indicator [CM]",b:10,a:7,q:{"ST Standard":2,"ST Full":2,"BD Standard":2,"BD Full":2}},
+{n:154,c:"CMDI2529",d:"Direction Indicator [CM]",b:10,a:7,q:{"ST Standard":2,"ST Full":2,"BD Standard":2,"BD Full":2}},
+{n:155,c:"STPFM",d:"Path Finder[ST]",b:4.7,a:4,q:{"ST Standard":1,"ST Full":1}},
+{n:156,c:"STPFR",d:"Path Finder[ST]",b:4.7,a:4,q:{"ST Standard":1,"ST Full":1}},
+{n:157,c:"TWSQ70",d:"Torque Wrench [CM]",b:40,a:39,q:{"ST Standard":1,"ST Full":1,"BD Standard":1,"BD Full":1,"EZ Standard":1,"EZ Full":1}},
+{n:158,c:"STHCS21",d:"Handpiece Connector [ST]",b:9,a:9,q:{"ST Standard":1,"ST Full":1}},
+{n:159,c:"STHCL21",d:"Handpiece Connector [ST]",b:9,a:9,q:{"ST Standard":1,"ST Full":1}},
+{n:160,c:"STHCS25",d:"Handpiece Connector [ST]",b:9,a:9,q:{"ST Standard":1,"ST Full":1}},
+{n:161,c:"STHCL25",d:"Handpiece Connector [ST]",b:9,a:9,q:{"ST Standard":1,"ST Full":1}},
+{n:162,c:"STRCS21",d:"Ratchet Connector [ST]",b:10,a:9,q:{"ST Standard":1,"ST Full":1}},
+{n:163,c:"STRCL21",d:"Ratchet Connector [ST]",b:10,a:9,q:{"ST Standard":1,"ST Full":1}},
+{n:164,c:"STRCS25",d:"Ratchet Connector [ST]",b:10,a:9,q:{"ST Standard":1,"ST Full":1}},
+{n:165,c:"STRCL25",d:"Ratchet Connector [ST]",b:10,a:9,q:{"ST Standard":1,"ST Full":1}},
+{n:166,c:"CMSD2507",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:167,c:"CMSD2508",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:168,c:"CMSD2510",d:"Stopper Drill [CM]",b:2,a:2,q:{"ST Full":1,"BD Full":1}},
+{n:169,c:"CMSD2511",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:170,c:"CMSD2907",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:171,c:"CMSD2908",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:172,c:"CMSD2910",d:"Stopper Drill [CM]",b:2,a:2,q:{"ST Full":1,"BD Full":1}},
+{n:173,c:"CMSD2911",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:174,c:"CMSD3307",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:175,c:"CMSD3308",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:176,c:"CMSD3310",d:"Stopper Drill [CM]",b:2,a:2,q:{"ST Full":1,"BD Full":1}},
+{n:177,c:"CMSD3311",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:178,c:"CMSD3607",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:179,c:"CMSD3608",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:180,c:"CMSD3610",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:181,c:"CMSD3611",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:182,c:"CMSD4307",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:183,c:"CMSD4308",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:184,c:"CMSD4310",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:185,c:"CMSD4311",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:186,c:"CMSD4807",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:187,c:"CMSD4808",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:188,c:"CMSD4810",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:189,c:"CMSD4811",d:"Stopper Drill [CM]",b:8,a:9,q:{"ST Full":1,"BD Full":1}},
+{n:190,c:"KSTIN2003C",d:"Surgical Kit Case [ST] / Standard",b:20,a:20,q:{"ST Standard":1}},
+{n:191,c:"KSTIN2000C",d:"Surgical Kit Case [ST]/Full",b:20,a:20,q:{"ST Full":1}},
+{n:192,c:"CMSD3907",d:"Stopper Drill",b:56,a:12,q:{"BD Full":1}},
+{n:193,c:"CMSD3908",d:"Stopper Drill",b:56,a:12,q:{"BD Full":1}},
+{n:194,c:"CMSD3910",d:"Stopper Drill",b:56,a:12,q:{"BD Full":1}},
+{n:195,c:"CMSD3911",d:"Stopper Drill",b:56,a:12,q:{"BD Full":1}},
+{n:196,c:"CMCD36",d:"Cortical Bone Drill",b:10,a:8,q:{"BD Standard":1,"BD Full":1}},
+{n:197,c:"CMCD39",d:"Cortical Bone Drill",b:10,a:8,q:{"BD Standard":1,"BD Full":1}},
+{n:198,c:"CMCD43",d:"Cortical Bone Drill",b:10,a:8,q:{"BD Standard":1,"BD Full":1}},
+{n:199,c:"CMCD48",d:"Cortical Bone Drill",b:10,a:8,q:{"BD Standard":1,"BD Full":1}},
+{n:200,c:"CMCD50",d:"Cortical Bone Drill",b:10,a:8,q:{"BD Standard":1,"BD Full":1}},
+{n:201,c:"CMCD56",d:"Cortical Bone Drill",b:10,a:8,q:{"BD Standard":1,"BD Full":1}},
+{n:202,c:"CMTD36",d:"Tap Drill",b:10,a:6,q:{"BD Standard":1,"BD Full":1}},
+{n:203,c:"CMTD39",d:"Tap Drill",b:10,a:6,q:{"BD Standard":1,"BD Full":1}},
+{n:204,c:"CMTD43",d:"Tap Drill",b:10,a:6,q:{"BD Standard":1,"BD Full":1}},
+{n:205,c:"CMTD48",d:"Tap Drill",b:10,a:6,q:{"BD Standard":1,"BD Full":1}},
+{n:206,c:"CMTD50",d:"Tap Drill",b:10,a:6,q:{"BD Standard":1,"BD Full":1}},
+{n:207,c:"CMTD56",d:"Tap Drill",b:10,a:6,q:{"BD Standard":1,"BD Full":1}},
+{n:208,c:"AROHCS21",d:"Handpiece Connector",b:10,a:7,q:{"BD Standard":1,"BD Full":1}},
+{n:209,c:"AROHCL21",d:"Handpiece Connector",b:10,a:7,q:{"BD Standard":1,"BD Full":1}},
+{n:210,c:"AROHCS25",d:"Handpiece Connector",b:10,a:7,q:{"BD Standard":1,"BD Full":1}},
+{n:211,c:"AROHCL25",d:"Handpiece Connector",b:10,a:7,q:{"BD Standard":1,"BD Full":1}},
+{n:212,c:"ARORCS21",d:"Ratchet Connector",b:10,a:7,q:{"BD Standard":1,"BD Full":1}},
+{n:213,c:"ARORCL21",d:"Ratchet Connector",b:10,a:7,q:{"BD Standard":1,"BD Full":1}},
+{n:214,c:"ARORCS25",d:"Ratchet Connector",b:10,a:7,q:{"BD Standard":1,"BD Full":1}},
+{n:215,c:"ARORCL25",d:"Ratchet Connector",b:10,a:7,q:{"BD Standard":1,"BD Full":1}},
+{n:216,c:"AROFDN",d:"Fixture Driver",b:52.3,a:2,q:{"BD Full":1}},
+{n:217,c:"AROFDR",d:"Fixture Driver",b:52.3,a:2,q:{"BD Full":1}},
+{n:218,c:"AROPFN",d:"Path Finder",b:4.2,a:3,q:{"BD Standard":1,"BD Full":2}},
+{n:219,c:"AROPFR",d:"Path Finder",b:4.2,a:3,q:{"BD Standard":1,"BD Full":2}},
+{n:220,c:"MKBD2000L",d:"Surgical Kit Case/Full",b:150,a:56,q:{"BD Full":1}},
+{n:221,c:"MKBD2000M",d:"Surgical Kit Case/Standard",b:125,a:49,q:{"BD Standard":1}},
+{n:222,c:"AROCD33",d:"Cortical Bone Drill [BD]",b:null,a:null,q:{"EZ Standard":1,"EZ Full":1}},
+{n:223,c:"AROCD37",d:"Cortical Bone Drill [BD]",b:null,a:null,q:{"EZ Standard":1,"EZ Full":1}},
+{n:224,c:"AROCD44",d:"Cortical Bone Drill [BD]",b:null,a:null,q:{"EZ Standard":1,"EZ Full":1}},
+{n:225,c:"AROCD48",d:"Cortical Bone Drill [BD]",b:null,a:null,q:{"EZ Standard":1,"EZ Full":1}},
+{n:226,c:"AROTD33",d:"Tap Drill [BD]",b:null,a:null,q:{"EZ Full":1}},
+{n:227,c:"AROTD37",d:"Tap Drill [BD]",b:null,a:null,q:{"EZ Full":1}},
+{n:228,c:"AROTD44",d:"Tap Drill [BD]",b:null,a:null,q:{"EZ Full":1}},
+{n:229,c:"AROTD48",d:"Tap Drill [BD]",b:null,a:null,q:{"EZ Full":1}}
+];
+
+const MGG_SEED = { systems: MGG_SYSTEMS, items: MGG_ITEM_SEED, memo: '', history: [] };
+
 function KitSimPage({
   kitMaster,
   setKitMaster,
@@ -12095,7 +12334,615 @@ function GpAnalysisPage({
 /* ========================================
    App
 ======================================== */
+/* ========================================
+   키트 시뮬레이션 (MGG 중국지역)
+   229개 구성품 × 9개 시스템 포함여부
+======================================== */
+/* ========================================
+   키트 시뮬레이션 (MGG 중국지역)
+   구성품 × 시스템 포함여부 / 전체보기 / 저장이력 / 시스템 편집
+======================================== */
+const MGG_ALL = '__ALL__';
+
+const MGG_CM = '[CM]';
+function mggIsCM(it) { return ((it && it.d) || '').indexOf(MGG_CM) !== -1; }
+function mggIsUni(it) { return !!(it && it.u); }
+
+/* 저장값 + 시드 병합
+   - 사용자가 편집한 단가/포함여부/수량은 저장값 유지
+   - 시드에 새로 추가된 구성품은 자동 합류 (신규 항목 대응)
+   - 전품목 플래그(u)는 항상 시드 기준 (마스터 데이터)
+   - 전품목은 저장값에 없는 시스템에도 수량 1로 자동 보정 */
+function mggMerge(saved) {
+  const seedBy = {};
+  MGG_ITEM_SEED.forEach(s => { seedBy[s.n] = s; });
+  const savedItems = (saved && Array.isArray(saved.items)) ? saved.items : [];
+  const savedBy = {};
+  savedItems.forEach(it => { savedBy[it.n] = it; });
+
+  const systems = (saved && Array.isArray(saved.systems) && saved.systems.length)
+    ? saved.systems.slice() : MGG_SYSTEMS.slice();
+
+  // 저장값 기준으로 시작하되, 시드 신규 항목을 뒤에 합류
+  const merged = [];
+  const seen = {};
+  savedItems.forEach(it => {
+    const seed = seedBy[it.n];
+    seen[it.n] = 1;
+    merged.push({
+      n: it.n,
+      c: it.c !== undefined ? it.c : (seed ? seed.c : ''),
+      d: it.d !== undefined ? it.d : (seed ? seed.d : ''),
+      b: it.b === undefined ? (seed ? seed.b : null) : it.b,
+      a: it.a === undefined ? (seed ? seed.a : null) : it.a,
+      q: { ...(it.q || {}) },
+      u: seed ? (seed.u ? 1 : 0) : (it.u ? 1 : 0)
+    });
+  });
+  MGG_ITEM_SEED.forEach(s => {
+    if (!seen[s.n]) merged.push({ ...s, q: { ...s.q }, u: s.u ? 1 : 0 });
+  });
+  merged.sort((x, y) => x.n - y.n);
+
+  // 전품목 보정: 모든 시스템에 최소 1 (저장값에 이미 있으면 그 값 유지)
+  merged.forEach(it => {
+    if (!it.u) return;
+    systems.forEach(s => { if (!it.q[s]) it.q[s] = 1; });
+  });
+
+  return {
+    memo: (saved && saved.memo) || '',
+    systems,
+    items: merged,
+    history: (saved && Array.isArray(saved.history)) ? saved.history : []
+  };
+}
+
+function mggSystems(mggKit) {
+  return (mggKit && Array.isArray(mggKit.systems) && mggKit.systems.length) ? mggKit.systems : MGG_SYSTEMS;
+}
+function mggItems(mggKit) {
+  return (mggKit && Array.isArray(mggKit.items) && mggKit.items.length) ? mggKit.items : MGG_ITEM_SEED;
+}
+// 시스템 합계 (조정단가 기준, 단가 미입력은 제외)
+function mggTotals(items, sys) {
+  return items.reduce((acc, it) => {
+    const qty = (it.q && it.q[sys]) || 0;
+    if (!qty) return acc;
+    acc.kinds += 1;
+    acc.qty += qty;
+    if (it.a !== null && it.a !== undefined) acc.adj += it.a * qty; else acc.missing += 1;
+    if (it.b !== null && it.b !== undefined) acc.base += it.b * qty;
+    return acc;
+  }, { kinds: 0, qty: 0, adj: 0, base: 0, missing: 0 });
+}
+
+function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
+  const h = React.createElement;
+  const systems = mggSystems(mggKit);
+  const items = mggItems(mggKit);
+  const history = Array.isArray(mggKit.history) ? mggKit.history : [];
+
+  const [view, setView] = React.useState('sim');            // sim | history | systems
+  const F0 = { sys: systems[0], kw: '', onlyMissing: false, cmOnly: false, uniOnly: false };
+  const [applied, setApplied] = React.useState(F0);
+  const [draft, setDraft] = React.useState(F0);
+  const [toast, setToast] = React.useState('');
+  const [snapName, setSnapName] = React.useState('');
+  const [newName, setNewName] = React.useState('');   // 시스템 관리: 새 이름
+  const [copyFrom, setCopyFrom] = React.useState(''); // 시스템 관리: 복사 원본
+  const [kw2, setKw2] = React.useState('');           // 시스템 관리: 구성품 검색
+
+  const flash = (m) => { setToast(m); setTimeout(() => setToast(''), 1900); };
+  const nf = (v, d) => (v === null || v === undefined || isNaN(v))
+    ? '-' : Number(v).toLocaleString('ko-KR', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+  const patch = (o) => setMggKit({ ...mggKit, systems, items, history, ...o });
+
+  // 선택 시스템이 삭제/이름변경으로 사라지면 첫 시스템으로 복구
+  React.useEffect(() => {
+    if (applied.sys !== MGG_ALL && systems.indexOf(applied.sys) === -1) {
+      const s = systems[0] || MGG_ALL;
+      setApplied(p => ({ ...p, sys: s })); setDraft(p => ({ ...p, sys: s }));
+    }
+  }, [systems.join('|')]);
+
+  /* ---------------- 단가 편집 ---------------- */
+  const updPrice = (n, key, val) => {
+    const raw = String(val).trim();
+    const num = raw === '' ? null : Number(raw);
+    patch({ items: items.map(it => it.n === n ? { ...it, [key]: (raw === '' || isNaN(num)) ? null : num } : it) });
+  };
+  const resetPrices = () => {
+    if (!confirm('기존단가/조정단가를 최초 엑셀 값으로 되돌립니다. 포함여부와 시스템 구성은 유지됩니다. 계속할까요?')) return;
+    const seedBy = {}; MGG_ITEM_SEED.forEach(s => { seedBy[s.n] = s; });
+    patch({ items: items.map(it => seedBy[it.n] ? { ...it, b: seedBy[it.n].b, a: seedBy[it.n].a } : it) }); // 포함여부/시스템은 유지
+    flash('단가를 초기값으로 되돌렸습니다');
+  };
+
+  /* ---------------- 시스템 편집 ---------------- */
+  const addSystem = (name, copyFrom) => {
+    const nm = (name || '').trim();
+    if (!nm) { flash('시스템 이름을 입력하세요'); return; }
+    if (systems.indexOf(nm) !== -1) { flash('이미 있는 시스템입니다'); return; }
+    const useCopy = copyFrom && systems.indexOf(copyFrom) !== -1;
+    // 전품목(u)은 신규 키트에 항상 자동 포함(수량 1). 이후 개별 수정 가능.
+    const nextItems = items.map(it => {
+      const fromCopy = useCopy && it.q && it.q[copyFrom];
+      if (fromCopy) return { ...it, q: { ...it.q, [nm]: it.q[copyFrom] } };
+      if (mggIsUni(it)) return { ...it, q: { ...(it.q || {}), [nm]: 1 } };
+      return it;
+    });
+    const uniN = items.filter(mggIsUni).length;
+    patch({ systems: [...systems, nm], items: nextItems });
+    flash('"' + nm + '" 추가됨' + (useCopy ? ' (구성 복사)' : ' (전품목 ' + uniN + '종 자동 포함)'));
+  };
+  const renameSystem = (oldName, newName) => {
+    const nm = (newName || '').trim();
+    if (!nm || nm === oldName) return;
+    if (systems.indexOf(nm) !== -1) { flash('이미 있는 시스템 이름입니다'); return; }
+    patch({
+      systems: systems.map(s => s === oldName ? nm : s),
+      items: items.map(it => {
+        if (!it.q || !(oldName in it.q)) return it;
+        const q = { ...it.q }; q[nm] = q[oldName]; delete q[oldName];
+        return { ...it, q };
+      })
+    });
+    flash('이름을 바꿨습니다');
+  };
+  const delSystem = (name) => {
+    if (systems.length <= 1) { flash('마지막 시스템은 삭제할 수 없습니다'); return; }
+    if (!confirm('"' + name + '" 시스템을 삭제할까요? 해당 시스템의 포함여부/수량이 모두 지워집니다.')) return;
+    patch({
+      systems: systems.filter(s => s !== name),
+      items: items.map(it => {
+        if (!it.q || !(name in it.q)) return it;
+        const q = { ...it.q }; delete q[name];
+        return { ...it, q };
+      })
+    });
+    flash('"' + name + '" 삭제됨');
+  };
+  // 포함여부/수량 편집 (0 또는 빈값 = 미포함)
+  const setQty = (n, sys, val) => {
+    const raw = String(val).trim();
+    const num = Number(raw);
+    patch({
+      items: items.map(it => {
+        if (it.n !== n) return it;
+        const q = { ...(it.q || {}) };
+        if (raw === '' || isNaN(num) || num <= 0) delete q[sys]; else q[sys] = num;
+        return { ...it, q };
+      })
+    });
+  };
+
+  /* ---------------- 저장 이력 ---------------- */
+  const saveSnapshot = () => {
+    const name = (snapName || '').trim() || '이력 ' + (history.length + 1);
+    const now = new Date();
+    const savedAt = now.toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const totals = {};
+    systems.forEach(s => { totals[s] = mggTotals(items, s); });
+    const snap = {
+      id: 'mgg_' + Date.now(), name, savedAt,
+      systems: systems.slice(),
+      items: items.map(it => ({ n: it.n, c: it.c, d: it.d, b: it.b, a: it.a, q: { ...it.q }, u: it.u ? 1 : 0 })),
+      totals, memo: mggKit.memo || ''
+    };
+    patch({ history: [snap, ...history] });
+    setSnapName('');
+    flash('"' + name + '" 이력으로 저장했습니다');
+  };
+  const loadSnapshot = (s) => {
+    if (!confirm('"' + s.name + '" 시점으로 되돌립니다.\n현재 단가/시스템 구성이 덮어쓰여집니다. 계속할까요?')) return;
+    const restored = mggMerge({ systems: s.systems, items: s.items, memo: s.memo || mggKit.memo || '', history });
+    setMggKit(restored);
+    setView('sim');
+    flash('"' + s.name + '" 불러왔습니다');
+  };
+  const delSnapshot = (id) => {
+    if (!confirm('이 이력을 삭제할까요?')) return;
+    patch({ history: history.filter(x => x.id !== id) });
+  };
+
+  /* ---------------- 필터/집계 ---------------- */
+  const sys = applied.sys;
+  const kw = applied.kw.trim().toLowerCase();
+  const isAll = sys === MGG_ALL;
+  const matchKw = (it) => !kw || (it.c || '').toLowerCase().includes(kw) || (it.d || '').toLowerCase().includes(kw);
+  const missing = (it) => it.a === null || it.a === undefined;
+
+  const included = isAll ? items : items.filter(it => it.q && it.q[sys]);
+  const rows = included.filter(it =>
+    (!applied.onlyMissing || missing(it)) &&
+    (!applied.cmOnly || mggIsCM(it)) &&
+    (!applied.uniOnly || mggIsUni(it)) &&
+    matchKw(it));
+  const sum = isAll
+    ? included.reduce((a, it) => { a.kinds += 1; if (missing(it)) a.missing += 1; return a; }, { kinds: 0, qty: 0, adj: 0, base: 0, missing: 0 })
+    : mggTotals(included, sys);
+  const diff = sum.adj - sum.base;
+  const diffPct = sum.base ? (diff / sum.base) * 100 : 0;
+  const grand = systems.reduce((a, s) => { const t = mggTotals(items, s); a.adj += t.adj; a.base += t.base; return a; }, { adj: 0, base: 0 });
+
+  /* ---------------- 복사 ---------------- */
+  const writeClip = (text) => {
+    const done = () => flash('클립보드에 복사했습니다');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, () => fallback(text, done));
+    } else fallback(text, done);
+  };
+  const fallback = (text, done) => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { alert('복사 실패'); }
+    document.body.removeChild(ta);
+  };
+  const copyTable = () => {
+    const head = isAll
+      ? ['No.', 'Ref.Code', 'Desc', '기존단가($)', '조정단가($)'].concat(systems).join('\t')
+      : ['No.', 'Ref.Code', 'Desc', '수량', '기존단가($)', '조정단가($)', '조정합계($)'].join('\t');
+    const body = rows.map(it => {
+      if (isAll) return [it.n, it.c, it.d, it.b ?? '', it.a ?? ''].concat(systems.map(s => (it.q && it.q[s]) || '')).join('\t');
+      const q = it.q[sys] || 0;
+      return [it.n, it.c, it.d, q, it.b ?? '', it.a ?? '', missing(it) ? '' : it.a * q].join('\t');
+    }).join('\n');
+    writeClip(head + '\n' + body);
+  };
+
+  /* ---------------- QUICK FILTER ---------------- */
+  const quickFilter = h('aside', { className: 'w-64 flex-shrink-0' },
+    h('div', { className: 'sticky top-4 bg-white border border-slate-200 rounded-xl p-5 space-y-4' },
+      h('div', { className: 'text-xs font-bold tracking-widest text-slate-500' }, 'QUICK FILTER'),
+      h('div', null,
+        h('label', { className: 'block text-sm text-slate-500 mb-1.5' }, '시스템'),
+        h('select', {
+          value: draft.sys, onChange: e => setDraft({ ...draft, sys: e.target.value }),
+          className: 'w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold text-slate-800 bg-white'
+        },
+          h('option', { value: MGG_ALL }, '＊ 전체 시스템 (' + items.length + '종)'),
+          systems.map(s => {
+            const t = mggTotals(items, s);
+            return h('option', { key: s, value: s }, s + ' (' + t.kinds + '종·' + t.qty + '개)');
+          }))),
+      h('div', null,
+        h('label', { className: 'block text-sm text-slate-500 mb-1.5' }, '검색'),
+        h('input', {
+          value: draft.kw, placeholder: 'Ref.Code 또는 품명',
+          onChange: e => setDraft({ ...draft, kw: e.target.value }),
+          onKeyDown: e => { if (e.key === 'Enter') setApplied({ ...draft }); },
+          className: 'w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm'
+        })),
+      h('div', { className: 'space-y-1.5' },
+        h('label', { className: 'flex items-center gap-2 text-sm text-slate-600 cursor-pointer' },
+          h('input', { type: 'checkbox', checked: draft.cmOnly, className: 'w-4 h-4',
+            onChange: e => setDraft({ ...draft, cmOnly: e.target.checked }) }),
+          '공통품 ', h('span', { className: 'font-mono text-xs text-slate-500' }, '[CM]'),
+          h('span', { className: 'text-xs text-slate-400' }, '만 (' + items.filter(mggIsCM).length + ')')),
+        h('label', { className: 'flex items-center gap-2 text-sm text-slate-600 cursor-pointer' },
+          h('input', { type: 'checkbox', checked: draft.uniOnly, className: 'w-4 h-4',
+            onChange: e => setDraft({ ...draft, uniOnly: e.target.checked }) }),
+          h('span', { className: 'px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-semibold' }, '전품목'),
+          h('span', { className: 'text-xs text-slate-400' }, '만 (' + items.filter(mggIsUni).length + ')')),
+        h('label', { className: 'flex items-center gap-2 text-sm text-slate-600 cursor-pointer' },
+          h('input', { type: 'checkbox', checked: draft.onlyMissing, className: 'w-4 h-4',
+            onChange: e => setDraft({ ...draft, onlyMissing: e.target.checked }) }), '단가 미입력만 보기')),
+      h('button', { onClick: () => setApplied({ ...draft }),
+        className: 'w-full py-3 rounded-lg bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition' }, '필터 적용'),
+      h('button', { onClick: () => { const d = { ...F0, sys: systems[0] }; setDraft(d); setApplied(d); },
+        className: 'w-full py-2 rounded-lg border border-slate-300 text-slate-500 text-sm hover:bg-slate-50 transition' }, '필터 초기화'),
+
+      h('div', { className: 'border-t border-slate-200 pt-4' },
+        h('div', { className: 'text-sm font-bold text-slate-700 mb-2' }, '현재 조건'),
+        h('div', { className: 'bg-slate-50 rounded-lg px-3 py-3 text-xs text-slate-500 space-y-1' },
+          h('div', { className: 'font-semibold text-slate-700' }, isAll ? '전체 시스템' : applied.sys),
+          h('div', null, isAll ? '구성품 ' + items.length + '종' : '포함 ' + sum.kinds + '종 · 수량 ' + sum.qty + '개'),
+          h('div', { className: 'text-slate-400' }, '종 = 품목수, 개 = 수량합'),
+          h('div', null, '표시 ' + rows.length + '행'),
+          applied.kw ? h('div', null, '검색: "' + applied.kw + '"') : null)),
+
+      h('div', { className: 'border-t border-slate-200 pt-4' },
+        h('div', { className: 'text-sm font-bold text-slate-700 mb-2' }, '이력 저장'),
+        h('input', {
+          value: snapName, placeholder: '이력 이름 (예: 2026 1차안)',
+          onChange: e => setSnapName(e.target.value),
+          className: 'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm mb-1.5'
+        }),
+        h('button', { onClick: saveSnapshot,
+          className: 'w-full py-2.5 rounded-lg bg-slate-800 text-white text-sm font-semibold hover:bg-slate-900 transition' }, '📌 현재 상태 저장'),
+        h('div', { className: 'text-xs text-slate-400 mt-1.5 text-center' }, '저장된 이력 ' + history.length + '건')),
+
+      h('div', { className: 'border-t border-slate-200 pt-4' },
+        h('div', { className: 'text-sm font-bold text-slate-700 mb-2' }, '데이터'),
+        h('button', { onClick: () => { onCloudSave && onCloudSave(); flash('클라우드 저장 요청'); },
+          className: 'w-full py-2.5 rounded-lg border border-slate-300 text-slate-600 text-sm hover:bg-slate-50 transition mb-1.5' }, '☁ 클라우드 저장'),
+        h('button', { onClick: resetPrices,
+          className: 'w-full py-2.5 rounded-lg border border-slate-300 text-slate-400 text-sm hover:bg-slate-50 transition' }, '🗑 단가 초기화'),
+        saveStatus ? h('div', { className: 'text-xs text-slate-400 mt-2 text-center' }, saveStatus) : null)));
+
+  /* ---------------- KPI ---------------- */
+  const card = (label, value, sub, cls) =>
+    h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+      h('div', { className: 'text-xs text-slate-500 mb-1' }, label),
+      h('div', { className: 'text-2xl font-bold ' + (cls || 'text-slate-800') }, value),
+      sub ? h('div', { className: 'text-xs text-slate-400 mt-0.5' }, sub) : null);
+
+  const kpi = isAll
+    ? h('div', { className: 'grid grid-cols-2 lg:grid-cols-4 gap-3' },
+        card('전 시스템 조정단가 총합', '$ ' + nf(grand.adj), systems.length + '개 시스템 합산', 'text-indigo-700'),
+        card('전 시스템 기존단가 총합', '$ ' + nf(grand.base), '비교용', 'text-slate-600'),
+        card('차액', (grand.adj - grand.base >= 0 ? '+' : '') + '$ ' + nf(grand.adj - grand.base),
+          (grand.base ? ((grand.adj - grand.base) / grand.base * 100).toFixed(1) : '0.0') + '%',
+          grand.adj - grand.base > 0 ? 'text-red-600' : 'text-blue-600'),
+        card('전체 구성품', items.length + '종',
+          sum.missing ? '단가 미입력 ' + sum.missing + '종' : '전 품목 단가 입력됨',
+          sum.missing ? 'text-amber-600' : 'text-slate-800'))
+    : h('div', { className: 'grid grid-cols-2 lg:grid-cols-4 gap-3' },
+        card('조정단가 합계', '$ ' + nf(sum.adj), applied.sys + ' 기준', 'text-indigo-700'),
+        card('기존단가 합계', '$ ' + nf(sum.base), '비교용', 'text-slate-600'),
+        card('차액', (diff >= 0 ? '+' : '') + '$ ' + nf(diff), (diff >= 0 ? '+' : '') + diffPct.toFixed(1) + '%',
+          diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-slate-600'),
+        card('구성품 / 총수량', sum.kinds + '종 / ' + sum.qty + '개',
+          sum.missing ? '단가 미입력 ' + sum.missing + '종 합계 제외' : '전 품목 단가 입력됨',
+          sum.missing ? 'text-amber-600' : 'text-slate-800'));
+
+  /* ---------------- 시스템별 요약 (전체보기 전용) ---------------- */
+  const sysSummary = isAll ? h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
+    h('div', { className: 'px-5 py-3 border-b border-slate-200 text-sm font-bold text-slate-700' }, '시스템별 요약'),
+    h('div', { className: 'overflow-auto' },
+      h('table', { className: 'w-full text-sm' },
+        h('thead', { className: 'bg-slate-50' },
+          h('tr', { className: 'text-xs text-slate-500' },
+            h('th', { className: 'px-3 py-2 text-left font-semibold' }, '시스템'),
+            h('th', { className: 'px-3 py-2 text-right font-semibold' }, '구성품'),
+            h('th', { className: 'px-3 py-2 text-right font-semibold' }, '총수량'),
+            h('th', { className: 'px-3 py-2 text-right font-semibold' }, '기존단가 합계'),
+            h('th', { className: 'px-3 py-2 text-right font-semibold' }, '조정단가 합계'),
+            h('th', { className: 'px-3 py-2 text-right font-semibold' }, '차액'),
+            h('th', { className: 'px-3 py-2 text-center font-semibold' }, '미입력'))),
+        h('tbody', null, systems.map(s => {
+          const t = mggTotals(items, s); const d = t.adj - t.base;
+          return h('tr', { key: s, className: 'border-t border-slate-100 hover:bg-slate-50 cursor-pointer',
+            onClick: () => { setDraft({ ...draft, sys: s }); setApplied({ ...applied, sys: s }); } },
+            h('td', { className: 'px-3 py-2 font-semibold text-slate-700' }, s),
+            h('td', { className: 'px-3 py-2 text-right text-slate-600' }, t.kinds + '종'),
+            h('td', { className: 'px-3 py-2 text-right text-slate-600' }, t.qty),
+            h('td', { className: 'px-3 py-2 text-right text-slate-500' }, '$ ' + nf(t.base)),
+            h('td', { className: 'px-3 py-2 text-right font-bold text-indigo-700' }, '$ ' + nf(t.adj)),
+            h('td', { className: 'px-3 py-2 text-right font-semibold ' + (d > 0 ? 'text-red-600' : d < 0 ? 'text-blue-600' : 'text-slate-400') },
+              (d >= 0 ? '+' : '') + nf(d)),
+            h('td', { className: 'px-3 py-2 text-center' },
+              t.missing ? h('span', { className: 'px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs' }, t.missing) : h('span', { className: 'text-slate-300' }, '-')));
+        })),
+        h('tfoot', null,
+          h('tr', { className: 'bg-indigo-50 font-bold border-t-2 border-indigo-200' },
+            h('td', { className: 'px-3 py-2.5' }, '총합'),
+            h('td', { colSpan: 2 }),
+            h('td', { className: 'px-3 py-2.5 text-right text-slate-500' }, '$ ' + nf(grand.base)),
+            h('td', { className: 'px-3 py-2.5 text-right text-indigo-700' }, '$ ' + nf(grand.adj)),
+            h('td', { className: 'px-3 py-2.5 text-right ' + (grand.adj - grand.base > 0 ? 'text-red-600' : 'text-blue-600') },
+              (grand.adj - grand.base >= 0 ? '+' : '') + nf(grand.adj - grand.base)),
+            h('td'))))) ) : null;
+
+  /* ---------------- 메인 테이블 ---------------- */
+  const priceCell = (it, key) => h('input', {
+    type: 'number', step: 0.1, value: it[key] === null || it[key] === undefined ? '' : it[key],
+    onChange: e => updPrice(it.n, key, e.target.value),
+    className: 'w-24 px-2 py-1 text-right rounded border ' +
+      (key === 'a'
+        ? (missing(it) ? 'border-amber-300 bg-amber-50 text-slate-800 font-semibold' : 'border-slate-200 text-slate-800 font-semibold')
+        : 'border-slate-200 text-slate-600')
+  });
+
+  const table = h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
+    h('div', { className: 'px-5 py-3 border-b border-slate-200 flex items-center justify-between' },
+      h('div', { className: 'text-sm font-bold text-slate-700' },
+        isAll ? '전체 시스템' : applied.sys,
+        h('span', { className: 'ml-2 font-normal text-slate-400' }, rows.length + '행')),
+      h('button', { onClick: copyTable, className: 'px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, '📋 표 복사')),
+    h('div', { className: 'overflow-auto', style: { maxHeight: '62vh' } },
+      h('table', { className: 'w-full text-sm' },
+        h('thead', { className: 'bg-slate-50 sticky top-0 z-10' },
+          h('tr', { className: 'text-xs text-slate-500' },
+            h('th', { className: 'px-3 py-2 text-left font-semibold w-14' }, 'No.'),
+            h('th', { className: 'px-3 py-2 text-left font-semibold' }, 'Ref.Code'),
+            h('th', { className: 'px-3 py-2 text-left font-semibold' }, 'Desc'),
+            isAll ? null : h('th', { className: 'px-3 py-2 text-right font-semibold w-16' }, '수량'),
+            h('th', { className: 'px-3 py-2 text-right font-semibold w-28' }, '기존단가 ($)'),
+            h('th', { className: 'px-3 py-2 text-right font-semibold w-28' }, '조정단가 ($)'),
+            isAll
+              ? systems.map(s => h('th', { key: s, className: 'px-2 py-2 text-center font-semibold whitespace-nowrap' }, s))
+              : h('th', { className: 'px-3 py-2 text-right font-semibold w-28' }, '조정 합계 ($)'))),
+        h('tbody', null,
+          rows.length === 0
+            ? h('tr', null, h('td', { colSpan: isAll ? 5 + systems.length : 7, className: 'px-3 py-12 text-center text-slate-400 text-sm' },
+                '조건에 맞는 구성품이 없습니다. 시스템이나 검색어를 바꿔보세요.'))
+            : rows.map(it => {
+                const q = isAll ? 0 : (it.q[sys] || 0);
+                return h('tr', { key: it.n, className: 'border-t border-slate-100 ' + (mggIsUni(it) ? 'bg-yellow-50/60 hover:bg-yellow-50' : 'hover:bg-slate-50') },
+                  h('td', { className: 'px-3 py-1.5 text-slate-400 text-xs' }, it.n),
+                  h('td', { className: 'px-3 py-1.5 font-mono text-xs text-slate-700' }, it.c),
+                  h('td', { className: 'px-3 py-1.5 text-slate-600' }, it.d,
+                    mggIsUni(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-semibold align-middle' }, '전품목') : null,
+                    missing(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs align-middle' }, '단가 미입력') : null),
+                  isAll ? null : h('td', { className: 'px-3 py-1.5 text-right font-semibold text-slate-700' }, q),
+                  h('td', { className: 'px-2 py-1.5 text-right' }, priceCell(it, 'b')),
+                  h('td', { className: 'px-2 py-1.5 text-right' }, priceCell(it, 'a')),
+                  isAll
+                    ? systems.map(s => {
+                        const v = it.q && it.q[s];
+                        return h('td', { key: s, className: 'px-2 py-1.5 text-center ' + (v ? 'text-slate-700 font-semibold' : 'text-slate-200') }, v ? v : '·');
+                      })
+                    : h('td', { className: 'px-3 py-1.5 text-right font-bold text-indigo-700' },
+                        missing(it) ? h('span', { className: 'text-slate-300' }, '-') : '$ ' + nf(it.a * q, 1)));
+              })),
+        isAll ? null : h('tfoot', { className: 'sticky bottom-0' },
+          h('tr', { className: 'bg-indigo-50 font-bold text-slate-800 border-t-2 border-indigo-200' },
+            h('td', { colSpan: 3, className: 'px-3 py-2.5 text-center' }, '합계 (' + applied.sys + ' 전체)'),
+            h('td', { className: 'px-3 py-2.5 text-right' }, sum.qty),
+            h('td', { className: 'px-3 py-2.5 text-right text-slate-500 font-semibold' }, '$ ' + nf(sum.base)),
+            h('td'),
+            h('td', { className: 'px-3 py-2.5 text-right text-indigo-700' }, '$ ' + nf(sum.adj)))))));
+
+  const memo = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+    h('div', { className: 'text-sm font-bold text-slate-700 mb-2' }, '메모'),
+    h('textarea', {
+      rows: 2, value: mggKit.memo || '', placeholder: '가격 조정 배경, 협의 내용 등을 남겨두세요',
+      onChange: e => setMggKit({ ...mggKit, memo: e.target.value }),
+      className: 'w-full px-3 py-2 rounded-lg border border-slate-200 text-sm resize-none'
+    }));
+
+  const simView = h('div', { className: 'flex gap-5 items-start max-lg:flex-col' },
+    h('div', { className: 'flex-1 min-w-0 space-y-4 order-2 lg:order-1' }, kpi, sysSummary, table, memo),
+    h('div', { className: 'order-1 lg:order-2 max-lg:w-full' }, quickFilter));
+
+  /* ---------------- 이력 화면 ---------------- */
+  const historyView = history.length === 0
+    ? h('div', { className: 'bg-white border border-slate-200 rounded-xl px-6 py-16 text-center' },
+        h('div', { className: 'text-slate-400 text-sm' }, '저장된 이력이 없습니다.'),
+        h('div', { className: 'text-slate-400 text-xs mt-1' }, '시뮬레이션 화면의 "📌 현재 상태 저장"으로 첫 이력을 만들어보세요.'))
+    : h('div', { className: 'space-y-3' }, history.map(s => {
+        const sysList = s.systems || [];
+        const gAdj = sysList.reduce((a, k) => a + ((s.totals && s.totals[k]) ? s.totals[k].adj : 0), 0);
+        const gBase = sysList.reduce((a, k) => a + ((s.totals && s.totals[k]) ? s.totals[k].base : 0), 0);
+        return h('div', { key: s.id, className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+          h('div', { className: 'flex items-start justify-between gap-3 mb-3' },
+            h('div', null,
+              h('div', { className: 'font-bold text-slate-800' }, s.name),
+              h('div', { className: 'text-xs text-slate-400 mt-0.5' },
+                s.savedAt + ' · 구성품 ' + s.items.length + '종 · 시스템 ' + sysList.length + '개'),
+              s.memo ? h('div', { className: 'text-xs text-slate-500 mt-1' }, s.memo) : null),
+            h('div', { className: 'flex gap-2 flex-shrink-0' },
+              h('button', { onClick: () => loadSnapshot(s),
+                className: 'px-3 py-1.5 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700' }, '불러오기'),
+              h('button', { onClick: () => delSnapshot(s.id),
+                className: 'px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-400 hover:bg-slate-50' }, '삭제'))),
+          h('div', { className: 'flex flex-wrap gap-2 mb-3' },
+            h('span', { className: 'px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold' }, '조정 총합 $ ' + nf(gAdj)),
+            h('span', { className: 'px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold' }, '기존 총합 $ ' + nf(gBase)),
+            h('span', { className: 'px-2.5 py-1 rounded-lg text-xs font-semibold ' + (gAdj - gBase > 0 ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600') },
+              '차액 ' + (gAdj - gBase >= 0 ? '+' : '') + '$ ' + nf(gAdj - gBase))),
+          h('div', { className: 'overflow-auto' },
+            h('table', { className: 'w-full text-xs' },
+              h('thead', null, h('tr', { className: 'text-slate-400 border-b border-slate-100' },
+                h('th', { className: 'px-2 py-1.5 text-left font-semibold' }, '시스템'),
+                h('th', { className: 'px-2 py-1.5 text-right font-semibold' }, '구성품'),
+                h('th', { className: 'px-2 py-1.5 text-right font-semibold' }, '수량'),
+                h('th', { className: 'px-2 py-1.5 text-right font-semibold' }, '기존'),
+                h('th', { className: 'px-2 py-1.5 text-right font-semibold' }, '조정'))),
+              h('tbody', null, sysList.map(k => {
+                const t = (s.totals && s.totals[k]) || { kinds: 0, qty: 0, base: 0, adj: 0 };
+                return h('tr', { key: k, className: 'border-b border-slate-50' },
+                  h('td', { className: 'px-2 py-1.5 text-slate-600' }, k),
+                  h('td', { className: 'px-2 py-1.5 text-right text-slate-500' }, t.kinds),
+                  h('td', { className: 'px-2 py-1.5 text-right text-slate-500' }, t.qty),
+                  h('td', { className: 'px-2 py-1.5 text-right text-slate-500' }, '$ ' + nf(t.base)),
+                  h('td', { className: 'px-2 py-1.5 text-right font-semibold text-indigo-700' }, '$ ' + nf(t.adj)));
+              })))));
+      }));
+
+  /* ---------------- 시스템 관리 화면 ---------------- */
+  const systemsView = (() => {
+    const list = items.filter(it => !kw2.trim() ||
+      (it.c || '').toLowerCase().includes(kw2.trim().toLowerCase()) ||
+      (it.d || '').toLowerCase().includes(kw2.trim().toLowerCase()));
+
+    return h('div', { className: 'space-y-4' },
+      h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+        h('div', { className: 'text-sm font-bold text-slate-700 mb-3' }, '시스템 추가'),
+        h('div', { className: 'flex gap-2 flex-wrap items-center' },
+          h('input', {
+            value: newName, placeholder: '새 시스템 이름 (예: AO Mini)',
+            onChange: e => setNewName(e.target.value),
+            className: 'px-3 py-2 rounded-lg border border-slate-300 text-sm w-56'
+          }),
+          h('select', { value: copyFrom, onChange: e => setCopyFrom(e.target.value),
+            className: 'px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white' },
+            h('option', { value: '' }, '빈 시스템으로 시작'),
+            systems.map(s => h('option', { key: s, value: s }, s + ' 구성 복사'))),
+          h('button', { onClick: () => { addSystem(newName, copyFrom); setNewName(''); setCopyFrom(''); },
+            className: 'px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700' }, '＋ 추가')),
+        h('div', { className: 'text-xs text-slate-400 mt-2' },
+          '기존 시스템 구성을 복사하면 포함 구성품과 수량이 그대로 복제됩니다. ',
+          h('span', { className: 'text-yellow-700' }, '전품목(' + items.filter(mggIsUni).length + '종)은 복사 여부와 무관하게 항상 자동 포함됩니다.'),
+          ' 추가 후 수량은 개별 수정할 수 있습니다.')),
+
+      h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+        h('div', { className: 'text-sm font-bold text-slate-700 mb-3' }, '시스템 목록 (' + systems.length + '개)'),
+        h('div', { className: 'space-y-2' }, systems.map(s => {
+          const t = mggTotals(items, s);
+          return h('div', { key: s, className: 'flex items-center gap-2 flex-wrap border border-slate-100 rounded-lg px-3 py-2' },
+            h('input', {
+              defaultValue: s, key: 'in_' + s,
+              onBlur: e => renameSystem(s, e.target.value),
+              onKeyDown: e => { if (e.key === 'Enter') e.target.blur(); },
+              className: 'px-2 py-1.5 rounded border border-slate-200 text-sm font-semibold text-slate-800 w-48'
+            }),
+            h('span', { className: 'text-xs text-slate-400' }, t.kinds + '종 / ' + t.qty + '개'),
+            h('span', { className: 'text-xs font-bold text-indigo-700' }, '$ ' + nf(t.adj)),
+            t.missing ? h('span', { className: 'px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs' }, '미입력 ' + t.missing) : null,
+            h('button', { onClick: () => delSystem(s),
+              className: 'ml-auto px-2.5 py-1 text-xs rounded border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200' }, '삭제'));
+        })),
+        h('div', { className: 'text-xs text-slate-400 mt-3' }, '이름 칸을 수정하고 Enter 또는 다른 곳을 클릭하면 이름이 바뀝니다.')),
+
+      h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
+        h('div', { className: 'px-5 py-3 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap' },
+          h('div', { className: 'text-sm font-bold text-slate-700' }, '포함여부 · 수량 편집'),
+          h('input', {
+            value: kw2, placeholder: '구성품 검색', onChange: e => setKw2(e.target.value),
+            className: 'px-3 py-1.5 rounded-lg border border-slate-300 text-sm w-56'
+          })),
+        h('div', { className: 'px-5 py-2 text-xs text-slate-400 border-b border-slate-100' },
+          '수량을 입력하면 포함, 0 또는 비우면 미포함으로 처리됩니다. ',
+          h('span', { className: 'text-yellow-700' }, '노란 행 = 전품목'), ' (신규 키트에 자동 포함, 개별 수정 가능)'),
+        h('div', { className: 'overflow-auto', style: { maxHeight: '58vh' } },
+          h('table', { className: 'w-full text-sm' },
+            h('thead', { className: 'bg-slate-50 sticky top-0 z-10' },
+              h('tr', { className: 'text-xs text-slate-500' },
+                h('th', { className: 'px-3 py-2 text-left font-semibold w-14' }, 'No.'),
+                h('th', { className: 'px-3 py-2 text-left font-semibold' }, 'Ref.Code'),
+                h('th', { className: 'px-3 py-2 text-left font-semibold' }, 'Desc'),
+                systems.map(s => h('th', { key: s, className: 'px-2 py-2 text-center font-semibold whitespace-nowrap' }, s)))),
+            h('tbody', null, list.map(it =>
+              h('tr', { key: it.n, className: 'border-t border-slate-100 ' + (mggIsUni(it) ? 'bg-yellow-50/60 hover:bg-yellow-50' : 'hover:bg-slate-50') },
+                h('td', { className: 'px-3 py-1.5 text-slate-400 text-xs' }, it.n),
+                h('td', { className: 'px-3 py-1.5 font-mono text-xs text-slate-700' }, it.c),
+                h('td', { className: 'px-3 py-1.5 text-slate-600' }, it.d,
+                  mggIsUni(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-semibold align-middle' }, '전품목') : null),
+                systems.map(s => h('td', { key: s, className: 'px-1 py-1 text-center' },
+                  h('input', {
+                    type: 'number', min: 0, step: 1,
+                    value: (it.q && it.q[s]) ? it.q[s] : '',
+                    onChange: e => setQty(it.n, s, e.target.value),
+                    className: 'w-14 px-1 py-1 text-center rounded border text-sm ' +
+                      ((it.q && it.q[s]) ? 'border-indigo-200 bg-indigo-50 text-indigo-800 font-semibold' : 'border-slate-200 text-slate-400')
+                  }))))))))));
+  })();
+
+  /* ---------------- 렌더 ---------------- */
+  return h('div', { className: 'p-6' },
+    toast ? h('div', { className: 'fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast) : null,
+    h('div', { className: 'mb-4' },
+      h('h2', { className: 'text-lg font-bold text-slate-800' }, '키트 시뮬레이션 (MGG 중국지역)'),
+      h('p', { className: 'text-xs text-slate-500' }, '시스템을 선택하면 포함 구성품만, 전체를 선택하면 모든 시스템을 한 표로 봅니다. 합계는 조정단가 기준입니다.')),
+    h('div', { className: 'mb-4 border-b border-slate-200 flex gap-2' },
+      [['sim', '시뮬레이션'], ['history', '저장 이력'], ['systems', '시스템 관리']].map(([k, label]) =>
+        h('button', {
+          key: k, onClick: () => setView(k),
+          className: 'px-4 py-2 text-sm font-semibold border-b-2 -mb-px ' +
+            (view === k ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700')
+        }, label,
+          k === 'history' && history.length ? ' (' + history.length + ')' : '',
+          k === 'systems' ? ' (' + systems.length + ')' : ''))),
+    view === 'sim' ? simView : null,
+    view === 'history' ? historyView : null,
+    view === 'systems' ? systemsView : null);
+}
+
 function App() {
+    const normMgg = (m) => (m && Array.isArray(m.items) && m.items.length) ? mggMerge(m) : null;
   const [activeMenu, setActiveMenu] = useState('gp-analysis');
   const [policyTab, setPolicyTab] = useState('export'); // 수출가 정책 / 수출가 변경이력
   const [simTab, setSimTab] = useState('sim-main'); // 대리상가격 / 이력 / 네고
@@ -12160,6 +13007,18 @@ function App() {
     } catch (e) {}
     return KIT_QUOTE_SEED;
   }); // 키트 견적 계산(ZBLC) - BOM/설정/메모 (클라우드 동기화)
+  const [mggKit, setMggKit] = useState(() => {
+    try {
+      const s = localStorage.getItem(STORAGE_KEY);
+      if (s) {
+        const d = JSON.parse(s);
+        if (d && d.mggKit && Array.isArray(d.mggKit.items) && d.mggKit.items.length) {
+          return mggMerge(d.mggKit);
+        }
+      }
+    } catch (e) {}
+    return mggMerge(null);
+  }); // 키트 시뮬레이션 (MGG 중국지역) - 클라우드 동기화
 
   // 로컬스토리지 불러오기 (옛 용어 자동 마이그레이션 + ARi 자동 추가)
   useEffect(() => {
@@ -12240,6 +13099,7 @@ function App() {
           if (Array.isArray(remote.kitMaster)) setKitMaster(remote.kitMaster);
           if (Array.isArray(remote.kitComponents)) setKitComponents(remote.kitComponents);
           if (remote.kitQuote && typeof remote.kitQuote === 'object') setKitQuote({ ...KIT_QUOTE_SEED, ...remote.kitQuote });
+          if (remote.mggKit) { const nm = normMgg(remote.mggKit); if (nm) setMggKit(nm); }
         }
         setSaveStatus('☁ 클라우드 동기화됨');
         setTimeout(() => setSaveStatus(''), 2000);
@@ -12264,7 +13124,8 @@ function App() {
       reverseScenarios,
       kitMaster,
       kitComponents,
-      kitQuote
+      kitQuote,
+      mggKit
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -12276,7 +13137,7 @@ function App() {
     window.__pricingSaveTimer = setTimeout(() => {
       gasSavePricing(payload);
     }, 1200);
-  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory, gpItems, gpHistory, specialConfirmed, reverseScenarios, kitMaster, kitComponents, kitQuote]);
+  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory, gpItems, gpHistory, specialConfirmed, reverseScenarios, kitMaster, kitComponents, kitQuote, mggKit]);
 
   // ── 상단 툴바 핸들러 ──
   const curPayload = () => ({
@@ -12309,6 +13170,7 @@ function App() {
     if (Array.isArray(d.kitMaster)) setKitMaster(d.kitMaster);
     if (Array.isArray(d.kitComponents)) setKitComponents(d.kitComponents);
     if (d.kitQuote && typeof d.kitQuote === 'object') setKitQuote({ ...KIT_QUOTE_SEED, ...d.kitQuote });
+    if (d.mggKit) { const nm = normMgg(d.mggKit); if (nm) setMggKit(nm); }
   };
   const onCloudSave = () => {
     gasSavePricing(curPayload()).then(ok => {
@@ -12600,6 +13462,11 @@ function App() {
     setKitComponents: setKitComponents,
     kitQuote: kitQuote,
     setKitQuote: setKitQuote,
+    onCloudSave: onCloudSave,
+    saveStatus: saveStatus
+  }), activeMenu === 'kit-mgg' && /*#__PURE__*/React.createElement(MggKitSimPage, {
+    mggKit: mggKit,
+    setMggKit: setMggKit,
     onCloudSave: onCloudSave,
     saveStatus: saveStatus
   }), activeMenu === 'gp-analysis' && /*#__PURE__*/React.createElement(GpAnalysisPage, {
