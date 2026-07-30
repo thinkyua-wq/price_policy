@@ -392,6 +392,16 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   table.kq-tbl th { background: #e2e8f0; color: #334155; font-weight: 700; }
   table.kq-tbl td.kq-num { text-align: right; font-variant-numeric: tabular-nums; }
   tr.kq-alt td { background: #f1f5f9; }
+  /* kq-grid: ZBLC(kq-tbl)와 동일한 격자·헤더·숫자 스타일. table-layout은 auto로 두어 MGG 넓은 매트릭스 구조를 보존 */
+  table.kq-grid { width: 100%; border-collapse: separate; border-spacing: 0; }
+  table.kq-grid th, table.kq-grid td { border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; font-variant-numeric: tabular-nums; }
+  table.kq-grid th:first-child, table.kq-grid td:first-child { border-left: 1px solid #cbd5e1; }
+  table.kq-grid thead tr:first-child th { border-top: 1px solid #cbd5e1; }
+  table.kq-grid thead th { background: #e2e8f0; color: #334155; font-weight: 700; }
+  table.kq-grid thead th { white-space: nowrap; }
+  /* Evidence 표 숫자: 검정 + 맑은 고딕 + 동일 크기 */
+  .evi-num, .evi-num input { color: #000; font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .evi-num { text-align: right; }
   .kq-cell { width: 100%; background: transparent; text-align: right; outline: none; }
   .kq-cell::-webkit-outer-spin-button, .kq-cell::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .kq-cell { -moz-appearance: textfield; }
@@ -875,10 +885,10 @@ function Sidebar({
   onToggleCollapse
 }) {
   const [expanded, setExpanded] = useState({
-    policy: true,
-    simulation: true,
-    corp: true,
-    pricedecision: true
+    policy: false,
+    simulation: false,
+    corp: false,
+    pricedecision: false
   });
   const menus = [{
     key: 'policy',
@@ -923,6 +933,9 @@ function Sidebar({
     }, {
       key: 'kit-mgg',
       label: '키트 시뮬레이션(MGG중국)'
+    }, {
+      key: 'kit-evi',
+      label: 'Evidence_BLT II OS'
     }]
   }];
   return /*#__PURE__*/React.createElement("aside", {
@@ -987,7 +1000,7 @@ function Sidebar({
     className: "w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-lg"
   }, /*#__PURE__*/React.createElement("span", {
     className: "flex items-center gap-2"
-  }, /*#__PURE__*/React.createElement("span", null, m.icon), /*#__PURE__*/React.createElement("span", null, m.title)), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, m.title)), /*#__PURE__*/React.createElement("span", {
     className: `text-xs transition-transform ${expanded[m.key] ? 'rotate-90' : ''}`
   }, "▶")), expanded[m.key] && /*#__PURE__*/React.createElement("div", {
     className: "mt-1 ml-2"
@@ -10033,7 +10046,7 @@ function KitSimPage({
           h('td', { className:'kq-num px-3 py-1.5 text-slate-600' }, '$ ' + nfmt(c.newUsd, 1)),
           h('td', { className:'kq-num px-3 py-1.5 font-semibold text-blue-700' }, '$ ' + nfmt(c.corp)),
           h('td', { className:'px-2 py-1.5 text-center' },
-            h('button', { onClick:() => del(r.id), className:'text-slate-300 hover:text-red-500' }, '✕')));
+            h('button', { onClick:() => del(r.id), title:'삭제', className:'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
       })),
       h('tfoot', null,
         h('tr', { className:'bg-blue-50 font-bold' },
@@ -10129,7 +10142,7 @@ function KitMasterManager({ kitMaster, setKitMaster, kitComponents, flash, eur }
           },
           h('div', { className:'flex items-center justify-between' },
             h('span', { className:'font-semibold text-slate-700' }, k.name),
-            h('button', { onClick:(e)=>{e.stopPropagation();delKit(k.id);}, className:'text-slate-300 hover:text-red-500 text-xs' }, '✕')),
+            h('button', { onClick:(e)=>{e.stopPropagation();delKit(k.id);}, title:'삭제', className:'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')),
           h('div', { className:'text-[12px] text-slate-400' }, k.model, ' · ', eur(k.royalty), '/', eur(k.dealer), '/', eur(k.retail), ' · ', (k.lines||[]).length, '개'))))),
     h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' }, !editKit
       ? h('div', { className:'text-slate-400 text-center py-10 text-sm' }, '왼쪽에서 키트를 선택하세요')
@@ -10174,7 +10187,7 @@ function KitMasterManager({ kitMaster, setKitMaster, kitComponents, flash, eur }
                   h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(c.dealer)),
                   h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(c.retail)),
                   h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
-                    h('button', { onClick:()=>delLine(ln.compId), className:'text-slate-300 hover:text-red-500' }, '✕')));
+                    h('button', { onClick:()=>delLine(ln.compId), title:'삭제', className:'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
               })),
           h('tfoot', null, h('tr', { className:'bg-emerald-50 font-bold text-emerald-800' },
             h('td', { colSpan:3, className:'px-2 py-2 text-right border border-slate-200' }, '합계'),
@@ -10262,7 +10275,7 @@ function KitPoolManager({ kitComponents, setKitComponents, kitMaster, flash, eur
               h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
                 used>0 ? h('span', { className:'inline-block px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[12px] font-semibold' }, used+'키트') : h('span', { className:'text-slate-300 text-[12px]' }, '미사용')),
               h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
-                h('button', { onClick:()=>delComp(c.id), className:'text-slate-300 hover:text-red-500' }, '✕')));
+                h('button', { onClick:()=>delComp(c.id), title:'삭제', className:'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
           })))),
     h('div', { className:'mt-2 text-[12px] text-slate-400' }, '※ 본사→딜러 마진은 (딜러가−본사공급가)÷딜러가, 대리상마진은 (소비자가−딜러가)÷소비자가 입니다.'));
 }
@@ -12417,7 +12430,7 @@ function mggTotals(items, sys) {
   }, { kinds: 0, qty: 0, adj: 0, base: 0, missing: 0 });
 }
 
-function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
+function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hideQuickFilter }) {
   const h = React.createElement;
   const systems = mggSystems(mggKit);
   const items = mggItems(mggKit);
@@ -12691,7 +12704,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
   const sysSummary = isAll ? h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
     h('div', { className: 'px-5 py-3 border-b border-slate-200 text-sm font-bold text-slate-700' }, '시스템별 요약'),
     h('div', { className: 'overflow-auto' },
-      h('table', { className: 'w-full text-sm' },
+      h('table', { className: 'kq-grid w-full text-sm' },
         h('thead', { className: 'bg-slate-50' },
           h('tr', { className: 'text-xs text-slate-500' },
             h('th', { className: 'px-3 py-2 text-left font-semibold' }, '시스템'),
@@ -12703,7 +12716,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
             h('th', { className: 'px-3 py-2 text-center font-semibold' }, '미입력'))),
         h('tbody', null, systems.map(s => {
           const t = mggTotals(items, s); const d = t.adj - t.base;
-          return h('tr', { key: s, className: 'border-t border-slate-100 hover:bg-slate-50 cursor-pointer',
+          return h('tr', { key: s, className: 'hover:bg-slate-50 cursor-pointer',
             onClick: () => { setDraft({ ...draft, sys: s }); setApplied({ ...applied, sys: s }); } },
             h('td', { className: 'px-3 py-2 font-semibold text-slate-700' }, s),
             h('td', { className: 'px-3 py-2 text-right text-slate-600' }, t.kinds + '종'),
@@ -12729,10 +12742,10 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
   const priceCell = (it, key) => h('input', {
     type: 'number', step: 0.1, value: it[key] === null || it[key] === undefined ? '' : it[key],
     onChange: e => updPrice(it.n, key, e.target.value),
-    className: 'w-24 px-2 py-1 text-right rounded border ' +
+    className: 'kq-cell px-2 py-1 ' +
       (key === 'a'
-        ? (missing(it) ? 'border-amber-300 bg-amber-50 text-slate-800 font-semibold' : 'border-slate-200 text-slate-800 font-semibold')
-        : 'border-slate-200 text-slate-600')
+        ? (missing(it) ? 'bg-amber-50 text-slate-800 font-semibold' : 'text-slate-800 font-semibold')
+        : 'text-slate-600')
   });
 
   const table = h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
@@ -12742,7 +12755,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
         h('span', { className: 'ml-2 font-normal text-slate-400' }, rows.length + '행')),
       h('button', { onClick: copyTable, className: 'px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, '📋 표 복사')),
     h('div', { className: 'overflow-auto', style: { maxHeight: '62vh' } },
-      h('table', { className: 'w-full text-sm' },
+      h('table', { className: 'kq-grid w-full text-sm' },
         h('thead', { className: 'bg-slate-50 sticky top-0 z-10' },
           h('tr', { className: 'text-xs text-slate-500' },
             h('th', { className: 'px-3 py-2 text-left font-semibold w-14' }, 'No.'),
@@ -12760,7 +12773,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
                 '조건에 맞는 구성품이 없습니다. 시스템이나 검색어를 바꿔보세요.'))
             : rows.map(it => {
                 const q = isAll ? 0 : (it.q[sys] || 0);
-                return h('tr', { key: it.n, className: 'border-t border-slate-100 ' + (mggIsUni(it) ? 'bg-yellow-50/60 hover:bg-yellow-50' : 'hover:bg-slate-50') },
+                return h('tr', { key: it.n, className: (mggIsUni(it) ? 'bg-yellow-50/60 hover:bg-yellow-50' : 'hover:bg-slate-50') },
                   h('td', { className: 'px-3 py-1.5 text-slate-400 text-xs' }, it.n),
                   h('td', { className: 'px-3 py-1.5 font-mono text-xs text-slate-700' }, it.c),
                   h('td', { className: 'px-3 py-1.5 text-slate-600' }, it.d,
@@ -12795,7 +12808,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
 
   const simView = h('div', { className: 'flex gap-5 items-start max-lg:flex-col' },
     h('div', { className: 'flex-1 min-w-0 space-y-4 order-2 lg:order-1' }, kpi, sysSummary, table, memo),
-    h('div', { className: 'order-1 lg:order-2 max-lg:w-full' }, quickFilter));
+    hideQuickFilter ? null : h('div', { className: 'order-1 lg:order-2 max-lg:w-full' }, quickFilter));
 
   /* ---------------- 이력 화면 ---------------- */
   const historyView = history.length === 0
@@ -12898,7 +12911,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
           '수량을 입력하면 포함, 0 또는 비우면 미포함으로 처리됩니다. ',
           h('span', { className: 'text-yellow-700' }, '노란 행 = 전품목'), ' (신규 키트에 자동 포함, 개별 수정 가능)'),
         h('div', { className: 'overflow-auto', style: { maxHeight: '58vh' } },
-          h('table', { className: 'w-full text-sm' },
+          h('table', { className: 'kq-grid w-full text-sm' },
             h('thead', { className: 'bg-slate-50 sticky top-0 z-10' },
               h('tr', { className: 'text-xs text-slate-500' },
                 h('th', { className: 'px-3 py-2 text-left font-semibold w-14' }, 'No.'),
@@ -12906,7 +12919,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
                 h('th', { className: 'px-3 py-2 text-left font-semibold' }, 'Desc'),
                 systems.map(s => h('th', { key: s, className: 'px-2 py-2 text-center font-semibold whitespace-nowrap' }, s)))),
             h('tbody', null, list.map(it =>
-              h('tr', { key: it.n, className: 'border-t border-slate-100 ' + (mggIsUni(it) ? 'bg-yellow-50/60 hover:bg-yellow-50' : 'hover:bg-slate-50') },
+              h('tr', { key: it.n, className: (mggIsUni(it) ? 'bg-yellow-50/60 hover:bg-yellow-50' : 'hover:bg-slate-50') },
                 h('td', { className: 'px-3 py-1.5 text-slate-400 text-xs' }, it.n),
                 h('td', { className: 'px-3 py-1.5 font-mono text-xs text-slate-700' }, it.c),
                 h('td', { className: 'px-3 py-1.5 text-slate-600' }, it.d,
@@ -12916,8 +12929,8 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
                     type: 'number', min: 0, step: 1,
                     value: (it.q && it.q[s]) ? it.q[s] : '',
                     onChange: e => setQty(it.n, s, e.target.value),
-                    className: 'w-14 px-1 py-1 text-center rounded border text-sm ' +
-                      ((it.q && it.q[s]) ? 'border-indigo-200 bg-indigo-50 text-indigo-800 font-semibold' : 'border-slate-200 text-slate-400')
+                    className: 'kq-txt text-center px-1 py-1 text-sm ' +
+                      ((it.q && it.q[s]) ? 'bg-indigo-50 text-indigo-800 font-semibold' : 'text-slate-400')
                   }))))))))));
   })();
 
@@ -12925,7 +12938,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
   return h('div', { className: 'p-6' },
     toast ? h('div', { className: 'fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast) : null,
     h('div', { className: 'mb-4' },
-      h('h2', { className: 'text-lg font-bold text-slate-800' }, '키트 시뮬레이션 (MGG 중국지역)'),
+      h('h2', { className: 'text-lg font-bold text-slate-800' }, title || '키트 시뮬레이션 (MGG 중국지역)'),
       h('p', { className: 'text-xs text-slate-500' }, '시스템을 선택하면 포함 구성품만, 전체를 선택하면 모든 시스템을 한 표로 봅니다. 합계는 조정단가 기준입니다.')),
     h('div', { className: 'mb-4 border-b border-slate-200 flex gap-2' },
       [['sim', '시뮬레이션'], ['history', '저장 이력'], ['systems', '시스템 관리']].map(([k, label]) =>
@@ -12941,9 +12954,408 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus }) {
     view === 'systems' ? systemsView : null);
 }
 
+const EVIDENCE_RATES = { krwUsd: 1450, usdRmb: 7.2, imp: 1.14, corp: 1.35, dso: 1.20 };
+const EVIDENCE_ITEMS = [
+  {id:'e1',cat:'main',g:"임플란트",n:"BLT II OS Tapered Implant",won:8180,usd:5.64},
+  {id:'e2',cat:'main',g:"키트세트",n:"BLT II OS Surgical Kit",won:362130,usd:249.8},
+  {id:'e3',cat:'main',g:"키트세트",n:"SMART Immediate Loading Kit",won:636364,usd:438.96},
+  {id:'e4',cat:'main',g:"키트세트",n:"BLT II OS Full Surgical Kit",won:765000,usd:527.7},
+  {id:'e5',cat:'main',g:"키트세트",n:"Simple Immediate Loading Kit",won:390910,usd:269.65},
+  {id:'e6',cat:'main',g:"키트세트",n:"Stop Drill Kit",won:300300,usd:207.15},
+  {id:'e7',cat:'abut',g:"어버트먼트",n:"BLT OS Multi-Unit Abutment [Mini]",won:6510,usd:4.49},
+  {id:'e8',cat:'abut',g:"어버트먼트",n:"BLT OS Multi-Unit Abutment [regular]",won:6510,usd:4.49},
+  {id:'e9',cat:'abut',g:"어버트먼트",n:"MUA Healing Cap",won:1850,usd:1.28},
+  {id:'e10',cat:'abut',g:"어버트먼트",n:"MUA Lab Analog",won:2210,usd:1.52},
+  {id:'e11',cat:'abut',g:"어버트먼트",n:"MUA Impression Coping",won:3980,usd:2.75},
+  {id:'e12',cat:'abut',g:"어버트먼트",n:"Multi-unit Plastic Cylinder",won:2290,usd:1.58},
+  {id:'e13',cat:'abut',g:"어버트먼트",n:"Multi-unit Temporary Cylinder",won:3710,usd:2.56},
+  {id:'e14',cat:'abut',g:"어버트먼트",n:"BLT OS Locator",won:5790,usd:3.99},
+  {id:'e15',cat:'abut',g:"어버트먼트",n:"BLT OS Locator(Denture) Abutment",won:5790,usd:3.99},
+  {id:'e16',cat:'abut',g:"어버트먼트",n:"BLT OS Denture Abutment",won:5790,usd:3.99},
+  {id:'e17',cat:'abut',g:"어버트먼트",n:"BLT OS BestAngled Abutment",won:4820,usd:3.32},
+  {id:'e18',cat:'abut',g:"어버트먼트",n:"Octa Impression Coping",won:3980,usd:2.75},
+  {id:'e19',cat:'abut',g:"어버트먼트",n:"BLT OS BestDuo Abutment",won:3880,usd:2.68},
+  {id:'e20',cat:'abut',g:"어버트먼트",n:"BLT OS Temporary Abutment",won:3850,usd:2.66},
+  {id:'e21',cat:'abut',g:"어버트먼트",n:"BLT OS Temporary Abutment[Non-Hex]",won:3850,usd:2.66},
+  {id:'e22',cat:'abut',g:"어버트먼트",n:"BLT OS Impression Coping",won:3730,usd:2.57},
+  {id:'e23',cat:'abut',g:"어버트먼트",n:"BLT OS BestSolid Abutment",won:3190,usd:2.2},
+  {id:'e24',cat:'abut',g:"어버트먼트",n:"BLT OS Plastic Abutment",won:3180,usd:2.19},
+  {id:'e25',cat:'abut',g:"어버트먼트",n:"BLT OS Analog",won:2900,usd:2},
+  {id:'e26',cat:'abut',g:"어버트먼트",n:"BLT OS BestOcta Abutment",won:2590,usd:1.79},
+  {id:'e27',cat:'abut',g:"어버트먼트",n:"Octa Plastic Cylinder",won:2290,usd:1.58},
+  {id:'e28',cat:'abut',g:"어버트먼트",n:"Octa Analog",won:2210,usd:1.52},
+  {id:'e29',cat:'abut',g:"어버트먼트",n:"BLT OS Healing Abutment",won:2150,usd:1.48},
+  {id:'e30',cat:'abut',g:"어버트먼트",n:"BLT OS Cover Screw",won:1940,usd:1.34},
+  {id:'e31',cat:'abut',g:"어버트먼트",n:"Octa Protective Cap",won:1850,usd:1.28},
+  {id:'e32',cat:'abut',g:"어버트먼트",n:"BLT OS Abutment Screw",won:1580,usd:1.09},
+  {id:'e33',cat:'kit',g:"키트부품",n:"Immediate Placement Kit",won:120000,usd:82.78},
+  {id:'e34',cat:'kit',g:"키트부품",n:"Torque Wrench",won:55480,usd:38.27},
+  {id:'e35',cat:'kit',g:"키트부품",n:"Abutment Remover",won:22560,usd:15.56},
+  {id:'e36',cat:'kit',g:"키트부품",n:"Solid Driver",won:16260,usd:11.22},
+  {id:'e37',cat:'kit',g:"키트부품",n:"Implant Driver - T/W [Long]",won:13590,usd:9.37},
+  {id:'e38',cat:'kit',g:"키트부품",n:"Implant Driver - T/W [Short]",won:13590,usd:9.37},
+  {id:'e39',cat:'kit',g:"키트부품",n:"OS implant Driver - T/W (HEX)",won:13590,usd:9.37},
+  {id:'e40',cat:'kit',g:"키트부품",n:"Path Finder",won:13300,usd:9.17},
+  {id:'e41',cat:'kit',g:"키트부품",n:"Implant Driver - H/P [Long]",won:12520,usd:8.64},
+  {id:'e42',cat:'kit',g:"키트부품",n:"Implant Driver - H/P [Short]",won:12520,usd:8.64},
+  {id:'e43',cat:'kit',g:"키트부품",n:"OS implant Driver - H/P (HEX)",won:12520,usd:8.64},
+  {id:'e44',cat:'kit',g:"키트부품",n:"Drill Extension",won:11980,usd:8.26},
+  {id:'e45',cat:'kit',g:"키트부품",n:"Depth Gauge",won:11120,usd:7.67},
+  {id:'e46',cat:'kit',g:"키트부품",n:"IMPLANT REMOVER",won:10840,usd:7.48},
+  {id:'e47',cat:'kit',g:"키트부품",n:"IMPLANT REMOVER",won:10840,usd:7.48},
+  {id:'e48',cat:'kit',g:"키트부품",n:"1.2~1.27Hex Driver - T/W",won:10300,usd:7.1},
+  {id:'e49',cat:'kit',g:"키트부품",n:"1.27 Hex Driver - T/W",won:9840,usd:6.79},
+  {id:'e50',cat:'kit',g:"키트부품",n:"Octa Driver",won:9840,usd:6.79},
+  {id:'e51',cat:'kit',g:"키트부품",n:"1.2~1.27Hex Driver - H/P",won:9180,usd:6.33},
+  {id:'e52',cat:'kit',g:"키트부품",n:"Direction Indicator",won:5533,usd:3.82},
+  {id:'e53',cat:'kit',g:"키트부품",n:"Trans Lingual Curette",won:23330,usd:16.09},
+  {id:'e54',cat:'kit',g:"키트부품",n:"Simple Torque Wrench 120mm [L : 120]",won:36190,usd:24.96},
+  {id:'e55',cat:'kit',g:"키트부품",n:"Stop Drill",won:13590,usd:9.37},
+  {id:'e56',cat:'kit',g:"키트부품",n:"ONE MORE DRILL",won:13590,usd:9.37},
+  {id:'e57',cat:'kit',g:"키트부품",n:"Trephine Bur",won:12620,usd:8.71},
+  {id:'e58',cat:'kit',g:"키트부품",n:"BLT Profiler",won:11980,usd:8.26},
+  {id:'e59',cat:'kit',g:"키트부품",n:"Lindemann Guide Drill",won:10910,usd:7.53},
+  {id:'e60',cat:'kit',g:"키트부품",n:"Loading Lindemann Guide Drill",won:10910,usd:7.53},
+  {id:'e61',cat:'kit',g:"키트부품",n:"Twist Drill",won:10910,usd:7.53},
+  {id:'e62',cat:'kit',g:"키트부품",n:"Lance Guide Drill",won:9920,usd:6.84},
+  {id:'e63',cat:'kit',g:"키트부품",n:"RIDGE CONTOURING BUR",won:32310,usd:22.29}
+];
+const EVIDENCE_SEED = { rates: { ...EVIDENCE_RATES }, items: EVIDENCE_ITEMS.map(x => ({ ...x })), memo: '' };
+
+/* ===================== Evidence_BLT II OS (분리품목 3탭 가격표) ===================== */
+function eviMerge(saved) {
+  const DEF_CALC = { bundle: [{ id: 'e1', qty: 1 }, { id: 'e2', qty: 100 }], sumManual: 8.138, dsoList: [100, 110, 120, 130, 140, 150] };
+  const base = { rates: { ...EVIDENCE_RATES }, items: EVIDENCE_ITEMS.map(x => ({ ...x })), memo: '', calc: { ...DEF_CALC } };
+  if (!saved || typeof saved !== 'object') return base;
+  const first = (Array.isArray(saved.items) && saved.items.length) ? saved.items[0] : null;
+  const eviShaped = first && (('cat' in first) || ('won' in first) || ('usd' in first));
+  const sc = saved.calc || {};
+  return {
+    rates: { ...EVIDENCE_RATES, ...(saved.rates || {}) },
+    items: eviShaped ? saved.items.map(x => ({ ...x })) : base.items,
+    memo: saved.memo || '',
+    calc: {
+      bundle: (Array.isArray(sc.bundle) && sc.bundle.length) ? sc.bundle.slice() : DEF_CALC.bundle.map(x => ({ ...x })),
+      sumManual: (sc.sumManual !== undefined ? sc.sumManual : DEF_CALC.sumManual),
+      dsoList: (Array.isArray(sc.dsoList) && sc.dsoList.length ? sc.dsoList.slice() : DEF_CALC.dsoList.slice())
+    }
+  };
+}
+
+function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang }) {
+  const h = React.createElement;
+  const ZH = {
+    "단위: RMB": "单位: RMB",
+    "단위: USD": "单位: USD",
+    "최종 DSO 가격": "最终DSO价格",
+    "매입단가": "采购单价",
+    "단위원가": "单位成本",
+    "계산 결과": "计算结果",
+    "임플란트 1개 + 키트 1개(스탠다드 키트 1개 = 임플란트 100개분). 제공수량을 수정하면 단위원가·합산에 자동 반영됩니다.": "种植体1个 + 套装1个(标准套装1个 = 种植体100个份)。修改提供数量会自动反映到单位成本·合计。",
+    "분리품목 3개 카테고리(임플란트·키트세트 / 어버트먼트 / 키트부품) 매입단가 → 도착원가 → 법인/DSO 공급가 자동 산출": "拆分品目3个类别(种植体·套装 / 基台 / 工具盒部件) 采购单价 → 到岸成本 → 公司/DSO供货价 自动计算",
+    "합산 매입원가(USD)": "合计采购成本(USD)",
+    "합산 매입원가": "合计采购成本",
+    "최종 DSO 가격(RMB)": "最终DSO价格(RMB)",
+    "법인→대리상 공급가": "公司→经销商供货价",
+    "대리상 이익": "经销商利润",
+    "법인 이익": "公司利润",
+    "법인 도착가": "公司到岸价",
+    "법인 Markup률": "公司加价率",
+    "＋ DSO 가격 추가": "＋添加DSO价格",
+    "환율/마진율 설정": "汇率/利润率设置",
+    "환율(원/USD)": "汇率(韩元/USD)",
+    "수출비용": "出口费用",
+    "법인마진": "公司利润率",
+    "대리상마진": "经销商利润率",
+    "단위원가(USD)": "单位成本(USD)",
+    "매입단가(USD)": "采购单价(USD)",
+    "매입단가(원)": "采购单价(韩元)",
+    "도착원가(RMB)": "到岸成本(RMB)",
+    "법인공급가(RMB)": "公司供货价(RMB)",
+    "DSO공급가(RMB)": "DSO供货价(RMB)",
+    "법인이익(RMB)": "公司利润(RMB)",
+    "대리상이익(RMB)": "经销商利润(RMB)",
+    "제공수량": "提供数量",
+    "품명": "品名",
+    "구분": "类别",
+    "＋ 품목 추가": "＋添加品目",
+    "📋 표 복사": "📋复制表格",
+    "메모": "备注",
+    "총 품목수": "总品目数",
+    "임플란트·키트세트": "种植体·套装",
+    "어버트먼트": "基台",
+    "키트부품": "工具盒部件",
+    "☁ 클라우드 저장": "☁云端保存"
+  };
+  const tr = ko => (lang === 'zh' && ZH[ko]) ? ZH[ko] : ko;
+  const data = eviMerge(eviKit);
+  const rates = data.rates;
+  const items = data.items;
+  const [tab, setTab] = React.useState('main');
+  const [toast, setToast] = React.useState('');
+  const flash = m => { setToast(m); setTimeout(() => setToast(''), 1800); };
+  const nf = (v, d) => (v === null || v === undefined || isNaN(v))
+    ? '-' : Number(v).toLocaleString('ko-KR', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+  const patch = o => setEviKit({ ...data, ...o });
+  const upd = (id, f, val) => {
+    const nv = (f === 'n' || f === 'g') ? val : (String(val).trim() === '' ? null : Number(val));
+    patch({ items: items.map(it => it.id === id ? { ...it, [f]: nv } : it) });
+  };
+  const updRate = (k, val) => patch({ rates: { ...rates, [k]: Number(val) || 0 } });
+  const delRow = id => { if (!confirm('이 품목을 삭제할까요?')) return; patch({ items: items.filter(it => it.id !== id) }); };
+  const addRow = () => {
+    const nid = 'e' + Date.now();
+    patch({ items: [...items, { id: nid, cat: tab, g: '', n: '신규 품목', won: null, usd: null }] });
+  };
+  const calc = it => {
+    const usd = (it.usd !== null && it.usd !== undefined) ? it.usd
+      : ((it.won !== null && it.won !== undefined && rates.krwUsd) ? it.won / rates.krwUsd : 0);
+    const arrival = usd * rates.imp * rates.usdRmb;
+    const corp = arrival * rates.corp;
+    const dso = corp * rates.dso;
+    return { usd, arrival, corp, dso, corpProfit: corp - arrival, dealerProfit: dso - corp };
+  };
+
+  const TABS = [['main', tr('임플란트·키트세트')], ['abut', tr('어버트먼트')], ['kit', tr('키트부품')]];
+  const cnt = c => items.filter(it => it.cat === c).length;
+  const rows = items.filter(it => it.cat === tab);
+
+  /* 역산 계산 결과 (합산 매입원가 자동합산 → 최종 DSO 가격별 법인공급가·이익·Markup) */
+  const cst = data.calc;
+  const byId = {}; items.forEach(it => { byId[it.id] = it; });
+  const bundle = (cst.bundle || []).map(e => (typeof e === 'string') ? { id: e, qty: 1 } : { id: e.id, qty: (e.qty || 1) });
+  const bundleRows = bundle.map((e, idx) => ({ e, idx, it: byId[e.id] })).filter(x => x.it);
+  const unitUsd = x => calc(x.it).usd / (x.e.qty || 1);
+  const sumAuto = bundleRows.reduce((a, x) => a + unitUsd(x), 0);
+  const sumUsd = bundleRows.length ? sumAuto : (cst.sumManual || 0);
+  const arrivalRMB = sumUsd * rates.imp * rates.usdRmb;
+  const addBundle = id => { if (id) patch({ calc: { ...cst, bundle: [...bundle, { id: id, qty: 1 }] } }); };
+  const setBundleQty = (i, q) => patch({ calc: { ...cst, bundle: bundle.map((e, idx) => idx === i ? { ...e, qty: (Number(q) || 1) } : e) } });
+  const delBundle = i => patch({ calc: { ...cst, bundle: bundle.filter((_, idx) => idx !== i) } });
+  const setSumManual = v => patch({ calc: { ...cst, sumManual: (String(v).trim() === '' ? null : Number(v)) } });
+  const setDso = (i, v) => patch({ calc: { ...cst, dsoList: cst.dsoList.map((x, idx) => idx === i ? (Number(v) || 0) : x) } });
+  const addDso = () => { const last = cst.dsoList[cst.dsoList.length - 1] || 0; patch({ calc: { ...cst, dsoList: [...cst.dsoList, last + 10] } }); };
+  const delDso = i => patch({ calc: { ...cst, dsoList: cst.dsoList.filter((_, idx) => idx !== i) } });
+
+  /* KPI 카드 */
+  const card = (label, value, sub, cls) =>
+    h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+      h('div', { className: 'text-xs text-slate-500 mb-1' }, label),
+      h('div', { className: 'text-2xl font-bold ' + (cls || 'text-slate-800') }, value),
+      sub ? h('div', { className: 'text-xs text-slate-400 mt-0.5' }, sub) : null);
+  const kpi = h('div', { className: 'grid grid-cols-2 lg:grid-cols-4 gap-3' },
+    card(tr('총 품목수'), items.length + '종', '분리품목 3개 카테고리 합산', 'text-indigo-700'),
+    card(tr('임플란트·키트세트'), cnt('main') + '종', '임플란트 + 키트세트', 'text-slate-800'),
+    card(tr('어버트먼트'), cnt('abut') + '종', 'Abutment', 'text-slate-800'),
+    card(tr('키트부품'), cnt('kit') + '종', 'Kit Components', 'text-slate-800'));
+
+  /* 환율·계수 설정 */
+  const rateInput = (k, label, step) => h('div', { className: 'flex items-center gap-1.5' },
+    h('span', { className: 'text-xs text-slate-500' }, label),
+    h('input', { type: 'number', step: step || 0.01, value: rates[k],
+      onChange: e => updRate(k, e.target.value),
+      className: 'w-20 px-2 py-1 rounded border border-amber-300 bg-white text-sm text-right font-semibold text-amber-900' }));
+  const cfg = h('div', { className: 'bg-amber-50 border border-amber-300 rounded-lg px-4 py-3 flex flex-wrap items-center gap-4' },
+    rateInput('krwUsd', tr('환율(원/USD)'), 1),
+    rateInput('usdRmb', 'USD→RMB', 0.01),
+    rateInput('imp', '입고마진', 0.01),
+    rateInput('corp', '법인계수', 0.01),
+    rateInput('dso', 'DSO계수', 0.01),
+    h('div', { className: 'ml-auto text-xs text-amber-800' },
+      '도착원가 = USD×입고마진×환율 · 법인공급가 = 도착원가×법인계수 · DSO = 법인공급가×DSO계수'));
+
+  /* 탭 바 */
+  const tabBar = h('div', { className: 'border-b border-slate-200 flex gap-2' },
+    TABS.map(([k, label]) => h('button', { key: k, onClick: () => setTab(k),
+      className: 'px-4 py-2 text-sm font-semibold border-b-2 -mb-px ' +
+        (tab === k ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700') },
+      label + ' (' + cnt(k) + ')')));
+
+  /* 표 */
+  const numTd = (val, dec) => h('td', { className: 'evi-num px-2 py-1.5' }, nf(val, dec));
+  const cellInput = (it, f, dec) => h('input', { type: 'number', step: dec ? 0.01 : 1,
+    value: (it[f] === null || it[f] === undefined) ? '' : it[f],
+    onChange: e => upd(it.id, f, e.target.value),
+    className: 'kq-cell evi-num px-2 py-1' });
+  const table = h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
+    h('div', { className: 'px-5 py-3 border-b border-slate-200 flex items-center justify-between' },
+      h('div', { className: 'text-sm font-bold text-slate-700' },
+        (TABS.find(t => t[0] === tab) || [])[1],
+        h('span', { className: 'ml-2 font-normal text-slate-400' }, rows.length + '종')),
+      h('div', { className: 'flex gap-2' },
+        h('button', { onClick: copyTable, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('📋 표 복사')),
+        h('button', { onClick: addRow, className: 'px-2 py-1.5 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700' }, tr('＋ 품목 추가')))),
+    h('div', { className: 'overflow-auto', style: { maxHeight: '64vh' } },
+      h('table', { className: 'kq-grid w-full text-sm' },
+        h('thead', { className: 'sticky top-0 z-10' },
+          h('tr', null,
+            h('th', { className: 'px-2 py-2 w-12' }, 'No.'),
+            h('th', { className: 'px-2 py-2 text-left w-24' }, tr('구분')),
+            h('th', { className: 'px-2 py-2 text-left' }, tr('품명')),
+            h('th', { className: 'px-2 py-2 text-right w-28' }, tr('매입단가(원)')),
+            h('th', { className: 'px-2 py-2 text-right w-24' }, tr('매입단가(USD)')),
+            h('th', { className: 'px-2 py-2 text-right w-28' }, tr('도착원가(RMB)')),
+            h('th', { className: 'px-2 py-2 text-right w-28' }, tr('법인공급가(RMB)')),
+            h('th', { className: 'px-2 py-2 text-right w-28' }, tr('DSO공급가(RMB)')),
+            h('th', { className: 'px-2 py-2 text-right w-24' }, tr('법인이익(RMB)')),
+            h('th', { className: 'px-2 py-2 text-right w-24' }, tr('대리상이익(RMB)')),
+            h('th', { className: 'px-2 py-2 w-10' }))),
+        h('tbody', null,
+          rows.length === 0
+            ? h('tr', null, h('td', { colSpan: 11, className: 'px-3 py-12 text-center text-slate-400 text-sm' }, '품목이 없습니다. "＋ 품목 추가"로 추가하세요.'))
+            : rows.map((it, i) => {
+                const c = calc(it);
+                return h('tr', { key: it.id, className: 'hover:bg-slate-50' },
+                  h('td', { className: 'evi-num px-2 py-1.5 text-center' }, i + 1),
+                  h('td', { className: 'px-2 py-1.5' }, h('input', { className: 'kq-txt', value: it.g || '', onChange: e => upd(it.id, 'g', e.target.value) })),
+                  h('td', { className: 'px-2 py-1.5' }, h('input', { className: 'kq-txt', value: it.n || '', onChange: e => upd(it.id, 'n', e.target.value) })),
+                  h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'text', inputMode: 'numeric', value: (it.won === null || it.won === undefined || it.won === '') ? '' : Number(it.won).toLocaleString('ko-KR'), onChange: e => upd(it.id, 'won', e.target.value.replace(/[^0-9.]/g, '')), className: 'kq-cell evi-num px-2 py-1' })),
+                  h('td', { className: 'evi-num px-2 py-1.5' }, cellInput(it, 'usd', true)),
+                  numTd(c.arrival, 2),
+                  h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.corp, 2)),
+                  numTd(c.dso, 2),
+                  h('td', { className: 'evi-num px-2 py-1.5', style: { color: '#1d4ed8' } }, nf(c.corpProfit, 2)),
+                  h('td', { className: 'evi-num px-2 py-1.5', style: { color: '#1d4ed8' } }, nf(c.dealerProfit, 2)),
+                  h('td', { className: 'px-2 py-1.5 text-center' },
+                    h('button', { onClick: () => delRow(it.id), title: '삭제', className: 'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
+              })))));
+
+  const memo = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+    h('div', { className: 'text-sm font-bold text-slate-700 mb-2' }, tr('메모')),
+    h('textarea', { rows: 2, value: data.memo || '', placeholder: '가격 산정 배경, 협의 내용 등을 남겨두세요',
+      onChange: e => patch({ memo: e.target.value }),
+      className: 'w-full px-2 py-2 rounded-lg border border-slate-200 text-sm resize-none' }));
+
+  function copyTable() {
+    const head = ['No.', tr('구분'), tr('품명'), tr('매입단가(원)'), tr('매입단가(USD)'), tr('도착원가(RMB)'), tr('법인공급가(RMB)'), tr('DSO공급가(RMB)'), tr('법인이익(RMB)'), tr('대리상이익(RMB)')];
+    const lines = [head.join('\t')];
+    rows.forEach((it, i) => {
+      const c = calc(it);
+      lines.push([i + 1, it.g || '', it.n || '', it.won == null ? '' : it.won, c.usd.toFixed(2),
+        c.arrival.toFixed(2), c.corp.toFixed(2), c.dso.toFixed(2), c.corpProfit.toFixed(2), c.dealerProfit.toFixed(2)].join('\t'));
+    });
+    const txt = lines.join('\n');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(() => flash('표를 복사했습니다')).catch(() => flash('복사 실패'));
+    } else {
+      const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); flash('표를 복사했습니다'); } catch (e) { flash('복사 실패'); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  const nf1 = v => nf(Math.round((v || 0) * 10) / 10, 1);
+
+  const dropdown = h('select', { value: '', onChange: e => { addBundle(e.target.value); e.target.value = ''; },
+    className: 'w-full px-2 py-2 rounded-lg border border-slate-300 text-sm bg-white' },
+    h('option', { value: '' }, tr('＋ 품목 추가')),
+    items.map(it => h('option', { key: it.id, value: it.id }, it.g + ' · ' + it.n + ' (' + nf(calc(it).usd, 2) + ' USD)')));
+
+  const bundleTable = h('div', null,
+    h('table', { className: 'kq-grid w-full text-sm' },
+      h('thead', null, h('tr', null,
+        h('th', { className: 'px-2 py-2 text-left', style: { width: '46%' } }, tr('품명')),
+        h('th', { className: 'px-2 py-2 text-right' }, tr('매입단가')),
+        h('th', { className: 'px-2 py-2 text-right' }, tr('제공수량')),
+        h('th', { className: 'px-2 py-2 text-right' }, tr('단위원가')),
+        h('th', { className: 'px-2 py-2 w-8' }))),
+      h('tbody', null,
+        bundleRows.length
+          ? bundleRows.map((x, i) => h('tr', { key: i, className: 'hover:bg-slate-50' },
+              h('td', { className: 'px-2 py-1.5 text-slate-800 text-sm font-medium' }, x.it.n),
+              h('td', { className: 'evi-num px-2 py-1.5' }, nf(calc(x.it).usd, 2)),
+              h('td', { className: 'evi-num px-2 py-1.5' },
+                h('input', { type: 'number', min: 1, step: 1, value: x.e.qty, onChange: e => setBundleQty(x.idx, e.target.value), className: 'kq-cell evi-num px-2 py-1' })),
+              h('td', { className: 'evi-num px-2 py-1.5' }, nf(unitUsd(x), 3)),
+              h('td', { className: 'px-1 py-1.5 text-center' },
+                h('button', { onClick: () => delBundle(x.idx), title: '제거', className: 'text-red-400 hover:text-red-600 text-sm' }, '🗑'))))
+          : h('tr', null, h('td', { colSpan: 5, className: 'px-2 py-3 text-xs text-slate-400 text-center' }, '품목을 추가하거나 아래에 합산 매입원가를 직접 입력하세요'))),
+      h('tfoot', null, h('tr', { className: 'bg-slate-50 font-bold' },
+        h('td', { className: 'px-2 py-2', colSpan: 3 }, tr('합산 매입원가(USD)')),
+        h('td', { className: 'evi-num px-2 py-2' },
+          bundleRows.length
+            ? h('span', { className: 'evi-num font-bold' }, nf(sumUsd, 3))
+            : h('input', { type: 'number', step: 0.001, value: (cst.sumManual === null || cst.sumManual === undefined) ? '' : cst.sumManual, onChange: e => setSumManual(e.target.value), className: 'kq-cell evi-num px-2 py-1' })),
+        h('td')))));
+
+  const dsoBlock = h('div', { className: 'space-y-3' },
+    h('div', null,
+      h('table', { className: 'kq-grid w-full text-sm' },
+        h('thead', null, h('tr', null,
+          h('th', { className: 'px-2 py-2 text-right' }, tr('최종 DSO 가격')),
+          h('th', { className: 'px-2 py-2 text-right' }, tr('법인→대리상 공급가')),
+          h('th', { className: 'px-2 py-2 text-right' }, tr('대리상 이익')),
+          h('th', { className: 'px-2 py-2 text-right' }, tr('법인 이익')),
+          h('th', { className: 'px-2 py-2 text-right' }, tr('법인 도착가')),
+          h('th', { className: 'px-2 py-2 text-right' }, tr('법인 Markup률')),
+          h('th', { className: 'px-2 py-2 w-10' }))),
+        h('tbody', null, cst.dsoList.map((dso, i) => {
+          const supply = rates.dso ? dso / rates.dso : 0;
+          const dealer = dso - supply;
+          const corpP = supply - arrivalRMB;
+          const markup = arrivalRMB ? corpP / arrivalRMB * 100 : 0;
+          const hot = (Number(dso) === 120 || Number(dso) === 130);
+          return h('tr', { key: i, className: hot ? 'bg-blue-50' : 'hover:bg-slate-50' },
+            h('td', { className: 'evi-num px-2 py-1.5' },
+              h('input', { type: 'number', step: 10, value: dso, onChange: e => setDso(i, e.target.value), className: 'kq-cell evi-num px-2 py-1' })),
+            h('td', { className: 'evi-num px-2 py-1.5' }, nf1(supply)),
+            h('td', { className: 'evi-num px-2 py-1.5' }, nf1(dealer)),
+            h('td', { className: 'evi-num px-2 py-1.5' }, nf1(corpP)),
+            h('td', { className: 'evi-num px-2 py-1.5' }, nf1(arrivalRMB)),
+            h('td', { className: 'evi-num px-2 py-1.5' }, nf1(markup) + '%'),
+            h('td', { className: 'px-2 py-1.5 text-center' },
+              h('button', { onClick: () => delDso(i), title: '삭제', className: 'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
+        })))),
+    h('button', { onClick: addDso, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('＋ DSO 가격 추가')));
+
+  const rateTable = h('div', { className: 'space-y-2' },
+    h('div', { className: 'text-sm font-bold text-slate-700' }, tr('환율/마진율 설정')),
+    h('div', null,
+      h('table', { className: 'kq-grid w-full text-sm' },
+        h('thead', null, h('tr', null,
+          h('th', { className: 'px-2 py-2 text-center' }, tr('환율(원/USD)')),
+          h('th', { className: 'px-2 py-2 text-center' }, 'USD→RMB'),
+          h('th', { className: 'px-2 py-2 text-center' }, tr('수출비용')),
+          h('th', { className: 'px-2 py-2 text-center' }, tr('법인마진')),
+          h('th', { className: 'px-2 py-2 text-center' }, tr('대리상마진')))),
+        h('tbody', null, h('tr', null,
+          h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'number', step: 1, value: rates.krwUsd, onChange: e => updRate('krwUsd', e.target.value), className: 'kq-cell evi-num px-2 py-1', style: { textAlign: 'center' } })),
+          h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'number', step: 0.01, value: rates.usdRmb, onChange: e => updRate('usdRmb', e.target.value), className: 'kq-cell evi-num px-2 py-1', style: { textAlign: 'center' } })),
+          h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'number', step: 0.01, value: rates.imp, onChange: e => updRate('imp', e.target.value), className: 'kq-cell evi-num px-2 py-1', style: { textAlign: 'center' } })),
+          h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'number', step: 0.01, value: rates.corp, onChange: e => updRate('corp', e.target.value), className: 'kq-cell evi-num px-2 py-1', style: { textAlign: 'center' } })),
+          h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'number', step: 0.01, value: rates.dso, onChange: e => updRate('dso', e.target.value), className: 'kq-cell evi-num px-2 py-1', style: { textAlign: 'center' } }))))) ),
+    h('div', { className: 'text-xs text-slate-500' }, '도착원가 = USD×수출비용×환율 · 법인공급가 = 도착원가×법인마진 · DSO공급가 = 법인공급가×대리상마진'));
+
+  const calcPanel = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-4' },
+    h('div', { className: 'flex gap-5 items-center max-lg:flex-col max-lg:items-stretch' },
+      h('div', { className: 'lg:w-3/5 w-full text-base font-bold text-slate-800' }, tr('계산 결과')),
+      h('div', { className: 'lg:w-2/5 w-full' }, dropdown)),
+    h('div', { className: 'flex gap-5 items-start max-lg:flex-col' },
+      h('div', { className: 'lg:w-3/5 w-full' },
+        h('div', { className: 'text-xs text-slate-400 mb-1' }, tr('단위: RMB')),
+        dsoBlock),
+      h('div', { className: 'lg:w-2/5 w-full' },
+        h('div', { className: 'text-xs text-slate-400 mb-1' }, tr('단위: USD')),
+        bundleTable,
+        h('div', { className: 'mt-2', style: { fontSize: '12.5px', color: '#000' } }, '※ ', tr('임플란트 1개 + 키트 1개(스탠다드 키트 1개 = 임플란트 100개분). 제공수량을 수정하면 단위원가·합산에 자동 반영됩니다.')),
+        h('div', { className: 'mt-1', style: { fontSize: '12.5px', color: '#000' } }, '※ 대리상은 공급받은 가격에 ' + nf((rates.dso - 1) * 100, 0) + '%를 더하고, 최종가격에서 역산한 법인 공급가와 도착원가의 차액을 전부 법인 이익으로 잡는 구조입니다.'))),
+    rateTable);
+
+  return h('div', { className: 'p-6', style: (lang === 'zh' ? { fontFamily: '"Microsoft YaHei","微软雅黑",sans-serif' } : undefined) },
+    toast ? h('div', { className: 'fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast) : null,
+    h('div', { className: 'mb-4 flex items-start justify-between gap-3 flex-wrap' },
+      h('div', null,
+        h('h2', { className: 'text-lg font-bold text-slate-800' }, 'Evidence_BLT II OS'),
+        h('p', { className: 'text-xs text-slate-500' }, tr('분리품목 3개 카테고리(임플란트·키트세트 / 어버트먼트 / 키트부품) 매입단가 → 도착원가 → 법인/DSO 공급가 자동 산출'))),
+      h('button', { onClick: () => { onCloudSave && onCloudSave(); flash('클라우드 저장 요청'); },
+        className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('☁ 클라우드 저장'))),
+    h('div', { className: 'space-y-4' }, kpi, calcPanel, tabBar, table, memo));
+}
+
 function App() {
     const normMgg = (m) => (m && Array.isArray(m.items) && m.items.length) ? mggMerge(m) : null;
   const [activeMenu, setActiveMenu] = useState('gp-analysis');
+  const [lang, setLang] = useState('ko');
   const [policyTab, setPolicyTab] = useState('export'); // 수출가 정책 / 수출가 변경이력
   const [simTab, setSimTab] = useState('sim-main'); // 대리상가격 / 이력 / 네고
   const [exportPrices, setExportPrices] = useState(INITIAL_EXPORT_PRICES);
@@ -13019,6 +13431,18 @@ function App() {
     } catch (e) {}
     return mggMerge(null);
   }); // 키트 시뮬레이션 (MGG 중국지역) - 클라우드 동기화
+  const [eviKit, setEviKit] = useState(() => {
+    try {
+      const s = localStorage.getItem(STORAGE_KEY);
+      if (s) {
+        const d = JSON.parse(s);
+        if (d && d.eviKit && Array.isArray(d.eviKit.items) && d.eviKit.items.length) {
+          return eviMerge(d.eviKit);
+        }
+      }
+    } catch (e) {}
+    return eviMerge(null);
+  }); // Evidence_BLT II OS (분리품목 3탭 가격표) - 클라우드 동기화 (독립 저장)
 
   // 로컬스토리지 불러오기 (옛 용어 자동 마이그레이션 + ARi 자동 추가)
   useEffect(() => {
@@ -13100,6 +13524,7 @@ function App() {
           if (Array.isArray(remote.kitComponents)) setKitComponents(remote.kitComponents);
           if (remote.kitQuote && typeof remote.kitQuote === 'object') setKitQuote({ ...KIT_QUOTE_SEED, ...remote.kitQuote });
           if (remote.mggKit) { const nm = normMgg(remote.mggKit); if (nm) setMggKit(nm); }
+          if (remote.eviKit) setEviKit(eviMerge(remote.eviKit));
         }
         setSaveStatus('☁ 클라우드 동기화됨');
         setTimeout(() => setSaveStatus(''), 2000);
@@ -13125,7 +13550,8 @@ function App() {
       kitMaster,
       kitComponents,
       kitQuote,
-      mggKit
+      mggKit,
+      eviKit
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -13137,7 +13563,7 @@ function App() {
     window.__pricingSaveTimer = setTimeout(() => {
       gasSavePricing(payload);
     }, 1200);
-  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory, gpItems, gpHistory, specialConfirmed, reverseScenarios, kitMaster, kitComponents, kitQuote, mggKit]);
+  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory, gpItems, gpHistory, specialConfirmed, reverseScenarios, kitMaster, kitComponents, kitQuote, mggKit, eviKit]);
 
   // ── 상단 툴바 핸들러 ──
   const curPayload = () => ({
@@ -13171,6 +13597,7 @@ function App() {
     if (Array.isArray(d.kitComponents)) setKitComponents(d.kitComponents);
     if (d.kitQuote && typeof d.kitQuote === 'object') setKitQuote({ ...KIT_QUOTE_SEED, ...d.kitQuote });
     if (d.mggKit) { const nm = normMgg(d.mggKit); if (nm) setMggKit(nm); }
+    if (d.eviKit) setEviKit(eviMerge(d.eviKit));
   };
   const onCloudSave = () => {
     gasSavePricing(curPayload()).then(ok => {
@@ -13377,6 +13804,10 @@ function App() {
   }, saveStatus && /^[☁⬇⬆🗑]/.test(saveStatus) ? /*#__PURE__*/React.createElement("span", {
     className: "text-sm text-emerald-600 mr-1"
   }, saveStatus) : null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setLang(l => l === 'ko' ? 'zh' : 'ko'),
+    className: "px-3 py-1 border border-slate-300 rounded-lg text-sm bg-white hover:bg-slate-50",
+    style: { color: '#000' }
+  }, lang === 'ko' ? '中文' : '한국어'), /*#__PURE__*/React.createElement("button", {
     onClick: onBackup,
     className: "px-3 py-1 border border-slate-300 rounded-lg text-sm bg-white hover:bg-slate-50",
     style: {
@@ -13469,6 +13900,12 @@ function App() {
     setMggKit: setMggKit,
     onCloudSave: onCloudSave,
     saveStatus: saveStatus
+  }), activeMenu === 'kit-evi' && /*#__PURE__*/React.createElement(EvidenceSimPage, {
+    eviKit: eviKit,
+    setEviKit: setEviKit,
+    onCloudSave: onCloudSave,
+    saveStatus: saveStatus,
+    lang: lang
   }), activeMenu === 'gp-analysis' && /*#__PURE__*/React.createElement(GpAnalysisPage, {
     gpItems: gpItems,
     setGpItems: setGpItems,
