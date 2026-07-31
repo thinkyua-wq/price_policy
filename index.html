@@ -9186,7 +9186,7 @@ function ReverseSimPage({
     step: step,
     value: v[k],
     onChange: e => setF(k, e.target.value),
-    className: "w-full px-2.5 py-2 border border-slate-300 rounded-md text-[17px] font-bold text-red-600 bg-orange-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+    className: "evi-num w-full px-2.5 py-2 border border-slate-300 rounded-md font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
   }))), /*#__PURE__*/React.createElement("h3", {
     className: "text-sm font-bold text-blue-700 tracking-wide mt-4 mb-2"
   }, "전제 상수"), constFlds.map(([k, label, desc, step]) => /*#__PURE__*/React.createElement("div", {
@@ -9201,7 +9201,7 @@ function ReverseSimPage({
     step: step,
     value: v[k],
     onChange: e => setF(k, e.target.value),
-    className: "w-full px-2.5 py-2 border border-slate-300 rounded-md text-[17px] font-bold text-red-600 bg-orange-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+    className: "evi-num w-full px-2.5 py-2 border border-slate-300 rounded-md font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
   })))), /*#__PURE__*/React.createElement("div", {
     className: "bg-white border border-slate-200 rounded-xl p-4"
   }, /*#__PURE__*/React.createElement("div", {
@@ -9222,40 +9222,40 @@ function ReverseSimPage({
   }, showNum ? '번호 숨김' : '번호 표시'))), /*#__PURE__*/React.createElement("div", {
     className: "overflow-x-auto"
   }, /*#__PURE__*/React.createElement("table", {
-    className: "w-full text-[15px] border-collapse border border-slate-300"
+    className: "kq-grid w-full text-sm"
   }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
-    className: "bg-slate-200 text-slate-900"
+    className: ""
   }, /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-left font-semibold border border-slate-300"
+    className: "px-2 py-2 text-left font-semibold"
   }, "단계"), /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-left font-semibold border border-slate-300"
+    className: "px-2 py-2 text-left font-semibold"
   }, "항목"), /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-center font-semibold border border-slate-300"
+    className: "px-2 py-2 text-center font-semibold"
   }, "단위"), /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-right font-semibold border border-slate-300"
+    className: "px-2 py-2 text-right font-semibold"
   }, "금액"), showFormula && /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-left font-semibold border border-slate-300"
+    className: "px-2 py-2 text-left font-semibold"
   }, "산식"))), /*#__PURE__*/React.createElement("tbody", null, rows.filter(r => showMargin || !r[8]).map((r, i) => /*#__PURE__*/React.createElement("tr", {
     key: i,
     style: {
-      background: rowBg[r[0]] || '#fff'
+      background: (r[0] === 'result' ? '#fdf2f8' : '#fff')
     }
   }, /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 font-bold whitespace-nowrap border border-slate-300",
+    className: "px-2 py-2 font-bold whitespace-nowrap",
     style: {
-      borderLeft: '5px solid ' + stageColor[r[6]],
-      color: stageColor[r[6]]
+      borderLeft: '3px solid ' + stageColor[r[6]],
+      color: '#000'
     }
   }, r[7]), /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 font-medium text-slate-700 border border-slate-300"
+    className: "px-2 py-2 font-medium text-slate-700"
   }, showNum && /*#__PURE__*/React.createElement("span", {
     className: "inline-block w-5 h-5 leading-5 text-center bg-slate-800 text-white rounded-full text-[13px] mr-1.5"
   }, r[1]), r[2]), /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 text-center text-[13px] text-slate-800 whitespace-nowrap border border-slate-300"
+    className: "px-2 py-2 text-center text-[13px] text-slate-800 whitespace-nowrap"
   }, r[3]), /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 text-right font-bold tabular-nums border border-slate-300 " + (r[0] === 'result' ? 'text-red-600 text-[18px]' : 'text-slate-700')
+    className: "evi-num px-2 py-2 text-right " + (r[0] === 'result' ? 'font-bold' : '')
   }, r[4]), showFormula && /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 text-[13px] text-slate-400 border border-slate-300"
+    className: "px-2 py-2 text-[13px] text-slate-400"
   }, r[5])))))), showFormula && /*#__PURE__*/React.createElement("div", {
     className: "mt-3 bg-yellow-50 border-l-4 border-red-500 px-3 py-2.5 text-[14px] rounded-r-md text-slate-600"
   }, /*#__PURE__*/React.createElement("b", {
@@ -9263,31 +9263,25 @@ function ReverseSimPage({
   }, "키트 처리 원칙:"), " 키트는 본사공급가($", (+v.kit).toFixed(1), ")까지만 매기고 ", /*#__PURE__*/React.createElement("b", null, "본사이익 0"), " 처리. 즉 키트 배분원가(③) = 키트공급가 ÷ ", v.units, "개가 그대로 본사총공급원가에 녹습니다."), /*#__PURE__*/React.createElement("div", {
     className: "mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "rounded-lg p-3 text-white",
-    style: {
-      background: '#dc2626'
-    }
+    className: "bg-white border border-slate-200 rounded-xl px-5 py-4"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[13px] opacity-80 uppercase tracking-wide"
+    className: "text-xs text-slate-500 mb-1"
   }, "② 임플란트 본사공급가"), /*#__PURE__*/React.createElement("div", {
-    className: "text-xl font-extrabold mt-0.5"
+    className: "text-2xl font-bold text-red-600"
   }, usd(c.implCost))), /*#__PURE__*/React.createElement("div", {
-    className: "rounded-lg p-3 text-white bg-slate-800"
+    className: "bg-white border border-slate-200 rounded-xl px-5 py-4"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[13px] opacity-70 uppercase tracking-wide"
+    className: "text-xs text-slate-500 mb-1"
   }, "키트(표준) 본사공급가"), /*#__PURE__*/React.createElement("div", {
-    className: "text-xl font-extrabold mt-0.5"
+    className: "text-2xl font-bold text-slate-800"
   }, usd(v.kit)), /*#__PURE__*/React.createElement("div", {
-    className: "text-[13px] opacity-75 mt-1"
+    className: "text-xs text-slate-400 mt-0.5"
   }, "③ 배분원가(개당) ", usd(c.kitAlloc))), /*#__PURE__*/React.createElement("div", {
-    className: "rounded-lg p-3 text-white",
-    style: {
-      background: '#2563eb'
-    }
+    className: "bg-white border border-slate-200 rounded-xl px-5 py-4"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[13px] opacity-70 uppercase tracking-wide"
+    className: "text-xs text-slate-500 mb-1"
   }, "④ 본사총공급원가"), /*#__PURE__*/React.createElement("div", {
-    className: "text-xl font-extrabold mt-0.5"
+    className: "text-2xl font-bold text-indigo-700"
   }, usd(c.totalCost)))), /*#__PURE__*/React.createElement("div", {
     className: "mt-5 border-t border-slate-200 pt-4"
   }, /*#__PURE__*/React.createElement("div", {
@@ -9424,36 +9418,36 @@ function ReverseHistory({
   }, "🗑 삭제"))), /*#__PURE__*/React.createElement("div", {
     className: "overflow-x-auto"
   }, /*#__PURE__*/React.createElement("table", {
-    className: "w-full text-[15px] border-collapse border border-slate-300"
+    className: "kq-grid w-full text-sm"
   }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
-    className: "bg-slate-200 text-slate-900"
+    className: ""
   }, /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-left font-semibold border border-slate-300"
+    className: "px-2 py-2 text-left font-semibold"
   }, "단계"), /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-left font-semibold border border-slate-300"
+    className: "px-2 py-2 text-left font-semibold"
   }, "항목"), /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-center font-semibold border border-slate-300"
+    className: "px-2 py-2 text-center font-semibold"
   }, "단위"), /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-right font-semibold border border-slate-300"
+    className: "px-2 py-2 text-right font-semibold"
   }, "금액"))), /*#__PURE__*/React.createElement("tbody", null, rows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
     key: i,
     style: {
-      background: rowBg[r[0]] || '#fff'
+      background: (r[0] === 'result' ? '#fdf2f8' : '#fff')
     }
   }, /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 font-bold whitespace-nowrap border border-slate-300",
+    className: "px-2 py-2 font-bold whitespace-nowrap",
     style: {
-      borderLeft: '5px solid ' + stageColor[r[5]],
-      color: stageColor[r[5]]
+      borderLeft: '3px solid ' + stageColor[r[5]],
+      color: '#000'
     }
   }, r[6]), /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 font-medium text-slate-700 border border-slate-300"
+    className: "px-2 py-2 font-medium text-slate-700"
   }, /*#__PURE__*/React.createElement("span", {
     className: "inline-block w-5 h-5 leading-5 text-center bg-slate-800 text-white rounded-full text-[13px] mr-1.5"
   }, r[1]), r[2]), /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 text-center text-[13px] text-slate-800 whitespace-nowrap border border-slate-300"
+    className: "px-2 py-2 text-center text-[13px] text-slate-800 whitespace-nowrap"
   }, r[3]), /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 text-right font-bold tabular-nums border border-slate-300 " + (r[0] === 'result' ? 'text-red-600 text-[18px]' : 'text-slate-700')
+    className: "evi-num px-2 py-2 text-right " + (r[0] === 'result' ? 'font-bold' : '')
   }, r[4])))))), /*#__PURE__*/React.createElement("div", {
     className: "mt-3 text-[13px] text-slate-500 flex gap-4 flex-wrap"
   }, /*#__PURE__*/React.createElement("span", null, "환율 ", /*#__PURE__*/React.createElement("b", {
@@ -9514,16 +9508,16 @@ function ReverseCompare({
   }, full ? '요약만 보기' : '전체 내용 보기')), /*#__PURE__*/React.createElement("div", {
     className: "overflow-x-auto"
   }, /*#__PURE__*/React.createElement("table", {
-    className: "w-full text-[15px] border-collapse border border-slate-300"
+    className: "kq-grid w-full text-sm"
   }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
-    className: "bg-slate-200 text-slate-900"
+    className: ""
   }, full && /*#__PURE__*/React.createElement("th", {
-    className: "px-2 py-2 text-left font-semibold border border-slate-300"
+    className: "px-2 py-2 text-left font-semibold"
   }, "구분"), /*#__PURE__*/React.createElement("th", {
-    className: "px-3 py-2 text-left font-semibold border border-slate-300"
+    className: "px-3 py-2 text-left font-semibold"
   }, "항목"), computed.map(s => /*#__PURE__*/React.createElement("th", {
     key: s.id,
-    className: "px-3 py-2 text-center font-semibold whitespace-nowrap border border-slate-300"
+    className: "px-3 py-2 text-center font-semibold whitespace-nowrap"
   }, s.name, /*#__PURE__*/React.createElement("div", {
     className: "text-[13px] font-normal opacity-70"
   }, s.date))))), /*#__PURE__*/React.createElement("tbody", null, full ? fullRows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
@@ -9532,20 +9526,20 @@ function ReverseCompare({
       background: catColor[r[0]] || '#fff'
     }
   }, /*#__PURE__*/React.createElement("td", {
-    className: "px-2 py-2 text-[13px] text-slate-500 border border-slate-300"
+    className: "px-2 py-2 text-[13px] text-slate-500"
   }, r[0]), /*#__PURE__*/React.createElement("td", {
-    className: "px-3 py-2 text-slate-700 font-medium whitespace-nowrap border border-slate-300"
+    className: "px-3 py-2 text-slate-700 font-medium whitespace-nowrap"
   }, r[1]), computed.map(s => /*#__PURE__*/React.createElement("td", {
     key: s.id,
-    className: "px-3 py-2 text-center tabular-nums border border-slate-300 " + (r[0] === '결과' ? 'font-bold text-red-600' : 'text-slate-600')
+    className: "px-3 py-2 text-center tabular-nums " + (r[0] === '결과' ? 'font-bold text-red-600' : 'text-slate-600')
   }, r[2](s))))) : summaryRows.map((r, i) => /*#__PURE__*/React.createElement("tr", {
     key: i,
     className: r[2] ? 'bg-amber-50' : ''
   }, /*#__PURE__*/React.createElement("td", {
-    className: "px-3 py-2 whitespace-nowrap border border-slate-300 " + (r[2] ? 'font-bold text-slate-800' : 'text-slate-600')
+    className: "px-3 py-2 whitespace-nowrap " + (r[2] ? 'font-bold text-slate-800' : 'text-slate-600')
   }, r[0]), computed.map(s => /*#__PURE__*/React.createElement("td", {
     key: s.id,
-    className: "px-3 py-2 text-center tabular-nums border border-slate-300 " + (r[2] ? 'font-bold text-red-600 text-[17px]' : 'text-slate-600')
+    className: "px-3 py-2 text-center tabular-nums " + (r[2] ? 'font-bold text-red-600 text-[17px]' : 'text-slate-600')
   }, r[1](s)))))))));
 }
 
@@ -13028,7 +13022,7 @@ const EVIDENCE_SEED = { rates: { ...EVIDENCE_RATES }, items: EVIDENCE_ITEMS.map(
 
 /* ===================== Evidence_BLT II OS (분리품목 3탭 가격표) ===================== */
 function eviMerge(saved) {
-  const DEF_CALC = { bundle: [{ id: 'e1', qty: 1 }, { id: 'e2', qty: 100 }], sumManual: 8.138, dsoList: [120, 125, 130, 140, 150] };
+  const DEF_CALC = { bundle: [{ id: 'e1', qty: 1 }, { id: 'e2', qty: 100 }], sumManual: 8.138, dsoList: [120, 125, 130, 135, 140] };
   const base = { rates: { ...EVIDENCE_RATES }, items: EVIDENCE_ITEMS.map(x => ({ ...x })), memo: '', calc: { ...DEF_CALC } };
   if (!saved || typeof saved !== 'object') return base;
   const first = (Array.isArray(saved.items) && saved.items.length) ? saved.items[0] : null;
@@ -13057,13 +13051,27 @@ function eviMerge(saved) {
         dsoList.sort((x, y) => x.p - y.p);
         migSort = true;
       }
+      let mig135 = !!sc.mig135;
+      if (!mig135) {
+        if (dsoList.some(e => e.p === 150)) {
+          dsoList.forEach(e => { if (e.p === 140) e.p = 135; });
+          dsoList.forEach(e => { if (e.p === 150) e.p = 140; });
+        }
+        const seenP = {};
+        for (let k2 = 0; k2 < dsoList.length; k2++) {
+          if (seenP[dsoList[k2].p]) { dsoList.splice(k2, 1); k2--; } else seenP[dsoList[k2].p] = 1;
+        }
+        dsoList.sort((x, y) => x.p - y.p);
+        mig135 = true;
+      }
       return {
         bundle: (Array.isArray(sc.bundle) && sc.bundle.length) ? sc.bundle.slice() : DEF_CALC.bundle.map(x => ({ ...x })),
         sumManual: (sc.sumManual !== undefined ? sc.sumManual : DEF_CALC.sumManual),
         dsoList: dsoList,
         mig125: mig125,
         migDso2: migDso2,
-        migSort: migSort
+        migSort: migSort,
+        mig135: mig135
       };
     })()
   };
@@ -13156,17 +13164,35 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang }) {
   const patch = o => setEviKit({ ...data, ...o });
   const upd = (id, f, val) => {
     const nv = (f === 'n' || f === 'g') ? val : (String(val).trim() === '' ? null : Number(val));
-    patch({ items: items.map(it => it.id === id ? { ...it, [f]: nv } : it) });
+    patch({ items: items.map(it => {
+      if (it.id !== id) return it;
+      if (f === 'won' && nv !== null && rates.krwUsd) {
+        return { ...it, won: nv, usd: Math.round(nv / rates.krwUsd * 100) / 100 };
+      }
+      return { ...it, [f]: nv };
+    }) });
   };
-  const updRate = (k, val) => patch({ rates: { ...rates, [k]: Number(val) || 0 } });
+  const updRate = (k, val) => {
+    const nv = Number(val) || 0;
+    if (k === 'krwUsd' && nv > 0) {
+      patch({
+        rates: { ...rates, krwUsd: nv },
+        items: items.map(it => (it.won !== null && it.won !== undefined && it.won !== '')
+          ? { ...it, usd: Math.round(it.won / nv * 100) / 100 } : it)
+      });
+      return;
+    }
+    patch({ rates: { ...rates, [k]: nv } });
+  };
   const delRow = id => { if (!confirm(tr('이 품목을 삭제할까요?'))) return; patch({ items: items.filter(it => it.id !== id) }); };
   const addRow = () => {
     const nid = 'e' + Date.now();
     patch({ items: [...items, { id: nid, cat: tab, g: '', n: tr('신규 품목'), won: null, usd: null }] });
   };
   const calc = it => {
-    const usd = (it.usd !== null && it.usd !== undefined) ? it.usd
-      : ((it.won !== null && it.won !== undefined && rates.krwUsd) ? it.won / rates.krwUsd : 0);
+    const usd = (it.won !== null && it.won !== undefined && it.won !== '' && rates.krwUsd)
+      ? it.won / rates.krwUsd
+      : ((it.usd !== null && it.usd !== undefined) ? it.usd : 0);
     const arrival = usd * rates.imp * rates.usdRmb;
     const corp = arrival * rates.corp;
     const dso = corp * rates.dso;
@@ -13201,7 +13227,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang }) {
       h('div', { className: 'text-xs text-slate-500 mb-1' }, label),
       h('div', { className: 'text-2xl font-bold ' + (cls || 'text-slate-800') }, value),
       sub ? h('div', { className: 'text-xs text-slate-400 mt-0.5' }, sub) : null);
-  const tEntry = cst.dsoList.find(e => Number(e.p) === 125) || cst.dsoList.find(e => Number(e.p) === 120 || Number(e.p) === 130) || cst.dsoList[0] || { p: 0, d: null };
+  const tEntry = cst.dsoList.find(e => Number(e.p) === 135) || cst.dsoList.find(e => Number(e.p) === 130 || Number(e.p) === 140) || cst.dsoList[0] || { p: 0, d: null };
   const tDso = Number(tEntry.p) || 0;
   const tSupply = (tEntry.d !== null && tEntry.d !== undefined) ? (tDso - tEntry.d) : (rates.dso ? tDso / rates.dso : 0);
   const tDealer = tDso - tSupply;
@@ -13274,7 +13300,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang }) {
                   h('td', { className: 'px-2 py-1.5' }, h('input', { className: 'kq-txt', value: tr(it.g || ''), onChange: e => upd(it.id, 'g', e.target.value) })),
                   h('td', { className: 'px-2 py-1.5' }, h('input', { className: 'kq-txt', value: it.n || '', onChange: e => upd(it.id, 'n', e.target.value) })),
                   h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'text', inputMode: 'numeric', value: (it.won === null || it.won === undefined || it.won === '') ? '' : Number(it.won).toLocaleString('ko-KR'), onChange: e => upd(it.id, 'won', e.target.value.replace(/[^0-9.]/g, '')), className: 'kq-cell evi-num px-2 py-1' })),
-                  h('td', { className: 'evi-num px-2 py-1.5' }, cellInput(it, 'usd', true)),
+                  h('td', { className: 'evi-num px-2 py-1.5' }, (it.won !== null && it.won !== undefined && it.won !== '') ? nf(c.usd, 2) : cellInput(it, 'usd', true)),
                   numTd(c.arrival, 2),
                   h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.corp, 2)),
                   numTd(c.dso, 2),
@@ -13313,7 +13339,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang }) {
   const dropdown = h('select', { value: '', onChange: e => { addBundle(e.target.value); e.target.value = ''; },
     className: 'w-full px-2 py-2 rounded-lg border border-slate-300 text-sm bg-white' },
     h('option', { value: '' }, tr('＋ 품목 추가')),
-    items.map(it => h('option', { key: it.id, value: it.id }, tr(it.g) + ' · ' + it.n + ' (' + nf(calc(it).usd, 2) + ' USD)')));
+    items.map(it => h('option', { key: it.id, value: it.id }, tr(it.g) + ' · ' + it.n)));
 
   const bundleTable = h('div', null,
     h('table', { className: 'kq-grid w-full text-sm' },
@@ -13360,7 +13386,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang }) {
           const supply = dso - dealer;
           const corpP = supply - arrivalRMB;
           const margin = supply ? corpP / supply * 100 : 0;
-          const hot = (dso === 125);
+          const hot = (dso === 135);
           return h('tr', { key: i, className: hot ? 'bg-pink-50' : 'hover:bg-slate-50' },
             h('td', { className: 'evi-num px-2 py-1.5' },
               h('input', { type: 'number', step: 10, value: e0.p, onChange: ev => setDso(i, ev.target.value), className: 'kq-cell evi-num px-2 py-1' })),
@@ -13414,10 +13440,184 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang }) {
     h('div', { className: 'mb-4 flex items-start justify-between gap-3 flex-wrap' },
       h('div', null,
         h('h2', { className: 'text-lg font-bold text-slate-800' }, 'Evidence_BLT II OS'),
-        h('p', { className: 'text-xs text-slate-500' }, tr('분리품목 3개 카테고리(임플란트·키트세트 / 어버트먼트 / 키트부품) 매입단가 → 도착원가 → 법인/DSO 공급가 자동 산출'))),
+        h('p', { className: 'text-xs text-slate-500' }, tr('분리품목 3개 카테고리(임플란트·키트세트 / 어버트먼트 / 키트부품) 매입단가 → 도착원가 → 법인/DSO 공급가 자동 산출'), h('span', { className: 'ml-2 px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono' }, 'build 0731-A'))),
       h('button', { onClick: () => { onCloudSave && onCloudSave(); flash(tr('클라우드 저장 요청')); },
         className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('☁ 클라우드 저장'))),
     h('div', { className: 'space-y-4' }, kpi, calcPanel, tabBar, table, memo));
+}
+
+
+/* ===================== 제품별 수익성 분석 (신규 분석 화면 — Evidence 서식) ===================== */
+function GpAnalyzerPage({ gpItems }) {
+  const h = React.createElement;
+  const items = gpFillBuy((gpItems && gpItems.length) ? gpItems : GP_SAMPLE);
+  const sysList = Array.from(new Set(items.map(i => i.sys)));
+  const [sys, setSys] = React.useState(sysList[0] || '');
+  const kits = items.filter(i => i.sys === sys);
+  const [kitId, setKitId] = React.useState(kits[0] ? kits[0].id : '');
+  React.useEffect(() => {
+    const ks = items.filter(i => i.sys === sys);
+    if (ks.length && !ks.some(k => k.id === kitId)) setKitId(ks[0].id);
+  }, [sys]);
+  const item = items.find(i => i.id === kitId) || kits[0] || items[0];
+  const [targetCorp, setTargetCorp] = React.useState(25);
+  const [bm, setBm] = React.useState(45);
+  const [selX, setSelX] = React.useState(null);
+
+  const cols = []; for (let x = 0; x <= 10; x++) cols.push(x);
+  const EMPTY = { ds: 0, dealerMargin: 0, dealerMarginRate: 0, hqGP: 0, corpGP: 0 };
+  const res = {}; cols.forEach(x => { res[x] = item ? gpCalcCell(item, x, (Number(bm) || 0) / 100) : EMPTY; });
+  const T = Number(targetCorp) || 0;
+  const meets = cols.filter(x => res[x].corpGP * 100 >= T);
+  const rec = meets.length
+    ? meets.reduce((a, x) => res[x].dealerMarginRate > res[a].dealerMarginRate ? x : a, meets[0])
+    : cols.reduce((a, x) => res[x].corpGP > res[a].corpGP ? x : a, cols[0]);
+  const cur = (selX === null || cols.indexOf(selX) === -1) ? rec : selX;
+  const c = res[cur];
+
+  const money = v => Number(v || 0).toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const pct = v => ((v || 0) * 100).toFixed(1);
+  const rateBg = r => { const p = r * 100; return p < 40 ? '#FCE7E7' : p < 45 ? '#FCF3D7' : p < 50 ? '#DFF2E7' : '#C9E9D8'; };
+  const corpBg = g => { const p = g * 100; return p < T - 5 ? '#FCE7E7' : p < T ? '#FCF3D7' : p < T + 5 ? '#DFF2E7' : '#C9E9D8'; };
+
+  const dlExcel = () => {
+    const head = ['구분'].concat(cols.map(x => '10+' + x));
+    const lines = [head.join('\t')];
+    lines.push(['대리상판매가(RMB)'].concat(cols.map(x => res[x].ds.toFixed(1))).join('\t'));
+    lines.push(['대리상 마진율(%)'].concat(cols.map(x => pct(res[x].dealerMarginRate))).join('\t'));
+    lines.push(['대리상 마진금액(RMB)'].concat(cols.map(x => res[x].dealerMargin.toFixed(1))).join('\t'));
+    lines.push(['법인 GP(%)'].concat(cols.map(x => pct(res[x].corpGP))).join('\t'));
+    lines.push(['본사 GP(%)'].concat(cols.map(x => pct(res[x].hqGP))).join('\t'));
+    const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/tab-separated-values;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (item ? item.sys + '_' + item.kitName : 'gp') + '_수익성분석.xls';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  };
+
+  const selCls = 'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white';
+  const fld = (label, el) => h('div', null,
+    h('label', { className: 'block text-xs text-slate-500 mb-1' }, label), el);
+
+  const topBar = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 grid grid-cols-2 md:grid-cols-5 gap-3 items-end' },
+    fld('제품', h('select', { value: sys, onChange: e => { setSys(e.target.value); setSelX(null); }, className: selCls },
+      sysList.map(s0 => h('option', { key: s0, value: s0 }, s0)))),
+    fld('키트', h('select', { value: kitId, onChange: e => { setKitId(e.target.value); setSelX(null); }, className: selCls },
+      kits.map(k => h('option', { key: k.id, value: k.id }, k.kitName)))),
+    fld('KIT 비율', h('div', { className: 'evi-num px-3 py-2 rounded-lg border border-slate-200 bg-slate-50' }, (item ? item.kitDiv : '-') + 'EA')),
+    fld('법인 목표마진 (%)', h('input', { type: 'number', step: 0.5, value: targetCorp,
+      onChange: e => { setTargetCorp(e.target.value); setSelX(null); },
+      className: 'kq-cell evi-num px-3 py-2 rounded-lg border border-indigo-300 bg-indigo-50/40 w-full font-bold' })),
+    fld('대리상 마진율 · 판매가 산정 (%)', h('input', { type: 'number', step: 0.5, value: bm,
+      onChange: e => { setBm(e.target.value); setSelX(null); },
+      className: 'kq-cell evi-num px-3 py-2 rounded-lg border border-slate-300 w-full' })));
+
+  const card = (label, value, sub, cls) => h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+    h('div', { className: 'text-xs text-slate-500 mb-1' }, label),
+    h('div', { className: 'text-2xl font-bold ' + (cls || 'text-slate-800') }, value),
+    sub ? h('div', { className: 'text-xs mt-1' }, sub) : null);
+
+  const okBadge = h('span', { className: 'inline-block px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-xs font-semibold' }, '목표 ' + T + '% 이상');
+  const noBadge = h('span', { className: 'inline-block px-2 py-0.5 rounded bg-red-50 text-red-600 text-xs font-semibold' }, '목표 미달');
+
+  const kpiRow = h('div', { className: 'grid grid-cols-2 lg:grid-cols-6 gap-3' },
+    h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+      h('div', { className: 'mb-1' }, h('span', { className: 'inline-block px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 text-xs font-bold' }, '기준 조건 (10+' + cur + ')')),
+      h('div', { className: 'text-xs text-slate-500' }, '대리상판매가'),
+      h('div', { className: 'text-2xl font-bold text-indigo-700' }, money(c.ds) + ' RMB')),
+    card('대리상 마진율', pct(c.dealerMarginRate) + '%', null, 'text-emerald-700'),
+    card('법인 GP', pct(c.corpGP) + '%', c.corpGP * 100 >= T ? okBadge : noBadge, 'text-orange-600'),
+    card('본사 GP', pct(c.hqGP) + '%', null, 'text-purple-700'),
+    h('div', { className: 'lg:col-span-2 bg-white border border-emerald-200 rounded-xl px-5 py-4 bg-emerald-50/40' },
+      h('div', { className: 'flex items-center justify-between mb-1' },
+        h('div', { className: 'text-sm font-bold text-slate-800' }, '추천 조건'),
+        h('span', { className: 'px-2 py-0.5 rounded bg-emerald-600 text-white text-xs font-bold' }, '10+' + rec)),
+      h('div', { className: 'text-xs text-slate-600 leading-relaxed' },
+        meets.length
+          ? '목표 법인 GP(' + T + '%)를 만족하면서 대리상 마진율이 가장 높은 조건입니다.'
+          : '목표 법인 GP(' + T + '%)를 만족하는 조건이 없어, 법인 GP가 가장 높은 조건을 표시합니다.'),
+      h('button', { onClick: () => setSelX(rec),
+        className: 'mt-2 px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 font-semibold' }, '추천 조건 적용')));
+
+  const legend = h('div', { className: 'flex items-center gap-3 text-xs text-slate-500 flex-wrap' },
+    h('span', null, '대리상 마진율'),
+    [['#FCE7E7', '40% 미만'], ['#FCF3D7', '40~45%'], ['#DFF2E7', '45~50%'], ['#C9E9D8', '50% 초과']].map((x, i) =>
+      h('span', { key: i, className: 'inline-flex items-center gap-1' },
+        h('span', { style: { background: x[0], width: 10, height: 10, display: 'inline-block', borderRadius: 2 } }), x[1])),
+    h('span', { className: 'text-slate-400' }, '· 법인 GP 행은 목표(' + T + '%) 기준'));
+
+  const rowsDef = [
+    ['대리상판매가 (RMB)', x => money(res[x].ds), null],
+    ['대리상 마진율 (%)', x => pct(res[x].dealerMarginRate), x => rateBg(res[x].dealerMarginRate)],
+    ['대리상 마진금액 (RMB)', x => money(res[x].dealerMargin), null],
+    ['법인 GP (%)', x => pct(res[x].corpGP), x => corpBg(res[x].corpGP)],
+    ['본사 GP (%)', x => pct(res[x].hqGP), null]];
+
+  const tableCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
+    h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+      h('div', { className: 'text-sm font-bold text-slate-800' }, '무상조건별 수익성 비교 (10+0 ~ 10+10)'),
+      legend),
+    h('div', { className: 'overflow-auto' },
+      h('table', { className: 'kq-grid w-full text-sm' },
+        h('thead', null, h('tr', null,
+          h('th', { className: 'px-2 py-2 text-left' }, '구분'),
+          cols.map(x => h('th', {
+            key: x, onClick: () => setSelX(x),
+            className: 'px-2 py-2 text-center cursor-pointer ' + (x === cur ? '!bg-blue-600' : ''),
+            style: x === cur ? { background: '#2563eb', color: '#fff' } : undefined
+          },
+            x === rec ? h('div', { className: 'text-[10px] font-bold ' + (x === cur ? '' : 'text-emerald-600') }, '추천') : null,
+            '10+' + x)))),
+        h('tbody', null, rowsDef.map((rd, ri) => h('tr', { key: ri },
+          h('td', { className: 'px-2 py-1.5 text-slate-700 whitespace-nowrap' }, rd[0]),
+          cols.map(x => h('td', {
+            key: x,
+            className: 'evi-num px-2 py-1.5 text-right',
+            style: {
+              background: rd[2] ? rd[2](x) : undefined,
+              fontWeight: x === cur ? 700 : undefined
+            }
+          }, rd[1](x)))))))),
+    h('div', { className: 'text-xs', style: { color: '#000' } },
+      '※ 대리상판매가 = 기준가×0.9 × (10 ÷ 총수량) × (1 − 대리상 산정마진) · 법인 GP = 1 − 법인원가 ÷ 대리상 총매입액 · 추천은 법인 목표마진 기준입니다.'));
+
+  const stat = (label, val) => h('div', { className: 'border border-slate-200 rounded-lg px-3 py-2.5' },
+    h('div', { className: 'text-xs text-slate-500' }, label),
+    h('div', { className: 'evi-num font-bold' }, val));
+  const infoCard = item ? h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+    h('div', { className: 'text-sm font-bold text-slate-800 mb-3' }, '제품 기본 정보'),
+    h('div', { className: 'grid grid-cols-2 md:grid-cols-5 gap-3' },
+      stat('수출가 (USD)', money(item.exp)),
+      stat('매입단가 (RMB)', money(item.buy)),
+      stat('기준가 (RMB)', money(item.base)),
+      stat('KIT 비율', item.kitDiv + 'EA (대 1)'),
+      stat('KIT 수출가 (RMB)', money(item.kit)))) : null;
+
+  const sumRow = (label, val, bold) => h('tr', { className: 'hover:bg-slate-50' },
+    h('td', { className: 'px-3 py-1.5 text-slate-600' }, label),
+    h('td', { className: 'evi-num px-3 py-1.5 text-right' + (bold ? ' font-bold' : '') }, val));
+  const summaryCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
+    h('div', { className: 'text-sm font-bold text-slate-800' }, '선택 조건 요약'),
+    h('table', { className: 'kq-grid w-full text-sm' }, h('tbody', null,
+      sumRow('제품', item ? item.sys : '-'),
+      sumRow('키트', item ? item.kitName : '-'),
+      sumRow('KIT 비율', item ? item.kitDiv + 'EA' : '-'),
+      sumRow('무상조건', '10+' + cur, true),
+      sumRow('대리상판매가', money(c.ds) + ' RMB', true),
+      sumRow('대리상 마진율', pct(c.dealerMarginRate) + '%'),
+      sumRow('법인 GP', pct(c.corpGP) + '%', true),
+      sumRow('본사 GP', pct(c.hqGP) + '%'))),
+    h('button', { onClick: () => window.print(),
+      className: 'w-full px-3 py-2 text-sm rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold' }, 'PDF 다운로드'),
+    h('button', { onClick: dlExcel,
+      className: 'w-full px-3 py-2 text-sm rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold' }, '엑셀 다운로드'));
+
+  return h('div', { className: 'p-6 space-y-4' },
+    topBar,
+    kpiRow,
+    h('div', { className: 'flex gap-5 items-start max-lg:flex-col' },
+      h('div', { className: 'flex-1 min-w-0 space-y-4' }, tableCard, infoCard),
+      h('div', { className: 'lg:w-72 w-full' }, summaryCard)));
 }
 
 function App() {
@@ -13425,6 +13625,7 @@ function App() {
   const [activeMenu, setActiveMenu] = useState(() => { try { return localStorage.getItem('evi_active_menu') || 'gp-analysis'; } catch (e) { return 'gp-analysis'; } });
   useEffect(() => { try { localStorage.setItem('evi_active_menu', activeMenu); } catch (e) {} }, [activeMenu]);
   const [lang, setLang] = useState('ko');
+  const [gpMode, setGpMode] = useState('ana'); // 수익성 분석: 신규 분석 / 기존 관리
   const [policyTab, setPolicyTab] = useState('export'); // 수출가 정책 / 수출가 변경이력
   const [simTab, setSimTab] = useState('sim-main'); // 대리상가격 / 이력 / 네고
   const [exportPrices, setExportPrices] = useState(INITIAL_EXPORT_PRICES);
@@ -13977,12 +14178,20 @@ function App() {
     onCloudSave: onCloudSave,
     saveStatus: saveStatus,
     lang: lang
-  }), activeMenu === 'gp-analysis' && /*#__PURE__*/React.createElement(GpAnalysisPage, {
+  }), activeMenu === 'gp-analysis' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "px-6 pt-4 flex gap-2 border-b border-slate-200"
+  }, [['ana', '수익성 분석'], ['manage', '품목·데이터 관리']].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => setGpMode(k),
+    className: "px-4 py-2 text-sm font-semibold border-b-2 -mb-px " + (gpMode === k ? "border-indigo-600 text-indigo-700" : "border-transparent text-slate-500 hover:text-slate-700")
+  }, label))), gpMode === 'ana' ? /*#__PURE__*/React.createElement(GpAnalyzerPage, {
+    gpItems: gpItems
+  }) : /*#__PURE__*/React.createElement(GpAnalysisPage, {
     gpItems: gpItems,
     setGpItems: setGpItems,
     gpHistory: gpHistory,
     setGpHistory: setGpHistory
-  })));
+  }))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
 </script>
