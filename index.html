@@ -9828,9 +9828,9 @@ function KitSimPage({
   const KT_ZH = {
     "키트 견적 계산 (ZBLC)": "工具盒报价计算 (ZBLC)",
     "구성품 단가 → 본사가격(EUR/USD) → 법인공급가 자동 산출": "部件单价 → 总部价格(EUR/USD) → 公司供货价自动计算",
-    "📋 표 복사": "📋 复制表格",
+    "표 복사": "复制表格",
     "⬇ 엑셀": "⬇ Excel",
-    "🗑 초기화": "🗑 初始化",
+    "초기화": "初始化",
     "＋ 구성품 추가": "＋添加部件",
     "환율/계수 설정": "汇率/系数设置",
     "기준일 / 적용": "基准日 / 适用",
@@ -9949,7 +9949,7 @@ function KitSimPage({
   };
 
   /* ---- KPI 카드 ---- */
-  const kpi = (label, val, cls) => h('div', { className:'bg-white rounded-xl border border-slate-200 p-4' },
+  const kpi = (label, val, cls) => h('div', { className:'bg-white rounded-none border border-slate-200 p-4' },
     h('div', { className:'text-xs text-slate-500' }, label),
     h('div', { className:'text-xl font-bold mt-1 ' + (cls || 'text-slate-800') }, val));
 
@@ -9960,7 +9960,7 @@ function KitSimPage({
     kpi(tr('법인공급가 (USD)'), '$ ' + nfmt(sum.corp), 'text-blue-700'));
 
   /* ---- 메모장 ---- */
-  const memoBox = h('div', { className:'bg-slate-50 rounded-xl border border-slate-200 ' + (memoOpen ? 'p-5' : 'px-5 py-3') },
+  const memoBox = h('div', { className:'bg-slate-50 rounded-none border border-slate-200 ' + (memoOpen ? 'p-5' : 'px-5 py-3') },
     h('div', { className:'flex items-start justify-between gap-4' },
       h('button', {
         onClick: toggleMemo,
@@ -9974,14 +9974,14 @@ function KitSimPage({
       h('div', { className:'flex items-center gap-2 flex-shrink-0' },
         h('span', { className:'text-xs ' + statusColor }, saveStatus || status),
         memoOpen && h('button', { onClick:saveNow,
-          className:'px-3 py-1 text-xs rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-100' }, '☁ 저장'),
+          className:'px-3 py-1 text-xs rounded-none border border-slate-300 bg-white text-slate-600 hover:bg-slate-100' }, '저장'),
         memoOpen && h('button', { onClick:memoReset,
-          className:'px-3 py-1 text-xs rounded-lg border border-slate-300 bg-white text-slate-400 hover:bg-slate-100' }, '초기화'),
+          className:'px-3 py-1 text-xs rounded-none border border-slate-300 bg-white text-slate-400 hover:bg-slate-100' }, '초기화'),
         h('button', { onClick:toggleMemo,
-          className:'px-3 py-1 text-xs rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100' },
+          className:'px-3 py-1 text-xs rounded-none border border-slate-300 bg-white text-slate-500 hover:bg-slate-100' },
           memoOpen ? '숨기기' : '보기'))),
     memoOpen && h('div', { ref:memoRef, contentEditable:true, suppressContentEditableWarning:true, onInput:onMemoInput,
-      className:'kq-memo mt-3 text-sm text-slate-700 outline-none rounded-lg px-2 py-1 focus:bg-white focus:ring-1 focus:ring-blue-300' }));
+      className:'kq-memo mt-3 text-sm text-slate-700 outline-none rounded-none px-2 py-1 focus:bg-white focus:ring-1 focus:ring-blue-300' }));
 
   /* ---- 설정 ---- */
   const cfgField = (key, label, step, type) => h('label', { className:'block' },
@@ -9989,7 +9989,7 @@ function KitSimPage({
     h('input', {
       type: type || 'number', step: step || '0.001', value: cfg[key],
       onChange: e => setCfg(p => ({ ...p, [key]: type === 'text' ? e.target.value : e.target.value })),
-      className:'mt-1 w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm ' + (type === 'text' ? '' : 'text-right')
+      className:'mt-1 w-full border border-slate-300 rounded-none px-3 py-1.5 text-sm ' + (type === 'text' ? '' : 'text-right')
     }));
 
   const cfgCell = (key, step, isText) => h('td', { className:'px-2 py-1.5' },
@@ -10073,7 +10073,7 @@ function KitSimPage({
           h('td', { className:'kq-num px-3 py-1.5' }, nfmt(c.newUsd, 1)),
           h('td', { className:'kq-num px-3 py-1.5 font-semibold' }, nfmt(c.corp)),
           h('td', { className:'px-2 py-1.5 text-center' },
-            h('button', { onClick:() => del(r.id), title:'삭제', className:'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
+            h('button', { onClick:() => del(r.id), title:'삭제', className:'px-1.5 py-0.5 rounded-none text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '×')));
       })),
       h('tfoot', null,
         h('tr', { className:'bg-slate-50 font-bold' },
@@ -10088,17 +10088,17 @@ function KitSimPage({
   const simView = h('div', { className:'space-y-5' },
     h('div', { className:'flex items-center justify-end' },
       h('div', { className:'flex gap-2' },
-        h('button', { onClick:e => xlsDownloadTable(e.target, 'ZBLC_구성품', 2), className:'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('⬇ 엑셀')),
+        h('button', { onClick:e => xlsDownloadTable(e.target, 'ZBLC_구성품', 2), className:'px-2 py-1.5 text-sm rounded-none border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('⬇ 엑셀')),
         h('button', { onClick:copyTable,
-          className:'px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('📋 표 복사')),
+          className:'px-3 py-1.5 text-sm rounded-none border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('표 복사')),
         h('button', { onClick:bomReset,
-          className:'px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-400 hover:bg-slate-50' }, tr('🗑 초기화')),
+          className:'px-3 py-1.5 text-sm rounded-none border border-slate-300 text-slate-400 hover:bg-slate-50' }, tr('초기화')),
         h('button', { onClick:addRow,
-          className:'px-3 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700' }, tr('＋ 구성품 추가')))),
+          className:'px-3 py-1.5 text-sm rounded-none bg-blue-600 text-white hover:bg-blue-700' }, tr('＋ 구성품 추가')))),
     kpiCards, kitTable, cfgBox, bomTable);
 
   return h('div', { className:'p-6' },
-    toast && h('div', { className:'fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast),
+    toast && h('div', { className:'fixed top-4 right-4 z-50 px-4 py-2 rounded-none shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast),
     h('h2', { className:'text-lg font-bold text-slate-800' }, tr('키트 견적 계산 (ZBLC)')),
     h('p', { className:'text-xs text-slate-500 mb-3' }, tr('구성품 단가 → 본사가격(EUR/USD) → 법인공급가 자동 산출')),
     h('div', { className:'mb-4 border-b border-slate-200 flex gap-2' },
@@ -10149,48 +10149,48 @@ function KitMasterManager({ kitMaster, setKitMaster, kitComponents, flash, eur }
 
   const s = sumOf(editKit);
   return h('div', { className:'grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5 items-start' },
-    h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' },
+    h('div', { className:'bg-white border border-slate-200 rounded-none p-4' },
       h('div', { className:'flex items-center justify-between mb-3 border-b border-slate-200 pb-2' },
         h('h3', { className:'text-sm font-bold text-emerald-700' }, '키트 목록 (' + kitMaster.length + ')'),
-        h('button', { onClick:()=>setAdding(a=>!a), className:'text-xs border border-emerald-300 text-emerald-700 rounded px-2 py-1 hover:bg-emerald-50' }, adding?'취소':'+ 키트')),
-      adding && h('div', { className:'mb-3 p-2.5 bg-emerald-50 rounded-lg border border-emerald-200' },
-        h('input', { value:form.name, onChange:e=>setForm({...form,name:e.target.value}), placeholder:'키트 이름', className:'w-full mb-1.5 px-2 py-1.5 border border-slate-300 rounded text-sm' }),
-        h('input', { value:form.model, onChange:e=>setForm({...form,model:e.target.value}), placeholder:'모델명', className:'w-full mb-1.5 px-2 py-1.5 border border-slate-300 rounded text-sm' }),
+        h('button', { onClick:()=>setAdding(a=>!a), className:'text-xs border border-emerald-300 text-emerald-700 rounded-none px-2 py-1 hover:bg-emerald-50' }, adding?'취소':'+ 키트')),
+      adding && h('div', { className:'mb-3 p-2.5 bg-emerald-50 rounded-none border border-emerald-200' },
+        h('input', { value:form.name, onChange:e=>setForm({...form,name:e.target.value}), placeholder:'키트 이름', className:'w-full mb-1.5 px-2 py-1.5 border border-slate-300 rounded-none text-sm' }),
+        h('input', { value:form.model, onChange:e=>setForm({...form,model:e.target.value}), placeholder:'모델명', className:'w-full mb-1.5 px-2 py-1.5 border border-slate-300 rounded-none text-sm' }),
         h('div', { className:'grid grid-cols-3 gap-1.5 mb-1.5' },
-          h('input', { type:'number', step:0.01, value:form.royalty, onChange:e=>setForm({...form,royalty:e.target.value}), placeholder:'본사', className:'px-2 py-1.5 border border-slate-300 rounded text-sm' }),
-          h('input', { type:'number', step:0.01, value:form.dealer, onChange:e=>setForm({...form,dealer:e.target.value}), placeholder:'딜러', className:'px-2 py-1.5 border border-slate-300 rounded text-sm' }),
-          h('input', { type:'number', step:0.01, value:form.retail, onChange:e=>setForm({...form,retail:e.target.value}), placeholder:'소비자', className:'px-2 py-1.5 border border-slate-300 rounded text-sm' })),
-        h('button', { onClick:saveNew, className:'w-full px-2 py-1.5 bg-emerald-600 text-white rounded text-sm font-semibold' }, '저장')),
+          h('input', { type:'number', step:0.01, value:form.royalty, onChange:e=>setForm({...form,royalty:e.target.value}), placeholder:'본사', className:'px-2 py-1.5 border border-slate-300 rounded-none text-sm' }),
+          h('input', { type:'number', step:0.01, value:form.dealer, onChange:e=>setForm({...form,dealer:e.target.value}), placeholder:'딜러', className:'px-2 py-1.5 border border-slate-300 rounded-none text-sm' }),
+          h('input', { type:'number', step:0.01, value:form.retail, onChange:e=>setForm({...form,retail:e.target.value}), placeholder:'소비자', className:'px-2 py-1.5 border border-slate-300 rounded-none text-sm' })),
+        h('button', { onClick:saveNew, className:'w-full px-2 py-1.5 bg-emerald-600 text-white rounded-none text-sm font-semibold' }, '저장')),
       h('div', { className:'flex flex-col gap-1.5' }, kitMaster.length===0
         ? h('div', { className:'text-sm text-slate-400 py-4 text-center' }, '등록된 키트가 없습니다')
         : kitMaster.map(k => h('div', {
             key:k.id, onClick:()=>setEditId(k.id),
-            className:'cursor-pointer px-3 py-2 rounded-lg border text-sm ' + (editId===k.id?'border-emerald-500 bg-emerald-50':'border-slate-200 hover:bg-slate-50')
+            className:'cursor-pointer px-3 py-2 rounded-none border text-sm ' + (editId===k.id?'border-emerald-500 bg-emerald-50':'border-slate-200 hover:bg-slate-50')
           },
           h('div', { className:'flex items-center justify-between' },
             h('span', { className:'font-semibold text-slate-700' }, k.name),
-            h('button', { onClick:(e)=>{e.stopPropagation();delKit(k.id);}, title:'삭제', className:'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')),
+            h('button', { onClick:(e)=>{e.stopPropagation();delKit(k.id);}, title:'삭제', className:'px-1.5 py-0.5 rounded-none text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '×')),
           h('div', { className:'text-[12px] text-slate-400' }, k.model, ' · ', eur(k.royalty), '/', eur(k.dealer), '/', eur(k.retail), ' · ', (k.lines||[]).length, '개'))))),
-    h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' }, !editKit
+    h('div', { className:'bg-white border border-slate-200 rounded-none p-4' }, !editKit
       ? h('div', { className:'text-slate-400 text-center py-10 text-sm' }, '왼쪽에서 키트를 선택하세요')
       : h('div', null,
         h('div', { className:'grid grid-cols-2 sm:grid-cols-5 gap-2 mb-4' },
           h('div', { className:'col-span-2 sm:col-span-1' }, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '이름'),
-            h('input', { value:editKit.name, onChange:e=>updField(editKit.id,'name',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm' })),
+            h('input', { value:editKit.name, onChange:e=>updField(editKit.id,'name',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded-none text-sm' })),
           h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '모델명'),
-            h('input', { value:editKit.model, onChange:e=>updField(editKit.id,'model',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm' })),
+            h('input', { value:editKit.model, onChange:e=>updField(editKit.id,'model',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded-none text-sm' })),
           h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '본사공급가'),
-            h('input', { type:'number', step:0.01, value:editKit.royalty, onChange:e=>updField(editKit.id,'royalty',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm font-bold text-red-600' })),
+            h('input', { type:'number', step:0.01, value:editKit.royalty, onChange:e=>updField(editKit.id,'royalty',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded-none text-sm font-bold text-red-600' })),
           h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '딜러가'),
-            h('input', { type:'number', step:0.01, value:editKit.dealer, onChange:e=>updField(editKit.id,'dealer',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm font-bold text-emerald-700' })),
+            h('input', { type:'number', step:0.01, value:editKit.dealer, onChange:e=>updField(editKit.id,'dealer',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded-none text-sm font-bold text-emerald-700' })),
           h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '소비자가'),
-            h('input', { type:'number', step:0.01, value:editKit.retail, onChange:e=>updField(editKit.id,'retail',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm font-bold text-blue-700' }))),
+            h('input', { type:'number', step:0.01, value:editKit.retail, onChange:e=>updField(editKit.id,'retail',e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded-none text-sm font-bold text-blue-700' }))),
         h('div', { className:'flex items-end gap-2 mb-3 flex-wrap' },
           h('div', { className:'flex-1 min-w-[200px]' }, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '구성품 추가'),
-            h('select', { value:addCompId, onChange:e=>setAddCompId(e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded text-sm' },
+            h('select', { value:addCompId, onChange:e=>setAddCompId(e.target.value), className:'w-full px-2 py-1.5 border border-slate-300 rounded-none text-sm' },
               h('option', { value:'' }, '— 컴포넌트 선택 —'),
               kitComponents.map(c => h('option', { key:c.id, value:c.id }, c.name + ' · ' + c.model + ' (' + eur(c.royalty) + ')')))),
-          h('button', { onClick:addLine, disabled:!addCompId, className:'px-3 py-1.5 bg-emerald-600 text-white rounded text-sm font-semibold disabled:opacity-40' }, '추가')),
+          h('button', { onClick:addLine, disabled:!addCompId, className:'px-3 py-1.5 bg-emerald-600 text-white rounded-none text-sm font-semibold disabled:opacity-40' }, '추가')),
         h('div', { className:'overflow-x-auto' }, h('table', { className:'w-full text-sm border-collapse border border-slate-200' },
           h('thead', null, h('tr', { className:'bg-slate-100 text-slate-700' },
             h('th', { className:'px-2 py-1.5 text-left border border-slate-200' }, '구성품'),
@@ -10214,7 +10214,7 @@ function KitMasterManager({ kitMaster, setKitMaster, kitComponents, flash, eur }
                   h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(c.dealer)),
                   h('td', { className:'px-2 py-1.5 text-right border border-slate-200 tabular-nums' }, eur(c.retail)),
                   h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
-                    h('button', { onClick:()=>delLine(ln.compId), title:'삭제', className:'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
+                    h('button', { onClick:()=>delLine(ln.compId), title:'삭제', className:'px-1.5 py-0.5 rounded-none text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '×')));
               })),
           h('tfoot', null, h('tr', { className:'bg-emerald-50 font-bold text-emerald-800' },
             h('td', { colSpan:3, className:'px-2 py-2 text-right border border-slate-200' }, '합계'),
@@ -10252,24 +10252,24 @@ function KitPoolManager({ kitComponents, setKitComponents, kitMaster, flash, eur
     setKitComponents(kitComponents.filter(c => c.id !== id));
   };
 
-  return h('div', { className:'bg-white border border-slate-200 rounded-xl p-4' },
+  return h('div', { className:'bg-white border border-slate-200 rounded-none p-4' },
     h('div', { className:'flex items-center justify-between mb-3 flex-wrap gap-2 border-b border-slate-200 pb-2' },
       h('h3', { className:'text-sm font-bold text-emerald-700' }, '공용 컴포넌트 풀 (' + kitComponents.length + ')'),
       h('div', { className:'flex gap-2 items-center flex-wrap' },
-        h('input', { value:q, onChange:e=>setQ(e.target.value), placeholder:'이름/모델 검색', className:'px-2.5 py-1.5 border border-slate-300 rounded text-sm w-44' }),
-        h('button', { onClick:()=>setAdding(a=>!a), className:'text-xs border border-emerald-300 text-emerald-700 rounded px-2.5 py-1.5 hover:bg-emerald-50 font-semibold' }, adding?'취소':'+ 컴포넌트'))),
-    adding && h('div', { className:'mb-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200 flex gap-2 flex-wrap items-end' },
+        h('input', { value:q, onChange:e=>setQ(e.target.value), placeholder:'이름/모델 검색', className:'px-2.5 py-1.5 border border-slate-300 rounded-none text-sm w-44' }),
+        h('button', { onClick:()=>setAdding(a=>!a), className:'text-xs border border-emerald-300 text-emerald-700 rounded-none px-2.5 py-1.5 hover:bg-emerald-50 font-semibold' }, adding?'취소':'+ 컴포넌트'))),
+    adding && h('div', { className:'mb-3 p-3 bg-emerald-50 rounded-none border border-emerald-200 flex gap-2 flex-wrap items-end' },
       h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '구성품명'),
-        h('input', { value:form.name, onChange:e=>setForm({...form,name:e.target.value}), placeholder:'예: Handpiece Connector', className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-48' })),
+        h('input', { value:form.name, onChange:e=>setForm({...form,name:e.target.value}), placeholder:'예: Handpiece Connector', className:'px-2 py-1.5 border border-slate-300 rounded-none text-sm w-48' })),
       h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '모델명'),
-        h('input', { value:form.model, onChange:e=>setForm({...form,model:e.target.value}), placeholder:'예: ZBBDNHCS06', className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-40' })),
+        h('input', { value:form.model, onChange:e=>setForm({...form,model:e.target.value}), placeholder:'예: ZBBDNHCS06', className:'px-2 py-1.5 border border-slate-300 rounded-none text-sm w-40' })),
       h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '본사'),
-        h('input', { type:'number', step:0.01, value:form.royalty, onChange:e=>setForm({...form,royalty:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-24' })),
+        h('input', { type:'number', step:0.01, value:form.royalty, onChange:e=>setForm({...form,royalty:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded-none text-sm w-24' })),
       h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '딜러'),
-        h('input', { type:'number', step:0.01, value:form.dealer, onChange:e=>setForm({...form,dealer:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-24' })),
+        h('input', { type:'number', step:0.01, value:form.dealer, onChange:e=>setForm({...form,dealer:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded-none text-sm w-24' })),
       h('div', null, h('label', { className:'block text-[12px] text-slate-500 mb-0.5' }, '소비자'),
-        h('input', { type:'number', step:0.01, value:form.retail, onChange:e=>setForm({...form,retail:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded text-sm w-24' })),
-      h('button', { onClick:saveNew, className:'px-3 py-1.5 bg-emerald-600 text-white rounded text-sm font-semibold' }, '저장')),
+        h('input', { type:'number', step:0.01, value:form.retail, onChange:e=>setForm({...form,retail:e.target.value}), className:'px-2 py-1.5 border border-slate-300 rounded-none text-sm w-24' })),
+      h('button', { onClick:saveNew, className:'px-3 py-1.5 bg-emerald-600 text-white rounded-none text-sm font-semibold' }, '저장')),
     h('div', { className:'overflow-x-auto' }, h('table', { className:'w-full text-sm border-collapse border border-slate-200' },
       h('thead', null, h('tr', { className:'bg-slate-100 text-slate-700' },
         h('th', { className:'px-2 py-2 text-left border border-slate-200' }, '구성품명'),
@@ -10302,7 +10302,7 @@ function KitPoolManager({ kitComponents, setKitComponents, kitMaster, flash, eur
               h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
                 used>0 ? h('span', { className:'evi-num' }, used) : h('span', { className:'text-slate-300 text-[12px]' }, '-')),
               h('td', { className:'px-2 py-1.5 text-center border border-slate-200' },
-                h('button', { onClick:()=>delComp(c.id), title:'삭제', className:'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
+                h('button', { onClick:()=>delComp(c.id), title:'삭제', className:'px-1.5 py-0.5 rounded-none text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '×')));
           })))),
     h('div', { className:'mt-2 text-[12px] text-slate-400' }, '※ 본사→딜러 마진은 (딜러가−본사공급가)÷딜러가, 대리상마진은 (소비자가−딜러가)÷소비자가 입니다.'));
 }
@@ -12495,7 +12495,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
     "전품목": "全品目",
     "단가 미입력": "未录入单价",
     "메모": "备注",
-    "📋 표 복사": "📋 复制表格",
+    "표 복사": "复制表格",
     "⬇ 엑셀": "⬇ Excel",
     "시스템": "系统",
     "검색": "搜索",
@@ -12503,7 +12503,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
     "필터 초기화": "重置筛选",
     "현재 조건": "当前条件",
     "이력 저장": "保存记录",
-    "📌 현재 상태 저장": "📌 保存当前状态",
+    "현재 상태 저장": "保存当前状态",
     "시스템을 선택하면 포함 구성품만, 전체를 선택하면 모든 시스템을 한 표로 봅니다. 합계는 조정단가 기준입니다.": "选择系统时仅显示所含部件，选择全部时以一张表查看全部系统。合计以调整单价为准。"
   };
   const tr = ko => (lang === 'zh' && MG_ZH[ko]) ? MG_ZH[ko] : ko;
@@ -12681,13 +12681,13 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
 
   /* ---------------- QUICK FILTER ---------------- */
   const quickFilter = h('aside', { className: 'w-64 flex-shrink-0' },
-    h('div', { className: 'sticky top-4 bg-white border border-slate-200 rounded-xl p-5 space-y-4' },
+    h('div', { className: 'sticky top-4 bg-white border border-slate-200 rounded-none p-5 space-y-4' },
       h('div', { className: 'text-xs font-bold tracking-widest text-slate-500' }, 'QUICK FILTER'),
       h('div', null,
         h('label', { className: 'block text-sm text-slate-500 mb-1.5' }, tr('시스템')),
         h('select', {
           value: draft.sys, onChange: e => setDraft({ ...draft, sys: e.target.value }),
-          className: 'w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold text-slate-800 bg-white'
+          className: 'w-full px-3 py-2.5 rounded-none border border-slate-300 text-sm font-semibold text-slate-800 bg-white'
         },
           h('option', { value: MGG_ALL }, '＊ 전체 시스템 (' + items.length + '종)'),
           systems.map(s => {
@@ -12700,7 +12700,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
           value: draft.kw, placeholder: 'Ref.Code 또는 품명',
           onChange: e => setDraft({ ...draft, kw: e.target.value }),
           onKeyDown: e => { if (e.key === 'Enter') setApplied({ ...draft }); },
-          className: 'w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm'
+          className: 'w-full px-3 py-2.5 rounded-none border border-slate-300 text-sm'
         })),
       h('div', { className: 'space-y-1.5' },
         h('label', { className: 'flex items-center gap-2 text-sm text-slate-600 cursor-pointer' },
@@ -12711,19 +12711,19 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
         h('label', { className: 'flex items-center gap-2 text-sm text-slate-600 cursor-pointer' },
           h('input', { type: 'checkbox', checked: draft.uniOnly, className: 'w-4 h-4',
             onChange: e => setDraft({ ...draft, uniOnly: e.target.checked }) }),
-          h('span', { className: 'px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-semibold' }, tr('전품목')),
+          h('span', { className: 'px-1.5 py-0.5 rounded-none bg-yellow-100 text-yellow-800 text-xs font-semibold' }, tr('전품목')),
           h('span', { className: 'text-xs text-slate-400' }, '만 (' + items.filter(mggIsUni).length + ')')),
         h('label', { className: 'flex items-center gap-2 text-sm text-slate-600 cursor-pointer' },
           h('input', { type: 'checkbox', checked: draft.onlyMissing, className: 'w-4 h-4',
             onChange: e => setDraft({ ...draft, onlyMissing: e.target.checked }) }), '단가 미입력만 보기')),
       h('button', { onClick: () => setApplied({ ...draft }),
-        className: 'w-full py-3 rounded-lg bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition' }, tr('필터 적용')),
+        className: 'w-full py-3 rounded-none bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition' }, tr('필터 적용')),
       h('button', { onClick: () => { const d = { ...F0, sys: systems[0] }; setDraft(d); setApplied(d); },
-        className: 'w-full py-2 rounded-lg border border-slate-300 text-slate-500 text-sm hover:bg-slate-50 transition' }, tr('필터 초기화')),
+        className: 'w-full py-2 rounded-none border border-slate-300 text-slate-500 text-sm hover:bg-slate-50 transition' }, tr('필터 초기화')),
 
       h('div', { className: 'border-t border-slate-200 pt-4' },
         h('div', { className: 'text-sm font-bold text-slate-700 mb-2' }, tr('현재 조건')),
-        h('div', { className: 'bg-slate-50 rounded-lg px-3 py-3 text-xs text-slate-500 space-y-1' },
+        h('div', { className: 'bg-slate-50 rounded-none px-3 py-3 text-xs text-slate-500 space-y-1' },
           h('div', { className: 'font-semibold text-slate-700' }, isAll ? tr('전체 시스템') : applied.sys),
           h('div', null, isAll ? '구성품 ' + items.length + '종' : '포함 ' + sum.kinds + '종 · 수량 ' + sum.qty + '개'),
           h('div', { className: 'text-slate-400' }, '종 = 품목수, 개 = 수량합'),
@@ -12735,23 +12735,23 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
         h('input', {
           value: snapName, placeholder: '이력 이름 (예: 2026 1차안)',
           onChange: e => setSnapName(e.target.value),
-          className: 'w-full px-3 py-2 rounded-lg border border-slate-300 text-sm mb-1.5'
+          className: 'w-full px-3 py-2 rounded-none border border-slate-300 text-sm mb-1.5'
         }),
         h('button', { onClick: saveSnapshot,
-          className: 'w-full py-2.5 rounded-lg bg-slate-800 text-white text-sm font-semibold hover:bg-slate-900 transition' }, tr('📌 현재 상태 저장')),
+          className: 'w-full py-2.5 rounded-none bg-slate-800 text-white text-sm font-semibold hover:bg-slate-900 transition' }, tr('현재 상태 저장')),
         h('div', { className: 'text-xs text-slate-400 mt-1.5 text-center' }, '저장된 이력 ' + history.length + '건')),
 
       h('div', { className: 'border-t border-slate-200 pt-4' },
         h('div', { className: 'text-sm font-bold text-slate-700 mb-2' }, '데이터'),
         h('button', { onClick: () => { onCloudSave && onCloudSave(); flash('클라우드 저장 요청'); },
-          className: 'w-full py-2.5 rounded-lg border border-slate-300 text-slate-600 text-sm hover:bg-slate-50 transition mb-1.5' }, '☁ 클라우드 저장'),
+          className: 'w-full py-2.5 rounded-none border border-slate-300 text-slate-600 text-sm hover:bg-slate-50 transition mb-1.5' }, '클라우드 저장'),
         h('button', { onClick: resetPrices,
-          className: 'w-full py-2.5 rounded-lg border border-slate-300 text-slate-400 text-sm hover:bg-slate-50 transition' }, '🗑 단가 초기화'),
+          className: 'w-full py-2.5 rounded-none border border-slate-300 text-slate-400 text-sm hover:bg-slate-50 transition' }, '단가 초기화'),
         saveStatus ? h('div', { className: 'text-xs text-slate-400 mt-2 text-center' }, saveStatus) : null)));
 
   /* ---------------- KPI ---------------- */
   const card = (label, value, sub, cls) =>
-    h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+    h('div', { className: 'bg-white border border-slate-200 rounded-none px-5 py-4' },
       h('div', { className: 'text-xs text-slate-500 mb-1' }, label),
       h('div', { className: 'font-bold ' + (cls || 'text-slate-800'), style: { fontSize: '21.5px', lineHeight: '28px' } }, value),
       sub ? h('div', { className: 'text-xs text-slate-400 mt-0.5' }, sub) : null);
@@ -12771,7 +12771,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
       kDiff > 0 ? 'text-red-600' : kDiff < 0 ? 'text-blue-600' : 'text-slate-600'));
 
   /* ---------------- 시스템별 요약 (전체보기 전용) ---------------- */
-  const sysSummary = isAll ? h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
+  const sysSummary = isAll ? h('div', { className: 'bg-white border border-slate-200 rounded-none overflow-hidden' },
     h('div', { className: 'px-5 py-3 border-b border-slate-200 text-sm font-bold text-slate-700' }, tr('키트별 요약')),
     h('div', { className: 'overflow-auto' },
       h('table', { className: 'kq-grid w-full text-sm' },
@@ -12796,7 +12796,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
             h('td', { className: 'px-3 py-2 text-right font-semibold ' + (d > 0 ? 'text-red-600' : d < 0 ? 'text-blue-600' : 'text-slate-400') },
               (d >= 0 ? '+' : '') + nf(d)),
             h('td', { className: 'px-3 py-2 text-center' },
-              t.missing ? h('span', { className: 'px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs' }, t.missing) : h('span', { className: 'text-slate-300' }, '-')));
+              t.missing ? h('span', { className: 'px-1.5 py-0.5 rounded-none bg-amber-50 text-amber-600 text-xs' }, t.missing) : h('span', { className: 'text-slate-300' }, '-')));
         })),
         h('tfoot', null,
           h('tr', { className: 'bg-indigo-50 font-bold border-t-2 border-indigo-200' },
@@ -12818,14 +12818,14 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
         : 'text-slate-600')
   });
 
-  const table = h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
+  const table = h('div', { className: 'bg-white border border-slate-200 rounded-none overflow-hidden' },
     h('div', { className: 'px-5 py-3 border-b border-slate-200 flex items-center justify-between' },
       h('div', { className: 'text-sm font-bold text-slate-700' },
         isAll ? tr('전체 시스템') : applied.sys,
         h('span', { className: 'ml-2 font-normal text-slate-400' }, rows.length + '행')),
       h('div', { className: 'flex gap-2' },
-        h('button', { onClick: e => xlsDownloadTable(e.target, '키트시뮬레이션'), className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('⬇ 엑셀')),
-        h('button', { onClick: copyTable, className: 'px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('📋 표 복사')))),
+        h('button', { onClick: e => xlsDownloadTable(e.target, '키트시뮬레이션'), className: 'px-2 py-1.5 text-sm rounded-none border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('⬇ 엑셀')),
+        h('button', { onClick: copyTable, className: 'px-3 py-1.5 text-sm rounded-none border border-slate-300 text-slate-600 hover:bg-slate-50' }, tr('표 복사')))),
     h('div', { className: 'overflow-auto', style: { maxHeight: '62vh' } },
       h('table', { className: 'kq-grid w-full text-sm' },
         h('thead', { className: 'bg-slate-50 sticky top-0 z-10' },
@@ -12849,8 +12849,8 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
                   h('td', { className: 'px-3 py-1.5 text-slate-600' }, it.n),
                   h('td', { className: 'px-3 py-1.5 text-slate-700', style: { fontSize: '13.5px' } }, it.c),
                   h('td', { className: 'px-3 py-1.5 text-slate-600' }, it.d,
-                    mggIsUni(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-semibold align-middle' }, tr('전품목')) : null,
-                    missing(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs align-middle' }, tr('단가 미입력')) : null),
+                    mggIsUni(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded-none bg-yellow-100 text-yellow-800 text-xs font-semibold align-middle' }, tr('전품목')) : null,
+                    missing(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded-none bg-amber-50 text-amber-600 text-xs align-middle' }, tr('단가 미입력')) : null),
                   isAll ? null : h('td', { className: 'px-3 py-1.5 text-right font-semibold text-slate-700' }, q),
                   h('td', { className: 'px-2 py-1.5 text-right' }, priceCell(it, 'b')),
                   h('td', { className: 'px-2 py-1.5 text-right' }, priceCell(it, 'a')),
@@ -12870,12 +12870,12 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
             h('td'),
             h('td', { className: 'px-3 py-2.5 text-right text-indigo-700' }, '$ ' + nf(sum.adj)))))));
 
-  const memo = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+  const memo = h('div', { className: 'bg-white border border-slate-200 rounded-none px-5 py-4' },
     h('div', { className: 'text-sm font-bold text-slate-700 mb-2' }, tr('메모')),
     h('textarea', {
       rows: 2, value: mggKit.memo || '', placeholder: '가격 조정 배경, 협의 내용 등을 남겨두세요',
       onChange: e => setMggKit({ ...mggKit, memo: e.target.value }),
-      className: 'w-full px-3 py-2 rounded-lg border border-slate-200 text-sm resize-none'
+      className: 'w-full px-3 py-2 rounded-none border border-slate-200 text-sm resize-none'
     }));
 
   const sysTabs = h('div', { className: 'border-b border-slate-200 flex gap-0.5 flex-nowrap overflow-x-auto' },
@@ -12893,14 +12893,14 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
 
   /* ---------------- 이력 화면 ---------------- */
   const historyView = history.length === 0
-    ? h('div', { className: 'bg-white border border-slate-200 rounded-xl px-6 py-16 text-center' },
+    ? h('div', { className: 'bg-white border border-slate-200 rounded-none px-6 py-16 text-center' },
         h('div', { className: 'text-slate-400 text-sm' }, '저장된 이력이 없습니다.'),
-        h('div', { className: 'text-slate-400 text-xs mt-1' }, '시뮬레이션 화면의 "📌 현재 상태 저장"으로 첫 이력을 만들어보세요.'))
+        h('div', { className: 'text-slate-400 text-xs mt-1' }, '시뮬레이션 화면의 "현재 상태 저장"으로 첫 이력을 만들어보세요.'))
     : h('div', { className: 'space-y-3' }, history.map(s => {
         const sysList = s.systems || [];
         const gAdj = sysList.reduce((a, k) => a + ((s.totals && s.totals[k]) ? s.totals[k].adj : 0), 0);
         const gBase = sysList.reduce((a, k) => a + ((s.totals && s.totals[k]) ? s.totals[k].base : 0), 0);
-        return h('div', { key: s.id, className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+        return h('div', { key: s.id, className: 'bg-white border border-slate-200 rounded-none px-5 py-4' },
           h('div', { className: 'flex items-start justify-between gap-3 mb-3' },
             h('div', null,
               h('div', { className: 'font-bold text-slate-800' }, s.name),
@@ -12909,13 +12909,13 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
               s.memo ? h('div', { className: 'text-xs text-slate-500 mt-1' }, s.memo) : null),
             h('div', { className: 'flex gap-2 flex-shrink-0' },
               h('button', { onClick: () => loadSnapshot(s),
-                className: 'px-3 py-1.5 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700' }, '불러오기'),
+                className: 'px-3 py-1.5 text-sm rounded-none bg-indigo-600 text-white hover:bg-indigo-700' }, '불러오기'),
               h('button', { onClick: () => delSnapshot(s.id),
-                className: 'px-3 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-400 hover:bg-slate-50' }, '삭제'))),
+                className: 'px-3 py-1.5 text-sm rounded-none border border-slate-300 text-slate-400 hover:bg-slate-50' }, '삭제'))),
           h('div', { className: 'flex flex-wrap gap-2 mb-3' },
-            h('span', { className: 'px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold' }, '조정 총합 $ ' + nf(gAdj)),
-            h('span', { className: 'px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold' }, '기존 총합 $ ' + nf(gBase)),
-            h('span', { className: 'px-2.5 py-1 rounded-lg text-xs font-semibold ' + (gAdj - gBase > 0 ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600') },
+            h('span', { className: 'px-2.5 py-1 rounded-none bg-indigo-50 text-indigo-700 text-xs font-bold' }, '조정 총합 $ ' + nf(gAdj)),
+            h('span', { className: 'px-2.5 py-1 rounded-none bg-slate-100 text-slate-600 text-xs font-semibold' }, '기존 총합 $ ' + nf(gBase)),
+            h('span', { className: 'px-2.5 py-1 rounded-none text-xs font-semibold ' + (gAdj - gBase > 0 ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600') },
               '차액 ' + (gAdj - gBase >= 0 ? '+' : '') + '$ ' + nf(gAdj - gBase))),
           h('div', { className: 'overflow-auto' },
             h('table', { className: 'w-full text-xs' },
@@ -12943,50 +12943,50 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
       (it.d || '').toLowerCase().includes(kw2.trim().toLowerCase()));
 
     return h('div', { className: 'space-y-4' },
-      h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+      h('div', { className: 'bg-white border border-slate-200 rounded-none px-5 py-4' },
         h('div', { className: 'text-sm font-bold text-slate-700 mb-3' }, '시스템 추가'),
         h('div', { className: 'flex gap-2 flex-wrap items-center' },
           h('input', {
             value: newName, placeholder: '새 시스템 이름 (예: AO Mini)',
             onChange: e => setNewName(e.target.value),
-            className: 'px-3 py-2 rounded-lg border border-slate-300 text-sm w-56'
+            className: 'px-3 py-2 rounded-none border border-slate-300 text-sm w-56'
           }),
           h('select', { value: copyFrom, onChange: e => setCopyFrom(e.target.value),
-            className: 'px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white' },
+            className: 'px-3 py-2 rounded-none border border-slate-300 text-sm bg-white' },
             h('option', { value: '' }, '빈 시스템으로 시작'),
             systems.map(s => h('option', { key: s, value: s }, s + ' 구성 복사'))),
           h('button', { onClick: () => { addSystem(newName, copyFrom); setNewName(''); setCopyFrom(''); },
-            className: 'px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700' }, '＋ 추가')),
+            className: 'px-4 py-2 rounded-none bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700' }, '＋ 추가')),
         h('div', { className: 'text-xs text-slate-400 mt-2' },
           '기존 시스템 구성을 복사하면 포함 구성품과 수량이 그대로 복제됩니다. ',
           h('span', { className: 'text-yellow-700' }, '전품목(' + items.filter(mggIsUni).length + '종)은 복사 여부와 무관하게 항상 자동 포함됩니다.'),
           ' 추가 후 수량은 개별 수정할 수 있습니다.')),
 
-      h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
+      h('div', { className: 'bg-white border border-slate-200 rounded-none px-5 py-4' },
         h('div', { className: 'text-sm font-bold text-slate-700 mb-3' }, '시스템 목록 (' + systems.length + '개)'),
         h('div', { className: 'space-y-2' }, systems.map(s => {
           const t = mggTotals(items, s);
-          return h('div', { key: s, className: 'flex items-center gap-2 flex-wrap border border-slate-100 rounded-lg px-3 py-2' },
+          return h('div', { key: s, className: 'flex items-center gap-2 flex-wrap border border-slate-100 rounded-none px-3 py-2' },
             h('input', {
               defaultValue: s, key: 'in_' + s,
               onBlur: e => renameSystem(s, e.target.value),
               onKeyDown: e => { if (e.key === 'Enter') e.target.blur(); },
-              className: 'px-2 py-1.5 rounded border border-slate-200 text-sm font-semibold text-slate-800 w-48'
+              className: 'px-2 py-1.5 rounded-none border border-slate-200 text-sm font-semibold text-slate-800 w-48'
             }),
             h('span', { className: 'text-xs text-slate-400' }, t.kinds + '종 / ' + t.qty + '개'),
             h('span', { className: 'text-xs font-bold text-indigo-700' }, '$ ' + nf(t.adj)),
-            t.missing ? h('span', { className: 'px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-xs' }, '미입력 ' + t.missing) : null,
+            t.missing ? h('span', { className: 'px-1.5 py-0.5 rounded-none bg-amber-50 text-amber-600 text-xs' }, '미입력 ' + t.missing) : null,
             h('button', { onClick: () => delSystem(s),
-              className: 'ml-auto px-2.5 py-1 text-xs rounded border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200' }, '삭제'));
+              className: 'ml-auto px-2.5 py-1 text-xs rounded-none border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200' }, '삭제'));
         })),
         h('div', { className: 'text-xs text-slate-400 mt-3' }, '이름 칸을 수정하고 Enter 또는 다른 곳을 클릭하면 이름이 바뀝니다.')),
 
-      h('div', { className: 'bg-white border border-slate-200 rounded-xl overflow-hidden' },
+      h('div', { className: 'bg-white border border-slate-200 rounded-none overflow-hidden' },
         h('div', { className: 'px-5 py-3 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap' },
           h('div', { className: 'text-sm font-bold text-slate-700' }, '포함여부 · 수량 편집'),
           h('input', {
             value: kw2, placeholder: '구성품 검색', onChange: e => setKw2(e.target.value),
-            className: 'px-3 py-1.5 rounded-lg border border-slate-300 text-sm w-56'
+            className: 'px-3 py-1.5 rounded-none border border-slate-300 text-sm w-56'
           })),
         h('div', { className: 'px-5 py-2 text-xs text-slate-400 border-b border-slate-100' },
           '수량을 입력하면 포함, 0 또는 비우면 미포함으로 처리됩니다. ',
@@ -13004,7 +13004,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
                 h('td', { className: 'px-3 py-1.5 text-slate-600' }, it.n),
                 h('td', { className: 'px-3 py-1.5 text-slate-700', style: { fontSize: '13.5px' } }, it.c),
                 h('td', { className: 'px-3 py-1.5 text-slate-600' }, it.d,
-                  mggIsUni(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-semibold align-middle' }, tr('전품목')) : null),
+                  mggIsUni(it) ? h('span', { className: 'ml-2 px-1.5 py-0.5 rounded-none bg-yellow-100 text-yellow-800 text-xs font-semibold align-middle' }, tr('전품목')) : null),
                 systems.map(s => h('td', { key: s, className: 'px-1 py-1 text-center' },
                   h('input', {
                     type: 'number', min: 0, step: 1,
@@ -13017,7 +13017,7 @@ function MggKitSimPage({ mggKit, setMggKit, onCloudSave, saveStatus, title, hide
 
   /* ---------------- 렌더 ---------------- */
   return h('div', { className: 'p-6' },
-    toast ? h('div', { className: 'fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast) : null,
+    toast ? h('div', { className: 'fixed top-4 right-4 z-50 px-4 py-2 rounded-none shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast) : null,
     h('div', { className: 'mb-4' },
       h('h2', { className: 'text-lg font-bold text-slate-800' }, title || tr('키트 시뮬레이션')),
       h('p', { className: 'text-xs text-slate-500' }, tr('시스템을 선택하면 포함 구성품만, 전체를 선택하면 모든 시스템을 한 표로 봅니다. 합계는 조정단가 기준입니다.'))),
