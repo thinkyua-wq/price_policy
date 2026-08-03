@@ -13411,7 +13411,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
   React.useEffect(() => { try { localStorage.setItem('evi_cost_confirmed_v1', JSON.stringify(costConf)); } catch (e) {} }, [costConf]);
   const doCostConfirm = () => {
     const d2 = new Date();
-    const ds2 = d2.getFullYear() + '-' + String(d2.getMonth() + 1).padStart(2, '0') + '-' + String(d2.getDate()).padStart(2, '0') + ' ' + String(d2.getHours()).padStart(2, '0') + ':' + String(d2.getMinutes()).padStart(2, '0');
+    const ds2 = String(d2.getFullYear()).slice(2) + '.' + String(d2.getMonth() + 1).padStart(2, '0') + '.' + String(d2.getDate()).padStart(2, '0');
     const qtyStr = bundleRows.length ? bundleRows.map(x => (x.it.n || '') + ' × ' + (x.e.qty || 1)).join('  ·  ') : tr('직접 입력');
     setCostConf(list => [{ date: ds2, qty: qtyStr, sum: +sumUsd.toFixed(3), arrival: +arrivalRMB.toFixed(1), supply: +aS0.toFixed(1), dso: +aD0.toFixed(1), cgp: Math.round(cgp * 100), dgp: Math.round(dgp * 100) }].concat(list).slice(0, 30));
     flash(tr('현재 조건을 확정했습니다'));
@@ -13628,10 +13628,10 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
     h('div', { className: 'flex items-center justify-between' },
       h('div', { className: 'text-sm font-bold text-slate-800' }, tr('확정 이력') + ' (' + costConf.length + ')'),
       h('button', { onClick: () => setCostConf([]), className: 'text-xs text-slate-400 hover:text-red-500' }, tr('전체 삭제'))),
-    h('table', { className: 'kq-grid w-full', style: { fontSize: '13.5px' } },
+    h('table', { className: 'kq-grid w-full', style: { fontSize: '12.5px', whiteSpace: 'nowrap', tableLayout: 'fixed' } },
       h('thead', null, h('tr', null,
-        h('th', { className: 'px-2 py-2 text-center' }, tr('확정일')),
-        h('th', { className: 'px-2 py-2 text-left' }, tr('제공수량')),
+        h('th', { className: 'px-2 py-2 text-center', style: { width: '64px' } }, tr('확정일')),
+        h('th', { className: 'px-2 py-2 text-left', style: { width: '34%' } }, tr('제공수량')),
         h('th', { className: 'px-2 py-2 text-right' }, tr('합산 매입원가(USD)')),
         h('th', { className: 'px-2 py-2 text-right' }, tr('도착원가')),
         h('th', { className: 'px-2 py-2 text-right' }, tr('법인공급가')),
@@ -13640,13 +13640,13 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
         h('th', { className: 'px-2 py-2 w-8' }))),
       h('tbody', null, costConf.map((e2, i) => h('tr', { key: i, className: 'hover:bg-slate-50' },
         h('td', { className: 'kq-cell px-2 py-1.5 text-center', style: { whiteSpace: 'nowrap' } }, e2.date),
-        h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, e2.qty),
+        h('td', { className: 'kq-txt px-2 py-1.5', title: e2.qty, style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '0' } }, e2.qty),
         h('td', { className: 'evi-num px-2 py-1.5' }, nf(e2.sum, 3)),
         h('td', { className: 'evi-num px-2 py-1.5' }, nf(e2.arrival, 1)),
         h('td', { className: 'evi-num px-2 py-1.5' }, nf(e2.supply, 1)),
         h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(e2.dso, 1)),
-        h('td', { className: 'evi-num px-2 py-1.5 text-center' }, e2.cgp + '% / ' + e2.dgp + '%'),
-        h('td', { className: 'px-2 py-1.5 text-center' }, h('button', { onClick: () => setCostConf(l => l.filter((_, j) => j !== i)), className: 'text-red-400 hover:text-red-600' }, '×'))))))) : null;
+        h('td', { className: 'evi-num px-2 py-1.5 text-center' }, e2.cgp + '%/' + e2.dgp + '%'),
+        h('td', { className: 'px-2 py-1.5 text-center' }, h('button', { onClick: () => setCostConf(l => l.filter((_, j) => j !== i)), title: tr('삭제'), className: 'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑'))))))) : null;
   const calcPanel = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-4' },
     h('div', { className: 'flex gap-5 items-center max-lg:flex-col max-lg:items-stretch' },
       h('div', { className: 'lg:w-3/5 w-full flex items-center gap-3' },
