@@ -999,10 +999,7 @@ function Sidebar({
       label: tr('키트 시뮬레이션(ZBLC)')
     }, {
       key: 'kit-evi',
-      label: 'Evidence_BLT II OS' + (lang === 'zh' ? '(经销商固定)' : '(대리상고정)')
-    }, {
-      key: 'kit-evi-cost',
-      label: 'Evidence_BLT II OS' + (lang === 'zh' ? '(套装数量变更)' : '(키트수량변경)')
+      label: 'Evidence_BLT II OS'
     }]
   }, {
     key: 'etc',
@@ -13161,7 +13158,7 @@ function eviMerge(saved) {
   };
 }
 
-function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, costMode }) {
+function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, costMode, hideTitle }) {
   const h = React.createElement;
   const ZH = {
     "⬇ 엑셀": "⬇ Excel",
@@ -13669,7 +13666,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
 
   return h('div', { className: 'p-6', style: (lang === 'zh' ? { fontFamily: '"Microsoft YaHei","微软雅黑",sans-serif' } : undefined) },
     toast ? h('div', { className: 'fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium bg-emerald-600 text-white' }, toast) : null,
-    h('div', { className: 'mb-4 flex items-start justify-between gap-3 flex-wrap' },
+    hideTitle ? null : h('div', { className: 'mb-4 flex items-start justify-between gap-3 flex-wrap' },
       h('div', null,
         h('h2', { className: 'text-lg font-bold text-slate-800' }, 'Evidence_BLT II OS' + (costMode ? tr('(키트수량변경)') : tr('(대리상고정)'))),
         h('p', { className: 'text-xs text-slate-500' }, tr('분리품목 3개 카테고리(임플란트·키트세트 / 어버트먼트 / 키트부품) 매입단가 → 도착원가 → 법인/DSO 공급가 자동 산출'), h('span', { className: 'ml-2 px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono' }, 'build 0731-A'))),
@@ -13884,6 +13881,142 @@ function GpAnalyzerPage({ gpItems }) {
       h('div', { className: 'flex-1 min-w-0 space-y-4' }, tableCard, infoCard),
       h('div', { className: 'lg:w-72 w-full' }, summaryCard)),
     memoCard);
+}
+
+const EVIFIX_ZH = {
+  '가격(지정가)': '价格(指定价)', '가격(원가선택)': '价格(成本选择)', '가격(대리상GP고정)': '价格(经销商GP固定)',
+  '매입단가·환율·GP 설정을 공유하며, 세 가지 방식으로 DSO 가격을 계산합니다.': '共享采购单价·汇率·GP设置，以三种方式计算DSO价格。',
+  '기본 입력값': '基本输入值', '임플란트 매입단가(원)': '种植体采购单价(韩元)', 'Surgical Kit 매입단가(원)': 'Surgical Kit采购单价(韩元)',
+  '환율(원/USD)': '汇率(韩元/USD)', '수출비용': '出口费用', '법인GP(%)': '公司GP(%)', '대리상GP(%)': '经销商GP(%)',
+  '옵션별 가격리스트': '选项价格表', '옵션 / 구성': '选项 / 构成', '키트 배분수량': '套装分配数量',
+  '합산 매입원가$': '合计采购成本$', '도착원가': '到岸成本', '법인공급가': '公司供货价', '최종 DSO 가격': '最终DSO价格',
+  '지정 DSO 가격(입력)': '指定DSO价格(输入)', '대리상 이익': '经销商利润', '법인공급가(역산)': '公司供货价(倒算)',
+  '법인 이익': '公司利润', '법인GP(%) ': '公司GP(%) ', '＋ 옵션 추가': '＋ 添加选项', '⬇ 엑셀': '⬇ Excel', '삭제': '删除',
+  '신규 옵션': '新选项', '단위: RMB': '单位: RMB',
+  '산식: 합산(USD) = 임플란트단가÷환율 + Kit단가÷환율÷배분수량 · 도착원가 = 합산 × 수출비용 × USD→RMB · 법인공급가 = 도착원가 ÷ (1−법인GP) · 최종 DSO = 공급가 ÷ (1−대리상GP)': '公式: 合计(USD) = 种植体单价÷汇率 + Kit单价÷汇率÷分配数量 · 到岸成本 = 合计 × 出口费用 × USD→RMB · 公司供货价 = 到岸成本 ÷ (1−公司GP) · 最终DSO = 供货价 ÷ (1−经销商GP)',
+  '지정 DSO 역산: 대리상GP 고정 → 대리상 이익 = 지정가×대리상GP · 법인공급가 = 지정가−대리상이익 · 법인 이익 = 공급가−도착원가(나머지 전부) · 법인GP = 법인이익÷공급가 · 지정가(노란 칸)를 바꾸면 재계산': '指定DSO倒算: 经销商GP固定 → 经销商利润 = 指定价×经销商GP · 公司供货价 = 指定价−经销商利润 · 公司利润 = 供货价−到岸成本(全部余额) · 公司GP = 公司利润÷供货价 · 修改指定价(黄色)后重新计算',
+  '키트 배분수량 0 = 키트 미포함 · 노랑 = 지정가 입력 · 분홍 = 산출 기준가 · 초록 = 역산 법인GP': '套装分配数量 0 = 不含套装 · 黄色 = 输入指定价 · 粉色 = 计算基准价 · 绿色 = 倒算公司GP'
+};
+function EviFixPricePage({ lang }) {
+  const h = React.createElement;
+  const t = s => (lang === 'zh' && EVIFIX_ZH[s]) ? EVIFIX_ZH[s] : s;
+  const DEF = {
+    inp: { implWon: 8180, kitWon: 362130, fx: 1460, usdRmb: 7, exp: 1.14, cgp: 35, dgp: 20 },
+    rows: [
+      { name: '옵션1  임플란트 1개', kitQty: 0, target: 100 },
+      { name: '옵션2  임플란트 + Surgical Kit(250개분)', kitQty: 250, target: 120 }
+    ]
+  };
+  const init = (() => { try { const d = JSON.parse(localStorage.getItem('evi_fixprice_v1') || 'null'); if (d && d.inp && Array.isArray(d.rows)) return d; } catch (e) {} return DEF; })();
+  const [inp, setInp] = React.useState(init.inp);
+  const [rows, setRows] = React.useState(init.rows);
+  React.useEffect(() => { try { localStorage.setItem('evi_fixprice_v1', JSON.stringify({ inp, rows })); } catch (e) {} }, [inp, rows]);
+  const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+  const setI = (k, v) => setInp(o => Object.assign({}, o, { [k]: v }));
+  const setR = (i, k, v) => setRows(l => l.map((r, j) => j === i ? Object.assign({}, r, { [k]: v }) : r));
+  const addRow = () => setRows(l => l.concat([{ name: t('신규 옵션'), kitQty: 0, target: 100 }]));
+  const delRow = i => setRows(l => l.filter((_, j) => j !== i));
+
+  const nf = (v, d) => Number(v || 0).toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const calc = r => {
+    const fx = num(inp.fx) || 1, cgp = num(inp.cgp) / 100, dgp = num(inp.dgp) / 100;
+    const sum = num(inp.implWon) / fx + (num(r.kitQty) > 0 ? num(inp.kitWon) / fx / num(r.kitQty) : 0);
+    const arrival = sum * num(inp.exp) * num(inp.usdRmb);
+    const supply = cgp < 1 ? arrival / (1 - cgp) : 0;
+    const dso = dgp < 1 ? supply / (1 - dgp) : 0;
+    const tg = num(r.target);
+    const dealer = tg * dgp;
+    const supRev = tg - dealer;
+    const corpP = supRev - arrival;
+    const gp = supRev > 0 ? corpP / supRev : 0;
+    return { sum, arrival, supply, dso, tg, dealer, supRev, corpP, gp };
+  };
+
+  const inCls = 'kq-cell evi-num px-2 py-1';
+  const inpDef = [
+    ['implWon', t('임플란트 매입단가(원)'), 1], ['kitWon', t('Surgical Kit 매입단가(원)'), 1],
+    ['fx', t('환율(원/USD)'), 1], ['usdRmb', 'USD→RMB', 0.01], ['exp', t('수출비용'), 0.01],
+    ['cgp', t('법인GP(%)'), 1], ['dgp', t('대리상GP(%)'), 1]
+  ];
+  const inputCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-2' },
+    h('div', { className: 'text-sm font-bold text-slate-800' }, t('기본 입력값')),
+    h('table', { className: 'kq-grid w-full text-sm', style: { tableLayout: 'fixed' } },
+      h('thead', null, h('tr', null, inpDef.map(d => h('th', { key: d[0], className: 'px-2 py-2 text-center', style: { whiteSpace: 'normal' } }, d[1])))),
+      h('tbody', null, h('tr', null, inpDef.map(d => h('td', { key: d[0], className: 'evi-num px-2 py-1.5' },
+        h('input', { type: 'number', step: d[2], value: inp[d[0]], onChange: e => setI(d[0], e.target.value), className: inCls, style: { textAlign: 'center' } })))))));
+
+  const dlExcel = () => {
+    const R = [];
+    R.push([t('임플란트 매입단가(원)'), { v: num(inp.implWon) }, t('환율(원/USD)'), { v: num(inp.fx) }, t('법인GP(%)'), { v: num(inp.cgp) }]);
+    R.push([t('Surgical Kit 매입단가(원)'), { v: num(inp.kitWon) }, 'USD→RMB', { v: num(inp.usdRmb) }, t('대리상GP(%)'), { v: num(inp.dgp) }]);
+    R.push([t('수출비용'), { v: num(inp.exp) }]);
+    R.push([]);
+    R.push([t('옵션 / 구성'), t('키트 배분수량'), t('합산 매입원가$'), t('도착원가'), t('법인공급가'), t('최종 DSO 가격'), t('지정 DSO 가격(입력)'), t('대리상 이익'), t('법인공급가(역산)'), t('법인 이익'), t('법인GP(%)')]);
+    rows.forEach(r => { const c = calc(r); R.push([r.name, { v: num(r.kitQty) }, { v: +c.sum.toFixed(3) }, { v: +c.arrival.toFixed(1) }, { v: +c.supply.toFixed(1) }, { v: +c.dso.toFixed(1) }, { v: c.tg }, { v: +c.dealer.toFixed(1) }, { v: +c.supRev.toFixed(1) }, { v: +c.corpP.toFixed(1) }, { v: +(c.gp * 100).toFixed(1) }]); });
+    xlsDownloadRows('가격_지정가_역산', R);
+  };
+
+  const listCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
+    h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+      h('div', { className: 'text-sm font-bold text-slate-800' }, t('옵션별 가격리스트'),
+        h('span', { className: 'text-xs text-slate-400 font-normal ml-2' }, t('단위: RMB'))),
+      h('div', { className: 'flex gap-2' },
+        h('button', { onClick: addRow, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('＋ 옵션 추가')),
+        h('button', { onClick: dlExcel, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('⬇ 엑셀')))),
+    h('table', { className: 'kq-grid w-full', style: { fontSize: '13px' } },
+      h('thead', null, h('tr', null,
+        h('th', { className: 'px-2 py-2 text-left', style: { width: '19%' } }, t('옵션 / 구성')),
+        h('th', { className: 'px-2 py-2 text-center' }, t('키트 배분수량')),
+        h('th', { className: 'px-2 py-2 text-right' }, t('합산 매입원가$')),
+        h('th', { className: 'px-2 py-2 text-right' }, t('도착원가')),
+        h('th', { className: 'px-2 py-2 text-right' }, t('법인공급가')),
+        h('th', { className: 'px-2 py-2 text-right' }, t('최종 DSO 가격')),
+        h('th', { className: 'px-2 py-2 text-right' }, t('지정 DSO 가격(입력)')),
+        h('th', { className: 'px-2 py-2 text-right' }, t('대리상 이익') + '(' + nf(num(inp.dgp), 0) + '%)'),
+        h('th', { className: 'px-2 py-2 text-right' }, t('법인공급가(역산)')),
+        h('th', { className: 'px-2 py-2 text-right' }, t('법인 이익')),
+        h('th', { className: 'px-2 py-2 text-right' }, '법인GP(%)'),
+        h('th', { className: 'px-2 py-2 w-8' }))),
+      h('tbody', null, rows.map((r, i) => {
+        const c = calc(r);
+        return h('tr', { key: i, className: 'hover:bg-slate-50' },
+          h('td', { className: 'px-2 py-1.5' }, h('input', { value: r.name, onChange: e => setR(i, 'name', e.target.value), className: 'kq-txt w-full px-1 py-0.5 bg-transparent focus:outline-none', style: { border: 'none', fontSize: '13px' } })),
+          h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'number', step: 1, value: r.kitQty, onChange: e => setR(i, 'kitQty', e.target.value), className: inCls, style: { textAlign: 'center' } })),
+          h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.sum, 3)),
+          h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.arrival, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.supply, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5 font-bold', style: { background: '#FDF2F8' } }, nf(c.dso, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5', style: { background: '#FEF9C3' } }, h('input', { type: 'number', step: 1, value: r.target, onChange: e => setR(i, 'target', e.target.value), className: inCls, style: { textAlign: 'right', background: 'transparent' } })),
+          h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.dealer, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.supRev, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.corpP, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5 font-bold', style: { background: '#DFF2E7' } }, nf(c.gp * 100, 1) + '%'),
+          h('td', { className: 'px-2 py-1.5 text-center' }, h('button', { onClick: () => delRow(i), title: t('삭제'), className: 'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
+      }))),
+    h('div', { className: 'text-xs', style: { color: '#000' } }, t('산식: 합산(USD) = 임플란트단가÷환율 + Kit단가÷환율÷배분수량 · 도착원가 = 합산 × 수출비용 × USD→RMB · 법인공급가 = 도착원가 ÷ (1−법인GP) · 최종 DSO = 공급가 ÷ (1−대리상GP)')),
+    h('div', { className: 'text-xs', style: { color: '#000' } }, t('지정 DSO 역산: 대리상GP 고정 → 대리상 이익 = 지정가×대리상GP · 법인공급가 = 지정가−대리상이익 · 법인 이익 = 공급가−도착원가(나머지 전부) · 법인GP = 법인이익÷공급가 · 지정가(노란 칸)를 바꾸면 재계산')),
+    h('div', { className: 'text-xs text-slate-500' }, t('키트 배분수량 0 = 키트 미포함 · 노랑 = 지정가 입력 · 분홍 = 산출 기준가 · 초록 = 역산 법인GP')));
+
+  return h('div', { className: 'p-6 space-y-4' }, inputCard, listCard);
+}
+function EviTabsPage(props) {
+  const h = React.createElement;
+  const lang = props.lang;
+  const t = s => (lang === 'zh' && EVIFIX_ZH[s]) ? EVIFIX_ZH[s] : s;
+  const [tab, setTab] = React.useState(() => { try { return localStorage.getItem('evi_tab_v1') || 'fix'; } catch (e) { return 'fix'; } });
+  React.useEffect(() => { try { localStorage.setItem('evi_tab_v1', tab); } catch (e) {} }, [tab]);
+  return h('div', { className: 'p-6' },
+    h('h2', { className: 'text-lg font-bold text-slate-800' }, 'Evidence_BLT II OS'),
+    h('p', { className: 'text-xs text-slate-500 mb-3' }, t('매입단가·환율·GP 설정을 공유하며, 세 가지 방식으로 DSO 가격을 계산합니다.')),
+    h('div', { className: 'mb-4 border-b border-slate-200 flex gap-2' },
+      [['fix', '가격(지정가)'], ['cost', '가격(원가선택)'], ['dso', '가격(대리상GP고정)']].map(([k, label]) => h('button', {
+        key: k, onClick: () => setTab(k),
+        className: 'px-4 py-2 text-sm font-semibold border-b-2 -mb-px ' + (tab === k ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700')
+      }, t(label)))),
+    h('div', { className: '-mx-6 -mb-6' },
+      tab === 'fix' ? h(EviFixPricePage, { lang: lang }) : null,
+      tab === 'cost' ? h(EvidenceSimPage, { eviKit: props.eviKit, setEviKit: props.setEviKit, onCloudSave: props.onCloudSave, saveStatus: props.saveStatus, lang: lang, costMode: true, hideTitle: true }) : null,
+      tab === 'dso' ? h(EvidenceSimPage, { eviKit: props.eviKit, setEviKit: props.setEviKit, onCloudSave: props.onCloudSave, saveStatus: props.saveStatus, lang: lang, hideTitle: true }) : null));
 }
 
 const SIMGP_ZH = {
@@ -14212,7 +14345,7 @@ function SimGpPage({ lang }) {
 
 function App() {
     const normMgg = (m) => (m && Array.isArray(m.items) && m.items.length) ? mggMerge(m) : null;
-  const [activeMenu, setActiveMenu] = useState(() => { try { const m0 = localStorage.getItem('evi_active_menu') || 'gp-analysis'; const m1 = m0 === 'special-policy' ? 'sim-main' : m0; return m1 === 'corp-sim' ? 'cost-sim' : m1; } catch (e) { return 'gp-analysis'; } });
+  const [activeMenu, setActiveMenu] = useState(() => { try { const m0 = localStorage.getItem('evi_active_menu') || 'gp-analysis'; const m1 = m0 === 'special-policy' ? 'sim-main' : m0; const m2 = m1 === 'corp-sim' ? 'cost-sim' : m1; return m2 === 'kit-evi-cost' ? 'kit-evi' : m2; } catch (e) { return 'gp-analysis'; } });
   useEffect(() => { try { localStorage.setItem('evi_active_menu', activeMenu); } catch (e) {} }, [activeMenu]);
   const [lang, setLang] = useState('ko');
   React.useEffect(() => { try { document.documentElement.classList.toggle('lang-zh', lang === 'zh'); } catch (e) {} }, [lang]);
@@ -14771,19 +14904,12 @@ function App() {
     onCloudSave: onCloudSave,
     saveStatus: saveStatus,
     lang: lang
-  }), activeMenu === 'kit-evi' && /*#__PURE__*/React.createElement(EvidenceSimPage, {
+  }), activeMenu === 'kit-evi' && /*#__PURE__*/React.createElement(EviTabsPage, {
     eviKit: eviKit,
     setEviKit: setEviKit,
     onCloudSave: onCloudSave,
     saveStatus: saveStatus,
     lang: lang
-  }), activeMenu === 'kit-evi-cost' && /*#__PURE__*/React.createElement(EvidenceSimPage, {
-    eviKit: eviKit,
-    setEviKit: setEviKit,
-    onCloudSave: onCloudSave,
-    saveStatus: saveStatus,
-    lang: lang,
-    costMode: true
   }), activeMenu === 'gp-analysis' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
     className: "px-6 pt-4 text-lg font-bold text-slate-800"
   }, appTr('제품별 수익성 분석')), /*#__PURE__*/React.createElement("p", {
