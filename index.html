@@ -406,6 +406,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   html.lang-zh body, html.lang-zh button, html.lang-zh input, html.lang-zh select, html.lang-zh textarea, html.lang-zh table { font-family: "Microsoft YaHei", "微软雅黑", "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
   html.lang-zh .evi-num, html.lang-zh .evi-num input, html.lang-zh .kq-num, html.lang-zh .kq-cell, html.lang-zh .kq-txt, html.lang-zh .kq-ta { font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif; }
   .evi-num { text-align: right; }
+  .evifix-tbl thead th { white-space: normal !important; line-height: 1.25; font-size: 13.15px; padding-left: 6px; padding-right: 6px; text-align: center; vertical-align: middle; }
+  .evifix-tbl thead tr:first-child th { font-size: 13.55px; }
   .kq-cell { width: 100%; background: transparent; text-align: right; outline: none; }
   .kq-cell::-webkit-outer-spin-button, .kq-cell::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .kq-cell { -moz-appearance: textfield; }
@@ -13299,8 +13301,10 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
       ? it.won / rates.krwUsd
       : ((it.usd !== null && it.usd !== undefined) ? it.usd : 0);
     const arrival = usd * rates.imp * rates.usdRmb;
-    const corp = arrival * rates.corp;
-    const dso = corp * rates.dso;
+    const cg0 = ((rates.corpGpPct != null ? Number(rates.corpGpPct) : 35)) / 100;
+    const dg0 = costMode ? (((rates.dsoGpPct != null ? Number(rates.dsoGpPct) : 20)) / 100) : Math.max(0, (Number(rates.dso) || 1) - 1);
+    const corp = cg0 < 1 ? arrival / (1 - cg0) : 0;
+    const dso = dg0 < 1 ? corp / (1 - dg0) : 0;
     return { usd, arrival, corp, dso, corpProfit: corp - arrival, dealerProfit: dso - corp };
   };
 
@@ -13333,7 +13337,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
     R.push(['합산 매입원가(USD)', { v: sumUsd }]);
     R.push(['수출비용', { v: rates.imp }]);
     R.push(['환율(USD→RMB)', { v: rates.usdRmb }]);
-    R.push(['대리상GP', { v: rates.dso }]);
+    R.push(['대리상GP', { v: Math.max(0, (Number(rates.dso) || 1) - 1) }]);
     R.push(['도착원가(RMB)', { f: '=R1C2*R2C2*R3C2', v: arrivalRMB }]);
     R.push([]);
     R.push(['최종 DSO 가격', '법인→대리상 공급가', '대리상 이익', '법인 이익', '법인 도착가', '법인GP(%)']);
@@ -13353,13 +13357,13 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
     if (!costMode) cst.dsoList.forEach(e0 => {
       const dso = Number(e0.p) || 0;
       const hasD = (e0.d !== null && e0.d !== undefined);
-      const dealer = hasD ? e0.d : (rates.dso ? dso - dso / rates.dso : 0);
+      const dealer = hasD ? e0.d : dso * Math.max(0, rates.dso - 1);
       const supply = dso - dealer;
       const corpP = supply - arrivalRMB;
       const margin = supply ? corpP / supply * 100 : 0;
       R.push([
         { v: dso },
-        hasD ? { f: '=RC[-1]-RC[1]', v: supply } : { f: '=RC[-1]/R4C2', v: supply },
+        hasD ? { f: '=RC[-1]-RC[1]', v: supply } : { f: '=RC[-1]*(1-R4C2)', v: supply },
         hasD ? { v: dealer } : { f: '=RC[-2]-RC[-1]', v: dealer },
         { f: '=RC[-2]-R5C2', v: corpP },
         { f: '=R5C2', v: arrivalRMB },
@@ -13373,8 +13377,8 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
     R.push(['환율(원/USD)', { v: rates.krwUsd }]);
     R.push(['USD→RMB', { v: rates.usdRmb }]);
     R.push(['수출비용', { v: rates.imp }]);
-    R.push(['법인GP', { v: rates.corp }]);
-    R.push(['대리상GP', { v: rates.dso }]);
+    R.push(['법인GP', { v: ((rates.corpGpPct != null ? Number(rates.corpGpPct) : 35)) / 100 }]);
+    R.push(['대리상GP', { v: costMode ? (((rates.dsoGpPct != null ? Number(rates.dsoGpPct) : 20)) / 100) : Math.max(0, (Number(rates.dso) || 1) - 1) }]);
     R.push([]);
     R.push(['No.', '구분', '품명', '매입단가(원)', '매입단가(USD)', '도착원가(RMB)', '법인공급가(RMB)', 'DSO공급가(RMB)', '법인이익(RMB)', '대리상이익(RMB)']);
     rows.forEach((it, i) => {
@@ -13385,8 +13389,8 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
         hasWon ? { v: it.won } : '',
         hasWon ? { f: '=IF(R1C2=0,0,RC[-1]/R1C2)', v: c0.usd } : { v: c0.usd },
         { f: '=RC[-1]*R3C2*R2C2', v: c0.arrival },
-        { f: '=RC[-1]*R4C2', v: c0.corp },
-        { f: '=RC[-1]*R5C2', v: c0.dso },
+        { f: '=IF(R4C2>=1,0,RC[-1]/(1-R4C2))', v: c0.corp },
+        { f: '=IF(R5C2>=1,0,RC[-1]/(1-R5C2))', v: c0.dso },
         { f: '=RC[-2]-RC[-3]', v: c0.corpProfit },
         { f: '=RC[-2]-RC[-3]', v: c0.dealerProfit }
       ]);
@@ -13415,7 +13419,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
   };
   const tEntry = cst.dsoList.find(e => Number(e.p) === 125) || cst.dsoList.find(e => Number(e.p) === 120 || Number(e.p) === 130) || cst.dsoList[0] || { p: 0, d: null };
   const tDso = costMode ? aD0 : (Number(tEntry.p) || 0);
-  const tSupply = costMode ? aS0 : ((tEntry.d !== null && tEntry.d !== undefined) ? (tDso - tEntry.d) : (rates.dso ? tDso / rates.dso : 0));
+  const tSupply = costMode ? aS0 : ((tEntry.d !== null && tEntry.d !== undefined) ? (tDso - tEntry.d) : tDso * (1 - Math.max(0, rates.dso - 1)));
   const tDealer = tDso - tSupply;
   const tCorpP = tSupply - arrivalRMB;
   const tMarkup = arrivalRMB ? tCorpP / arrivalRMB * 100 : 0;
@@ -13579,7 +13583,7 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
         h('tbody', null, costMode ? [autoRow] : cst.dsoList.map((e0, i) => {
           const dso = Number(e0.p) || 0;
           const hasD = (e0.d !== null && e0.d !== undefined);
-          const dealer = hasD ? e0.d : (rates.dso ? dso - dso / rates.dso : 0);
+          const dealer = hasD ? e0.d : dso * Math.max(0, rates.dso - 1);
           const supply = dso - dealer;
           const corpP = supply - arrivalRMB;
           const margin = supply ? corpP / supply * 100 : 0;
@@ -13888,14 +13892,21 @@ const EVIFIX_ZH = {
   '매입단가·환율·GP 설정을 공유하며, 세 가지 방식으로 DSO 가격을 계산합니다.': '共享采购单价·汇率·GP设置，以三种方式计算DSO价格。',
   '기본 입력값': '基本输入值', '임플란트 매입단가(원)': '种植体采购单价(韩元)', 'Surgical Kit 매입단가(원)': 'Surgical Kit采购单价(韩元)',
   '환율(원/USD)': '汇率(韩元/USD)', '수출비용': '出口费用', '법인GP(%)': '公司GP(%)', '대리상GP(%)': '经销商GP(%)',
-  '옵션별 가격리스트': '选项价格表', '옵션 / 구성': '选项 / 构成', '키트 배분수량': '套装分配数量',
-  '합산 매입원가$': '合计采购成本$', '도착원가': '到岸成本', '법인공급가': '公司供货价', '최종 DSO 가격': '最终DSO价格',
-  '지정 DSO 가격(입력)': '指定DSO价格(输入)', '대리상 이익': '经销商利润', '법인공급가(역산)': '公司供货价(倒算)',
-  '법인 이익': '公司利润', '법인GP(%) ': '公司GP(%) ', '＋ 옵션 추가': '＋ 添加选项', '⬇ 엑셀': '⬇ Excel', '삭제': '删除',
+  '옵션별 가격리스트': '选项价格表', '옵션 / 구성': '选项 / 构成', '키트 수량': '套装数量',
+  '합산 매입원가$': '合计采购成本$', '도착원가': '到岸成本', '최종 DSO 가격': '最终DSO价格',
+  '지정 DSO 가격(입력)': '指定DSO价格(输入)', '대리상 이익': '经销商利润', '대리상 납품가': '给经销商供货价',
+  '법인 이익': '公司利润', '＋ 옵션 추가': '＋ 添加选项', '⬇ 엑셀': '⬇ Excel', '삭제': '删除',
   '신규 옵션': '新选项', '단위: RMB': '单位: RMB',
-  '산식: 합산(USD) = 임플란트단가÷환율 + Kit단가÷환율÷배분수량 · 도착원가 = 합산 × 수출비용 × USD→RMB · 법인공급가 = 도착원가 ÷ (1−법인GP) · 최종 DSO = 공급가 ÷ (1−대리상GP)': '公式: 合计(USD) = 种植体单价÷汇率 + Kit单价÷汇率÷分配数量 · 到岸成本 = 合计 × 出口费用 × USD→RMB · 公司供货价 = 到岸成本 ÷ (1−公司GP) · 最终DSO = 供货价 ÷ (1−经销商GP)',
-  '지정 DSO 역산: 대리상GP 고정 → 대리상 이익 = 지정가×대리상GP · 법인공급가 = 지정가−대리상이익 · 법인 이익 = 공급가−도착원가(나머지 전부) · 법인GP = 법인이익÷공급가 · 지정가(노란 칸)를 바꾸면 재계산': '指定DSO倒算: 经销商GP固定 → 经销商利润 = 指定价×经销商GP · 公司供货价 = 指定价−经销商利润 · 公司利润 = 供货价−到岸成本(全部余额) · 公司GP = 公司利润÷供货价 · 修改指定价(黄色)后重新计算',
-  '키트 배분수량 0 = 키트 미포함 · 노랑 = 지정가 입력 · 분홍 = 산출 기준가 · 초록 = 역산 법인GP': '套装分配数量 0 = 不含套装 · 黄色 = 输入指定价 · 粉色 = 计算基准价 · 绿色 = 倒算公司GP'
+  '① 원가 (공통)': '① 成本 (共通)',
+  '② 기준가 산출': '② 基准价计算', '③ 지정가 역산': '③ 指定价倒算',
+  '법인GP': '公司GP', '대리상GP': '经销商GP', '고정': '固定', '나머지 = 법인 이익': '余额 = 公司利润',
+  '합산매입': '合计采购', '원가(USD)': '成本(USD)', '최종DSO': '最终DSO', '견적가격': '报价价格',
+  '지정DSO': '指定DSO', '가격입력': '价格输入', '대리상': '经销商', '납품가격': '供货价格',
+  '② 기준가 산출 — 법인GP ': '② 基准价计算 — 公司GP ', '· 대리상GP ': '· 经销商GP ',
+  '③ 지정가 역산 — 대리상GP ': '③ 指定价倒算 — 经销商GP ', '% 고정': '% 固定',
+  '원가(도착원가)까지는 공통 → 이후 ② GP 설정으로 산출한 기준가와 ③ 지정가 역산이 나란히 비교됩니다.': '到岸成本为共通 → 之后并列比较 ② 按GP设置计算的基准价 和 ③ 指定价倒算。',
+  '※ ② 기준가: 도착원가 ÷ (1−법인GP) = 납품가 → ÷ (1−대리상GP) = 최종 DSO · ③ 지정가: 지정가 × 대리상GP = 대리상 이익 → 지정가 − 이익 = 납품가 → 납품가 − 도착원가 = 법인 이익 → 이익 ÷ 납품가 = 법인GP': '※ ② 基准价: 到岸成本 ÷ (1−公司GP) = 供货价 → ÷ (1−经销商GP) = 最终DSO · ③ 指定价: 指定价 × 经销商GP = 经销商利润 → 指定价 − 利润 = 供货价 → 供货价 − 到岸成本 = 公司利润 → 利润 ÷ 供货价 = 公司GP',
+  '키트 수량 0 = 키트 미포함 · ②와 ③의 납품가 차이가 곧 법인GP 차이': '套装数量 0 = 不含套装 · ②与③的供货价之差即公司GP之差'
 };
 function EviFixPricePage({ lang }) {
   const h = React.createElement;
@@ -13911,7 +13922,7 @@ function EviFixPricePage({ lang }) {
   const [inp, setInp] = React.useState(init.inp);
   const [rows, setRows] = React.useState(init.rows);
   React.useEffect(() => { try { localStorage.setItem('evi_fixprice_v1', JSON.stringify({ inp, rows })); } catch (e) {} }, [inp, rows]);
-  const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+  const num = v => { const n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) ? 0 : n; };
   const setI = (k, v) => setInp(o => Object.assign({}, o, { [k]: v }));
   const setR = (i, k, v) => setRows(l => l.map((r, j) => j === i ? Object.assign({}, r, { [k]: v }) : r));
   const addRow = () => setRows(l => l.concat([{ name: t('신규 옵션'), kitQty: 0, target: 100 }]));
@@ -13923,19 +13934,22 @@ function EviFixPricePage({ lang }) {
     const sum = num(inp.implWon) / fx + (num(r.kitQty) > 0 ? num(inp.kitWon) / fx / num(r.kitQty) : 0);
     const arrival = sum * num(inp.exp) * num(inp.usdRmb);
     const supply = cgp < 1 ? arrival / (1 - cgp) : 0;
+    const corpBase = supply - arrival;
     const dso = dgp < 1 ? supply / (1 - dgp) : 0;
     const tg = num(r.target);
     const dealer = tg * dgp;
     const supRev = tg - dealer;
     const corpP = supRev - arrival;
     const gp = supRev > 0 ? corpP / supRev : 0;
-    return { sum, arrival, supply, dso, tg, dealer, supRev, corpP, gp };
+    return { sum, arrival, supply, corpBase, dso, tg, dealer, supRev, corpP, gp };
   };
 
   const inCls = 'kq-cell evi-num px-2 py-1';
+  const comIn = k => h('input', { value: Number(num(inp[k])).toLocaleString('ko-KR'), onChange: e => setI(k, e.target.value.replace(/[^0-9.]/g, '')), className: inCls, style: { textAlign: 'center' } });
+  const numIn = (k, step) => h('input', { type: 'number', step: step, value: inp[k], onChange: e => setI(k, e.target.value), className: inCls, style: { textAlign: 'center' } });
   const inpDef = [
-    ['implWon', t('임플란트 매입단가(원)'), 1], ['kitWon', t('Surgical Kit 매입단가(원)'), 1],
-    ['fx', t('환율(원/USD)'), 1], ['usdRmb', 'USD→RMB', 0.01], ['exp', t('수출비용'), 0.01],
+    ['implWon', t('임플란트 매입단가(원)'), 'c'], ['kitWon', t('Surgical Kit 매입단가(원)'), 'c'],
+    ['fx', t('환율(원/USD)'), 'c'], ['usdRmb', 'USD→RMB', 0.01], ['exp', t('수출비용'), 0.01],
     ['cgp', t('법인GP(%)'), 1], ['dgp', t('대리상GP(%)'), 1]
   ];
   const inputCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-2' },
@@ -13943,7 +13957,7 @@ function EviFixPricePage({ lang }) {
     h('table', { className: 'kq-grid w-full text-sm', style: { tableLayout: 'fixed' } },
       h('thead', null, h('tr', null, inpDef.map(d => h('th', { key: d[0], className: 'px-2 py-2 text-center', style: { whiteSpace: 'normal' } }, d[1])))),
       h('tbody', null, h('tr', null, inpDef.map(d => h('td', { key: d[0], className: 'evi-num px-2 py-1.5' },
-        h('input', { type: 'number', step: d[2], value: inp[d[0]], onChange: e => setI(d[0], e.target.value), className: inCls, style: { textAlign: 'center' } })))))));
+        d[2] === 'c' ? comIn(d[0]) : numIn(d[0], d[2])))))));
 
   const dlExcel = () => {
     const R = [];
@@ -13951,11 +13965,13 @@ function EviFixPricePage({ lang }) {
     R.push([t('Surgical Kit 매입단가(원)'), { v: num(inp.kitWon) }, 'USD→RMB', { v: num(inp.usdRmb) }, t('대리상GP(%)'), { v: num(inp.dgp) }]);
     R.push([t('수출비용'), { v: num(inp.exp) }]);
     R.push([]);
-    R.push([t('옵션 / 구성'), t('키트 배분수량'), t('합산 매입원가$'), t('도착원가'), t('법인공급가'), t('최종 DSO 가격'), t('지정 DSO 가격(입력)'), t('대리상 이익'), t('법인공급가(역산)'), t('법인 이익'), t('법인GP(%)')]);
-    rows.forEach(r => { const c = calc(r); R.push([r.name, { v: num(r.kitQty) }, { v: +c.sum.toFixed(3) }, { v: +c.arrival.toFixed(1) }, { v: +c.supply.toFixed(1) }, { v: +c.dso.toFixed(1) }, { v: c.tg }, { v: +c.dealer.toFixed(1) }, { v: +c.supRev.toFixed(1) }, { v: +c.corpP.toFixed(1) }, { v: +(c.gp * 100).toFixed(1) }]); });
+    R.push([t('옵션 / 구성'), t('키트 수량'), t('합산 매입원가$'), t('도착원가'), t('법인 이익'), t('대리상 납품가'), t('최종 DSO 가격'), t('지정 DSO 가격(입력)'), t('대리상 이익'), t('대리상 납품가'), t('법인 이익'), '법인GP(%)']);
+    rows.forEach(r => { const c = calc(r); R.push([r.name, { v: num(r.kitQty) }, { v: +c.sum.toFixed(3) }, { v: +c.arrival.toFixed(1) }, { v: +c.corpBase.toFixed(1) }, { v: +c.supply.toFixed(1) }, { v: +c.dso.toFixed(1) }, { v: c.tg }, { v: +c.dealer.toFixed(1) }, { v: +c.supRev.toFixed(1) }, { v: +c.corpP.toFixed(1) }, { v: +(c.gp * 100).toFixed(1) }]); });
     xlsDownloadRows('가격_지정가_역산', R);
   };
 
+  const sep = { borderLeft: '1.4px solid #94a3b8' };
+  const gTh = (label, span, st) => h('th', { colSpan: span, className: 'px-2 py-1.5 text-center', style: st || undefined }, label);
   const listCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
     h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
       h('div', { className: 'text-sm font-bold text-slate-800' }, t('옵션별 가격리스트'),
@@ -13963,20 +13979,30 @@ function EviFixPricePage({ lang }) {
       h('div', { className: 'flex gap-2' },
         h('button', { onClick: addRow, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('＋ 옵션 추가')),
         h('button', { onClick: dlExcel, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('⬇ 엑셀')))),
-    h('table', { className: 'kq-grid w-full', style: { fontSize: '13px' } },
-      h('thead', null, h('tr', null,
-        h('th', { className: 'px-2 py-2 text-left', style: { width: '19%' } }, t('옵션 / 구성')),
-        h('th', { className: 'px-2 py-2 text-center' }, t('키트 배분수량')),
-        h('th', { className: 'px-2 py-2 text-right' }, t('합산 매입원가$')),
-        h('th', { className: 'px-2 py-2 text-right' }, t('도착원가')),
-        h('th', { className: 'px-2 py-2 text-right' }, t('법인공급가')),
-        h('th', { className: 'px-2 py-2 text-right' }, t('최종 DSO 가격')),
-        h('th', { className: 'px-2 py-2 text-right' }, t('지정 DSO 가격(입력)')),
-        h('th', { className: 'px-2 py-2 text-right' }, t('대리상 이익') + '(' + nf(num(inp.dgp), 0) + '%)'),
-        h('th', { className: 'px-2 py-2 text-right' }, t('법인공급가(역산)')),
-        h('th', { className: 'px-2 py-2 text-right' }, t('법인 이익')),
-        h('th', { className: 'px-2 py-2 text-right' }, '법인GP(%)'),
-        h('th', { className: 'px-2 py-2 w-8' }))),
+    h('div', { className: 'text-xs text-slate-500' }, t('원가(도착원가)까지는 공통 → 이후 ② GP 설정으로 산출한 기준가와 ③ 지정가 역산이 나란히 비교됩니다.')),
+    h('table', { className: 'kq-grid w-full evifix-tbl', style: { fontSize: '13px', tableLayout: 'fixed' } },
+      h('thead', null,
+        h('tr', null,
+          gTh(t('① 원가 (공통)'), 4),
+          h('th', { colSpan: 3, className: 'px-2 py-1.5 text-center', style: sep }, t('② 기준가 산출'),
+            h('div', { className: 'font-normal', style: { fontSize: '11.5px' } }, '[' + t('법인GP') + ' ' + nf(num(inp.cgp), 0) + '% · ' + t('대리상GP') + ' ' + nf(num(inp.dgp), 0) + '%]')),
+          h('th', { colSpan: 5, className: 'px-2 py-1.5 text-center', style: sep }, t('③ 지정가 역산'),
+            h('div', { className: 'font-normal', style: { fontSize: '11.5px' } }, '[' + t('대리상GP') + ' ' + nf(num(inp.dgp), 0) + '% ' + t('고정') + ' · ' + t('나머지 = 법인 이익') + ']')),
+          gTh('', 1, sep)),
+        h('tr', null,
+          h('th', { className: 'px-2 py-2 text-center', style: { width: '15%' } }, t('옵션 / 구성')),
+          h('th', { className: 'px-2 py-2 text-center', style: { width: '6%' } }, t('키트 수량')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('합산매입'), h('br'), t('원가(USD)')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('도착원가')),
+          h('th', { className: 'px-2 py-2 text-center', style: sep }, t('법인 이익')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('대리상'), h('br'), t('납품가격')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('최종DSO'), h('br'), t('견적가격')),
+          h('th', { className: 'px-2 py-2 text-center', style: sep }, t('지정DSO'), h('br'), t('가격입력')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('대리상 이익') + '(' + nf(num(inp.dgp), 0) + '%)'),
+          h('th', { className: 'px-2 py-2 text-center' }, t('대리상'), h('br'), t('납품가격')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('법인 이익')),
+          h('th', { className: 'px-2 py-2 text-center' }, '법인GP(%)'),
+          h('th', { className: 'px-2 py-2', style: Object.assign({ width: '3.5%' }, sep) }))),
       h('tbody', null, rows.map((r, i) => {
         const c = calc(r);
         return h('tr', { key: i, className: 'hover:bg-slate-50' },
@@ -13984,18 +14010,18 @@ function EviFixPricePage({ lang }) {
           h('td', { className: 'evi-num px-2 py-1.5' }, h('input', { type: 'number', step: 1, value: r.kitQty, onChange: e => setR(i, 'kitQty', e.target.value), className: inCls, style: { textAlign: 'center' } })),
           h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.sum, 3)),
           h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.arrival, 1)),
-          h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.supply, 1)),
-          h('td', { className: 'evi-num px-2 py-1.5 font-bold', style: { background: '#FDF2F8' } }, nf(c.dso, 1)),
-          h('td', { className: 'evi-num px-2 py-1.5', style: { background: '#FEF9C3' } }, h('input', { type: 'number', step: 1, value: r.target, onChange: e => setR(i, 'target', e.target.value), className: inCls, style: { textAlign: 'right', background: 'transparent' } })),
+          h('td', { className: 'evi-num px-2 py-1.5', style: sep }, nf(c.corpBase, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(c.supply, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(c.dso, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5', style: sep }, h('input', { type: 'number', step: 1, value: r.target, onChange: e => setR(i, 'target', e.target.value), className: inCls, style: { textAlign: 'right' } })),
           h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.dealer, 1)),
-          h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.supRev, 1)),
+          h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(c.supRev, 1)),
           h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.corpP, 1)),
-          h('td', { className: 'evi-num px-2 py-1.5 font-bold', style: { background: '#DFF2E7' } }, nf(c.gp * 100, 1) + '%'),
-          h('td', { className: 'px-2 py-1.5 text-center' }, h('button', { onClick: () => delRow(i), title: t('삭제'), className: 'px-1.5 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
+          h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(c.gp * 100, 1) + '%'),
+          h('td', { className: 'px-2 py-1.5 text-center', style: sep }, h('button', { onClick: () => delRow(i), title: t('삭제'), className: 'px-1 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
       }))),
-    h('div', { className: 'text-xs', style: { color: '#000' } }, t('산식: 합산(USD) = 임플란트단가÷환율 + Kit단가÷환율÷배분수량 · 도착원가 = 합산 × 수출비용 × USD→RMB · 법인공급가 = 도착원가 ÷ (1−법인GP) · 최종 DSO = 공급가 ÷ (1−대리상GP)')),
-    h('div', { className: 'text-xs', style: { color: '#000' } }, t('지정 DSO 역산: 대리상GP 고정 → 대리상 이익 = 지정가×대리상GP · 법인공급가 = 지정가−대리상이익 · 법인 이익 = 공급가−도착원가(나머지 전부) · 법인GP = 법인이익÷공급가 · 지정가(노란 칸)를 바꾸면 재계산')),
-    h('div', { className: 'text-xs text-slate-500' }, t('키트 배분수량 0 = 키트 미포함 · 노랑 = 지정가 입력 · 분홍 = 산출 기준가 · 초록 = 역산 법인GP')));
+    h('div', { className: 'text-xs', style: { color: '#000' } }, t('※ ② 기준가: 도착원가 ÷ (1−법인GP) = 납품가 → ÷ (1−대리상GP) = 최종 DSO · ③ 지정가: 지정가 × 대리상GP = 대리상 이익 → 지정가 − 이익 = 납품가 → 납품가 − 도착원가 = 법인 이익 → 이익 ÷ 납품가 = 법인GP')),
+    h('div', { className: 'text-xs text-slate-500' }, t('키트 수량 0 = 키트 미포함 · ②와 ③의 납품가 차이가 곧 법인GP 차이')));
 
   return h('div', { className: 'p-6 space-y-4' }, inputCard, listCard);
 }
