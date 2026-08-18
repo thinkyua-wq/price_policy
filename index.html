@@ -404,13 +404,18 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   /* Evidence 표 숫자: 검정 + 맑은 고딕 + 동일 크기 */
   .evi-num, .evi-num input { color: #000; font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; font-size: 14px; font-variant-numeric: tabular-nums; }
   html.lang-zh body, html.lang-zh button, html.lang-zh input, html.lang-zh select, html.lang-zh textarea, html.lang-zh table { font-family: "Microsoft YaHei", "微软雅黑", "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
+  .dealer-sp-in::placeholder { color: #94a3b8; }
+  .dealer-sp-in:focus { outline: none; background: #f8fafc; border-bottom-color: #4f46e5 !important; }
+  .zh-txt, .zh-txt input, .zh-txt select { font-family: "Microsoft YaHei", "微软雅黑", "Malgun Gothic", "맑은 고딕", Arial, sans-serif !important; }
   html.lang-zh .evi-num, html.lang-zh .evi-num input, html.lang-zh .kq-num, html.lang-zh .kq-cell, html.lang-zh .kq-txt, html.lang-zh .kq-ta { font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif; }
   .evi-num { text-align: right; }
-  .evifix-tbl thead th { white-space: normal !important; line-height: 1.25; font-size: 13.15px; padding-left: 6px; padding-right: 6px; text-align: center; vertical-align: middle; }
+  .evifix-tbl thead th { white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; font-size: 12.5px; padding-left: 4px; padding-right: 4px; text-align: center; vertical-align: middle; }
   .evifix-tbl thead tr:first-child th { font-size: 13.55px; }
-  .simgp-prof thead th { white-space: normal !important; line-height: 1.25; vertical-align: middle; }
+  .simgp-prof thead th { white-space: nowrap !important; line-height: 1.25; vertical-align: middle; }
+  .simgp-center th, .simgp-center td, .simgp-center td.evi-num, .simgp-center td.kq-txt { text-align: center !important; }
+  .simgp-center input { text-align: center !important; }
   .polver-grid3 > div { display: flex; flex-direction: column; }
-  .polver-grid3 .polver-eq { flex: 1 1 auto; height: 100%; }
+  .polver-grid3 .polver-eq { flex: 0 0 auto; }
   .polver-grid3 .polver-eq th, .polver-grid3 .polver-eq td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .polver-grid3 .polver-eq td.kq-cell { text-align: center; }
   .kq-cell { width: 100%; background: transparent; text-align: right; outline: none; }
@@ -960,6 +965,8 @@ function Sidebar({
     "대리상가격": "经销商价格",
     "江苏澍康 대리상정책": "江苏澍康 经销商政策",
     "원가 시뮬레이션": "成本模拟",
+    "대리상 가격표": "经销商价格表",
+    "저장 이력": "保存记录",
     "법인가격시뮬레이션": "公司价格模拟",
     "법인 대리상가격": "公司经销商价格",
     "가격결정 시뮬레이션": "定价模拟",
@@ -994,6 +1001,9 @@ function Sidebar({
     items: [{
       key: 'sim-main',
       label: tr('대리상가격(GP)')
+    }, {
+      key: 'dealer-price',
+      label: tr('대리상 가격표')
     }]
   }, {
     key: 'pricedecision',
@@ -1022,6 +1032,9 @@ function Sidebar({
     }, {
       key: 'cost-sim',
       label: tr('원가 시뮬레이션')
+    }, {
+      key: 'sim-history',
+      label: tr('저장 이력')
     }]
   }];
   React.useEffect(() => {
@@ -14014,10 +14027,10 @@ function PolicyVersionPage({ lang }) {
       h('div', { className: 'flex gap-2' },
         h('button', { onClick: newVer, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('＋ 새 버전 (현재 조건 복사)')),
         h('button', { onClick: dlExcel, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('⬇ 엑셀')))),
-    h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed' } },
+    h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap' } },
       h('thead', null, h('tr', null,
-        th(t('버전'), { width: '8%' }), th(t('적용월'), { width: '8%' }), th(t('기안일'), { width: '9%' }), th(t('기안자'), { width: '8%' }),
-        th(t('수출가 조정 (모델별, 직전 대비)')), th(t('무상조건 변경'), { width: '15%' }), th(t('인센티브 변경'), { width: '17%' }), th(t('비고'), { width: '10%' }), th('', { width: '10%' }))),
+        th(t('버전'), { width: '7%' }), th(t('적용월'), { width: '7%' }), th(t('기안일'), { width: '8%' }), th(t('기안자'), { width: '6%' }),
+        th(t('수출가 조정 (모델별, 직전 대비)')), th(t('무상조건 변경'), { width: '14%' }), th(t('인센티브 변경'), { width: '17%' }), th(t('비고'), { width: '9%' }), th('', { width: '11%' }))),
       h('tbody', null, list.map(v => {
         const s = polverSummary(v, prevOf(v), t);
         const isAct = v.id === pv.activeId;
@@ -14026,11 +14039,11 @@ function PolicyVersionPage({ lang }) {
           h('td', { className: 'kq-cell px-2 py-1.5 text-center' }, v.month),
           h('td', { className: 'kq-cell px-2 py-1.5 text-center' }, v.date),
           h('td', { className: 'kq-txt px-2 py-1.5 text-center' }, v.author),
-          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, s.exp),
-          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, s.free),
-          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, s.inc),
-          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, v.memo || '—'),
-          h('td', { className: 'px-2 py-1.5 text-center', onClick: e => e.stopPropagation() },
+          h('td', { className: 'kq-txt px-2 py-1.5', title: s.exp, style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, s.exp),
+          h('td', { className: 'kq-txt px-2 py-1.5', title: s.free, style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, s.free),
+          h('td', { className: 'kq-txt px-2 py-1.5', title: s.inc, style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, s.inc),
+          h('td', { className: 'kq-txt px-2 py-1.5', title: v.memo || '', style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, v.memo || '—'),
+          h('td', { className: 'px-1 py-1.5 text-center', style: { whiteSpace: 'nowrap' }, onClick: e => e.stopPropagation() },
             h('button', { onClick: () => setOpenId(v.id), className: 'text-[11px] px-1.5 py-0.5 border border-slate-300 text-slate-600 mr-1' }, t('상세')),
             h('button', { onClick: () => setActive(v.id), className: 'text-[11px] px-1.5 py-0.5 border ' + (isAct ? 'border-indigo-500 text-indigo-600 font-bold' : 'border-slate-300 text-slate-600') }, t('적용')),
             pv.list.length > 1 ? h('button', { onClick: () => del(v.id), title: t('삭제'), className: 'ml-1 px-1 py-0.5 rounded text-red-400 hover:text-red-600 text-sm' }, '🗑') : null));
@@ -14141,8 +14154,7 @@ const EVIFIX_ZH = {
   '① 원가 (공통)': '① 成本 (共通)',
   '② 기준가 산출': '② 基准价计算', '③ 지정가 역산': '③ 指定价倒算',
   '법인GP': '公司GP', '대리상GP': '经销商GP', '고정': '固定', '나머지 = 법인 이익': '余额 = 公司利润',
-  '합산매입': '合计采购', '원가(USD)': '成本(USD)', '최종DSO': '最终DSO', '견적가격': '报价价格',
-  '지정DSO': '指定DSO', '가격입력': '价格输入', '대리상': '经销商', '납품가격': '供货价格',
+  '최종DSO 견적가': '最终DSO报价', '지정DSO 가격': '指定DSO价格',
   '② 기준가 산출 — 법인GP ': '② 基准价计算 — 公司GP ', '· 대리상GP ': '· 经销商GP ',
   '③ 지정가 역산 — 대리상GP ': '③ 指定价倒算 — 经销商GP ', '% 고정': '% 固定',
   '원가(도착원가)까지는 공통 → 이후 ② GP 설정으로 산출한 기준가와 ③ 지정가 역산이 나란히 비교됩니다.': '到岸成本为共通 → 之后并列比较 ② 按GP设置计算的基准价 和 ③ 指定价倒算。',
@@ -14195,8 +14207,8 @@ function EviFixPricePage({ lang }) {
   ];
   const inputCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-2' },
     h('div', { className: 'text-sm font-bold text-slate-800' }, t('기본 입력값')),
-    h('table', { className: 'kq-grid w-full text-sm', style: { tableLayout: 'fixed' } },
-      h('thead', null, h('tr', null, inpDef.map(d => h('th', { key: d[0], className: 'px-2 py-2 text-center', style: { whiteSpace: 'normal' } }, d[1])))),
+    h('table', { className: 'kq-grid w-full', style: { tableLayout: 'fixed', fontSize: '13px', whiteSpace: 'nowrap' } },
+      h('thead', null, h('tr', null, inpDef.map(d => h('th', { key: d[0], className: 'px-2 py-2 text-center', style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, title: d[1] }, d[1])))),
       h('tbody', null, h('tr', null, inpDef.map(d => h('td', { key: d[0], className: 'evi-num px-2 py-1.5' },
         d[2] === 'c' ? comIn(d[0]) : numIn(d[0], d[2])))))));
 
@@ -14211,7 +14223,7 @@ function EviFixPricePage({ lang }) {
     xlsDownloadRows('가격_지정가_역산', R);
   };
 
-  const sep = { borderLeft: '1.4px solid #94a3b8' };
+  const sep = { borderLeft: '1px solid #cbd5e1' };
   const gTh = (label, span, st) => h('th', { colSpan: span, className: 'px-2 py-1.5 text-center', style: st || undefined }, label);
   const listCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
     h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
@@ -14226,21 +14238,21 @@ function EviFixPricePage({ lang }) {
         h('tr', null,
           gTh(t('① 원가 (공통)'), 4),
           h('th', { colSpan: 3, className: 'px-2 py-1.5 text-center', style: sep }, t('② 기준가 산출'),
-            h('div', { className: 'font-normal', style: { fontSize: '11.5px' } }, '[' + t('법인GP') + ' ' + nf(num(inp.cgp), 0) + '% · ' + t('대리상GP') + ' ' + nf(num(inp.dgp), 0) + '%]')),
+            h('span', { className: 'font-normal ml-1', style: { fontSize: '11.5px' } }, '[' + t('법인GP') + ' ' + nf(num(inp.cgp), 0) + '% · ' + t('대리상GP') + ' ' + nf(num(inp.dgp), 0) + '%]')),
           h('th', { colSpan: 5, className: 'px-2 py-1.5 text-center', style: sep }, t('③ 지정가 역산'),
-            h('div', { className: 'font-normal', style: { fontSize: '11.5px' } }, '[' + t('대리상GP') + ' ' + nf(num(inp.dgp), 0) + '% ' + t('고정') + ' · ' + t('나머지 = 법인 이익') + ']')),
+            h('span', { className: 'font-normal ml-1', style: { fontSize: '11.5px' } }, '[' + t('대리상GP') + ' ' + nf(num(inp.dgp), 0) + '% ' + t('고정') + ' · ' + t('나머지 = 법인 이익') + ']')),
           gTh('', 1, sep)),
         h('tr', null,
           h('th', { className: 'px-2 py-2 text-center', style: { width: '15%' } }, t('옵션 / 구성')),
           h('th', { className: 'px-2 py-2 text-center', style: { width: '6%' } }, t('키트 수량')),
-          h('th', { className: 'px-2 py-2 text-center' }, t('합산매입'), h('br'), t('원가(USD)')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('합산매입원가$')),
           h('th', { className: 'px-2 py-2 text-center' }, t('도착원가')),
           h('th', { className: 'px-2 py-2 text-center', style: sep }, t('법인 이익')),
-          h('th', { className: 'px-2 py-2 text-center' }, t('대리상'), h('br'), t('납품가격')),
-          h('th', { className: 'px-2 py-2 text-center' }, t('최종DSO'), h('br'), t('견적가격')),
-          h('th', { className: 'px-2 py-2 text-center', style: sep }, t('지정DSO'), h('br'), t('가격입력')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('대리상 납품가')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('최종DSO 견적가')),
+          h('th', { className: 'px-2 py-2 text-center', style: sep }, t('지정DSO 가격')),
           h('th', { className: 'px-2 py-2 text-center' }, t('대리상 이익') + '(' + nf(num(inp.dgp), 0) + '%)'),
-          h('th', { className: 'px-2 py-2 text-center' }, t('대리상'), h('br'), t('납품가격')),
+          h('th', { className: 'px-2 py-2 text-center' }, t('대리상 납품가')),
           h('th', { className: 'px-2 py-2 text-center' }, t('법인 이익')),
           h('th', { className: 'px-2 py-2 text-center' }, '법인GP(%)'),
           h('th', { className: 'px-2 py-2', style: Object.assign({ width: '3.5%' }, sep) }))),
@@ -14289,26 +14301,256 @@ function EviTabsPage(props) {
 const SIMGP_ZH = {
   '대리상 등급': '经销商等级', '거래유형': '交易类型', '제품': '产品', '키트': '工具盒', '기준 버전': '基准版本', '전용': '专用',
   '민영(일반치과)': '民营(一般牙科)', '모두': '全部', '표준(Standard)': '标准(Standard)', '풀(Full)': 'Full(全套)',
-  '최종 공급가': '最终供货价', '최종 법인GP': '最终公司GP', '총 할인율(실판매 대비)': '累计折扣率(对比常规)',
+  '최종 공급가': '最终供货价', '최종 대리상GP': '最终经销商GP', '총 할인율(기준가 대비)': '累计折扣率(对比基准价)', '총 할인금액(실판매가 대비)': '折扣总额(对比实销价)',
   '총 할인금액': '折扣总额', '적용 정책 수': '应用政策数', '개': '个',
   '제품별 결과': '按产品结果', '엑셀 다운로드': '下载Excel', '현재 조건 확정': '确认当前条件',
-  '기준가': '基准价', '실판매가': '常规价', '월반영가': '月返价', '분기반영가': '季度返价', '최종(년도반)': '最终(年度返)', '법인GP (%)': '公司GP(%)',
-  '모두 보기': '查看全部', '정책 단계별 비교': '按政策阶段比较', '단계': '阶段', '공급가': '供货价', '적용요약(%)': '应用摘要(%)',
+  '기준가': '基准价', '실판매가': '常规价', '월반영가': '月返价', '분기반영가': '季度返价', '최종(년도반)': '最终(年度返)', '법인GP (%)': '公司GP(%)', '환자수가': '患者收费价', '치과GP (%)': '牙科GP(%)',
+  '모두 보기': '查看全部', '정책 단계별 비교': '按政策阶段比较', '단계': '阶段', '공급가': '供货价', '적용요율(%)': '应用比率(%)', '적용 금액': '应用金额',
   '대리상 수익성 요약': '经销商收益性汇总', '판매가': '终端售价', '수익(최종)': '收益(最终)',
   '실판매마진': '常规GP率', '월반': '月返', '분기반': '季度返', '최종': '最终',
   '인센티브 정책 선택': '激励政策选择', '등급 변경 시 자동 적용 · 수동 조정 가능': '等级变更时自动适用 · 可手动调整',
   '미적용': '不适用', '적용': '适用', '자동': '自动', '등급 자동': '按等级自动',
-  '① 월목표달성(부품)': '① 月度目标达成(部件)', '② 특수정책(현금반리)': '② 特殊政策(现金返利)',
-  '③ 현금결제(현금)': '③ 现金结算(现金)', '④ DSO 등급(제품 증정)': '④ DSO等级(产品赠送)',
+  '① 월목표달성(부품)': '① 月度目标达成(部件)', '③ 특수정책(현금반리)': '③ 特殊政策(现金返利)',
+  '② 현금결제(현금)': '② 现金结算(现金)', '④ DSO 등급(제품 증정)': '④ DSO等级(产品赠送)',
   '⑤ 분기리베이트(제품 반환)': '⑤ 季度返利(返货)', '⑥ 년간리베이트(현금)': '⑥ 年度返利(现金)', '⑦ BD장려(현금)': '⑦ BD奖励(现金)',
-  '모델별 확정 최종금액': '按型号确认最终金额', '전체 삭제': '全部删除', '민영': '民营',
+  '모델별 확정 최종금액': '按型号确认最终金额', '모델별 확정 판매가·수익': '按型号确认售价·收益', '전체 삭제': '全部删除', '민영': '民营',
   '메모': '备注', '숨기기': '隐藏', '보기': '显示',
   '실판매가': '实销价', '무상조건': '赠送条件', 'BD 전용': 'BD专用', '구분': '区分', '단계': '阶段', '년간 (최종)': '年度(最终)', '월반영': '月返反映', '분기반영': '季度返反映', '최종 (년도반)': '最终(年度返)', '공급가': '供货价', '수익': '收益', '마진율': '利润率',
-  '단계별 수익 상세': '分阶段收益明细', '정책별 기여분 · 단위: RMB': '按政策贡献 · 单位: RMB', '단계 (적용 정책)': '阶段(适用政策)', '대리상 공급가': '经销商供货价', '공급가 인하': '供货价下调', '대리상 수익': '经销商收益', '수익 증가': '收益增加', '마진율 증가': '利润率增加', '증정': '赠送', '월목표·현금반리': '月目标·现金返利', '분기리베이트': '季度返利', '년간·BD (최종)': '年度·BD(最终)',
+  '단계별 수익 상세': '分阶段收益明细', '정책별 기여분 · 단위: RMB': '按政策贡献 · 单位: RMB', '단계 (적용 정책)': '阶段(适用政策)', '대리상 공급가': '经销商供货价', '공급가 인하': '供货价下调', '대리상 수익': '经销商收益', '수익 증가': '收益增加', '마진율 증가': '利润率增加', '증정': '赠送', '현금결제·월목표·특수정책': '现金结算·月目标·特殊政策', '분기리베이트': '季度返利', '년간·BD (최종)': '年度·BD(最终)',
   '※ 수익 = 판매가 − 해당 단계 공급가 · 마진율 = 수익 ÷ 판매가 · 정책이 하나씩 적용될수록 공급가↓ 수익↑ 마진율↑ · 판매가는 표에서 직접 수정': '※ 收益 = 售价 − 该阶段供货价 · 利润率 = 收益 ÷ 售价 · 每叠加一项政策，供货价↓ 收益↑ 利润率↑ · 售价可在表中直接修改',
-  '※ 공급가 인하 = 직전 단계 대비 · 수익 증가 = 공급가 인하분과 동일 · 마진율 증가 = %p': '※ 供货价下调 = 相对上一阶段 · 收益增加 = 与下调额相同 · 利润率增加 = 百分点',
+  '※ 대리상 수익 = 판매가 − 해당 단계 공급가 · 마진율 = 수익 ÷ 판매가 · 적용 금액 = 직전 단계 대비 공급가 변동(파랑 괄호 = 인하) · 적용요율 = 해당 단계 정책 요율': '※ 经销商收益 = 售价 − 该阶段供货价 · 利润率 = 收益 ÷ 售价 · 应用金额 = 相对上一阶段的供货价变动(蓝色括号 = 下调) · 应用比率 = 该阶段政策比率',
+  '반영': '反映', '비교 모델': '比较型号', '초기화': '重置', '계산 방식': '计算方式', '특수정책 반영': '特殊政策反映', '분기리베이트 반영': '季度返利反映', '년간리베이트 (최종)': '年度返利(最终)', '현금결제': '现金结算', '판매가는 표에서 직접 수정 · 거래유형·DSO 등급별 기본값 자동 · 정책이 하나씩 적용될수록 공급가↓ 수익↑ 마진율↑': '售价可在表中直接修改 · 按交易类型·DSO等级自动默认 · 每叠加一项政策，供货价↓ 收益↑ 利润率↑',
   '협의 내용을 남겨두세요 (자동 저장 · 줄바꿈 자동)': '请留下协议内容 (自动保存 · 自动换行)'
 };
+const DEALER_SEED = [{"id":"d001","hq":"华东本部","region":"江苏","name":"南京康睿达医疗科技有限公司(江苏澍康医疗科技有限公司)","grade":"A","trade":"MY","dso":"S","ver":"","cust":31,"bdVol":211,"contract":28000000,"sales":7071504,"coll":4211904,"memo":"","area":"4大区"},{"id":"d002","hq":"浙江本部","region":"浙江","name":"聚赢齿科技术（上海）有限公司","grade":"A","trade":"MY","dso":"S","ver":"","cust":7,"bdVol":4325,"contract":19000000,"sales":7864806,"coll":4303961,"memo":"","area":"1大区"},{"id":"d003","hq":"浙江本部","region":"福建","name":"福州德康和谐科技有限公司","grade":"A","trade":"MY","dso":"S","ver":"","cust":62,"bdVol":797,"contract":15000000,"sales":5832307,"coll":5833587,"memo":"","area":"2大区"},{"id":"d004","hq":"华东本部","region":"山东","name":"青岛振全嘉泰医疗器械有限公司","grade":"B","trade":"MY","dso":"S","ver":"","cust":38,"bdVol":285,"contract":13500000,"sales":6756396,"coll":6357577,"memo":"","area":"5大区"},{"id":"d005","hq":"浙江本部","region":"浙江","name":"杭州秉盛医疗科技有限公司","grade":"B","trade":"MY","dso":"S","ver":"","cust":35,"bdVol":1714,"contract":10000000,"sales":5271363,"coll":4954333,"memo":"","area":"1大区"},{"id":"d006","hq":"浙江本部","region":"浙江","name":"杭州六维齿科医疗技术有限公司","grade":"B","trade":"MY","dso":"S","ver":"","cust":16,"bdVol":266,"contract":10000000,"sales":5198108,"coll":3834821,"memo":"","area":"1大区"},{"id":"d007","hq":"浙江本部","region":"浙江","name":"宁波骏升医疗器械有限公司","grade":"B","trade":"MY","dso":"S","ver":"","cust":20,"bdVol":466,"contract":7000000,"sales":4076671,"coll":3952281,"memo":"","area":"1大区"},{"id":"d008","hq":"华东本部","region":"上海","name":"上海习亮贸易有限公司","grade":"B","trade":"MY","dso":"S","ver":"","cust":16,"bdVol":245,"contract":6000000,"sales":4433623,"coll":3310562,"memo":"","area":"3大区"},{"id":"d009","hq":"华东本部","region":"江苏","name":"南京康尔诺医疗器械有限公司（国药康尔诺口腔医疗器械（江苏）有限公司）","grade":"B","trade":"MY","dso":"S","ver":"","cust":4,"bdVol":0,"contract":6000000,"sales":1211270,"coll":1221503,"memo":"","area":"4大区"},{"id":"d010","hq":"华东本部","region":"江苏","name":"海豪医疗科技（苏州）股份有限公司（上海贺中）","grade":"B","trade":"MY","dso":"S","ver":"","cust":9,"bdVol":133,"contract":5000000,"sales":1506670,"coll":1468972,"memo":"","area":"4大区"},{"id":"d011","hq":"华东本部","region":"上海","name":"上海圣捷医疗器材有限公司","grade":"B","trade":"MY","dso":"S","ver":"","cust":5,"bdVol":24,"contract":5000000,"sales":286391,"coll":286191,"memo":"","area":"3大区"},{"id":"d012","hq":"华东本部","region":"上海","name":"上海保贞医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":5,"bdVol":62,"contract":4000000,"sales":2137113,"coll":2150000,"memo":"","area":"3大区"},{"id":"d013","hq":"华东本部","region":"山东","name":"济南泽康商德医疗设备有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":4000000,"sales":1501963,"coll":1395747,"memo":"","area":"5大区"},{"id":"d014","hq":"浙江本部","region":"江西","name":"江西正乐医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":8,"bdVol":11,"contract":3000000,"sales":804563,"coll":803637,"memo":"","area":"2大区"},{"id":"d015","hq":"华东本部","region":"山东","name":"山东锦驰医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":20,"bdVol":305,"contract":2600000,"sales":1474566,"coll":1292604,"memo":"","area":"5大区"},{"id":"d016","hq":"华东本部","region":"山东","name":"济南辰帆医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":13,"bdVol":210,"contract":2600000,"sales":1236778,"coll":1236778,"memo":"","area":"5大区"},{"id":"d017","hq":"浙江本部","region":"江西","name":"南昌市沪雅医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":7,"bdVol":53,"contract":2600000,"sales":1081658,"coll":1078935,"memo":"","area":"2大区"},{"id":"d018","hq":"华东本部","region":"山东","name":"山东贝力医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":8,"bdVol":80,"contract":2300000,"sales":1123851,"coll":1108304,"memo":"","area":"5大区"},{"id":"d019","hq":"浙江本部","region":"浙江","name":"杭州国大口腔门诊部有限公司（四明）","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":1000000,"sales":246004,"coll":227028,"memo":"","area":"1大区"},{"id":"d020","hq":"浙江本部","region":"浙江","name":"慈溪观海卫张氏口腔门诊部有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":600000,"sales":276643,"coll":143365,"memo":"","area":"1大区"},{"id":"d021","hq":"华北本部","region":"吉林","name":"吉林省鑫盛达医疗器械","grade":"C","trade":"MY","dso":"S","ver":"","cust":86,"bdVol":558,"contract":0,"sales":0,"coll":0,"memo":"","area":"3大区"},{"id":"d022","hq":"华西本部","region":"四川","name":"成都普瑞赛司","grade":"C","trade":"MY","dso":"S","ver":"","cust":67,"bdVol":1289,"contract":0,"sales":0,"coll":0,"memo":"","area":"8大区"},{"id":"d023","hq":"华北本部","region":"辽宁","name":"沈阳鑫汇鑫商贸有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":50,"bdVol":289,"contract":0,"sales":0,"coll":0,"memo":"","area":"3大区"},{"id":"d024","hq":"华中本部","region":"湖北","name":"武汉市宏捷医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":62,"bdVol":588,"contract":0,"sales":0,"coll":0,"memo":"","area":"6大区"},{"id":"d025","hq":"华北本部","region":"辽宁","name":"大连通达利经贸有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":59,"bdVol":453,"contract":0,"sales":0,"coll":0,"memo":"","area":"3大区"},{"id":"d026","hq":"华北本部","region":"天津","name":"天津市康雅宁医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":42,"bdVol":471,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d027","hq":"华东本部","region":"上海","name":"海豪贺中医疗科技（上海）有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":24,"bdVol":675,"contract":0,"sales":0,"coll":0,"memo":"","area":"3大区"},{"id":"d028","hq":"华东本部","region":"山东","name":"山东吉瑞昇","grade":"C","trade":"MY","dso":"S","ver":"","cust":28,"bdVol":404,"contract":0,"sales":0,"coll":0,"memo":"","area":"5大区"},{"id":"d029","hq":"华南本部","region":"广东","name":"广州医路精密医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":23,"bdVol":494,"contract":0,"sales":0,"coll":0,"memo":"","area":"10大区"},{"id":"d030","hq":"华北本部","region":"北京","name":"睿拓伟业","grade":"C","trade":"MY","dso":"S","ver":"","cust":23,"bdVol":311,"contract":0,"sales":0,"coll":0,"memo":"","area":"1大区"},{"id":"d031","hq":"华北本部","region":"河北","name":"美年华康河北","grade":"C","trade":"MY","dso":"S","ver":"","cust":23,"bdVol":209,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d032","hq":"华南本部","region":"广东","name":"佛山市医路松佰医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":30,"bdVol":553,"contract":0,"sales":0,"coll":0,"memo":"","area":"10大区"},{"id":"d033","hq":"华北本部","region":"黑龙江","name":"哈尔滨星焱医疗器械有限公司","grade":"C","trade":"MY","dso":"S","ver":"","cust":41,"bdVol":50,"contract":0,"sales":0,"coll":0,"memo":"","area":"3大区"},{"id":"d034","hq":"华北本部","region":"内蒙古","name":"内蒙古圣特嘉医疗科技有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":37,"bdVol":1,"contract":0,"sales":0,"coll":0,"memo":"","area":"1大区"},{"id":"d035","hq":"华北本部","region":"河北","name":"承德德泉医疗科技有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":64,"bdVol":580,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d036","hq":"华中本部","region":"重庆","name":"重庆勃飞医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":23,"bdVol":210,"contract":0,"sales":0,"coll":0,"memo":"","area":"7大区"},{"id":"d037","hq":"华北本部","region":"河北","name":"秦皇岛市雅康医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":23,"bdVol":257,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d038","hq":"华西本部","region":"新疆","name":"乌鲁木齐鑫精良","grade":"D","trade":"MY","dso":"S","ver":"","cust":20,"bdVol":33,"contract":0,"sales":0,"coll":0,"memo":"","area":"8大区"},{"id":"d039","hq":"华西本部","region":"陕西","name":"陕西璜珑医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":20,"bdVol":293,"contract":0,"sales":0,"coll":0,"memo":"","area":"9大区"},{"id":"d040","hq":"华中本部","region":"湖南","name":"长沙星菲商贸有限公司（安麦斯）","grade":"D","trade":"MY","dso":"S","ver":"","cust":11,"bdVol":70,"contract":0,"sales":0,"coll":0,"memo":"","area":"7大区"},{"id":"d041","hq":"华中本部","region":"河南","name":"河南森卓医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":12,"bdVol":126,"contract":0,"sales":0,"coll":0,"memo":"","area":"6大区"},{"id":"d042","hq":"华西本部","region":"甘肃","name":"兰州惠达","grade":"D","trade":"MY","dso":"S","ver":"","cust":14,"bdVol":70,"contract":0,"sales":0,"coll":0,"memo":"","area":"8大区"},{"id":"d043","hq":"华西本部","region":"山西","name":"山西康美雅泰医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":10,"bdVol":48,"contract":0,"sales":0,"coll":0,"memo":"","area":"9大区"},{"id":"d044","hq":"华北本部","region":"黑龙江","name":"奥斯利医疗","grade":"D","trade":"MY","dso":"S","ver":"","cust":9,"bdVol":30,"contract":0,"sales":0,"coll":0,"memo":"","area":"3大区"},{"id":"d045","hq":"华中本部","region":"贵州","name":"贵阳宏范","grade":"D","trade":"MY","dso":"S","ver":"","cust":14,"bdVol":41,"contract":0,"sales":0,"coll":0,"memo":"","area":"7大区"},{"id":"d046","hq":"华中本部","region":"安徽","name":"合肥天冉医疗","grade":"D","trade":"MY","dso":"S","ver":"","cust":8,"bdVol":78,"contract":0,"sales":0,"coll":0,"memo":"","area":"6大区"},{"id":"d047","hq":"华中本部","region":"安徽","name":"安徽安格尔","grade":"D","trade":"MY","dso":"S","ver":"","cust":7,"bdVol":18,"contract":0,"sales":0,"coll":0,"memo":"","area":"6大区"},{"id":"d048","hq":"华西本部","region":"云南","name":"云南骅光医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":8,"bdVol":99,"contract":0,"sales":0,"coll":0,"memo":"","area":"8大区"},{"id":"d049","hq":"华南本部","region":"广东","name":"深圳市仁美医疗科技有限公司（鹏生）","grade":"D","trade":"MY","dso":"S","ver":"","cust":8,"bdVol":74,"contract":0,"sales":0,"coll":0,"memo":"","area":"10大区"},{"id":"d050","hq":"华南本部","region":"广西","name":"国药涅宇口腔医疗器械（广西）有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":6,"bdVol":2,"contract":0,"sales":0,"coll":0,"memo":"","area":"10大区"},{"id":"d051","hq":"华西本部","region":"山西","name":"山西卡卡医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":5,"bdVol":32,"contract":0,"sales":0,"coll":0,"memo":"","area":"9大区"},{"id":"d052","hq":"华北本部","region":"河北","name":"北京美年华康商贸有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":32,"bdVol":15,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d053","hq":"华西本部","region":"青海","name":"兰州达联荣光商贸有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":3,"bdVol":10,"contract":0,"sales":0,"coll":0,"memo":"","area":"8大区"},{"id":"d054","hq":"华西本部","region":"山西","name":"山西德诺联康医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":3,"bdVol":11,"contract":0,"sales":0,"coll":0,"memo":"","area":"9大区"},{"id":"d055","hq":"浙江本部","region":"江西","name":"江西思远","grade":"D","trade":"MY","dso":"S","ver":"","cust":2,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d056","hq":"华中本部","region":"河南","name":"郑州元美医疗","grade":"D","trade":"MY","dso":"S","ver":"","cust":2,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"6大区"},{"id":"d057","hq":"华中本部","region":"重庆","name":"重庆康美雅泰医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":3,"bdVol":10,"contract":0,"sales":0,"coll":0,"memo":"","area":"7大区"},{"id":"d058","hq":"华西本部","region":"云南","name":"云南东幸医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":2,"bdVol":20,"contract":0,"sales":0,"coll":0,"memo":"","area":"8大区"},{"id":"d059","hq":"华西本部","region":"宁夏","name":"银川思瑞达医疗","grade":"D","trade":"MY","dso":"S","ver":"","cust":3,"bdVol":2,"contract":0,"sales":0,"coll":0,"memo":"","area":"9大区"},{"id":"d060","hq":"华南本部","region":"广西","name":"安榭里","grade":"D","trade":"MY","dso":"S","ver":"","cust":2,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"10大区"},{"id":"d061","hq":"华南本部","region":"海南","name":"海南杉海","grade":"D","trade":"MY","dso":"S","ver":"","cust":2,"bdVol":52,"contract":0,"sales":0,"coll":0,"memo":"","area":"10大区"},{"id":"d062","hq":"华北本部","region":"北京","name":"北京美乐达","grade":"D","trade":"MY","dso":"S","ver":"","cust":3,"bdVol":11,"contract":0,"sales":0,"coll":0,"memo":"","area":"1大区"},{"id":"d063","hq":"华北本部","region":"北京","name":"胜泰","grade":"D","trade":"MY","dso":"S","ver":"","cust":2,"bdVol":30,"contract":0,"sales":0,"coll":0,"memo":"","area":"1大区"},{"id":"d064","hq":"浙江本部","region":"江西","name":"瀚海医疗","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d065","hq":"华中本部","region":"湖南","name":"长沙雅仁","grade":"D","trade":"MY","dso":"S","ver":"","cust":4,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"7大区"},{"id":"d066","hq":"华西本部","region":"陕西","name":"宝鸡华翔","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":104,"contract":0,"sales":0,"coll":0,"memo":"","area":"9大区"},{"id":"d067","hq":"华西本部","region":"陕西","name":"国药口腔丹特医疗器械（西安）有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"9大区"},{"id":"d068","hq":"华西本部","region":"宁夏","name":"宁夏德诺联康","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"9大区"},{"id":"d069","hq":"华南本部","region":"广东","name":"广东聚赢","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":1,"contract":0,"sales":0,"coll":0,"memo":"","area":"10大区"},{"id":"d070","hq":"华南本部","region":"广东","name":"国药山顺","grade":"D","trade":"MY","dso":"S","ver":"","cust":3,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"10大区"},{"id":"d071","hq":"华北本部","region":"北京","name":"兴恒","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":2,"contract":0,"sales":0,"coll":0,"memo":"","area":"1大区"},{"id":"d072","hq":"华北本部","region":"黑龙江","name":"佳木斯兴晟医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":2,"bdVol":10,"contract":0,"sales":0,"coll":0,"memo":"","area":"3大区"},{"id":"d073","hq":"浙江本部","region":"福建","name":"泉州市壹雅医涯科技有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":5,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d074","hq":"华中本部","region":"河南","name":"郑州华之悦医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":2,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"6大区"},{"id":"d075","hq":"华中本部","region":"河南","name":"开封杏林医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"6大区"},{"id":"d076","hq":"华中本部","region":"安徽","name":"安徽健安达","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"6大区"},{"id":"d077","hq":"华北本部","region":"北京","name":"北京亮杰科技有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":37,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"1大区"},{"id":"d078","hq":"浙江本部","region":"浙江","name":"海豪医疗科技（苏州）股份有限公司（浙江诺时）","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"1大区"},{"id":"d079","hq":"浙江本部","region":"福建","name":"福建值得医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"2大区"},{"id":"d080","hq":"浙江本部","region":"浙江","name":"国药口腔医疗器械（宁波）有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":1,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"1大区"},{"id":"d081","hq":"浙江本部","region":"浙江","name":"杭州松佰问界医疗科技有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":73270,"memo":"","area":"1大区"},{"id":"d082","hq":"华东本部","region":"山东","name":"山东通汇医疗科技有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":"","area":"5大区"},{"id":"d083","hq":"华南本部","area":"10大区","region":"广东","name":"佛山融清医疗器械","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d084","hq":"华南本部","area":"10大区","region":"广东","name":"广州迈普医疗器械","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d085","hq":"华南本部","area":"10大区","region":"广东","name":"新时达贸易","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d086","hq":"华南本部","area":"10大区","region":"广西","name":"广西安氏医疗器械","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d087","hq":"华南本部","area":"10大区","region":"广西","name":"北海博士口腔","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d088","hq":"华南本部","area":"10大区","region":"广西","name":"广西齐利医疗器械","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d089","hq":"华南本部","area":"10大区","region":"海南","name":"海南海聚医疗器械","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d090","hq":"华西本部","area":"8大区","region":"四川","name":"成都晋瑞博司医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d091","hq":"华西本部","area":"8大区","region":"甘肃","name":"成都晋瑞博司(兰州高达科技)","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d092","hq":"华西本部","area":"8大区","region":"青海","name":"黄海蒙土齿医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d093","hq":"华西本部","area":"8大区","region":"新疆","name":"新疆瑞鳞博司(乌鲁木齐昌联倍)","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d094","hq":"华西本部","area":"9大区","region":"山西","name":"山西豐美雅嘉医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d095","hq":"华西本部","area":"9大区","region":"陕西","name":"陕西润强医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d096","hq":"华西本部","area":"9大区","region":"宁夏","name":"银川德霖康健科技有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""},{"id":"d097","hq":"华西本部","area":"9大区","region":"宁夏","name":"银川思城迈医疗器械有限公司","grade":"D","trade":"MY","dso":"S","ver":"","cust":0,"bdVol":0,"contract":0,"sales":0,"coll":0,"memo":""}];
+const DEALER_ZH = {
+  '대리상 가격표': '经销商价格表', '대리상 목록': '经销商列表', '출처': '来源', '행 클릭 시 모델별 가격구조 펼침 · 등급/유형·버전은 행에서 직접 지정': '点击行展开按型号价格结构 · 等级/类型·版本可在行内直接指定',
+  '본부': '本部', '지역': '地区', '대리상명': '经销商名称', '등급': '等级', '유형': '类型', '버전': '版本', '26년 계약금액': '26年合同金额', '누적 실적': '累计业绩', '달성율': '达成率', '수금': '回款', '확정 모델': '已确认型号', '최근 확정일': '最近确认日',
+  '전체': '全部', '＋ 대리상 추가': '＋ 添加经销商', '⬇ 엑셀': '⬇ Excel', '원본 복원': '恢复原始', '민영': '民营', '미확정': '未确认', '기준 버전 따름': '跟随基准版本',
+  '모델별 가격구조 상세': '按型号价格结构详情', '⬇ 견적서(엑셀)': '⬇ 报价单(Excel)', '시뮬레이션에서 열기': '在模拟中打开', '삭제': '删除',
+  '모델': '型号', '기준가': '基准价', '무상조건': '赠送条件', '실판매가': '常规价', '확정 공급가': '确认供货价', '대리상 판매가': '经销商售价', '대리상 수익': '经销商收益', '대리상GP': '经销商GP', '법인GP': '公司GP', '환자수가': '患者收费价', '치과GP': '牙科GP', '확정일': '确认日',
+  '미확정 · 시뮬레이션에서 확정 시 반영': '未确认 · 在模拟中确认后反映',
+  '※ 확정 공급가 = 대리상가격 시뮬레이션에서 ✔확정한 값 중 이 대리상 조건(등급·유형·버전)과 일치하는 최신 확정 · 대리상 판매가·수익 = 대리상 수익성 확정값(없으면 기본 판매가) · 환자수가 = 제품별 결과 표의 입력값 · 치과GP = (환자수가 − 대리상 판매가) ÷ 환자수가': '※ 确认供货价 = 经销商价格模拟中✔确认值里与该经销商条件(等级·类型·版本)一致的最新确认 · 经销商售价·收益 = 经销商收益性确认值(无则默认售价) · 患者收费价 = 按产品结果表的输入值 · 牙科GP = (患者收费价 − 经销商售价) ÷ 患者收费价',
+  '※ 등급/유형·버전은 행에서 직접 지정 → 시뮬레이션에서 같은 조건으로 ✔확정하면 자동 반영 · 회색 = 미확정 · [시뮬레이션에서 열기] = 이 대리상 조건으로 시뮬레이션 이동': '※ 等级/类型·版本可在行内直接指定 → 在模拟中以相同条件✔确认后自动反映 · 灰色 = 未确认 · [在模拟中打开] = 以该经销商条件进入模拟',
+  '모델별 확정가 현황': '按型号确认价现况', '대리상 × 모델 매트릭스 · 같은 조건이면 같은 가격': '经销商 × 型号矩阵 · 相同条件相同价格', '대리상': '经销商', '조건': '条件', '확정 기준': '确认依据', '조건 일치': '条件一致',
+  '셀 클릭 시 해당 대리상 상세 펼침 · 버전 전환 시 전체 재계산': '点击单元格展开该经销商详情 · 切换版本时全部重新计算',
+  '이 대리상을 삭제할까요?': '删除该经销商?', '대리상 데이터를 원본(중화_통합Master W33)으로 되돌릴까요? 등급·유형·버전 지정이 초기화됩니다.': '将经销商数据恢复为原始(中华_统合Master W33)? 等级·类型·版本指定将重置。',
+  '새 대리상': '新经销商', '급': '级', '기준': '基准', '기준 버전': '基准版本', '거래치과': '交易牙科', '치과수': '牙科数', '대리상명 찾기': '查找经销商名称', '입력': '输入', '사유·변경내용 입력': '输入事由·变更内容', '클릭해서 바로 입력 · 입력 즉시 재계산': '点击直接输入 · 输入后立即重新计算', '계약금액': '合同金额', '특별 공급가 적용': '适用特别供货价', '특별 공급가 · 변경사항': '特别供货价 · 变更事项', '이 대리상에만 적용되는 특별 공급가·판매가·적용일·사유를 입력하면 위 표와 확정가 현황에 ★로 반영됩니다': '输入仅适用于该经销商的特别供货价·售价·适用日·事由后，将以★反映到上表和确认价现况', '특별 공급가': '特别供货价', '차이': '差异', '적용일': '适用日', '사유 · 비고': '事由 · 备注', '점선 칸을 클릭해 바로 입력 · 입력 즉시 수익·GP·차이 재계산 및 위 표·확정가 현황 반영 · 특별 공급가를 비우면 시뮬레이션 확정가로 되돌아갑니다 · 차이 = 특별 공급가 − 확정 공급가': '点击虚线格直接输入 · 输入后立即重新计算收益·GP·差异并反映到上表·确认价现况 · 清空特别供货价则恢复为模拟确认价 · 差异 = 特别供货价 − 确认供货价', '출처: 중화_통합Master W33(대리상 PSI) + BD/ARi 고객현황 · 행 클릭 시 모델별 가격구조 펼침 · 헤더 클릭 시 정렬 · 등급/유형·버전은 행에서 직접 지정': '来源: 中华_统合Master W33(经销商PSI) + BD/ARi客户现况 · 点击行展开按型号价格结构 · 点击表头排序 · 等级/类型·版本可在行内直接指定', '대리상별 적용 조건(등급·유형·정책 버전)과 시뮬레이션에서 확정한 공급가를 연결해, 대리상마다 모델별 가격 구조와 계약·실적을 한 화면에서 봅니다.': '将各经销商的适用条件(等级·类型·政策版本)与模拟中确认的供货价关联，在一个画面查看每个经销商的按型号价格结构与合同·业绩。'
+};
+const DEALER_MODELS = ['AO', 'BD', 'AR', 'ST', 'ARi'];
+const DEALER_HQS = ['浙江本部', '华东本部', '华中本部', '华西本部', '华南本部', '华北本部'];
+const DEALER_PROV_HQ = {"浙江": "浙江本部", "江西": "浙江本部", "福建": "浙江本部", "上海": "华东本部", "江苏": "华东本部", "山东": "华东本部", "安徽": "华中本部", "河南": "华中本部", "湖北": "华中本部", "湖南": "华中本部", "贵州": "华中本部", "重庆": "华中本部", "云南": "华西本部", "四川": "华西本部", "新疆": "华西本部", "甘肃": "华西本部", "青海": "华西本部", "宁夏": "华西本部", "山西": "华西本部", "陕西": "华西本部", "广东": "华南本部", "广西": "华南本部", "海南": "华南本部", "内蒙古": "华北本部", "北京": "华北本部", "天津": "华北本部", "河北": "华北本部", "吉林": "华北本部", "辽宁": "华北本部", "黑龙江": "华北本部"};
+const DEALER_BASE = { BD: 650, AR: 567, AO: 431, ST: 390, ARi: 650 };
+const DEALER_FREE = { BD: 0.30, AR: 0.40, AO: 0.35, ST: 0.65, ARi: 0.30 };
+const DEALER_SELL = { BD: { MY: 600, S: 550, A: 570, BC: 590 }, AR: { MY: 440, S: 405, A: 410, BC: 415 }, AO: { MY: 340, S: 300, A: 310, BC: 320 }, ST: { MY: 250, S: 220, A: 230, BC: 250 }, ARi: { MY: 600, S: 550, A: 570, BC: 590 } };
+const DEALER_PAT = { BD: 5000, AR: 4500, AO: 3500, ST: 2800, ARi: 5000 };
+function dealerLoad() { try { const d = JSON.parse(localStorage.getItem('dealer_price_v4') || 'null'); if (d && Array.isArray(d.rows)) { d.rows = d.rows.map(r => /大区/.test(r.hq || '') ? Object.assign({}, r, { area: r.hq, hq: DEALER_PROV_HQ[r.region] || '' }) : r); return d; } } catch (e) {} return { rows: DEALER_SEED.map(r => Object.assign({}, r)) }; }
+function DealerPricePage({ lang, goSim }) {
+  const h = React.createElement;
+  const t = s => (lang === 'zh' && DEALER_ZH[s]) || s;
+  const PV = usePolver();
+  const [st, setSt] = React.useState(dealerLoad);
+  React.useEffect(() => { try { localStorage.setItem('dealer_price_v4', JSON.stringify(st)); } catch (e) {} }, [st]);
+  const rows = st.rows;
+  const setRows = f => setSt(o => ({ rows: f(o.rows) }));
+  const [openId, setOpenId] = React.useState(null);
+  const [hqF, setHqF] = React.useState('ALL');
+  const [dtab, setDtab] = React.useState('list');
+  const [q, setQ] = React.useState('');
+  const [sortK, setSortK] = React.useState({ k: '', d: 1 });
+  const [sortM, setSortM] = React.useState({ k: '', d: 1 });
+  const [tick, setTick] = React.useState(0);
+  React.useEffect(() => { const f = () => setTick(x => x + 1); window.addEventListener('simgp-confirm', f); window.addEventListener('storage', f); return () => { window.removeEventListener('simgp-confirm', f); window.removeEventListener('storage', f); }; }, []);
+  const rd = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || 'null') || d; } catch (e) { return d; } };
+  const cLog = rd('simgp_confirm_log_v1', []);
+  const pLog = rd('simgp_profconf_log_v1', []);
+  const cCur = rd('simgp_confirmed_v1', {});
+  const pCur = rd('simgp_profconf_v1', {});
+  const patEd = rd('simgp_patient_v1', {});
+  const patOf = p => (patEd[p] != null && patEd[p] !== '') ? Number(patEd[p]) : DEALER_PAT[p];
+  const money = v => Math.round(Number(v || 0)).toLocaleString('ko-KR');
+  const pct1 = v => (Math.round(v * 10) / 10).toFixed(1) + '%';
+  const verOf = d => (d.ver && PV.list.find(v => v.id === d.ver)) || PV.active;
+  const chKey = d => d.trade === 'DSO' ? (d.dso === 'B' || d.dso === 'C' ? 'BC' : d.dso) : 'MY';
+  const match = (rec, d, p, V) => rec && rec.grade === d.grade && rec.trade === d.trade && (d.trade !== 'DSO' || rec.dso === d.dso) && rec.ver === V.ver;
+  const findRec = (log, cur, d, p, V) => {
+    for (let i = log.length - 1; i >= 0; i--) { const r = log[i]; if (r.p === p && match(r, d, p, V)) return r; }
+    return match(cur[p], d, p, V) ? cur[p] : null;
+  };
+  const calcRow = (d, p) => {
+    const V = verOf(d);
+    const free = (V.free && V.free[p] != null) ? Number(V.free[p]) : DEALER_FREE[p];
+    const cash = ((V.inc && V.inc.cashPay != null) ? V.inc.cashPay : 3) / 100;
+    const base = DEALER_BASE[p];
+    const p1 = base / (1 + free) * (1 - cash);
+    const c = findRec(cLog, cCur, d, p, V);
+    const pr = findRec(pLog, pCur, d, p, V);
+    const sp = (d.special || {})[p] || {};
+    const spPrice = sp.price !== '' && sp.price != null && Number(sp.price) > 0 ? Number(sp.price) : null;
+    const spSell = sp.sell !== '' && sp.sell != null && Number(sp.sell) > 0 ? Number(sp.sell) : null;
+    const sell = spSell != null ? spSell : (pr ? pr.sell : DEALER_SELL[p][chKey(d)]);
+    const price = spPrice != null ? spPrice : (c ? c.price : null);
+    const gp = spPrice != null ? (c && c.price ? (1 - (1 - c.gp / 100) * c.price / spPrice) * 100 : null) : (c ? c.gp : null);
+    const date = spPrice != null ? (sp.from || (c ? c.date : null)) : (c ? c.date : null);
+    const pat = patOf(p);
+    return { V, base, freeLbl: '10+' + (Math.round(free * 100) / 10).toString().replace(/\.0$/, ''), p1, price, gp, date, sell, profit: price != null ? sell - price : null, margin: price != null && sell > 0 ? (sell - price) / sell * 100 : null, pat, dentGp: pat > 0 ? (pat - sell) / pat * 100 : 0, hasProf: !!pr, special: spPrice != null || spSell != null, spMemo: sp.memo || '', spFrom: sp.from || '', confPrice: c ? c.price : null };
+  };
+  const pr0 = (d, p) => { const V = verOf(d); const pr = findRec(pLog, pCur, d, p, V); return pr ? pr.sell : DEALER_SELL[p][chKey(d)]; };
+  const updSp = (id, p, k, v) => setRows(rs => rs.map(r => r.id === id ? Object.assign({}, r, { special: Object.assign({}, r.special || {}, { [p]: Object.assign({}, (r.special || {})[p] || {}, { [k]: v }) }) }) : r));
+  const clearSp = (id, p) => setRows(rs => rs.map(r => { if (r.id !== id) return r; const sp = Object.assign({}, r.special || {}); delete sp[p]; return Object.assign({}, r, { special: sp }); }));
+  const condLbl = d => d.grade + t('급') + ' · ' + (d.trade === 'DSO' ? 'DSO ' + d.dso : t('민영')) + ' · ' + verOf(d).ver;
+  const upd = (id, k, v) => setRows(rs => rs.map(r => r.id === id ? Object.assign({}, r, { [k]: v }) : r));
+  const addDealer = () => { const id = 'n' + Date.now(); setRows(rs => rs.concat([{ id, hq: hqF === 'ALL' ? '' : hqF, region: '', name: t('새 대리상'), grade: 'B', trade: 'MY', dso: 'S', ver: '', cust: 0, contract: 0, sales: 0, coll: 0, memo: '' }])); setOpenId(id); };
+  const delDealer = id => { if (!confirm(t('이 대리상을 삭제할까요?'))) return; setRows(rs => rs.filter(r => r.id !== id)); setOpenId(null); };
+  const resetAll = () => { if (!confirm(t('대리상 데이터를 원본(중화_통합Master W33)으로 되돌릴까요? 등급·유형·버전 지정이 초기화됩니다.'))) return; setSt({ rows: DEALER_SEED.map(r => Object.assign({}, r)) }); };
+  const thSort = (st0, setSt0, key, label, w, left) => h('th', { className: 'px-2 py-2 whitespace-nowrap cursor-pointer select-none ' + (left ? 'text-left' : 'text-center'), style: Object.assign({ overflow: 'hidden', textOverflow: 'ellipsis' }, w ? { width: w } : {}), title: label, onClick: () => setSt0(o => ({ k: key, d: o.k === key ? -o.d : 1 })) }, label + (st0.k === key ? (st0.d > 0 ? ' ▲' : ' ▼') : ''));
+  const sortRows = (arr, st0, valOf) => { if (!st0.k) return arr; const a2 = arr.slice(); a2.sort((x, y) => { const vx = valOf(x, st0.k), vy = valOf(y, st0.k); if (vx === vy) return 0; if (vx == null || vx === '') return 1; if (vy == null || vy === '') return -1; return (typeof vx === 'number' && typeof vy === 'number' ? vx - vy : String(vx).localeCompare(String(vy), 'zh')) * st0.d; }); return a2; };
+  const csOf = d => DEALER_MODELS.map(m => ({ m, c: calcRow(d, m) })).filter(x => x.c.price != null);
+  const listVal = (d, k) => { if (k === 'ach') return d.contract ? d.sales / d.contract : null; if (k === 'models') return csOf(d).length; if (k === 'last') return csOf(d).map(x => x.c.date).sort().pop() || ''; if (k === 'ver') return verOf(d).ver; if (k === 'trade') return d.trade === 'DSO' ? 'DSO ' + d.dso : t('민영'); return d[k]; };
+  const qn = q.trim().toLowerCase();
+  const list = sortRows(rows.filter(r => (hqF === 'ALL' || r.hq === hqF) && (!qn || (r.name || '').toLowerCase().indexOf(qn) !== -1 || (r.region || '').toLowerCase().indexOf(qn) !== -1)), sortK, listVal);
+  const matVal = (d, k) => { if (k === 'name' || k === 'hq' || k === 'region') return d[k]; if (k === 'cond') return condLbl(d); if (k === 'ok') return csOf(d).length; const c = calcRow(d, k); return c.price; };
+  const listM = sortRows(list, sortM, matVal);
+  const dlList = () => {
+    const R = [[t('본부'), t('지역'), t('대리상명'), t('등급'), t('유형'), t('버전'), t('거래치과'), t('26년 계약금액'), t('누적 실적'), t('달성율') + '(%)', t('수금')].concat(DEALER_MODELS.map(m => m + ' ' + t('확정 공급가')))];
+    list.forEach(d => R.push([(d.hq || '').replace('本部', ''), d.region, d.name, d.grade, d.trade === 'DSO' ? 'DSO ' + d.dso : t('민영'), verOf(d).ver, { v: d.cust || 0 }, { v: d.contract }, { v: d.sales }, { v: d.contract ? +(d.sales / d.contract * 100).toFixed(1) : 0 }, { v: d.coll }].concat(DEALER_MODELS.map(m => { const c = calcRow(d, m); return c.price != null ? { v: c.price } : ''; }))));
+    xlsDownloadRows('대리상가격표', R);
+  };
+  const dlQuote = d => {
+    const R = [[t('모델'), t('기준가'), t('무상조건'), t('실판매가'), t('확정 공급가'), t('대리상 판매가'), t('대리상 수익'), t('대리상GP') + '(%)', t('법인GP') + '(%)', t('환자수가'), t('치과GP') + '(%)', t('확정일')]];
+    DEALER_MODELS.forEach(m => { const c = calcRow(d, m); R.push([m, { v: c.base }, c.freeLbl, { v: Math.round(c.p1) }, c.price != null ? { v: c.price } : '', { v: Math.round(c.sell) }, c.profit != null ? { v: Math.round(c.profit) } : '', c.margin != null ? { v: +c.margin.toFixed(1) } : '', c.gp != null ? { v: c.gp } : '', { v: Math.round(c.pat) }, { v: +c.dentGp.toFixed(1) }, c.date || '']); });
+    xlsDownloadRows('견적서_' + d.name.slice(0, 12), R);
+  };
+  const selS = { border: 'none', borderRadius: 0, padding: '2px 0', fontSize: '13px', background: 'transparent', width: '100%', textAlign: 'center', textAlignLast: 'center', cursor: 'pointer', color: 'inherit' };
+  const inpS = { border: 'none', borderRadius: 0, width: '100%', background: 'transparent', fontSize: '13px', color: 'inherit' };
+  const gray = { color: '#94a3b8' };
+  const thS = (label, w, extra) => h('th', Object.assign({ className: 'px-2 py-2 text-center whitespace-nowrap', style: Object.assign({}, w ? { width: w } : {}) }, extra || {}), label);
+  const tdN = (v, extra) => h('td', Object.assign({ className: 'evi-num px-2 py-1.5' }, extra || {}), v);
+  const tdC = (v, extra) => h('td', Object.assign({ className: 'kq-txt px-2 py-1.5 text-center', style: { whiteSpace: 'nowrap' } }, extra || {}), v);
+  const btn = 'px-3 py-1.5 text-xs font-semibold border ';
+  const detail = d => {
+    const V = verOf(d);
+    const inc = V.inc || {};
+    const gr = d.grade === 'C' || d.grade === 'D' ? d.grade : d.grade;
+    const polTxt = ['월목표 ' + (inc.monthly != null ? inc.monthly : 1) + '%', '현금결제 ' + (inc.cashPay != null ? inc.cashPay : 3) + '%', '현금반리', d.trade === 'DSO' ? 'DSO ' + d.dso + ' ' + ((inc.dso || {})[d.dso === 'B' || d.dso === 'C' ? 'BC' : d.dso] || 0) + '%' : null, '분기 ' + ((inc.qtr || {})[gr] || 0) + '%', '년간 ' + ((inc.ann || {})[gr] || 0) + '%', 'BD장려(' + (inc.bdModels || ['BD']).join('·') + ')'].filter(Boolean).join(' · ');
+    return h('tr', { key: d.id + '_x' }, h('td', { colSpan: 13, style: { padding: 0, background: '#f8fafc' } },
+      h('div', { style: { padding: '10px 12px 12px 34px', whiteSpace: 'normal' } },
+        h('div', { className: 'flex items-center justify-between flex-wrap gap-2 mb-2' },
+          h('div', null, h('span', { className: 'text-sm font-bold text-slate-800 zh-txt' }, d.name + ' · ' + t('모델별 가격구조 상세')),
+            h('span', { className: 'ml-2 text-slate-500', style: { fontSize: '11.5px' } }, condLbl(d) + ' (' + V.month + ') · ' + polTxt)),
+          h('div', { className: 'flex gap-2' },
+            h('button', { onClick: () => dlQuote(d), className: btn + 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50' }, t('⬇ 견적서(엑셀)')),
+            h('button', { onClick: () => goSim && goSim(d), className: btn + 'border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700' }, t('시뮬레이션에서 열기')),
+            h('button', { onClick: () => delDealer(d.id), className: btn + 'border-red-300 text-red-600 bg-white hover:bg-red-50' }, t('삭제')))),
+        h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap', background: '#fff' } },
+          h('thead', null, h('tr', null, thS(t('모델'), '6%'), thS(t('기준가')), thS(t('무상조건')), thS(t('실판매가')), thS(t('확정 공급가')), thS(t('대리상 판매가')), thS(t('대리상 수익')), thS(t('대리상GP')), thS(t('법인GP')), thS(t('환자수가')), thS(t('치과GP')), thS(t('확정일')))),
+          h('tbody', null, DEALER_MODELS.map(m => {
+            const c = calcRow(d, m);
+            const g = undefined;
+            return h('tr', { key: m },
+              h('td', { className: 'kq-txt px-2 py-1.5 text-center font-bold', style: g }, m),
+              tdN(money(c.base), { style: g }), tdC(c.freeLbl, { style: g }), tdN(money(c.p1), { style: g }),
+              c.price == null ? [tdN('', { key: 'a' }), tdN(money(c.sell), { key: 'b' }), tdN('', { key: 'c' }), tdN('', { key: 'd' }), tdN('', { key: 'e' })]
+                : [tdN((c.special ? '★ ' : '') + money(c.price), { key: 'a', className: 'evi-num px-2 py-1.5 font-bold' }), tdN(money(c.sell), { key: 'b' }), tdN(money(c.profit), { key: 'c' }), tdN(pct1(c.margin), { key: 'd' }), tdN(c.gp != null ? pct1(c.gp) : '', { key: 'e' })],
+              tdN(money(c.pat), { style: g }), tdN(pct1(c.dentGp), { style: g }),
+              tdC(c.date ? c.date.slice(2).replace(/-/g, '.') : '', { style: g }));
+          }))),
+        h('div', { className: 'text-xs mt-2', style: { color: '#000' } }, t('※ 확정 공급가 = 대리상가격 시뮬레이션에서 ✔확정한 값 중 이 대리상 조건(등급·유형·버전)과 일치하는 최신 확정 · 대리상 판매가·수익 = 대리상 수익성 확정값(없으면 기본 판매가) · 환자수가 = 제품별 결과 표의 입력값 · 치과GP = (환자수가 − 대리상 판매가) ÷ 환자수가') + ' · ★ = ' + t('특별 공급가 적용')),
+        h('div', { className: 'flex items-center justify-between flex-wrap gap-2 mt-4 mb-2' },
+          h('div', null, h('span', { className: 'text-sm font-bold text-slate-800' }, t('특별 공급가 · 변경사항')),
+            h('span', { className: 'ml-2 text-slate-500', style: { fontSize: '11.5px' } }, t('이 대리상에만 적용되는 특별 공급가·판매가·적용일·사유를 입력하면 위 표와 확정가 현황에 ★로 반영됩니다')))),
+        h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap', background: '#fff' } },
+          h('thead', null, h('tr', null, thS(t('모델'), '6%'), thS(t('확정 공급가'), '9%'), thS(t('특별 공급가'), '9%'), thS(t('차이'), '8%'), thS(t('대리상 판매가'), '9%'), thS(t('대리상 수익'), '9%'), thS(t('대리상GP'), '8%'), thS(t('적용일'), '10%'), thS(t('사유 · 비고'), '26%'), thS('', '6%'))),
+          h('tbody', null, DEALER_MODELS.map(m => {
+            const c = calcRow(d, m);
+            const sp = (d.special || {})[m] || {};
+            const ph = { price: c.confPrice != null ? money(c.confPrice) : t('입력'), sell: money(pr0(d, m)), from: 'YYYY-MM-DD', memo: t('사유·변경내용 입력') };
+            const inS = k => h('input', { value: sp[k] != null ? sp[k] : '', onChange: e => updSp(d.id, m, k, k === 'price' || k === 'sell' ? e.target.value.replace(/[^0-9.]/g, '') : e.target.value), placeholder: ph[k], title: t('클릭해서 바로 입력 · 입력 즉시 재계산'), className: (k === 'memo' || k === 'from' ? 'w-full ' : 'evi-num w-full ') + 'dealer-sp-in', style: { border: 'none', borderBottom: '1px dashed #cbd5e1', borderRadius: 0, textAlign: k === 'memo' ? 'left' : (k === 'from' ? 'center' : 'right'), fontSize: '13px', background: 'transparent', padding: '2px 4px' } });
+            const diff = c.special && c.confPrice != null && c.price != null ? c.price - c.confPrice : null;
+            return h('tr', { key: m },
+              h('td', { className: 'kq-txt px-2 py-1.5 text-center font-bold' }, m),
+              tdN(c.confPrice != null ? money(c.confPrice) : ''),
+              h('td', { className: 'px-2 py-1', onClick: e => { const i2 = e.currentTarget.querySelector('input'); i2 && i2.focus(); } }, inS('price')),
+              tdN(diff == null ? '' : (diff < 0 ? '(' + money(Math.abs(diff)) + ')' : '+' + money(diff)), { style: diff != null && diff < 0 ? { color: '#1d4ed8' } : undefined }),
+              h('td', { className: 'px-2 py-1', onClick: e => { const i2 = e.currentTarget.querySelector('input'); i2 && i2.focus(); } }, inS('sell')),
+              tdN(c.special && c.price != null ? money(c.profit) : ''),
+              tdN(c.special && c.price != null && c.margin != null ? pct1(c.margin) : ''),
+              h('td', { className: 'px-2 py-1', onClick: e => { const i2 = e.currentTarget.querySelector('input'); i2 && i2.focus(); } }, inS('from')),
+              h('td', { className: 'px-2 py-1 zh-txt', onClick: e => { const i2 = e.currentTarget.querySelector('input'); i2 && i2.focus(); } }, inS('memo')),
+              tdC(c.special || sp.memo || sp.from ? h('button', { onClick: () => clearSp(d.id, m), className: 'text-xs text-slate-500 hover:text-red-600' }, '🗑') : ''));
+          }))),
+        h('div', { className: 'text-xs mt-2 text-slate-500' }, t('점선 칸을 클릭해 바로 입력 · 입력 즉시 수익·GP·차이 재계산 및 위 표·확정가 현황 반영 · 특별 공급가를 비우면 시뮬레이션 확정가로 되돌아갑니다 · 차이 = 특별 공급가 − 확정 공급가')))));
+  };
+  const listCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
+    h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+      h('div', null, h('span', { className: 'text-sm font-bold text-slate-800' }, t('대리상 목록')),
+        h('span', { className: 'ml-2 text-slate-500', style: { fontSize: '11.5px' } }, t('출처: 중화_통합Master W33(대리상 PSI) + BD/ARi 고객현황 · 행 클릭 시 모델별 가격구조 펼침 · 헤더 클릭 시 정렬 · 등급/유형·버전은 행에서 직접 지정') + ' · ' + list.length + '/' + rows.length)),
+      h('div', { className: 'flex gap-2 items-center' },
+        h('div', { className: 'flex gap-1 mr-2' }, [['ALL', t('전체')]].concat(DEALER_HQS.map(x => [x, x.replace('本部', '')])).map(([k, label]) => h('button', {
+          key: k, onClick: () => setHqF(k),
+          className: 'px-2.5 py-1 text-xs border zh-txt ' + (hqF === k ? 'border-indigo-600 bg-indigo-600 text-white font-bold' : 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50'),
+          style: { borderRadius: 0 }
+        }, label + (k === 'ALL' ? '' : ' ' + rows.filter(r => r.hq === k).length)))),
+        h('input', { value: q, onChange: e => setQ(e.target.value), placeholder: t('대리상명 찾기'), className: 'px-2 py-1 text-xs border border-slate-300 zh-txt', style: { borderRadius: 0, width: '170px' } }),
+        h('span', { className: 'text-xs text-slate-600' }, t('기준 버전') + ': ' + PV.active.ver + ' · ' + PV.active.month),
+        h('button', { onClick: addDealer, className: btn + 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50' }, t('＋ 대리상 추가')),
+        h('button', { onClick: dlList, className: btn + 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50' }, t('⬇ 엑셀')),
+        h('button', { onClick: resetAll, className: btn + 'border-slate-300 text-slate-500 bg-white hover:bg-slate-50' }, t('원본 복원')))),
+    h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap' } },
+      h('thead', null, h('tr', null,
+        thSort(sortK, setSortK, 'hq', t('본부'), '5%'), thSort(sortK, setSortK, 'region', t('지역'), '5%'), thSort(sortK, setSortK, 'name', t('대리상명'), '16%', true),
+        thSort(sortK, setSortK, 'grade', t('등급'), '5%'), thSort(sortK, setSortK, 'trade', t('유형'), '6%'), thSort(sortK, setSortK, 'cust', t('치과수'), '6%'), thSort(sortK, setSortK, 'contract', t('계약금액'), '9%'), thSort(sortK, setSortK, 'sales', t('누적 실적'), '9%'), thSort(sortK, setSortK, 'ach', t('달성율'), '6%'), thSort(sortK, setSortK, 'coll', t('수금'), '8%'), thSort(sortK, setSortK, 'models', t('확정 모델'), '12%'), thSort(sortK, setSortK, 'last', t('확정일'), '7%'), thSort(sortK, setSortK, 'ver', t('버전'), '7%'))),
+      h('tbody', null, list.map(d => {
+        const cs = csOf(d);
+        const last = cs.map(x => x.c.date).sort().pop();
+        const open = openId === d.id;
+        const stop = { onClick: e => e.stopPropagation() };
+        const ach = d.contract ? d.sales / d.contract * 100 : 0;
+        const tr0 = h('tr', { key: d.id, onClick: () => setOpenId(open ? null : d.id), className: 'cursor-pointer hover:bg-slate-50' + (open ? ' font-bold' : '') },
+          h('td', { className: 'px-1 py-1 zh-txt' }, h('select', Object.assign({ value: d.hq || '', onChange: e => upd(d.id, 'hq', e.target.value), style: selS }, stop), [h('option', { key: '', value: '' }, '')].concat(DEALER_HQS.map(x => h('option', { key: x, value: x }, x.replace('本部', '')))))),
+          tdC(h('input', Object.assign({ value: d.region, onChange: e => { const v = e.target.value; setRows(rs => rs.map(r => r.id === d.id ? Object.assign({}, r, { region: v, hq: r.hq || DEALER_PROV_HQ[v] || '' }) : r)); }, style: Object.assign({}, inpS, { textAlign: 'center' }) }, stop)), { className: 'kq-txt px-2 py-1.5 text-center zh-txt' }),
+          h('td', { className: 'kq-txt px-2 py-1.5 zh-txt', style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1d4ed8', fontWeight: 600 }, title: d.name },
+            (open ? '▾ ' : '▸ '), h('input', Object.assign({ value: d.name, onChange: e => upd(d.id, 'name', e.target.value), style: Object.assign({}, inpS, { width: 'calc(100% - 18px)', color: 'inherit', fontWeight: 600 }), title: d.name }, stop))),
+          h('td', { className: 'px-1 py-1' }, h('select', Object.assign({ value: d.grade, onChange: e => upd(d.id, 'grade', e.target.value), style: selS }, stop), ['A', 'B', 'C', 'D'].map(g => h('option', { key: g, value: g }, g)))),
+          h('td', { className: 'px-1 py-1' }, h('select', Object.assign({ value: d.trade === 'DSO' ? 'DSO_' + d.dso : 'MY', onChange: e => { const v = e.target.value; if (v === 'MY') { upd(d.id, 'trade', 'MY'); } else { setRows(rs => rs.map(r => r.id === d.id ? Object.assign({}, r, { trade: 'DSO', dso: v.slice(4) }) : r)); } }, style: selS }, stop),
+            [h('option', { key: 'MY', value: 'MY' }, t('민영'))].concat(['S', 'A', 'B', 'C'].map(g => h('option', { key: g, value: 'DSO_' + g }, 'DSO ' + g))))),
+          h('td', { className: 'px-1 py-1' }, h('input', Object.assign({ value: d.cust ? Number(d.cust).toLocaleString('ko-KR') : '', onChange: e => upd(d.id, 'cust', Number(e.target.value.replace(/[^0-9]/g, '')) || 0), className: 'evi-num', style: Object.assign({}, inpS, { textAlign: 'right' }) }, stop))),
+          h('td', { className: 'px-1 py-1' }, h('input', Object.assign({ value: d.contract ? Number(d.contract).toLocaleString('ko-KR') : '', onChange: e => upd(d.id, 'contract', Number(e.target.value.replace(/[^0-9]/g, '')) || 0), className: 'evi-num', style: Object.assign({}, inpS, { textAlign: 'right' }) }, stop))),
+          h('td', { className: 'px-1 py-1' }, h('input', Object.assign({ value: d.sales ? Number(d.sales).toLocaleString('ko-KR') : '', onChange: e => upd(d.id, 'sales', Number(e.target.value.replace(/[^0-9]/g, '')) || 0), className: 'evi-num', style: Object.assign({}, inpS, { textAlign: 'right' }) }, stop))),
+          tdN(d.contract ? Math.round(ach) + '%' : '', { className: 'evi-num px-2 py-1.5' + (ach >= 100 ? ' font-bold' : ''), style: ach && ach < 70 ? { color: '#dc2626' } : undefined }),
+          h('td', { className: 'px-1 py-1' }, h('input', Object.assign({ value: d.coll ? Number(d.coll).toLocaleString('ko-KR') : '', onChange: e => upd(d.id, 'coll', Number(e.target.value.replace(/[^0-9]/g, '')) || 0), className: 'evi-num', style: Object.assign({}, inpS, { textAlign: 'right' }) }, stop))),
+          tdC(cs.length ? cs.map(x => x.m).join('·') : '', { style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, title: cs.map(x => x.m).join(' · ') }),
+          tdC(last ? last.slice(2).replace(/-/g, '.') : ''),
+          h('td', { className: 'px-1 py-1' }, h('select', Object.assign({ value: d.ver || '', onChange: e => upd(d.id, 'ver', e.target.value), style: selS }, stop),
+            [h('option', { key: '', value: '' }, PV.active.ver + ' (' + t('기준') + ')')].concat(PV.list.map(v => h('option', { key: v.id, value: v.id }, v.ver + ' · ' + v.month))))));
+        return open ? [tr0, detail(d)] : tr0;
+      }))),
+    h('div', { className: 'text-xs', style: { color: '#000' } }, t('※ 등급/유형·버전은 행에서 직접 지정 → 시뮬레이션에서 같은 조건으로 ✔확정하면 자동 반영 · 회색 = 미확정 · [시뮬레이션에서 열기] = 이 대리상 조건으로 시뮬레이션 이동')));
+  const matrixCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
+    h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+      h('div', null, h('span', { className: 'text-sm font-bold text-slate-800' }, t('모델별 확정가 현황')), h('span', { className: 'ml-2 text-slate-500', style: { fontSize: '11.5px' } }, t('대리상 × 모델 매트릭스 · 같은 조건이면 같은 가격')))),
+    h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap' } },
+      h('thead', null, h('tr', null, thSort(sortM, setSortM, 'hq', t('본부'), '6%'), thSort(sortM, setSortM, 'region', t('지역'), '6%'), thSort(sortM, setSortM, 'name', t('대리상'), '24%', true), thSort(sortM, setSortM, 'cond', t('조건'), '13%'), DEALER_MODELS.map(m => h(React.Fragment, { key: m }, thSort(sortM, setSortM, m, m))), thSort(sortM, setSortM, 'ok', t('확정 기준'), '10%'))),
+      h('tbody', null, listM.map(d => {
+        const cs = DEALER_MODELS.map(m => calcRow(d, m));
+        const any = cs.some(c => c.price != null);
+        return h('tr', { key: d.id, onClick: () => { setOpenId(d.id); setDtab('list'); }, className: 'cursor-pointer hover:bg-slate-50' },
+          tdC((d.hq || '').replace('本部', ''), { className: 'kq-txt px-2 py-1.5 text-center zh-txt' }), tdC(d.region, { className: 'kq-txt px-2 py-1.5 text-center zh-txt' }),
+          h('td', { className: 'kq-txt px-2 py-1.5 zh-txt', style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1d4ed8', fontWeight: 600 }, title: d.name }, d.name),
+          tdC(condLbl(d)),
+          cs.map((c, i) => tdN(c.price != null ? (c.special ? '★ ' : '') + money(c.price) : '', { key: i })),
+          tdC(any ? (cs.some(c => c.special) ? t('특별 공급가') : t('조건 일치')) : ''));
+      }))),
+    h('div', { className: 'text-xs text-slate-500' }, t('셀 클릭 시 해당 대리상 상세 펼침 · 버전 전환 시 전체 재계산')));
+  return h('div', { className: 'p-6 space-y-4' },
+    h('div', null, h('h2', { className: 'text-lg font-bold text-slate-800' }, t('대리상 가격표')), h('p', { className: 'text-xs text-slate-500' }, t('대리상별 적용 조건(등급·유형·정책 버전)과 시뮬레이션에서 확정한 공급가를 연결해, 대리상마다 모델별 가격 구조와 계약·실적을 한 화면에서 봅니다.'))),
+    h('div', { className: 'border-b border-slate-200 flex gap-2' }, [['list', t('대리상 목록')], ['matrix', t('모델별 확정가 현황')]].map(([k, label]) => h('button', {
+      key: k, onClick: () => setDtab(k),
+      className: 'px-4 py-2 text-sm font-semibold border-b-2 -mb-px ' + (dtab === k ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500')
+    }, label))),
+    dtab === 'list' ? listCard : matrixCard);
+}
+
 function SimGpPage({ lang, page }) {
   const h = React.createElement;
   const t = s => (lang === 'zh' && SIMGP_ZH[s]) ? SIMGP_ZH[s] : s;
@@ -14328,6 +14570,7 @@ function SimGpPage({ lang, page }) {
     ST: { MY: 250, S: 220, A: 230, BC: 250 },
     ARi: { MY: 600, S: 550, A: 570, BC: 590 }
   };
+  const PAT_DEF = { BD: 5000, AR: 4500, AO: 3500, ST: 2800, ARi: 5000 };
   const PV = usePolver();
   const PVA = PV.active;
   const PVI = PVA.inc;
@@ -14352,6 +14595,8 @@ function SimGpPage({ lang, page }) {
   const [on, setOn] = React.useState(Object.assign({ monthly: true, cashReb: true, cashPay: true, qtr: true, ann: true, bd: true }, init.on || {}));
   const [dir, setDir] = React.useState(Object.assign({ monthly: '', cashReb: '', cashPay: '', dso: '', qtr: '', ann: '', bd: '' }, init.dir || {}));
   const [sellEd, setSellEd] = React.useState(init.sellEd || {});
+  const [patEd, setPatEd] = React.useState(() => { try { return JSON.parse(localStorage.getItem('simgp_patient_v1') || '{}') || {}; } catch (e) { return {}; } });
+  React.useEffect(() => { try { localStorage.setItem('simgp_patient_v1', JSON.stringify(patEd)); } catch (e) {} }, [patEd]);
   React.useEffect(() => { try { localStorage.setItem(LSK, JSON.stringify({ grade, trade, prod, kitSel, dsoSel, on, dir, sellEd })); } catch (e) {} }, [grade, trade, prod, kitSel, dsoSel, on, dir, sellEd]);
   const [confirmed, setConfirmed] = React.useState(() => { try { return JSON.parse(localStorage.getItem('simgp_confirmed_v1') || '{}') || {}; } catch (e) { return {}; } });
   React.useEffect(() => { try { localStorage.setItem('simgp_confirmed_v1', JSON.stringify(confirmed)); } catch (e) {} }, [confirmed]);
@@ -14378,6 +14623,8 @@ function SimGpPage({ lang, page }) {
     const U = rateOf('qtr', qtrOf(p, grade));
     const X = rateOf('ann', annOf(p, grade)) + (bdModels.indexOf(p) !== -1 ? rateOf('bd', bdOf(p)) : 0);
     const den0 = d.base * (1 - y);
+    const p0 = d.base / (1 + i);
+    const g0 = 1 - ((impl * (1 + i)) + kitC * (1 + i) / qty) / d.base;
     const p1 = d.base / (1 + i) * (1 - y);
     const p2my = (d.base - O) / (1 + i) * (1 - y);
     const pS = (d.base - O) / (1 + i + R) * (1 - y);
@@ -14392,12 +14639,12 @@ function SimGpPage({ lang, page }) {
     const st2 = trade === 'DSO' ? pS : p2my;
     const g2 = trade === 'DSO' ? g2dso : g2my;
     const nPol = (L > 0 ? 1 : 0) + (O > 0 ? 1 : 0) + (y > 0 ? 1 : 0) + (R > 0 ? 1 : 0) + (U > 0 ? 1 : 0) + (X > 0 ? 1 : 0);
-    return { kn, base: d.base, p1, p2my, pS, st2, p3, p4, g1, gM, g2my, g2dso, g2, g3, g4, nPol, i, y, L, O, R, U, X };
+    return { kn, base: d.base, p0, g0, p1, p2my, pS, st2, p3, p4, g1, gM, g2my, g2dso, g2, g3, g4, nPol, i, y, L, O, R, U, X };
   };
 
   const scope = prod === 'ALL' ? PRODUCTS : [prod];
   const R0 = {};
-  scope.forEach(p => { R0[p] = calc(p); });
+  PRODUCTS.forEach(p => { R0[p] = calc(p); });
   const c0 = R0[scope[0]];
 
   const money = v => Math.round(Number(v || 0)).toLocaleString('ko-KR');
@@ -14406,6 +14653,15 @@ function SimGpPage({ lang, page }) {
   const gpBg = g => { const p0 = g * 100; return p0 < 35 ? '#FCE7E7' : p0 < 40 ? '#FCF3D7' : p0 < 50 ? '#DFF2E7' : '#C9E9D8'; };
   const mgBg = r => { const p0 = r * 100; return p0 < 10 ? '#FCE7E7' : p0 < 15 ? '#FCF3D7' : p0 < 20 ? '#DFF2E7' : '#C9E9D8'; };
   const sellOf = p => { const k = p + '_' + chKey; if (sellEd[k] != null && sellEd[k] !== '') return Number(sellEd[k]); return SELL_DEF[p][chKey]; };
+  const patOf = p => (patEd[p] != null && patEd[p] !== '') ? Number(patEd[p]) : PAT_DEF[p];
+  const dentGp = p => { const pt = patOf(p); return pt > 0 ? (pt - sellOf(p)) / pt : 0; };
+  const patInput = p => h('input', {
+    value: patEd[p] != null && patEd[p] !== '' ? patEd[p] : PAT_DEF[p],
+    onChange: e => { const v0 = e.target.value.replace(/[^0-9.]/g, ''); setPatEd(o => Object.assign({}, o, { [p]: v0 })); },
+    onClick: e => e.stopPropagation(),
+    className: 'evi-num w-full bg-transparent focus:outline-none',
+    style: { border: 'none', borderRadius: 0, textAlign: 'right' }
+  });
 
   const selCls = 'w-full px-3 py-2 border border-slate-300 text-sm bg-white';
   const fld = (label, el) => h('div', null, h('label', { className: 'block text-xs text-slate-500 mb-1' }, label), el);
@@ -14427,14 +14683,14 @@ function SimGpPage({ lang, page }) {
   const kpiSuffix = scope.length > 1 ? ' (' + scope[0] + ')' : '';
   const kpiRow = h('div', { className: 'grid grid-cols-2 lg:grid-cols-5 gap-3' },
     kpi(t('최종 공급가') + kpiSuffix, money(c0.p4), '#4f46e5'),
-    kpi(t('최종 법인GP') + kpiSuffix, pct(c0.g4) + '%', '#16a34a'),
-    kpi(t('총 할인율(실판매 대비)'), pct(1 - c0.p4 / c0.p1) + '%', '#000'),
-    kpi(t('총 할인금액') + kpiSuffix, '-' + money(c0.p1 - c0.p4), '#dc2626'),
+    kpi(t('최종 대리상GP') + kpiSuffix, (() => { const sp0 = sellOf(scope[0]); return pct(sp0 > 0 ? (sp0 - c0.p4) / sp0 : 0); })() + '%', '#16a34a'),
+    kpi(t('총 할인율(기준가 대비)') + kpiSuffix, pct(c0.base ? 1 - c0.p4 / c0.base : 0) + '%', '#000'),
+    kpi(t('총 할인금액(실판매가 대비)') + kpiSuffix, '-' + money(c0.p1 - c0.p4), '#dc2626'),
     kpi(t('적용 정책 수'), c0.nPol + t('개'), '#000'));
 
   const dlResult = () => {
-    const R = [[t('제품'), t('기준가'), t('실판매가'), t('월반영가'), t('분기반영가'), t('최종(년도반)'), t('법인GP (%)')]];
-    scope.forEach(p => { const c = R0[p]; R.push([p, { v: Math.round(c.base) }, { v: Math.round(c.p1) }, { v: Math.round(c.st2) }, { v: Math.round(c.p3) }, { v: Math.round(c.p4) }, { v: +pct(c.g4) }]); });
+    const R = [[t('제품'), t('기준가'), t('실판매가'), t('월반영가'), t('분기반영가'), t('최종(년도반)'), t('법인GP (%)'), t('환자수가'), t('치과GP (%)')]];
+    scope.forEach(p => { const c = R0[p]; R.push([p, { v: Math.round(c.base) }, { v: Math.round(c.p1) }, { v: Math.round(c.st2) }, { v: Math.round(c.p3) }, { v: Math.round(c.p4) }, { v: +pct(c.g4) }, { v: Math.round(patOf(p)) }, { v: +pct(dentGp(p)) }]); });
     xlsDownloadRows('대리상가격_제품별결과', R);
   };
   const dlProfit = () => {
@@ -14452,7 +14708,11 @@ function SimGpPage({ lang, page }) {
   const doConfirm = () => {
     const d2 = new Date();
     const ds2 = d2.getFullYear() + '-' + String(d2.getMonth() + 1).padStart(2, '0') + '-' + String(d2.getDate()).padStart(2, '0');
-    setConfirmed(o => { const n2 = Object.assign({}, o); scope.forEach(p => { n2[p] = { price: Math.round(R0[p].p4), gp: +pct(R0[p].g4), grade, trade, dso: trade === 'DSO' ? dsoSel : '-', date: ds2, ver: PVA.ver }; }); return n2; });
+    const recs = {};
+    scope.forEach(p => { recs[p] = { price: Math.round(R0[p].p4), gp: +pct(R0[p].g4), base: Math.round(R0[p].base), p1: Math.round(R0[p].p1), grade, trade, dso: trade === 'DSO' ? dsoSel : '-', date: ds2, ver: PVA.ver }; });
+    setConfirmed(o => Object.assign({}, o, recs));
+    try { const lg = JSON.parse(localStorage.getItem('simgp_confirm_log_v1') || '[]') || []; Object.keys(recs).forEach(p => lg.push(Object.assign({ p }, recs[p]))); localStorage.setItem('simgp_confirm_log_v1', JSON.stringify(lg.slice(-500))); } catch (e) {}
+    window.dispatchEvent(new Event('simgp-confirm'));
   };
 
   const btnCls = 'px-3 py-1.5 text-xs font-semibold border ';
@@ -14467,7 +14727,7 @@ function SimGpPage({ lang, page }) {
     h('table', { className: 'kq-grid w-full', style: { fontSize: '13.5px', tableLayout: 'fixed' } },
       h('thead', null, h('tr', null,
         h('th', { className: 'px-2 py-2 text-left' }, t('제품')),
-        th2(t('기준가')), th2(t('실판매가')), th2(t('월반영가')), th2(t('분기반영가')), th2(t('최종(년도반)')), th2(t('법인GP (%)')))),
+        th2(t('기준가')), th2(t('실판매가')), th2(t('월반영가')), th2(t('분기반영가')), th2(t('최종(년도반)')), th2(t('법인GP (%)')), th2(t('환자수가')), th2(t('치과GP (%)')))),
       h('tbody', null, scope.map(p => { const c = R0[p]; return h('tr', { key: p, onClick: prod === 'ALL' ? () => setProd(p) : undefined, className: prod === 'ALL' ? 'cursor-pointer hover:bg-slate-50' : '' },
         h('td', { className: 'kq-txt px-2 py-1.5 font-bold' }, p),
         h('td', { className: 'evi-num px-2 py-1.5' }, money0(c.base)),
@@ -14475,21 +14735,26 @@ function SimGpPage({ lang, page }) {
         h('td', { className: 'evi-num px-2 py-1.5' }, money0(c.st2)),
         h('td', { className: 'evi-num px-2 py-1.5' }, money0(c.p3)),
         h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, money0(c.p4)),
-        h('td', { className: 'evi-num px-2 py-1.5' }, pct(c.g4) + '%')); }))),
+        h('td', { className: 'evi-num px-2 py-1.5' }, pct(c.g4) + '%'),
+        h('td', { className: 'px-2 py-1.5' }, patInput(p)),
+        h('td', { className: 'evi-num px-2 py-1.5' }, pct(dentGp(p)) + '%')); }))),
     h('div', { className: 'text-xs', style: { color: '#000' } },
-      '※ ' + t('공급가') + ' = (' + t('기준가') + ' − 현금반리) ÷ (1 + 증정비율 합계) × 결제할인 · 실판매가의 증정비율 = 무상조건 10+X (X = 증정% ÷ 10, 예: 35% = 10+3.5) · 최종 = ×(1 − 년간·BD 요율) · 법인GP = 법인 도착원가(USD×7.2×1.14)·키트원가·증정 기준수량 대비 대리상 공급가 GP' + (prod === 'ALL' ? ' · 행 클릭 시 단독 보기' : '')));
+      '※ ' + t('실판매가') + ' = ' + t('기준가') + ' ÷ (1 + 무상조건 증정비율) × (1 − 현금결제) · 이후 현금반리 차감 → 분기 증정 → 년간·BD 할인 순으로 적용 · 무상조건 10+X (X = 증정% ÷ 10, 예: 35% = 10+3.5) · 법인GP = 법인 도착원가(USD×7.2×1.14)·키트원가·증정 기준수량 대비 대리상 공급가 GP · 환자수가 = 치과가 환자에게 받는 가격(입력) · 치과GP = (환자수가 − 대리상 판매가) ÷ 환자수가' + (prod === 'ALL' ? ' · 행 클릭 시 단독 보기' : '')));
 
+  const freeLbl = c => '10+' + (Math.round(c.i * 100) / 10).toString().replace(/\.0$/, '');
   const [stageProd, setStageProd] = React.useState(null);
   const sProd = prod !== 'ALL' ? prod : (scope.indexOf(stageProd) !== -1 ? stageProd : scope[0]);
   const stageCard = (() => {
     const c = R0[sProd];
     const rows = [
-      ['실판매 (증정 ' + pct(c.i) + '%)', c.p1, c.g1, pct(c.i) + '%'],
-      ['+ ① 월목표 1% (가격 동일)', c.p1, c.gM, pct(c.L) + '%'],
-      ['+ ② 현금반리', c.p2my, c.g2my, money(c.O) + ' RMB']];
-    if (trade === 'DSO') rows.push(['+ ④ DSO 증정', c.pS, c.g2dso, pct(c.R) + '%']);
-    rows.push(['+ ⑤ 분기리베이트', c.p3, c.g3, pct(c.U) + '%']);
-    rows.push([(bdModels.indexOf(sProd) !== -1 ? '+ ⑥⑦ 년간·BD (' : '+ ⑥ 년간 (') + t('최종') + ')', c.p4, c.g4, pct(c.X) + '%']);
+      [t('기준가'), c.base, null, '—', null],
+      ['+ ' + t('무상조건') + ' (' + freeLbl(c) + ')', c.p0, c.g0, pct(c.i) + '%', c.p0 - c.base],
+      ['+ ' + t('② 현금결제(현금)') + ' → ' + t('실판매가'), c.p1, c.g1, pct(c.y) + '%', c.p1 - c.p0],
+      ['+ ' + t('① 월목표달성(부품)') + ' (가격 동일)', c.p1, c.gM, pct(c.L) + '%', 0],
+      ['+ ' + t('③ 특수정책(현금반리)'), c.p2my, c.g2my, pct(c.base ? c.O / c.base : 0) + '%', c.p2my - c.p1]];
+    if (trade === 'DSO') rows.push(['+ ' + t('④ DSO 등급(제품 증정)'), c.pS, c.g2dso, pct(c.R) + '%', c.pS - c.p2my]);
+    rows.push(['+ ' + t('⑤ 분기리베이트(제품 반환)'), c.p3, c.g3, pct(c.U) + '%', c.p3 - c.st2]);
+    rows.push(['+ ' + (bdModels.indexOf(sProd) !== -1 ? t('⑥ 년간리베이트(현금)') + '·' + t('⑦ BD장려(현금)') : t('⑥ 년간리베이트(현금)')) + ' (' + t('최종') + ')', c.p4, c.g4, pct(c.X) + '%', c.p4 - c.p3]);
     return h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
       h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
         h('div', { className: 'text-sm font-bold text-slate-800' }, sProd + ' · ' + t('정책 단계별 비교') + ' (' + t('키트') + ': ' + c.kn + ')'),
@@ -14498,81 +14763,145 @@ function SimGpPage({ lang, page }) {
           className: 'px-2.5 py-1 text-xs border ' + (sProd === p ? 'border-indigo-600 bg-indigo-600 text-white font-bold' : 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50'),
           style: { borderRadius: 0 }
         }, p))) : null),
-      h('table', { className: 'kq-grid w-full', style: { fontSize: '13.5px', tableLayout: 'fixed' } },
+      h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap' } },
         h('thead', null, h('tr', null,
-          h('th', { className: 'px-2 py-2 text-left', style: { width: '34%' } }, t('단계')), th2(t('공급가')), th2(t('법인GP (%)')), th2(t('적용요약(%)')))),
+          h('th', { className: 'px-2 py-2 text-left', style: { width: '34%' } }, t('단계')), th2(t('공급가')), th2(t('법인GP (%)')), th2(t('환자수가')), th2(t('치과GP (%)')), th2(t('적용 금액')), th2(t('적용요율(%)')))),
         h('tbody', null, rows.map((r, i2) => h('tr', { key: i2, className: i2 === rows.length - 1 ? 'font-bold' : '' },
-          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, r[0]),
+          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, title: r[0] }, r[0]),
           h('td', { className: 'evi-num px-2 py-1.5' }, money(r[1])),
-          h('td', { className: 'evi-num px-2 py-1.5' }, pct(r[2]) + '%'),
-          h('td', { className: 'evi-num px-2 py-1.5' }, r[3]))))));
+          h('td', { className: 'evi-num px-2 py-1.5' }, r[2] === null ? '' : pct(r[2]) + '%'),
+          h('td', { className: 'evi-num px-2 py-1.5' }, money(patOf(sProd))),
+          h('td', { className: 'evi-num px-2 py-1.5' }, pct(dentGp(sProd)) + '%'),
+          h('td', { className: 'evi-num px-2 py-1.5', style: r[4] !== null && r[4] < 0 ? { color: '#1d4ed8' } : undefined }, r[4] === null ? '' : (r[4] === 0 ? '0' : (r[4] < 0 ? '(' + money(Math.abs(r[4])) + ')' : '+' + money(r[4])))),
+          h('td', { className: 'evi-num px-2 py-1.5' }, r[3] === '—' ? '' : r[3]))))));
   })();
 
   const [detailOpen, setDetailOpen] = React.useState(() => { try { return localStorage.getItem('simgp_detail_open') === '1'; } catch (e) { return false; } });
   React.useEffect(() => { try { localStorage.setItem('simgp_detail_open', detailOpen ? '1' : '0'); } catch (e) {} }, [detailOpen]);
   const sepL = { borderLeft: '1px solid #cbd5e1' };
-  const freeLbl = c => '10+' + (Math.round(c.i * 100) / 10).toString().replace(/\.0$/, '');
   const stageDefs = c => [
-    ['① ' + t('실판매가'), c.p1],
-    ['② ' + t('월반영'), c.st2],
-    ['③ ' + t('분기반영'), c.p3],
-    ['④ ' + t('최종 (년도반)'), c.p4]];
+    [t('실판매가') + ' (' + t('무상조건') + '·' + t('② 현금결제(현금)').replace(/\(.*$/, '') + ')', c.p1],
+    [t('③ 특수정책(현금반리)').replace(/\(.*$/, '') + ' ' + t('반영'), c.st2],
+    [t('⑤ 분기리베이트(제품 반환)').replace(/\(.*$/, '') + ' ' + t('반영'), c.p3],
+    [t('⑥ 년간리베이트(현금)').replace(/\(.*$/, '') + ' (' + t('최종') + ')', c.p4]];
+  const fullStages = (c, p) => {
+    const L = [
+      [t('기준가'), c.base, null],
+      ['+ ' + t('무상조건') + ' (' + freeLbl(c) + ')', c.p0, pct(c.i) + '%'],
+      ['+ ' + t('② 현금결제(현금)') + ' → ' + t('실판매가'), c.p1, pct(c.y) + '%'],
+      ['+ ' + t('① 월목표달성(부품)') + ' (가격 동일)', c.p1, pct(c.L) + '%'],
+      ['+ ' + t('③ 특수정책(현금반리)'), c.p2my, pct(c.base ? c.O / c.base : 0) + '%']];
+    if (trade === 'DSO') L.push(['+ ' + t('④ DSO 등급(제품 증정)'), c.pS, pct(c.R) + '%']);
+    L.push(['+ ' + t('⑤ 분기리베이트(제품 반환)'), c.p3, pct(c.U) + '%']);
+    L.push(['+ ' + (bdModels.indexOf(p) !== -1 ? t('⑥ 년간리베이트(현금)') + '·' + t('⑦ BD장려(현금)') : t('⑥ 년간리베이트(현금)')) + ' (' + t('최종') + ')', c.p4, pct(c.X) + '%']);
+    return L;
+  };
+  const [profConf, setProfConf] = React.useState(() => { try { return JSON.parse(localStorage.getItem('simgp_profconf_v1') || '{}') || {}; } catch (e) { return {}; } });
+  React.useEffect(() => { try { localStorage.setItem('simgp_profconf_v1', JSON.stringify(profConf)); } catch (e) {} }, [profConf]);
+  const doProfConfirm = () => {
+    const d2 = new Date();
+    const ds2 = d2.getFullYear() + '-' + String(d2.getMonth() + 1).padStart(2, '0') + '-' + String(d2.getDate()).padStart(2, '0');
+    const recs = {};
+    profScope.forEach(p => { const c = R0[p], sp = sellOf(p); recs[p] = { sell: Math.round(sp), supply: Math.round(c.p4), profit: Math.round(sp - c.p4), margin: +pct(sp > 0 ? (sp - c.p4) / sp : 0), grade, trade, dso: trade === 'DSO' ? dsoSel : '-', date: ds2, ver: PVA.ver }; });
+    setProfConf(o => Object.assign({}, o, recs));
+    try { const lg = JSON.parse(localStorage.getItem('simgp_profconf_log_v1') || '[]') || []; Object.keys(recs).forEach(p => lg.push(Object.assign({ p }, recs[p]))); localStorage.setItem('simgp_profconf_log_v1', JSON.stringify(lg.slice(-500))); } catch (e) {}
+    window.dispatchEvent(new Event('simgp-confirm'));
+  };
+  const profConfList = Object.keys(profConf);
+  const profConfCard = profConfList.length ? h('div', { className: 'bg-white border border-slate-200 px-5 py-4' },
+    h('div', { className: 'flex items-center justify-between mb-3' },
+      h('span', { className: 'text-sm font-bold text-slate-800' }, t('모델별 확정 판매가·수익')),
+      h('button', { onClick: () => setProfConf({}), className: 'text-xs text-slate-400 hover:text-red-500' }, t('전체 삭제'))),
+    h('div', { className: 'grid grid-cols-2 lg:grid-cols-5 gap-3' }, profConfList.map(p => { const cf = profConf[p]; return h('div', { key: p, className: 'relative border border-slate-200 bg-white px-4 py-3 text-center' },
+      h('button', { onClick: () => setProfConf(o => { const n2 = Object.assign({}, o); delete n2[p]; return n2; }), className: 'absolute top-1 right-2 text-slate-300 hover:text-red-500 text-sm' }, '×'),
+      h('div', { className: 'text-xs text-slate-500 mb-1 font-bold' }, p),
+      h('div', { className: 'evi-num font-bold text-center', style: { fontSize: '21px' } }, money(cf.profit) + ' (' + cf.margin + '%)'),
+      h('div', { className: 'text-[11px] text-slate-500 mt-1', style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, t('판매가') + ' ' + money(cf.sell) + ' · ' + t('공급가') + ' ' + money(cf.supply) + ' · ' + cf.grade + (lang === 'zh' ? '级' : '급') + (cf.ver ? ' · ' + cf.ver : '') + ' · ' + cf.date)); }))) : null;
+  const [detailProd, setDetailProd] = React.useState(null);
+  const [profSel, setProfSel] = React.useState(() => { try { return JSON.parse(localStorage.getItem('simgp_profsel_v1') || 'null') || []; } catch (e) { return []; } });
+  React.useEffect(() => { try { localStorage.setItem('simgp_profsel_v1', JSON.stringify(profSel)); } catch (e) {} }, [profSel]);
+  const profSelValid = profSel.filter(p => PRODUCTS.indexOf(p) !== -1);
+  const profScope = profSelValid.length ? PRODUCTS.filter(p => profSelValid.indexOf(p) !== -1) : scope;
+  const toggleProf = p => setProfSel(l => { const cur = (l.filter(x => PRODUCTS.indexOf(x) !== -1).length ? l : scope.slice()); return cur.indexOf(p) !== -1 ? (cur.length > 1 ? cur.filter(x => x !== p) : cur) : cur.concat([p]); });
+  const profPicker = h('div', { className: 'flex gap-1 flex-wrap items-center' },
+    h('span', { className: 'text-xs text-slate-500 mr-1' }, t('비교 모델')),
+    PRODUCTS.map(p => h('button', {
+      key: p, onClick: () => toggleProf(p),
+      className: 'px-2.5 py-1 text-xs border ' + (profScope.indexOf(p) !== -1 ? 'border-indigo-600 bg-indigo-600 text-white font-bold' : 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50'),
+      style: { borderRadius: 0 }
+    }, p)),
+    profSelValid.length ? h('button', { key: '__reset', onClick: () => setProfSel([]), className: 'px-2 py-1 text-xs border border-slate-300 text-slate-400 bg-white', style: { borderRadius: 0 } }, t('초기화')) : null);
+  const dScope = [profScope.indexOf(detailProd) !== -1 ? detailProd : profScope[0]];
   const profitCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
     h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
       h('div', { className: 'text-sm font-bold text-slate-800' }, t('대리상 수익성 요약'),
         h('span', { className: 'text-xs text-slate-400 font-normal ml-2' }, '단위: RMB · ' + (trade === 'MY' ? t('민영') : 'DSO ' + (dsoSel === 'off' ? '' : dsoSel + '급')))),
-      h('button', { onClick: dlProfit, className: btnCls + 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50' }, '⬇ ' + t('엑셀 다운로드'))),
+      h('div', { className: 'flex gap-2 items-center flex-wrap' },
+        profPicker,
+        h('button', { onClick: dlProfit, className: btnCls + 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50' }, '⬇ ' + t('엑셀 다운로드')),
+        h('button', { onClick: doProfConfirm, className: btnCls + 'border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700' }, '✔ ' + t('현재 조건 확정')))),
     h('div', { className: 'text-xs px-3 py-2 border border-slate-200 bg-slate-50', style: { color: '#334155', whiteSpace: 'normal' } },
       lang === 'zh' ? '※ 修改终端售价后，收益与各阶段GP率会立即重新计算。变更交易类型或DSO等级时，自动切换为该渠道的默认售价；修改过的售价会自动保存。'
         : '※ 판매가를 수정하면 수익과 단계별 마진율이 즉시 다시 계산됩니다. 거래유형·DSO 등급을 바꾸면 해당 채널의 기본 판매가로 전환되고, 수정한 판매가는 자동 저장됩니다.'),
-    h('table', { className: 'kq-grid w-full simgp-prof', style: { fontSize: '13px', tableLayout: 'fixed' } },
+    h('div', { style: { width: '100%' } },
+    h('table', { className: 'kq-grid w-full simgp-prof simgp-center', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap' } },
       h('thead', null, h('tr', null,
-        h('th', { className: 'px-2 py-2 text-center', style: { width: '18%' } }, t('구분')),
-        scope.map(p => h('th', { key: p, colSpan: 3, className: 'px-2 py-1.5 text-center', style: sepL }, p)))),
+        h('th', { className: 'px-2 py-2 text-center', style: { width: profScope.length > 1 ? Math.max(16, 34 - profScope.length * 3) + '%' : '34%' } }, t('구분')),
+        profScope.map(p => h('th', { key: p, colSpan: 3, className: 'px-2 py-1.5 text-center', style: sepL }, p)))),
       h('tbody', null, [
         h('tr', { key: 'hd' },
           h('td', { className: 'kq-txt px-2 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('단계')),
-          scope.map(p => [
+          profScope.map(p => [
             h('td', { key: p + 'a', className: 'kq-txt px-1 py-1.5 text-center', style: Object.assign({ background: '#f1f5f9', fontWeight: 700, color: '#334155' }, sepL) }, t('공급가')),
             h('td', { key: p + 'b', className: 'kq-txt px-1 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('수익')),
             h('td', { key: p + 'c', className: 'kq-txt px-1 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('마진율'))])),
+        h('tr', { key: 'base' },
+          h('td', { className: 'kq-txt px-2 py-1.5' }, t('기준가')),
+          profScope.map(p => [
+            h('td', { key: p + 'a', className: 'evi-num px-1 py-1.5', style: sepL }, money(R0[p].base)),
+            h('td', { key: p + 'b', className: 'px-1 py-1.5' }),
+            h('td', { key: p + 'c', className: 'px-1 py-1.5' })])),
         h('tr', { key: 'free' },
           h('td', { className: 'kq-txt px-2 py-1.5' }, t('무상조건')),
-          scope.map(p => h('td', { key: p, colSpan: 3, className: 'kq-txt px-2 py-1.5 text-center', style: sepL }, freeLbl(R0[p])))),
+          profScope.map(p => [
+            h('td', { key: p + 'a', className: 'kq-txt px-1 py-1.5 text-center', style: sepL }, freeLbl(R0[p])),
+            h('td', { key: p + 'b', className: 'px-1 py-1.5' }),
+            h('td', { key: p + 'c', className: 'px-1 py-1.5' })])),
         h('tr', { key: 'sell' },
           h('td', { className: 'kq-txt px-2 py-1.5' }, t('판매가')),
-          scope.map(p => h('td', { key: p, colSpan: 3, className: 'px-2 py-1.5', style: sepL }, h('input', {
-            value: sellEd[p + '_' + chKey] != null && sellEd[p + '_' + chKey] !== '' ? sellEd[p + '_' + chKey] : SELL_DEF[p][chKey],
-            onChange: e => { const v0 = e.target.value.replace(/[^0-9.]/g, ''); setSellEd(o => Object.assign({}, o, { [p + '_' + chKey]: v0 })); },
-            className: 'evi-num w-full bg-transparent focus:outline-none',
-            style: { border: 'none', borderRadius: 0, textAlign: 'center' }
-          })))),
+          profScope.map(p => [
+            h('td', { key: p + 'a', className: 'px-1 py-1.5', style: sepL }, h('input', {
+              value: sellEd[p + '_' + chKey] != null && sellEd[p + '_' + chKey] !== '' ? sellEd[p + '_' + chKey] : SELL_DEF[p][chKey],
+              onChange: e => { const v0 = e.target.value.replace(/[^0-9.]/g, ''); setSellEd(o => Object.assign({}, o, { [p + '_' + chKey]: v0 })); },
+              className: 'evi-num w-full bg-transparent focus:outline-none',
+              style: { border: 'none', borderRadius: 0, textAlign: 'center' }
+            })),
+            h('td', { key: p + 'b', className: 'px-1 py-1.5' }),
+            h('td', { key: p + 'c', className: 'px-1 py-1.5' })])),
         [0, 1, 2, 3].map(i2 => {
           const last = i2 === 3;
-          const names = ['① ' + t('실판매가'), '② ' + t('월반영'), '③ ' + t('분기반영'), '④ ' + t('최종 (년도반)')];
-          return h('tr', { key: 's' + i2 },
-            h('td', { className: 'kq-txt px-2 py-1.5' + (last ? ' font-bold' : '') }, names[i2]),
-            scope.map(p => {
+          const names = stageDefs(R0[profScope[0]]).map(s0 => s0[0]);
+          return h('tr', { key: 's' + i2, className: last ? 'bg-pink-50' : '' },
+            h('td', { className: 'kq-txt px-2 py-1.5' + (last ? ' font-bold' : ''), style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, title: names[i2] }, names[i2]),
+            profScope.map(p => {
               const c = R0[p], sp = sellOf(p);
               const v = stageDefs(c)[i2][1];
               const cls = 'evi-num px-1 py-1.5' + (last ? ' font-bold' : '');
+              const stC = last ? { textAlign: 'center' } : {};
               return [
-                h('td', { key: p + 'a', className: cls, style: sepL }, money(v)),
-                h('td', { key: p + 'b', className: cls }, money(sp - v)),
-                h('td', { key: p + 'c', className: cls }, pct(sp > 0 ? (sp - v) / sp : 0) + '%')];
+                h('td', { key: p + 'a', className: cls, style: Object.assign({}, sepL, stC) }, money(v)),
+                h('td', { key: p + 'b', className: cls, style: stC }, money(sp - v)),
+                h('td', { key: p + 'c', className: cls, style: stC }, pct(sp > 0 ? (sp - v) / sp : 0) + '%')];
             }));
-        })])),
-    h('div', { className: 'text-xs', style: { color: '#000' } },
-      t('※ 수익 = 판매가 − 해당 단계 공급가 · 마진율 = 수익 ÷ 판매가 · 정책이 하나씩 적용될수록 공급가↓ 수익↑ 마진율↑ · 판매가는 표에서 직접 수정')));
+        })]))),
+    null);
 
-  const [detailProd, setDetailProd] = React.useState(null);
-  const dScope = scope.length > 1 ? [scope.indexOf(detailProd) !== -1 ? detailProd : scope[0]] : scope;
   const detailCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
     h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
       h('div', { className: 'text-sm font-bold text-slate-800' }, t('단계별 수익 상세'),
         h('span', { className: 'text-xs text-slate-400 font-normal ml-2' }, t('정책별 기여분 · 단위: RMB'))),
       h('div', { className: 'flex items-center gap-2' },
-        (detailOpen && scope.length > 1) ? h('div', { className: 'flex gap-1' }, scope.map(p => h('button', {
+        (detailOpen && profScope.length > 1) ? h('div', { className: 'flex gap-1' }, profScope.map(p => h('button', {
           key: p, onClick: () => setDetailProd(p),
           className: 'px-2.5 py-1 text-xs border ' + (dScope[0] === p ? 'border-indigo-600 bg-indigo-600 text-white font-bold' : 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50'),
           style: { borderRadius: 0 }
@@ -14580,36 +14909,32 @@ function SimGpPage({ lang, page }) {
         h('button', { onClick: () => setDetailOpen(v => !v), className: btnCls + 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50' }, detailOpen ? t('숨기기') : t('보기')))),
     detailOpen ? dScope.map(p => {
       const c = R0[p], sp = sellOf(p);
-      const st = stageDefs(c);
-      const labels = ['① ' + t('실판매가') + ' (' + t('증정') + ' ' + pct(c.i) + '% = ' + freeLbl(c) + ')', '② + ' + t('월목표·현금반리'), '③ + ' + t('분기리베이트'), (bdModels.indexOf(p) !== -1 ? '④ + ' + t('년간·BD (최종)') : '④ + ' + t('년간 (최종)'))];
+      const st = fullStages(c, p);
       return h('div', { key: p, className: 'space-y-1' },
-        h('table', { className: 'kq-grid w-full simgp-prof', style: { fontSize: '13px', tableLayout: 'fixed' } },
+        h('table', { className: 'kq-grid w-full simgp-prof simgp-center', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap' } },
           h('thead', null, h('tr', null,
-            h('th', { className: 'px-2 py-2 text-center', style: { width: '26%' } }, t('단계 (적용 정책)') + (scope.length > 1 ? ' — ' + p : '')),
-            th2(t('대리상 공급가')), th2(t('공급가 인하')),
+            h('th', { className: 'px-2 py-2 text-center', style: { width: '34%' } }, t('단계 (적용 정책)') + ' — ' + p),
+            th2(t('대리상 공급가')),
             h('th', { className: 'px-2 py-2 text-center', style: sepL }, t('판매가')),
-            th2(t('대리상 수익')), th2(t('수익 증가')),
-            h('th', { className: 'px-2 py-2 text-center', style: sepL }, t('마진율')),
-            th2(t('마진율 증가')))),
+            th2(t('대리상 수익')), th2(t('마진율')),
+            h('th', { className: 'px-2 py-2 text-center', style: sepL }, t('적용 금액')), th2(t('적용요율(%)')))),
           h('tbody', null, st.map((s0, i2) => {
             const prev = i2 > 0 ? st[i2 - 1][1] : null;
             const prof = sp - s0[1], mgv = sp > 0 ? prof / sp : 0;
             const dPrice = prev === null ? null : s0[1] - prev;
-            const dMg = prev === null ? null : mgv - (sp > 0 ? (sp - prev) / sp : 0);
-            const last = i2 === 3, cls = 'evi-num px-2 py-1.5' + (last ? ' font-bold' : '');
-            const sgn = v => (v > 0 ? '+' : v < 0 ? '−' : '') + money(Math.abs(v));
-            return h('tr', { key: i2 },
-              h('td', { className: 'kq-txt px-2 py-1.5' + (last ? ' font-bold' : '') }, labels[i2]),
+            const last = i2 === st.length - 1, cls = 'evi-num px-2 py-1.5' + (last ? ' font-bold' : '');
+            const first = i2 === 0;
+            return h('tr', { key: i2, className: last ? 'bg-pink-50' : '' },
+              h('td', { className: 'kq-txt px-2 py-1.5' + (last ? ' font-bold' : ''), style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, title: s0[0] }, s0[0]),
               h('td', { className: cls }, money(s0[1])),
-              h('td', { className: 'evi-num px-2 py-1.5' }, dPrice === null ? '—' : sgn(dPrice)),
-              h('td', { className: 'evi-num px-2 py-1.5', style: sepL }, money(sp)),
-              h('td', { className: cls }, money(prof)),
-              h('td', { className: 'evi-num px-2 py-1.5' }, dPrice === null ? '—' : sgn(-dPrice)),
-              h('td', { className: cls, style: sepL }, pct(mgv) + '%'),
-              h('td', { className: 'evi-num px-2 py-1.5' }, dMg === null ? '—' : (dMg >= 0 ? '+' : '−') + pct(Math.abs(dMg)) + '%p'));
+              h('td', { className: 'evi-num px-2 py-1.5', style: sepL }, first ? '' : money(sp)),
+              h('td', { className: cls }, first ? '' : money(prof)),
+              h('td', { className: cls }, first ? '' : pct(mgv) + '%'),
+              h('td', { className: 'evi-num px-2 py-1.5', style: Object.assign({}, sepL, dPrice !== null && dPrice < 0 ? { color: '#1d4ed8' } : {}) }, dPrice === null ? '' : (dPrice === 0 ? '0' : (dPrice < 0 ? '(' + money(Math.abs(dPrice)) + ')' : '+' + money(dPrice)))),
+              h('td', { className: 'evi-num px-2 py-1.5' }, s0[2] === null ? '' : s0[2]));
           }))));
     }) : null,
-    detailOpen ? h('div', { className: 'text-xs', style: { color: '#000' } }, t('※ 공급가 인하 = 직전 단계 대비 · 수익 증가 = 공급가 인하분과 동일 · 마진율 증가 = %p')) : null);
+    detailOpen ? h('div', { className: 'text-xs', style: { color: '#000' } }, t('※ 대리상 수익 = 판매가 − 해당 단계 공급가 · 마진율 = 수익 ÷ 판매가 · 적용 금액 = 직전 단계 대비 공급가 변동(파랑 괄호 = 인하) · 적용요율 = 해당 단계 정책 요율')) : null);
 
   const opBtn = (sel2, colorCls, label, onClick, dis, key2) => h('button', {
     key: key2, onClick: dis ? undefined : onClick,
@@ -14644,12 +14969,12 @@ function SimGpPage({ lang, page }) {
     polRow('monthly', t('① 월목표달성(부품)'), [
       opBtn(presetOff('monthly'), OFFC, t('미적용'), () => setOnK('monthly', false), false, 'o1'),
       opBtn(presetSel('monthly'), IND, String(PVI.monthly) + '% ' + t('적용'), () => setOnK('monthly', true), false, 'o2')]),
-    polRow('cashReb', t('② 특수정책(현금반리)'), [
-      opBtn(presetOff('cashReb'), OFFC, t('미적용'), () => setOnK('cashReb', false), false, 'o1'),
-      opBtn(presetSel('cashReb'), IND, 'AO' + (PVI.cashReb.AO || 0) + '·BD' + (PVI.cashReb.BD || 0) + '·ST' + (PVI.cashReb.ST || 0) + '%', () => setOnK('cashReb', true), false, 'o2')]),
-    polRow('cashPay', t('③ 현금결제(현금)'), [
+    polRow('cashPay', t('② 현금결제(현금)'), [
       opBtn(presetOff('cashPay'), OFFC, t('미적용'), () => setOnK('cashPay', false), false, 'o1'),
       opBtn(presetSel('cashPay'), IND, String(PVI.cashPay) + '%', () => setOnK('cashPay', true), false, 'o2')]),
+    polRow('cashReb', t('③ 특수정책(현금반리)'), [
+      opBtn(presetOff('cashReb'), OFFC, t('미적용'), () => setOnK('cashReb', false), false, 'o1'),
+      opBtn(presetSel('cashReb'), IND, 'AO' + (PVI.cashReb.AO || 0) + '·BD' + (PVI.cashReb.BD || 0) + '·ST' + (PVI.cashReb.ST || 0) + '%', () => setOnK('cashReb', true), false, 'o2')]),
     polRow('dso', t('④ DSO 등급(제품 증정)'), [
       opBtn(dirNum('dso') === null && dsoSel === 'off', OFFC, t('미적용'), () => { setDsoSel('off'); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'o1'),
       ['S', 'A', 'BC'].map(g => opBtn(dirNum('dso') === null && dsoSel === g, IND, (g === 'BC' ? 'B/C' : g) + ' ' + (prod !== 'ALL' ? pct(dsoOf(prod, g)) + '%' : pct(dsoOf('BD', g)) + '%'), () => { setDsoSel(g); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'g' + g))
@@ -14695,7 +15020,7 @@ function SimGpPage({ lang, page }) {
   return h('div', { className: 'p-6 space-y-4 bg-slate-50 min-h-full' },
     kpiRow,
     topBar,
-    confCard,
+    page === 'profit' ? profConfCard : confCard,
     page === 'profit' ? profitCard : h('div', { className: 'flex gap-4 items-stretch max-lg:flex-col' },
       h('div', { className: 'flex-1 min-w-0 space-y-4' }, resultCard, stageCard),
       h('div', { className: 'w-full lg:w-[400px] flex-shrink-0' }, policyCard)),
@@ -15213,7 +15538,7 @@ function App() {
     className: "text-xs text-slate-500 mb-3"
   }, appTr('정책(증정·리베이트)을 반영한 대리상 공급가와 GP를 시뮬레이션합니다. 江苏澍康 정책은 별도 탭에서 확인합니다.')), /*#__PURE__*/React.createElement("div", {
     className: "mb-4 border-b border-slate-200 flex gap-2"
-  }, [['sim-main', '대리상가격(GP)'], ['sim-profit', '대리상 수익성'], ['sim-history', '저장 이력']].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
+  }, [['sim-main', '대리상가격(GP)'], ['sim-profit', '대리상 수익성']].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
     key: k,
     onClick: () => setSimTab(k),
     className: "px-4 py-2 text-sm font-semibold border-b-2 -mb-px " + (simTab === k ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500")
@@ -15224,10 +15549,16 @@ function App() {
   }), simTab === 'sim-profit' && /*#__PURE__*/React.createElement(SimGpPage, {
     lang: lang,
     page: 'profit'
-  }), simTab === 'sim-history' && /*#__PURE__*/React.createElement(SimulationHistoryPage, {
-    simHistory: simHistory,
-    setSimHistory: setSimHistory
-  }))), activeMenu === 'jssk-policy' && /*#__PURE__*/React.createElement(SpecialPolicyPage, {
+  }))), activeMenu === 'dealer-price' && /*#__PURE__*/React.createElement(DealerPricePage, {
+    lang: lang,
+    goSim: d => { try { const st0 = JSON.parse(localStorage.getItem('simgp_state_v2') || '{}') || {}; st0.grade = d.grade; st0.trade = d.trade; st0.dsoSel = d.trade === 'DSO' ? d.dso : (st0.dsoSel || 'S'); localStorage.setItem('simgp_state_v2', JSON.stringify(st0)); if (d.ver) { const pv = polverLoad(); if (pv.list.find(v => v.id === d.ver)) polverSave({ list: pv.list, activeId: d.ver }); } } catch (e) {} setSimTab('sim-main'); setActiveMenu('sim-main'); }
+  }), activeMenu === 'sim-history' && /*#__PURE__*/React.createElement("div", { className: "p-6" },
+    /*#__PURE__*/React.createElement("h2", { className: "text-lg font-bold text-slate-800" }, appTr('저장 이력')),
+    /*#__PURE__*/React.createElement("p", { className: "text-xs text-slate-500 mb-3" }, appTr('대리상가격 시뮬레이션에서 저장한 이력을 확인합니다.')),
+    /*#__PURE__*/React.createElement("div", { className: "-mx-6 -mb-6" }, /*#__PURE__*/React.createElement(SimulationHistoryPage, {
+      simHistory: simHistory,
+      setSimHistory: setSimHistory
+    }))), activeMenu === 'jssk-policy' && /*#__PURE__*/React.createElement(SpecialPolicyPage, {
     exportPrices: exportPrices,
     exchangeRate: exchangeRate,
     dentalPrices: dentalPrices,
