@@ -408,6 +408,11 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   .evi-num { text-align: right; }
   .evifix-tbl thead th { white-space: normal !important; line-height: 1.25; font-size: 13.15px; padding-left: 6px; padding-right: 6px; text-align: center; vertical-align: middle; }
   .evifix-tbl thead tr:first-child th { font-size: 13.55px; }
+  .simgp-prof thead th { white-space: normal !important; line-height: 1.25; vertical-align: middle; }
+  .polver-grid3 > div { display: flex; flex-direction: column; }
+  .polver-grid3 .polver-eq { flex: 1 1 auto; height: 100%; }
+  .polver-grid3 .polver-eq th, .polver-grid3 .polver-eq td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .polver-grid3 .polver-eq td.kq-cell { text-align: center; }
   .kq-cell { width: 100%; background: transparent; text-align: right; outline: none; }
   .kq-cell::-webkit-outer-spin-button, .kq-cell::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .kq-cell { -moz-appearance: textfield; }
@@ -961,7 +966,8 @@ function Sidebar({
     "임플란트 시뮬레이션": "种植体模拟",
     "키트 시뮬레이션": "工具盒模拟",
     "키트 시뮬레이션(ZBLC)": "工具盒模拟(ZBLC)",
-    "기타": "其他"
+    "기타": "其他",
+    "정책 개정 이력": "政策修订记录"
   };
   const tr = ko => (lang === 'zh' && SB_ZH[ko]) ? SB_ZH[ko] : ko;
   const [expanded, setExpanded] = useState({
@@ -977,6 +983,9 @@ function Sidebar({
     items: [{
       key: 'gp-analysis',
       label: tr('제품별 수익성 분석')
+    }, {
+      key: 'policy-ver',
+      label: tr('정책 개정 이력')
     }]
   }, {
     key: 'simulation',
@@ -13681,9 +13690,13 @@ function EvidenceSimPage({ eviKit, setEviKit, onCloudSave, saveStatus, lang, cos
 
 
 /* ===================== 제품별 수익성 분석 (신규 분석 화면 — Evidence 서식) ===================== */
-function GpAnalyzerPage({ gpItems }) {
+function GpAnalyzerPage({ gpItems, lang }) {
   const h = React.createElement;
-  const items = gpFillBuy((gpItems && gpItems.length) ? gpItems : GP_SAMPLE);
+  const PV = usePolver();
+  const PVA = PV.active;
+  const pvKey = s0 => (s0 === 'AriE' || s0 === 'ARI') ? 'ARi' : s0;
+  const items0 = gpFillBuy((gpItems && gpItems.length) ? gpItems : GP_SAMPLE);
+  const items = items0.map(it => { const k = pvKey(it.sys); const e2 = PVA.exp && PVA.exp[k]; return (e2 != null && it.exp) ? Object.assign({}, it, { exp: Number(e2), _verExp: true }) : it; });
   const sysList = Array.from(new Set(items.map(i => i.sys)));
   const [sys, setSys] = React.useState(sysList[0] || '');
   const kits = sys === 'ALL' ? items : items.filter(i => i.sys === sys);
@@ -13698,7 +13711,8 @@ function GpAnalyzerPage({ gpItems }) {
   const [memo, setMemo] = React.useState(() => { try { return localStorage.getItem('gp_memo_v1') || ''; } catch (e) { return ''; } });
   React.useEffect(() => { try { localStorage.setItem('gp_memo_v1', memo); } catch (e) {} }, [memo]);
   React.useEffect(() => { try { localStorage.setItem('gp_memo_open', memoOpen ? '1' : '0'); } catch (e) {} }, [memoOpen]);
-  const GP_PRESET = { AriE: [3.5, 4], ARi: [3.5, 4], ARI: [3.5, 4], BD: [3.5, 4], AR: [4.5, 5], AO: [4.5, 5], ST: [8, 8.5, 9, 9.5] };
+  const GP_PRESET0 = { AriE: [3.5, 4], ARi: [3.5, 4], ARI: [3.5, 4], BD: [3.5, 4], AR: [4.5, 5], AO: [4.5, 5], ST: [8, 8.5, 9, 9.5] };
+  const GP_PRESET = {}; Object.keys(GP_PRESET0).forEach(k => { const f = PVA.free && PVA.free[pvKey(k)]; const x = f != null ? Math.round(f * 100) / 10 : null; GP_PRESET[k] = (x != null && x % 0.5 === 0 && x <= 10) ? Array.from(new Set([x].concat(GP_PRESET0[k]))).sort((a2, b2) => a2 - b2) : GP_PRESET0[k]; });
   const [selCols, setSelCols] = React.useState((GP_PRESET[sys] || []).slice());
   const bm = 45; // 대리상 마진(판매가 산정) 고정 기준
   const [selX, setSelX] = React.useState(null);
@@ -13713,7 +13727,7 @@ function GpAnalyzerPage({ gpItems }) {
   const cur = (selX === null || cols.indexOf(selX) === -1) ? cols[0] : selX;
   const c = res[cur];
 
-  const money = v => Number(v || 0).toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const money = v => Math.round(Number(v || 0)).toLocaleString('ko-KR');
   const pct = v => ((v || 0) * 100).toFixed(1);
   const rateBg = r => { const p = r * 100; return p < 40 ? '#FCE7E7' : p < 45 ? '#FCF3D7' : p < 50 ? '#DFF2E7' : '#C9E9D8'; };
   const corpBg = g => { const p = g * 100; return p < 20 ? '#FCE7E7' : p < 25 ? '#FCF3D7' : p < 30 ? '#DFF2E7' : '#C9E9D8'; };
@@ -13724,9 +13738,9 @@ function GpAnalyzerPage({ gpItems }) {
       const RX = resOf(it2);
       if (scope.length > 1) { if (si) R.push([]); R.push([it2.sys + ' · ' + it2.kitName]); }
       R.push(['구분'].concat(cols.map(x => '10+' + x)));
-      R.push(['대리상판매가(RMB)'].concat(cols.map(x => ({ v: +RX[x].ds.toFixed(1) }))));
+      R.push(['대리상판매가(RMB)'].concat(cols.map(x => ({ v: Math.round(RX[x].ds) }))));
       R.push(['대리상 마진율(%)'].concat(cols.map(x => ({ v: +pct(RX[x].dealerMarginRate) }))));
-      R.push(['대리상 마진금액(RMB)'].concat(cols.map(x => ({ v: +RX[x].dealerMargin.toFixed(1) }))));
+      R.push(['대리상 마진금액(RMB)'].concat(cols.map(x => ({ v: Math.round(RX[x].dealerMargin) }))));
       R.push(['법인 GP(%)'].concat(cols.map(x => ({ v: +pct(RX[x].corpGP) }))));
       R.push(['본사 GP(%)'].concat(cols.map(x => ({ v: +pct(RX[x].hqGP) }))));
     });
@@ -13737,12 +13751,14 @@ function GpAnalyzerPage({ gpItems }) {
   const fld = (label, el) => h('div', null,
     h('label', { className: 'block text-xs text-slate-500 mb-1' }, label), el);
 
-  const topBar = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 grid grid-cols-2 md:grid-cols-3 gap-3 items-end' },
+  const topBar = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 grid grid-cols-2 md:grid-cols-4 gap-3 items-end' },
     fld('제품', h('select', { value: sys, onChange: e => { const v0 = e.target.value; setSys(v0); setSelCols((GP_PRESET[v0] || []).slice()); setSelX(null); }, className: selCls },
       [h('option', { key: '__all', value: 'ALL' }, '모두')].concat(sysList.map(s0 => h('option', { key: s0, value: s0 }, s0))))),
     fld('키트', h('select', { value: kitId, onChange: e => { setKitId(e.target.value); setSelX(null); }, className: selCls },
       [h('option', { key: '__all', value: 'ALL' }, '모두')].concat(kits.map(k => h('option', { key: k.id, value: k.id }, (sys === 'ALL' ? k.sys + ' · ' : '') + k.kitName))))),
-    fld('KIT 비율', h('div', { className: 'evi-num px-3 py-2 rounded-lg border border-slate-200 bg-slate-50' }, kitId === 'ALL' ? '전체' : ((item ? item.kitDiv : '-') + 'EA'))));
+    fld('KIT 비율', h('div', { className: 'evi-num px-3 py-2 rounded-lg border border-slate-200 bg-slate-50' }, kitId === 'ALL' ? '전체' : ((item ? item.kitDiv : '-') + 'EA'))),
+    fld('기준 버전', h('select', { value: PV.activeId, onChange: e => PV.save({ list: PV.list, activeId: e.target.value }), className: selCls },
+      PV.list.slice().sort((a, b) => (a.month > b.month ? -1 : 1)).map(v => h('option', { key: v.id, value: v.id }, v.ver + ' · ' + v.month + (v.memo ? ' · ' + v.memo : ''))))));
 
   const card = (label, value, sub, cls) => h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4' },
     h('div', { className: 'text-xs text-slate-500 mb-1' }, label),
@@ -13885,6 +13901,231 @@ function GpAnalyzerPage({ gpItems }) {
       h('div', { className: 'flex-1 min-w-0 space-y-4' }, tableCard, infoCard),
       h('div', { className: 'lg:w-72 w-full' }, summaryCard)),
     memoCard);
+}
+
+/* ===================== 정책 개정 이력 (버전 레지스터) ===================== */
+const POLVER_MODELS = ['AO', 'BD', 'AR', 'ST', 'ARi'];
+const POLVER_DEFAULT = [
+  { id: 'v1', ver: 'v1', month: '2026-01', date: '2025-12-15', author: '중화팀', memo: '최초 등록',
+    exp: { AO: 17.36, BD: 26.32, AR: 23.47, ST: 13.78, ARi: 26.32 },
+    free: { AO: 0.35, BD: 0.30, AR: 0.40, ST: 0.65, ARi: 0.30 },
+    inc: { monthly: 1, cashReb: { AO: 5, BD: 2.5, ST: 2 }, cashPay: 3, dso: { S: 8, A: 5, BC: 3 }, dsoST: { S: 20, A: 15, BC: 10 }, qtr: { A: 4, B: 3, C: 3, D: 2 }, ann: { A: 3, B: 2, C: 1, D: 1 }, bd: 1, bdModels: ['BD', 'ARi'] } },
+  { id: 'v2', ver: 'v2', month: '2026-05', date: '2026-04-20', author: '중화팀', memo: '',
+    exp: { AO: 17.01, BD: 25.79, AR: 23.00, ST: 13.50, ARi: 25.79 },
+    free: { AO: 0.35, BD: 0.30, AR: 0.40, ST: 0.65, ARi: 0.30 },
+    inc: { monthly: 1, cashReb: { AO: 5, BD: 2.5, ST: 2 }, cashPay: 2, dso: { S: 8, A: 5, BC: 3 }, dsoST: { S: 20, A: 15, BC: 10 }, qtr: { A: 4, B: 3, C: 3, D: 2 }, ann: { A: 3, B: 2, C: 1, D: 1 }, bd: 1, bdModels: ['BD', 'ARi'] } },
+  { id: 'v3', ver: 'v3', month: '2026-08', date: '2026-07-25', author: '중화팀', memo: '하반기 정책',
+    exp: { AO: 16.50, BD: 24.50, AR: 23.00, ST: 13.50, ARi: 24.50 },
+    free: { AO: 0.40, BD: 0.30, AR: 0.40, ST: 0.65, ARi: 0.30 },
+    inc: { monthly: 1, cashReb: { AO: 5, BD: 2.5, ST: 2 }, cashPay: 3, dso: { S: 8, A: 5, BC: 3 }, dsoST: { S: 20, A: 15, BC: 10 }, qtr: { A: 3, B: 3, C: 3, D: 2 }, ann: { A: 3, B: 2, C: 1, D: 1 }, bd: 1, bdModels: ['BD'] } }
+];
+function polverLoad() {
+  try {
+    const d = JSON.parse(localStorage.getItem('polver_v1') || 'null');
+    if (d && Array.isArray(d.list) && d.list.length) return d;
+  } catch (e) {}
+  return { list: POLVER_DEFAULT.map(v => JSON.parse(JSON.stringify(v))), activeId: 'v3' };
+}
+function polverSave(d) { try { localStorage.setItem('polver_v1', JSON.stringify(d)); } catch (e) {} window.dispatchEvent(new Event('polver-change')); }
+function usePolver() {
+  const [st, setSt] = React.useState(polverLoad);
+  React.useEffect(() => { const f = () => setSt(polverLoad()); window.addEventListener('polver-change', f); return () => window.removeEventListener('polver-change', f); }, []);
+  const active = st.list.find(v => v.id === st.activeId) || st.list[st.list.length - 1];
+  return { list: st.list, activeId: st.activeId, active, save: d => { polverSave(d); setSt(d); } };
+}
+const POLVER_ZH = {
+  '정책 개정 이력': '政策修订记录', '수출가·무상조건·인센티브가 바뀔 때마다 버전으로 저장하고, 시뮬레이션·수익성 분석에서 기준 버전을 선택해 계산합니다.': '每次出口价·赠送条件·激励政策变更时保存为版本，并在模拟·收益性分析中选择基准版本进行计算。',
+  '개정 이력': '修订记录', '버전 비교': '版本比较', '개정 이력 목록': '修订记录列表', '최신이 위 · 행 클릭 시 상세 펼침': '最新在上 · 点击行展开详情',
+  '＋ 새 버전 (현재 조건 복사)': '＋ 新版本(复制当前条件)', '⬇ 엑셀': '⬇ Excel', '버전': '版本', '적용월': '适用月', '기안일': '拟稿日', '기안자': '拟稿人',
+  '수출가 조정 (모델별, 직전 대비)': '出口价调整(按型号, 对比上一版)', '무상조건 변경': '赠送条件变更', '인센티브 변경': '激励变更', '비고': '备注',
+  '상세': '详情', '적용': '适用', '현재': '当前', '삭제': '删除', '기준 (초기값)': '基准(初始值)', '기준': '基准', '변동 없음': '无变动',
+  '상세': '详情', '수정': '编辑', '저장': '保存', '취소': '取消', '이 버전으로 계산': '按此版本计算',
+  '① 수출가 (USD)': '① 出口价(USD)', '② 무상조건 (증정비율)': '② 赠送条件(赠送比例)', '③ 인센티브 요율 (%)': '③ 激励比率(%)',
+  '모델': '型号', '이전': '上一版', '현재': '当前', '조정': '调整', '정책': '政策',
+  '월목표달성': '月目标达成', '현금반리 AO/BD/ST': '现金返利 AO/BD/ST', '현금결제': '现金结算', 'DSO S/A/BC': 'DSO S/A/BC', 'DSO(ST) S/A/BC': 'DSO(ST) S/A/BC', '분기 A/B/C/D': '季度 A/B/C/D', '년간 A/B/C/D': '年度 A/B/C/D', 'BD장려': 'BD奖励', 'BD장려 적용 모델': 'BD奖励适用型号',
+  '※ [적용] = 대리상가격 시뮬레이션·제품별 수익성 분석의 기준 버전을 이 버전으로 전환 · 저장/확정 이력에는 사용한 버전이 자동 기록됩니다.': '※ [适用] = 将经销商价格模拟·按产品收益性分析的基准版本切换为此版本 · 保存/确认记录中自动记录所用版本。',
+  '기준 버전': '基准版本', '비교 대상': '比较对象', '모델별 최종가 · 무상조건 · 수출가 차이': '按型号最终价·赠送条件·出口价差异',
+  '수출가 A': '出口价A', '수출가 B': '出口价B', '차이': '差异', '무상조건 A': '赠送条件A', '무상조건 B': '赠送条件B',
+  '이 버전을 삭제할까요?': '删除此版本?', '적용월(YYYY-MM)': '适用月(YYYY-MM)', '기안일(YYYY-MM-DD)': '拟稿日(YYYY-MM-DD)'
+};
+function polverSummary(v, prev, t) {
+  const nf1 = x => (Math.round(x * 10) / 10).toFixed(1);
+  if (!prev) return { exp: t('기준 (초기값)'), free: t('기준'), inc: t('기준') };
+  const expParts = POLVER_MODELS.map(m => { const a = Number(prev.exp[m]) || 0, b = Number(v.exp[m]) || 0; const pct = a ? (b - a) / a * 100 : 0; return { m, pct }; });
+  const allSame = expParts.every(x => Math.abs(x.pct - expParts[0].pct) < 0.05);
+  const expTxt = allSame ? ('전 모델 ' + (expParts[0].pct === 0 ? '0%' : (expParts[0].pct > 0 ? '+' : '−') + nf1(Math.abs(expParts[0].pct)) + '%'))
+    : expParts.map(x => x.m + ' ' + (Math.abs(x.pct) < 0.05 ? '0' : (x.pct > 0 ? '+' : '−') + nf1(Math.abs(x.pct)) + '%')).join(' · ');
+  const freeCh = POLVER_MODELS.filter(m => Math.abs((v.free[m] || 0) - (prev.free[m] || 0)) > 1e-9).map(m => m + ' 10+' + (Math.round((prev.free[m] || 0) * 100) / 10) + ' → 10+' + (Math.round((v.free[m] || 0) * 100) / 10));
+  const incCh = [];
+  const A = v.inc, B = prev.inc;
+  if (A.monthly !== B.monthly) incCh.push('월목표 ' + B.monthly + '% → ' + A.monthly + '%');
+  ['AO', 'BD', 'ST'].forEach(m => { if ((A.cashReb[m] || 0) !== (B.cashReb[m] || 0)) incCh.push('현금반리 ' + m + ' ' + (B.cashReb[m] || 0) + '% → ' + (A.cashReb[m] || 0) + '%'); });
+  if (A.cashPay !== B.cashPay) incCh.push('현금결제 ' + B.cashPay + '% → ' + A.cashPay + '%');
+  ['S', 'A', 'BC'].forEach(g => { if (A.dso[g] !== B.dso[g]) incCh.push('DSO ' + g + ' ' + B.dso[g] + '% → ' + A.dso[g] + '%'); });
+  ['A', 'B', 'C', 'D'].forEach(g => { if (A.qtr[g] !== B.qtr[g]) incCh.push('분기 ' + g + '급 ' + B.qtr[g] + '% → ' + A.qtr[g] + '%'); });
+  ['A', 'B', 'C', 'D'].forEach(g => { if (A.ann[g] !== B.ann[g]) incCh.push('년간 ' + g + '급 ' + B.ann[g] + '% → ' + A.ann[g] + '%'); });
+  if (A.bd !== B.bd) incCh.push('BD장려 ' + B.bd + '% → ' + A.bd + '%');
+  if ((A.bdModels || []).join() !== (B.bdModels || []).join()) incCh.push('BD장려 ' + (B.bdModels || []).join('·') + ' → ' + (A.bdModels || []).join('·'));
+  return { exp: expTxt, free: freeCh.length ? freeCh.join(' · ') : t('변동 없음'), inc: incCh.length ? incCh.join(' · ') : t('변동 없음') };
+}
+function PolicyVersionPage({ lang }) {
+  const h = React.createElement;
+  const t = s => (lang === 'zh' && POLVER_ZH[s]) ? POLVER_ZH[s] : s;
+  const pv = usePolver();
+  const list = pv.list.slice().sort((a, b) => (a.month > b.month ? -1 : a.month < b.month ? 1 : 0));
+  const [tab, setTab] = React.useState('list');
+  const [openId, setOpenId] = React.useState(pv.activeId);
+  const [editId, setEditId] = React.useState(null);
+  const [draft, setDraft] = React.useState(null);
+  const [cmpA, setCmpA] = React.useState(list[0] ? list[0].id : '');
+  const [cmpB, setCmpB] = React.useState(list[1] ? list[1].id : (list[0] ? list[0].id : ''));
+  const nf = (v, d) => Number(v || 0).toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const prevOf = v => { const idx = pv.list.slice().sort((a, b) => a.month < b.month ? -1 : 1).findIndex(x => x.id === v.id); const s = pv.list.slice().sort((a, b) => a.month < b.month ? -1 : 1); return idx > 0 ? s[idx - 1] : null; };
+  const th = (label, st) => h('th', Object.assign({ className: 'px-2 py-2 text-center' }, st ? { style: st } : {}), label);
+  const setActive = id => pv.save({ list: pv.list, activeId: id });
+  const del = id => { if (pv.list.length <= 1) return; if (!confirm(t('이 버전을 삭제할까요?'))) return; const nl = pv.list.filter(v => v.id !== id); pv.save({ list: nl, activeId: pv.activeId === id ? nl[nl.length - 1].id : pv.activeId }); };
+  const newVer = () => {
+    const base = pv.active;
+    const n = pv.list.length + 1;
+    const d = new Date();
+    const ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    const dd = ym + '-' + String(d.getDate()).padStart(2, '0');
+    const nv = JSON.parse(JSON.stringify(base));
+    nv.id = 'v' + Date.now(); nv.ver = 'v' + n; nv.month = ym; nv.date = dd; nv.memo = '';
+    pv.save({ list: pv.list.concat([nv]), activeId: nv.id });
+    setOpenId(nv.id); setEditId(nv.id); setDraft(nv);
+  };
+  const startEdit = v => { setEditId(v.id); setDraft(JSON.parse(JSON.stringify(v))); setOpenId(v.id); };
+  const saveEdit = () => { pv.save({ list: pv.list.map(v => v.id === draft.id ? draft : v), activeId: pv.activeId }); setEditId(null); setDraft(null); };
+  const dIn = (val, on, w) => h('input', { value: val, onChange: e => on(e.target.value), className: 'kq-cell evi-num px-2 py-1', style: { textAlign: 'center', width: w || '100%' } });
+  const dTxt = (val, on) => h('input', { value: val, onChange: e => on(e.target.value), className: 'kq-txt px-2 py-1 border border-slate-300 text-sm', style: { width: '100%' } });
+  const dlExcel = () => {
+    const R = [[t('버전'), t('적용월'), t('기안일'), t('기안자'), t('수출가 조정 (모델별, 직전 대비)'), t('무상조건 변경'), t('인센티브 변경'), t('비고')]];
+    list.forEach(v => { const s = polverSummary(v, prevOf(v), t); R.push([v.ver, v.month, v.date, v.author, s.exp, s.free, s.inc, v.memo || '']); });
+    R.push([]);
+    R.push([t('버전')].concat(POLVER_MODELS.map(m => m + ' ' + t('수출가 A'))).concat(POLVER_MODELS.map(m => m + ' 10+X')));
+    list.forEach(v => R.push([v.ver].concat(POLVER_MODELS.map(m => ({ v: Number(v.exp[m]) || 0 }))).concat(POLVER_MODELS.map(m => '10+' + (Math.round((v.free[m] || 0) * 100) / 10)))));
+    xlsDownloadRows('정책개정이력', R);
+  };
+
+  const listCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
+    h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+      h('div', { className: 'text-sm font-bold text-slate-800' }, t('개정 이력 목록'), h('span', { className: 'text-xs text-slate-400 font-normal ml-2' }, t('최신이 위 · 행 클릭 시 상세 펼침'))),
+      h('div', { className: 'flex gap-2' },
+        h('button', { onClick: newVer, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('＋ 새 버전 (현재 조건 복사)')),
+        h('button', { onClick: dlExcel, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('⬇ 엑셀')))),
+    h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed' } },
+      h('thead', null, h('tr', null,
+        th(t('버전'), { width: '8%' }), th(t('적용월'), { width: '8%' }), th(t('기안일'), { width: '9%' }), th(t('기안자'), { width: '8%' }),
+        th(t('수출가 조정 (모델별, 직전 대비)')), th(t('무상조건 변경'), { width: '15%' }), th(t('인센티브 변경'), { width: '17%' }), th(t('비고'), { width: '10%' }), th('', { width: '10%' }))),
+      h('tbody', null, list.map(v => {
+        const s = polverSummary(v, prevOf(v), t);
+        const isAct = v.id === pv.activeId;
+        return h('tr', { key: v.id, className: (isAct ? 'bg-slate-50 ' : '') + 'cursor-pointer hover:bg-slate-50', onClick: () => setOpenId(v.id) },
+          h('td', { className: 'kq-txt px-2 py-1.5 text-center font-bold' }, v.ver, isAct ? h('span', { className: 'ml-1 text-[10px] px-1 border border-indigo-500 text-indigo-600 font-bold' }, t('현재')) : null),
+          h('td', { className: 'kq-cell px-2 py-1.5 text-center' }, v.month),
+          h('td', { className: 'kq-cell px-2 py-1.5 text-center' }, v.date),
+          h('td', { className: 'kq-txt px-2 py-1.5 text-center' }, v.author),
+          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, s.exp),
+          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, s.free),
+          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, s.inc),
+          h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, v.memo || '—'),
+          h('td', { className: 'px-2 py-1.5 text-center', onClick: e => e.stopPropagation() },
+            h('button', { onClick: () => setOpenId(v.id), className: 'text-[11px] px-1.5 py-0.5 border border-slate-300 text-slate-600 mr-1' }, t('상세')),
+            h('button', { onClick: () => setActive(v.id), className: 'text-[11px] px-1.5 py-0.5 border ' + (isAct ? 'border-indigo-500 text-indigo-600 font-bold' : 'border-slate-300 text-slate-600') }, t('적용')),
+            pv.list.length > 1 ? h('button', { onClick: () => del(v.id), title: t('삭제'), className: 'ml-1 px-1 py-0.5 rounded text-red-400 hover:text-red-600 text-sm' }, '🗑') : null));
+      }))),
+    h('div', { className: 'text-xs', style: { color: '#000' } }, t('※ [적용] = 대리상가격 시뮬레이션·제품별 수익성 분석의 기준 버전을 이 버전으로 전환 · 저장/확정 이력에는 사용한 버전이 자동 기록됩니다.')));
+
+  const openV = pv.list.find(v => v.id === openId) || pv.active;
+  const prevV = prevOf(openV);
+  const editing = editId === openV.id && draft;
+  const cur = editing ? draft : openV;
+  const setD = f => setDraft(d => { const n = JSON.parse(JSON.stringify(d)); f(n); return n; });
+  const grid3 = h('div', { className: 'grid grid-cols-1 gap-4 polver-grid3', style: { alignItems: 'stretch', gridTemplateColumns: '30fr 26fr 44fr' } },
+    h('div', { className: 'flex flex-col' },
+      h('div', { className: 'text-[13px] font-bold text-slate-800 mb-1.5' }, t('① 수출가 (USD)')),
+      h('table', { className: 'kq-grid w-full polver-eq', style: { fontSize: '13px', tableLayout: 'fixed' } },
+        h('thead', null, h('tr', null, th(t('모델')), th(t('이전') + (prevV ? '(' + prevV.ver + ')' : '')), th(t('현재') + '(' + cur.ver + ')'), th(t('조정')))),
+        h('tbody', null, POLVER_MODELS.map(m => { const a = prevV ? Number(prevV.exp[m]) || 0 : null, b = Number(cur.exp[m]) || 0; const pct = a ? (b - a) / a * 100 : null; return h('tr', { key: m },
+          h('td', { className: 'kq-txt px-2 py-1.5 text-center font-bold' }, m),
+          h('td', { className: 'evi-num px-2 py-1.5' }, a === null ? '—' : nf(a, 2)),
+          h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, editing ? dIn(cur.exp[m], val => setD(n => { n.exp[m] = val; })) : nf(b, 2)),
+          h('td', { className: 'evi-num px-2 py-1.5', style: { color: pct !== null && pct < -0.05 ? '#dc2626' : pct !== null && pct > 0.05 ? '#16a34a' : undefined } }, pct === null ? '—' : (pct > 0 ? '+' : pct < 0 ? '−' : '') + nf(Math.abs(pct), 1) + '%')); })))),
+    h('div', { className: 'flex flex-col' },
+      h('div', { className: 'text-[13px] font-bold text-slate-800 mb-1.5' }, t('② 무상조건 (증정비율)')),
+      h('table', { className: 'kq-grid w-full polver-eq', style: { fontSize: '13px', tableLayout: 'fixed' } },
+        h('thead', null, h('tr', null, th(t('모델'), { width: '22%' }), th(t('이전') + (prevV ? '(' + prevV.ver + ')' : '')), th(t('현재') + '(' + cur.ver + ')'))),
+        h('tbody', null, POLVER_MODELS.map(m => { const fmt = f => Math.round(f * 100) + '% (10+' + (Math.round(f * 100) / 10) + ')'; return h('tr', { key: m },
+          h('td', { className: 'kq-txt px-2 py-1.5 text-center font-bold' }, m),
+          h('td', { className: 'kq-cell px-2 py-1.5 text-center' }, prevV ? fmt(prevV.free[m] || 0) : '—'),
+          h('td', { className: 'kq-cell px-2 py-1.5 text-center font-bold' }, editing ? h('span', { className: 'inline-flex items-center gap-1' }, dIn(Math.round((cur.free[m] || 0) * 100), val => setD(n => { n.free[m] = (parseFloat(val) || 0) / 100; }), '56px'), '%') : fmt(cur.free[m] || 0))); })))),
+    h('div', { className: 'flex flex-col' },
+      h('div', { className: 'text-[13px] font-bold text-slate-800 mb-1.5' }, t('③ 인센티브 요율 (%)')),
+      h('table', { className: 'kq-grid w-full polver-eq', style: { fontSize: '13px', tableLayout: 'fixed' } },
+        h('thead', null, h('tr', null, th(t('정책'), { width: '38%' }), th(t('이전') + (prevV ? '(' + prevV.ver + ')' : '')), th(t('현재') + '(' + cur.ver + ')'))),
+        h('tbody', null, [
+          [t('월목표달성'), v => v.inc.monthly, (val) => setD(n => { n.inc.monthly = parseFloat(val) || 0; })],
+          [t('현금반리 AO/BD/ST'), v => [v.inc.cashReb.AO, v.inc.cashReb.BD, v.inc.cashReb.ST].join('/'), (val) => setD(n => { const a = String(val).split('/'); n.inc.cashReb = { AO: parseFloat(a[0]) || 0, BD: parseFloat(a[1]) || 0, ST: parseFloat(a[2]) || 0 }; })],
+          [t('현금결제'), v => v.inc.cashPay, (val) => setD(n => { n.inc.cashPay = parseFloat(val) || 0; })],
+          [t('DSO S/A/BC'), v => [v.inc.dso.S, v.inc.dso.A, v.inc.dso.BC].join('/'), (val) => setD(n => { const a = String(val).split('/'); n.inc.dso = { S: parseFloat(a[0]) || 0, A: parseFloat(a[1]) || 0, BC: parseFloat(a[2]) || 0 }; })],
+          [t('DSO(ST) S/A/BC'), v => [v.inc.dsoST.S, v.inc.dsoST.A, v.inc.dsoST.BC].join('/'), (val) => setD(n => { const a = String(val).split('/'); n.inc.dsoST = { S: parseFloat(a[0]) || 0, A: parseFloat(a[1]) || 0, BC: parseFloat(a[2]) || 0 }; })],
+          [t('분기 A/B/C/D'), v => [v.inc.qtr.A, v.inc.qtr.B, v.inc.qtr.C, v.inc.qtr.D].join('/'), (val) => setD(n => { const a = String(val).split('/'); n.inc.qtr = { A: parseFloat(a[0]) || 0, B: parseFloat(a[1]) || 0, C: parseFloat(a[2]) || 0, D: parseFloat(a[3]) || 0 }; })],
+          [t('년간 A/B/C/D'), v => [v.inc.ann.A, v.inc.ann.B, v.inc.ann.C, v.inc.ann.D].join('/'), (val) => setD(n => { const a = String(val).split('/'); n.inc.ann = { A: parseFloat(a[0]) || 0, B: parseFloat(a[1]) || 0, C: parseFloat(a[2]) || 0, D: parseFloat(a[3]) || 0 }; })],
+          [t('BD장려'), v => v.inc.bd, (val) => setD(n => { n.inc.bd = parseFloat(val) || 0; })],
+          [t('BD장려 적용 모델'), v => (v.inc.bdModels || []).join('·'), (val) => setD(n => { n.inc.bdModels = String(val).split(/[·,\/\s]+/).filter(Boolean); })]
+        ].map((row, i) => h('tr', { key: i },
+          h('td', { className: 'kq-txt px-2 py-1.5' }, row[0]),
+          h('td', { className: 'kq-cell px-2 py-1.5 text-center' }, prevV ? String(row[1](prevV)) : '—'),
+          h('td', { className: 'kq-cell px-2 py-1.5 text-center font-bold' }, editing ? dIn(String(row[1](cur)), row[2]) : String(row[1](cur)))))))));
+  const detailCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
+    h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+      h('div', { className: 'text-sm font-bold text-slate-800' }, cur.ver + ' ' + t('상세'),
+        editing ? h('span', { className: 'ml-3 inline-flex items-center gap-2 text-xs font-normal' },
+          t('적용월(YYYY-MM)'), dIn(cur.month, val => setD(n => { n.month = val; }), '90px'),
+          t('기안일(YYYY-MM-DD)'), dIn(cur.date, val => setD(n => { n.date = val; }), '110px'),
+          t('기안자'), dIn(cur.author, val => setD(n => { n.author = val; }), '80px'),
+          t('비고'), h('span', { style: { width: '160px', display: 'inline-block' } }, dTxt(cur.memo || '', val => setD(n => { n.memo = val; }))))
+          : h('span', { className: 'text-xs text-slate-400 font-normal ml-2' }, cur.month + ' ' + t('적용') + ' · ' + t('기안') + ' ' + cur.date + (cur.memo ? ' · ' + cur.memo : ''))),
+      h('div', { className: 'flex gap-2' },
+        editing ? [h('button', { key: 's', onClick: saveEdit, className: 'px-2 py-1.5 text-sm rounded-lg border border-indigo-600 bg-indigo-600 text-white' }, t('저장')), h('button', { key: 'c', onClick: () => { setEditId(null); setDraft(null); }, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600' }, t('취소'))]
+          : [h('button', { key: 'e', onClick: () => startEdit(openV), className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('수정')),
+             h('button', { key: 'a', onClick: () => setActive(openV.id), className: 'px-2 py-1.5 text-sm rounded-lg border ' + (openV.id === pv.activeId ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300 text-slate-600 hover:bg-slate-50') }, t('이 버전으로 계산'))])),
+    grid3);
+
+  const A = pv.list.find(v => v.id === cmpA) || list[0], B = pv.list.find(v => v.id === cmpB) || list[0];
+  const selCls = 'px-2 py-1.5 border border-slate-300 text-sm bg-white';
+  const cmpCard = (A && B) ? h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
+    h('div', { className: 'flex items-center gap-3 flex-wrap' },
+      h('span', { className: 'text-sm font-bold text-slate-800' }, t('버전 비교')),
+      h('span', { className: 'text-xs text-slate-500' }, t('기준 버전')), h('select', { value: A.id, onChange: e => setCmpA(e.target.value), className: selCls }, list.map(v => h('option', { key: v.id, value: v.id }, v.ver + ' · ' + v.month))),
+      h('span', { className: 'text-xs text-slate-500' }, t('비교 대상')), h('select', { value: B.id, onChange: e => setCmpB(e.target.value), className: selCls }, list.map(v => h('option', { key: v.id, value: v.id }, v.ver + ' · ' + v.month)))),
+    h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed' } },
+      h('thead', null, h('tr', null, th(t('모델')), th(t('수출가 A') + ' (' + A.ver + ')'), th(t('수출가 B') + ' (' + B.ver + ')'), th(t('차이')), th(t('무상조건 A')), th(t('무상조건 B')))),
+      h('tbody', null, POLVER_MODELS.map(m => { const a = Number(A.exp[m]) || 0, b = Number(B.exp[m]) || 0; const pct = a ? (b - a) / a * 100 : 0; return h('tr', { key: m },
+        h('td', { className: 'kq-txt px-2 py-1.5 text-center font-bold' }, m),
+        h('td', { className: 'evi-num px-2 py-1.5' }, nf(a, 2)), h('td', { className: 'evi-num px-2 py-1.5' }, nf(b, 2)),
+        h('td', { className: 'evi-num px-2 py-1.5', style: { color: pct < -0.05 ? '#dc2626' : pct > 0.05 ? '#16a34a' : undefined } }, (pct > 0 ? '+' : pct < 0 ? '−' : '') + nf(Math.abs(pct), 1) + '%'),
+        h('td', { className: 'kq-cell px-2 py-1.5 text-center' }, '10+' + (Math.round((A.free[m] || 0) * 100) / 10)),
+        h('td', { className: 'kq-cell px-2 py-1.5 text-center' }, '10+' + (Math.round((B.free[m] || 0) * 100) / 10))); }))),
+    h('div', { className: 'text-xs text-slate-500' }, t('모델별 최종가 · 무상조건 · 수출가 차이'))) : null;
+
+  return h('div', { className: 'p-6 space-y-4' },
+    h('div', { className: 'border-b border-slate-200 flex gap-2' },
+      [['list', t('개정 이력')], ['cmp', t('버전 비교')]].map(([k, l]) => h('button', { key: k, onClick: () => setTab(k), className: 'px-4 py-2 text-sm font-semibold border-b-2 -mb-px ' + (tab === k ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500') }, l))),
+    tab === 'list' ? listCard : null,
+    tab === 'list' ? detailCard : null,
+    tab === 'cmp' ? cmpCard : null);
+}
+function PolverBar({ lang }) {
+  const h = React.createElement;
+  const t = s => (lang === 'zh' && POLVER_ZH[s]) ? POLVER_ZH[s] : s;
+  const pv = usePolver();
+  const list = pv.list.slice().sort((a, b) => (a.month > b.month ? -1 : 1));
+  return h('div', { className: 'flex items-center gap-2 text-xs' },
+    h('span', { className: 'text-slate-500' }, t('기준 버전')),
+    h('select', { value: pv.activeId, onChange: e => pv.save({ list: pv.list, activeId: e.target.value }), className: 'px-2 py-1 border border-slate-300 bg-white text-xs' },
+      list.map(v => h('option', { key: v.id, value: v.id }, v.ver + ' · ' + v.month + (v.id === list[0].id ? ' (' + t('현재') + ')' : '')))));
 }
 
 const EVIFIX_ZH = {
@@ -14046,13 +14287,13 @@ function EviTabsPage(props) {
 }
 
 const SIMGP_ZH = {
-  '대리상 등급': '经销商等级', '거래유형': '交易类型', '제품': '产品', '키트': '工具盒',
+  '대리상 등급': '经销商等级', '거래유형': '交易类型', '제품': '产品', '키트': '工具盒', '기준 버전': '基准版本', '전용': '专用',
   '민영(일반치과)': '民营(一般牙科)', '모두': '全部', '표준(Standard)': '标准(Standard)', '풀(Full)': 'Full(全套)',
-  '최종 공급가': '最终供货价', '최종 본사 GP': '最终总部GP', '총 할인율(실판매 대비)': '累计折扣率(对比常规)',
+  '최종 공급가': '最终供货价', '최종 법인GP': '最终公司GP', '총 할인율(실판매 대비)': '累计折扣率(对比常规)',
   '총 할인금액': '折扣总额', '적용 정책 수': '应用政策数', '개': '个',
   '제품별 결과': '按产品结果', '엑셀 다운로드': '下载Excel', '현재 조건 확정': '确认当前条件',
-  '기준가': '基准价', '실판매가': '常规价', '월반영가': '月返价', '분기반영가': '季度返价', '최종(년도반)': '最终(年度返)', '본사 GP (%)': '总部GP(%)',
-  '모두 보기': '查看全部', '정책 단계별 비교': '按政策阶段比较', '단계': '阶段', '공급가': '供货价', '적용 요율': '应用比率',
+  '기준가': '基准价', '실판매가': '常规价', '월반영가': '月返价', '분기반영가': '季度返价', '최종(년도반)': '最终(年度返)', '법인GP (%)': '公司GP(%)',
+  '모두 보기': '查看全部', '정책 단계별 비교': '按政策阶段比较', '단계': '阶段', '공급가': '供货价', '적용요약(%)': '应用摘要(%)',
   '대리상 수익성 요약': '经销商收益性汇总', '판매가': '终端售价', '수익(최종)': '收益(最终)',
   '실판매마진': '常规GP率', '월반': '月返', '분기반': '季度返', '최종': '最终',
   '인센티브 정책 선택': '激励政策选择', '등급 변경 시 자동 적용 · 수동 조정 가능': '等级变更时自动适用 · 可手动调整',
@@ -14062,9 +14303,13 @@ const SIMGP_ZH = {
   '⑤ 분기리베이트(제품 반환)': '⑤ 季度返利(返货)', '⑥ 년간리베이트(현금)': '⑥ 年度返利(现金)', '⑦ BD장려(현금)': '⑦ BD奖励(现金)',
   '모델별 확정 최종금액': '按型号确认最终金额', '전체 삭제': '全部删除', '민영': '民营',
   '메모': '备注', '숨기기': '隐藏', '보기': '显示',
+  '실판매가': '实销价', '무상조건': '赠送条件', 'BD 전용': 'BD专用', '구분': '区分', '단계': '阶段', '년간 (최종)': '年度(最终)', '월반영': '月返反映', '분기반영': '季度返反映', '최종 (년도반)': '最终(年度返)', '공급가': '供货价', '수익': '收益', '마진율': '利润率',
+  '단계별 수익 상세': '分阶段收益明细', '정책별 기여분 · 단위: RMB': '按政策贡献 · 单位: RMB', '단계 (적용 정책)': '阶段(适用政策)', '대리상 공급가': '经销商供货价', '공급가 인하': '供货价下调', '대리상 수익': '经销商收益', '수익 증가': '收益增加', '마진율 증가': '利润率增加', '증정': '赠送', '월목표·현금반리': '月目标·现金返利', '분기리베이트': '季度返利', '년간·BD (최종)': '年度·BD(最终)',
+  '※ 수익 = 판매가 − 해당 단계 공급가 · 마진율 = 수익 ÷ 판매가 · 정책이 하나씩 적용될수록 공급가↓ 수익↑ 마진율↑ · 판매가는 표에서 직접 수정': '※ 收益 = 售价 − 该阶段供货价 · 利润率 = 收益 ÷ 售价 · 每叠加一项政策，供货价↓ 收益↑ 利润率↑ · 售价可在表中直接修改',
+  '※ 공급가 인하 = 직전 단계 대비 · 수익 증가 = 공급가 인하분과 동일 · 마진율 증가 = %p': '※ 供货价下调 = 相对上一阶段 · 收益增加 = 与下调额相同 · 利润率增加 = 百分点',
   '협의 내용을 남겨두세요 (자동 저장 · 줄바꿈 자동)': '请留下协议内容 (自动保存 · 自动换行)'
 };
-function SimGpPage({ lang }) {
+function SimGpPage({ lang, page }) {
   const h = React.createElement;
   const t = s => (lang === 'zh' && SIMGP_ZH[s]) ? SIMGP_ZH[s] : s;
   const FX = 7.2, FACTOR = 1.14;
@@ -14083,11 +14328,19 @@ function SimGpPage({ lang }) {
     ST: { MY: 250, S: 220, A: 230, BC: 250 },
     ARi: { MY: 600, S: 550, A: 570, BC: 590 }
   };
-  const cashRebOf = p => p === 'AO' ? 0.05 : p === 'BD' ? 0.025 : p === 'ST' ? 0.02 : 0;
-  const dsoOf = (p, g) => (p === 'ST' ? { S: 0.20, A: 0.15, BC: 0.10 } : { S: 0.08, A: 0.05, BC: 0.03 })[g] || 0;
-  const qtrOf = (p, gr) => p === 'ST' ? 0 : (({ A: 0.04, B: 0.03, C: 0.03, D: 0.02 })[gr] || 0);
-  const annOf = (p, gr) => p === 'ST' ? 0 : (({ A: 0.03, B: 0.02, C: 0.01, D: 0.01 })[gr] || 0);
-  const bdOf = p => (p === 'BD' || p === 'ARi') ? 0.01 : 0;
+  const PV = usePolver();
+  const PVA = PV.active;
+  const PVI = PVA.inc;
+  const bdModels = PVI.bdModels || ['BD'];
+  const cashRebOf = p => ((PVI.cashReb && PVI.cashReb[p]) || 0) / 100;
+  const dsoOf = (p, g) => (((p === 'ST' ? PVI.dsoST : PVI.dso) || {})[g] || 0) / 100;
+  const qtrOf = (p, gr) => p === 'ST' ? 0 : (((PVI.qtr || {})[gr] || 0) / 100);
+  const annOf = (p, gr) => p === 'ST' ? 0 : (((PVI.ann || {})[gr] || 0) / 100);
+  const bdOf = p => bdModels.indexOf(p) !== -1 ? (PVI.bd || 0) / 100 : 0;
+  const monthlyRate = (PVI.monthly != null ? PVI.monthly : 1) / 100;
+  const cashPayRate = (PVI.cashPay != null ? PVI.cashPay : 3) / 100;
+  const expOf = p => (PVA.exp && PVA.exp[p] != null) ? Number(PVA.exp[p]) : PDATA[p].usd;
+  const freeOf = p => (PVA.free && PVA.free[p] != null) ? Number(PVA.free[p]) : PDATA[p].free;
 
   const LSK = 'simgp_state_v2';
   const init = (() => { try { return JSON.parse(localStorage.getItem(LSK) || '{}') || {}; } catch (e) { return {}; } })();
@@ -14115,15 +14368,15 @@ function SimGpPage({ lang }) {
     const d = PDATA[p];
     const kn = d.kits[kitSel] ? kitSel : Object.keys(d.kits)[0];
     const K = d.kits[kn];
-    const impl = d.usd * FX * FACTOR, kitC = K.usd * FX * FACTOR, qty = K.qty;
-    const y = rateOf('cashPay', 0.03);
-    const i = d.free;
-    const L = rateOf('monthly', 0.01);
+    const impl = expOf(p) * FX * FACTOR, kitC = K.usd * FX * FACTOR, qty = K.qty;
+    const y = rateOf('cashPay', cashPayRate);
+    const i = freeOf(p);
+    const L = rateOf('monthly', monthlyRate);
     const O = d.base * rateOf('cashReb', cashRebOf(p));
     const dDso = dirNum('dso');
     const R = trade === 'DSO' ? (dDso !== null ? dDso : (dsoSel === 'off' ? 0 : dsoOf(p, dsoSel))) : 0;
     const U = rateOf('qtr', qtrOf(p, grade));
-    const X = rateOf('ann', annOf(p, grade)) + rateOf('bd', bdOf(p));
+    const X = rateOf('ann', annOf(p, grade)) + (bdModels.indexOf(p) !== -1 ? rateOf('bd', bdOf(p)) : 0);
     const den0 = d.base * (1 - y);
     const p1 = d.base / (1 + i) * (1 - y);
     const p2my = (d.base - O) / (1 + i) * (1 - y);
@@ -14147,7 +14400,8 @@ function SimGpPage({ lang }) {
   scope.forEach(p => { R0[p] = calc(p); });
   const c0 = R0[scope[0]];
 
-  const money = v => Number(v || 0).toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const money = v => Math.round(Number(v || 0)).toLocaleString('ko-KR');
+  const money0 = money;
   const pct = v => ((v || 0) * 100).toFixed(1);
   const gpBg = g => { const p0 = g * 100; return p0 < 35 ? '#FCE7E7' : p0 < 40 ? '#FCF3D7' : p0 < 50 ? '#DFF2E7' : '#C9E9D8'; };
   const mgBg = r => { const p0 = r * 100; return p0 < 10 ? '#FCE7E7' : p0 < 15 ? '#FCF3D7' : p0 < 20 ? '#DFF2E7' : '#C9E9D8'; };
@@ -14155,7 +14409,9 @@ function SimGpPage({ lang }) {
 
   const selCls = 'w-full px-3 py-2 border border-slate-300 text-sm bg-white';
   const fld = (label, el) => h('div', null, h('label', { className: 'block text-xs text-slate-500 mb-1' }, label), el);
-  const topBar = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 grid grid-cols-2 md:grid-cols-4 gap-3 items-end' },
+  const topBar = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 grid grid-cols-2 md:grid-cols-5 gap-3 items-end' },
+    fld(t('기준 버전'), h('select', { value: PV.activeId, onChange: e => PV.save({ list: PV.list, activeId: e.target.value }), className: selCls },
+      PV.list.slice().sort((a, b) => (a.month > b.month ? -1 : 1)).map(v => h('option', { key: v.id, value: v.id }, v.ver + ' · ' + v.month + (v.memo ? ' · ' + v.memo : ''))))),
     fld(t('대리상 등급'), h('select', { value: grade, onChange: e => setGrade(e.target.value), className: selCls },
       ['A', 'B', 'C', 'D'].map(g => h('option', { key: g, value: g }, g)))),
     fld(t('거래유형'), h('select', { value: trade, onChange: e => setTrade(e.target.value), className: selCls },
@@ -14171,14 +14427,14 @@ function SimGpPage({ lang }) {
   const kpiSuffix = scope.length > 1 ? ' (' + scope[0] + ')' : '';
   const kpiRow = h('div', { className: 'grid grid-cols-2 lg:grid-cols-5 gap-3' },
     kpi(t('최종 공급가') + kpiSuffix, money(c0.p4), '#4f46e5'),
-    kpi(t('최종 본사 GP') + kpiSuffix, pct(c0.g4) + '%', '#16a34a'),
+    kpi(t('최종 법인GP') + kpiSuffix, pct(c0.g4) + '%', '#16a34a'),
     kpi(t('총 할인율(실판매 대비)'), pct(1 - c0.p4 / c0.p1) + '%', '#000'),
     kpi(t('총 할인금액') + kpiSuffix, '-' + money(c0.p1 - c0.p4), '#dc2626'),
     kpi(t('적용 정책 수'), c0.nPol + t('개'), '#000'));
 
   const dlResult = () => {
-    const R = [[t('제품'), t('기준가'), t('실판매가'), t('월반영가'), t('분기반영가'), t('최종(년도반)'), t('본사 GP (%)')]];
-    scope.forEach(p => { const c = R0[p]; R.push([p, { v: c.base }, { v: +c.p1.toFixed(1) }, { v: +c.st2.toFixed(1) }, { v: +c.p3.toFixed(1) }, { v: +c.p4.toFixed(1) }, { v: +pct(c.g4) }]); });
+    const R = [[t('제품'), t('기준가'), t('실판매가'), t('월반영가'), t('분기반영가'), t('최종(년도반)'), t('법인GP (%)')]];
+    scope.forEach(p => { const c = R0[p]; R.push([p, { v: Math.round(c.base) }, { v: Math.round(c.p1) }, { v: Math.round(c.st2) }, { v: Math.round(c.p3) }, { v: Math.round(c.p4) }, { v: +pct(c.g4) }]); });
     xlsDownloadRows('대리상가격_제품별결과', R);
   };
   const dlProfit = () => {
@@ -14186,17 +14442,17 @@ function SimGpPage({ lang }) {
     scope.forEach(p => {
       const c = R0[p], sp = sellOf(p);
       const mg = v => sp > 0 ? +(((sp - v) / sp) * 100).toFixed(1) : 0;
-      R.push([p, { v: sp }, { v: +c.p1.toFixed(1) }, { v: +c.st2.toFixed(1) }, { v: +c.p3.toFixed(1) }, { v: +c.p4.toFixed(1) },
+      R.push([p, { v: sp }, { v: Math.round(c.p1) }, { v: Math.round(c.st2) }, { v: Math.round(c.p3) }, { v: Math.round(c.p4) },
         { f: '=(RC2-RC3)/RC2*100', v: mg(c.p1) }, { f: '=(RC2-RC4)/RC2*100', v: mg(c.st2) },
         { f: '=(RC2-RC5)/RC2*100', v: mg(c.p3) }, { f: '=(RC2-RC6)/RC2*100', v: mg(c.p4) },
-        { f: '=RC2-RC6', v: +(sp - c.p4).toFixed(1) }]);
+        { f: '=RC2-RC6', v: Math.round(sp - c.p4) }]);
     });
     xlsDownloadRows('대리상가격_수익성요약', R);
   };
   const doConfirm = () => {
     const d2 = new Date();
     const ds2 = d2.getFullYear() + '-' + String(d2.getMonth() + 1).padStart(2, '0') + '-' + String(d2.getDate()).padStart(2, '0');
-    setConfirmed(o => { const n2 = Object.assign({}, o); scope.forEach(p => { n2[p] = { price: +R0[p].p4.toFixed(1), gp: +pct(R0[p].g4), grade, trade, dso: trade === 'DSO' ? dsoSel : '-', date: ds2 }; }); return n2; });
+    setConfirmed(o => { const n2 = Object.assign({}, o); scope.forEach(p => { n2[p] = { price: Math.round(R0[p].p4), gp: +pct(R0[p].g4), grade, trade, dso: trade === 'DSO' ? dsoSel : '-', date: ds2, ver: PVA.ver }; }); return n2; });
   };
 
   const btnCls = 'px-3 py-1.5 text-xs font-semibold border ';
@@ -14211,39 +14467,56 @@ function SimGpPage({ lang }) {
     h('table', { className: 'kq-grid w-full', style: { fontSize: '13.5px', tableLayout: 'fixed' } },
       h('thead', null, h('tr', null,
         h('th', { className: 'px-2 py-2 text-left' }, t('제품')),
-        th2(t('기준가')), th2(t('실판매가')), th2(t('월반영가')), th2(t('분기반영가')), th2(t('최종(년도반)')), th2(t('본사 GP (%)')))),
+        th2(t('기준가')), th2(t('실판매가')), th2(t('월반영가')), th2(t('분기반영가')), th2(t('최종(년도반)')), th2(t('법인GP (%)')))),
       h('tbody', null, scope.map(p => { const c = R0[p]; return h('tr', { key: p, onClick: prod === 'ALL' ? () => setProd(p) : undefined, className: prod === 'ALL' ? 'cursor-pointer hover:bg-slate-50' : '' },
         h('td', { className: 'kq-txt px-2 py-1.5 font-bold' }, p),
-        h('td', { className: 'evi-num px-2 py-1.5' }, money(c.base)),
-        h('td', { className: 'evi-num px-2 py-1.5' }, money(c.p1)),
-        h('td', { className: 'evi-num px-2 py-1.5' }, money(c.st2)),
-        h('td', { className: 'evi-num px-2 py-1.5' }, money(c.p3)),
-        h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, money(c.p4)),
-        h('td', { className: 'evi-num px-2 py-1.5' }, pct(c.g4))); }))),
+        h('td', { className: 'evi-num px-2 py-1.5' }, money0(c.base)),
+        h('td', { className: 'evi-num px-2 py-1.5' }, money0(c.p1)),
+        h('td', { className: 'evi-num px-2 py-1.5' }, money0(c.st2)),
+        h('td', { className: 'evi-num px-2 py-1.5' }, money0(c.p3)),
+        h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, money0(c.p4)),
+        h('td', { className: 'evi-num px-2 py-1.5' }, pct(c.g4) + '%')); }))),
     h('div', { className: 'text-xs', style: { color: '#000' } },
-      '※ ' + t('공급가') + ' = (' + t('기준가') + ' − 현금반리) ÷ (1 + 증정비율 합계) × 결제할인 · 최종 = ×(1 − 년간·BD 요율) · 본사 GP = 수입원가(USD×7.2×1.14)·키트원가·증정 기준수량 반영' + (prod === 'ALL' ? ' · 행 클릭 시 단독 보기' : '')));
+      '※ ' + t('공급가') + ' = (' + t('기준가') + ' − 현금반리) ÷ (1 + 증정비율 합계) × 결제할인 · 실판매가의 증정비율 = 무상조건 10+X (X = 증정% ÷ 10, 예: 35% = 10+3.5) · 최종 = ×(1 − 년간·BD 요율) · 법인GP = 법인 도착원가(USD×7.2×1.14)·키트원가·증정 기준수량 대비 대리상 공급가 GP' + (prod === 'ALL' ? ' · 행 클릭 시 단독 보기' : '')));
 
-  const stageCard = prod !== 'ALL' ? (() => {
-    const c = R0[prod];
+  const [stageProd, setStageProd] = React.useState(null);
+  const sProd = prod !== 'ALL' ? prod : (scope.indexOf(stageProd) !== -1 ? stageProd : scope[0]);
+  const stageCard = (() => {
+    const c = R0[sProd];
     const rows = [
       ['실판매 (증정 ' + pct(c.i) + '%)', c.p1, c.g1, pct(c.i) + '%'],
       ['+ ① 월목표 1% (가격 동일)', c.p1, c.gM, pct(c.L) + '%'],
       ['+ ② 현금반리', c.p2my, c.g2my, money(c.O) + ' RMB']];
     if (trade === 'DSO') rows.push(['+ ④ DSO 증정', c.pS, c.g2dso, pct(c.R) + '%']);
     rows.push(['+ ⑤ 분기리베이트', c.p3, c.g3, pct(c.U) + '%']);
-    rows.push(['+ ⑥⑦ 년간·BD (' + t('최종') + ')', c.p4, c.g4, pct(c.X) + '%']);
+    rows.push([(bdModels.indexOf(sProd) !== -1 ? '+ ⑥⑦ 년간·BD (' : '+ ⑥ 년간 (') + t('최종') + ')', c.p4, c.g4, pct(c.X) + '%']);
     return h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
-      h('div', { className: 'text-sm font-bold text-slate-800' }, prod + ' · ' + t('정책 단계별 비교') + ' (' + t('키트') + ': ' + c.kn + ')'),
+      h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+        h('div', { className: 'text-sm font-bold text-slate-800' }, sProd + ' · ' + t('정책 단계별 비교') + ' (' + t('키트') + ': ' + c.kn + ')'),
+        prod === 'ALL' ? h('div', { className: 'flex gap-1' }, scope.map(p => h('button', {
+          key: p, onClick: () => setStageProd(p),
+          className: 'px-2.5 py-1 text-xs border ' + (sProd === p ? 'border-indigo-600 bg-indigo-600 text-white font-bold' : 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50'),
+          style: { borderRadius: 0 }
+        }, p))) : null),
       h('table', { className: 'kq-grid w-full', style: { fontSize: '13.5px', tableLayout: 'fixed' } },
         h('thead', null, h('tr', null,
-          h('th', { className: 'px-2 py-2 text-left', style: { width: '34%' } }, t('단계')), th2(t('공급가')), th2(t('본사 GP (%)')), th2(t('적용 요율')))),
+          h('th', { className: 'px-2 py-2 text-left', style: { width: '34%' } }, t('단계')), th2(t('공급가')), th2(t('법인GP (%)')), th2(t('적용요약(%)')))),
         h('tbody', null, rows.map((r, i2) => h('tr', { key: i2, className: i2 === rows.length - 1 ? 'font-bold' : '' },
           h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'normal' } }, r[0]),
           h('td', { className: 'evi-num px-2 py-1.5' }, money(r[1])),
-          h('td', { className: 'evi-num px-2 py-1.5' }, pct(r[2])),
+          h('td', { className: 'evi-num px-2 py-1.5' }, pct(r[2]) + '%'),
           h('td', { className: 'evi-num px-2 py-1.5' }, r[3]))))));
-  })() : null;
+  })();
 
+  const [detailOpen, setDetailOpen] = React.useState(() => { try { return localStorage.getItem('simgp_detail_open') === '1'; } catch (e) { return false; } });
+  React.useEffect(() => { try { localStorage.setItem('simgp_detail_open', detailOpen ? '1' : '0'); } catch (e) {} }, [detailOpen]);
+  const sepL = { borderLeft: '1px solid #cbd5e1' };
+  const freeLbl = c => '10+' + (Math.round(c.i * 100) / 10).toString().replace(/\.0$/, '');
+  const stageDefs = c => [
+    ['① ' + t('실판매가'), c.p1],
+    ['② ' + t('월반영'), c.st2],
+    ['③ ' + t('분기반영'), c.p3],
+    ['④ ' + t('최종 (년도반)'), c.p4]];
   const profitCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
     h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
       h('div', { className: 'text-sm font-bold text-slate-800' }, t('대리상 수익성 요약'),
@@ -14252,31 +14525,91 @@ function SimGpPage({ lang }) {
     h('div', { className: 'text-xs px-3 py-2 border border-slate-200 bg-slate-50', style: { color: '#334155', whiteSpace: 'normal' } },
       lang === 'zh' ? '※ 修改终端售价后，收益与各阶段GP率会立即重新计算。变更交易类型或DSO等级时，自动切换为该渠道的默认售价；修改过的售价会自动保存。'
         : '※ 판매가를 수정하면 수익과 단계별 마진율이 즉시 다시 계산됩니다. 거래유형·DSO 등급을 바꾸면 해당 채널의 기본 판매가로 전환되고, 수정한 판매가는 자동 저장됩니다.'),
-    h('table', { className: 'kq-grid w-full', style: { fontSize: '13.5px', tableLayout: 'fixed' } },
+    h('table', { className: 'kq-grid w-full simgp-prof', style: { fontSize: '13px', tableLayout: 'fixed' } },
       h('thead', null, h('tr', null,
-        h('th', { className: 'px-2 py-2 text-left' }, t('제품')),
-        th2(t('판매가')), th2(t('최종 공급가')), th2(t('수익(최종)')),
-        th2(t('실판매마진')), th2(t('월반')), th2(t('분기반')), th2(t('최종')))),
-      h('tbody', null, scope.map(p => {
-        const c = R0[p], sp = sellOf(p);
-        const mg = v => sp > 0 ? (sp - v) / sp : 0;
-        return h('tr', { key: p },
-          h('td', { className: 'kq-txt px-2 py-1.5 font-bold' }, p),
-          h('td', { className: 'px-2 py-1.5' }, h('input', {
+        h('th', { className: 'px-2 py-2 text-center', style: { width: '18%' } }, t('구분')),
+        scope.map(p => h('th', { key: p, colSpan: 3, className: 'px-2 py-1.5 text-center', style: sepL }, p)))),
+      h('tbody', null, [
+        h('tr', { key: 'hd' },
+          h('td', { className: 'kq-txt px-2 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('단계')),
+          scope.map(p => [
+            h('td', { key: p + 'a', className: 'kq-txt px-1 py-1.5 text-center', style: Object.assign({ background: '#f1f5f9', fontWeight: 700, color: '#334155' }, sepL) }, t('공급가')),
+            h('td', { key: p + 'b', className: 'kq-txt px-1 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('수익')),
+            h('td', { key: p + 'c', className: 'kq-txt px-1 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('마진율'))])),
+        h('tr', { key: 'free' },
+          h('td', { className: 'kq-txt px-2 py-1.5' }, t('무상조건')),
+          scope.map(p => h('td', { key: p, colSpan: 3, className: 'kq-txt px-2 py-1.5 text-center', style: sepL }, freeLbl(R0[p])))),
+        h('tr', { key: 'sell' },
+          h('td', { className: 'kq-txt px-2 py-1.5' }, t('판매가')),
+          scope.map(p => h('td', { key: p, colSpan: 3, className: 'px-2 py-1.5', style: sepL }, h('input', {
             value: sellEd[p + '_' + chKey] != null && sellEd[p + '_' + chKey] !== '' ? sellEd[p + '_' + chKey] : SELL_DEF[p][chKey],
             onChange: e => { const v0 = e.target.value.replace(/[^0-9.]/g, ''); setSellEd(o => Object.assign({}, o, { [p + '_' + chKey]: v0 })); },
-            className: 'evi-num w-full text-right bg-transparent focus:outline-none',
-            style: { border: 'none', borderRadius: 0 }
-          })),
-          h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, money(c.p4)),
-          h('td', { className: 'evi-num px-2 py-1.5' }, money(sp - c.p4)),
-          h('td', { className: 'evi-num px-2 py-1.5' }, pct(mg(c.p1))),
-          h('td', { className: 'evi-num px-2 py-1.5' }, pct(mg(c.st2))),
-          h('td', { className: 'evi-num px-2 py-1.5' }, pct(mg(c.p3))),
-          h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, pct(mg(c.p4))));
-      }))),
+            className: 'evi-num w-full bg-transparent focus:outline-none',
+            style: { border: 'none', borderRadius: 0, textAlign: 'center' }
+          })))),
+        [0, 1, 2, 3].map(i2 => {
+          const last = i2 === 3;
+          const names = ['① ' + t('실판매가'), '② ' + t('월반영'), '③ ' + t('분기반영'), '④ ' + t('최종 (년도반)')];
+          return h('tr', { key: 's' + i2 },
+            h('td', { className: 'kq-txt px-2 py-1.5' + (last ? ' font-bold' : '') }, names[i2]),
+            scope.map(p => {
+              const c = R0[p], sp = sellOf(p);
+              const v = stageDefs(c)[i2][1];
+              const cls = 'evi-num px-1 py-1.5' + (last ? ' font-bold' : '');
+              return [
+                h('td', { key: p + 'a', className: cls, style: sepL }, money(v)),
+                h('td', { key: p + 'b', className: cls }, money(sp - v)),
+                h('td', { key: p + 'c', className: cls }, pct(sp > 0 ? (sp - v) / sp : 0) + '%')];
+            }));
+        })])),
     h('div', { className: 'text-xs', style: { color: '#000' } },
-      '※ 대리상 마진율 = (판매가 − 해당 단계 공급가) ÷ 판매가 · 판매가는 표에서 직접 수정(거래유형·DSO 등급별 기본값 자동)'));
+      t('※ 수익 = 판매가 − 해당 단계 공급가 · 마진율 = 수익 ÷ 판매가 · 정책이 하나씩 적용될수록 공급가↓ 수익↑ 마진율↑ · 판매가는 표에서 직접 수정')));
+
+  const [detailProd, setDetailProd] = React.useState(null);
+  const dScope = scope.length > 1 ? [scope.indexOf(detailProd) !== -1 ? detailProd : scope[0]] : scope;
+  const detailCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
+    h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+      h('div', { className: 'text-sm font-bold text-slate-800' }, t('단계별 수익 상세'),
+        h('span', { className: 'text-xs text-slate-400 font-normal ml-2' }, t('정책별 기여분 · 단위: RMB'))),
+      h('div', { className: 'flex items-center gap-2' },
+        (detailOpen && scope.length > 1) ? h('div', { className: 'flex gap-1' }, scope.map(p => h('button', {
+          key: p, onClick: () => setDetailProd(p),
+          className: 'px-2.5 py-1 text-xs border ' + (dScope[0] === p ? 'border-indigo-600 bg-indigo-600 text-white font-bold' : 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50'),
+          style: { borderRadius: 0 }
+        }, p))) : null,
+        h('button', { onClick: () => setDetailOpen(v => !v), className: btnCls + 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50' }, detailOpen ? t('숨기기') : t('보기')))),
+    detailOpen ? dScope.map(p => {
+      const c = R0[p], sp = sellOf(p);
+      const st = stageDefs(c);
+      const labels = ['① ' + t('실판매가') + ' (' + t('증정') + ' ' + pct(c.i) + '% = ' + freeLbl(c) + ')', '② + ' + t('월목표·현금반리'), '③ + ' + t('분기리베이트'), (bdModels.indexOf(p) !== -1 ? '④ + ' + t('년간·BD (최종)') : '④ + ' + t('년간 (최종)'))];
+      return h('div', { key: p, className: 'space-y-1' },
+        h('table', { className: 'kq-grid w-full simgp-prof', style: { fontSize: '13px', tableLayout: 'fixed' } },
+          h('thead', null, h('tr', null,
+            h('th', { className: 'px-2 py-2 text-center', style: { width: '26%' } }, t('단계 (적용 정책)') + (scope.length > 1 ? ' — ' + p : '')),
+            th2(t('대리상 공급가')), th2(t('공급가 인하')),
+            h('th', { className: 'px-2 py-2 text-center', style: sepL }, t('판매가')),
+            th2(t('대리상 수익')), th2(t('수익 증가')),
+            h('th', { className: 'px-2 py-2 text-center', style: sepL }, t('마진율')),
+            th2(t('마진율 증가')))),
+          h('tbody', null, st.map((s0, i2) => {
+            const prev = i2 > 0 ? st[i2 - 1][1] : null;
+            const prof = sp - s0[1], mgv = sp > 0 ? prof / sp : 0;
+            const dPrice = prev === null ? null : s0[1] - prev;
+            const dMg = prev === null ? null : mgv - (sp > 0 ? (sp - prev) / sp : 0);
+            const last = i2 === 3, cls = 'evi-num px-2 py-1.5' + (last ? ' font-bold' : '');
+            const sgn = v => (v > 0 ? '+' : v < 0 ? '−' : '') + money(Math.abs(v));
+            return h('tr', { key: i2 },
+              h('td', { className: 'kq-txt px-2 py-1.5' + (last ? ' font-bold' : '') }, labels[i2]),
+              h('td', { className: cls }, money(s0[1])),
+              h('td', { className: 'evi-num px-2 py-1.5' }, dPrice === null ? '—' : sgn(dPrice)),
+              h('td', { className: 'evi-num px-2 py-1.5', style: sepL }, money(sp)),
+              h('td', { className: cls }, money(prof)),
+              h('td', { className: 'evi-num px-2 py-1.5' }, dPrice === null ? '—' : sgn(-dPrice)),
+              h('td', { className: cls, style: sepL }, pct(mgv) + '%'),
+              h('td', { className: 'evi-num px-2 py-1.5' }, dMg === null ? '—' : (dMg >= 0 ? '+' : '−') + pct(Math.abs(dMg)) + '%p'));
+          }))));
+    }) : null,
+    detailOpen ? h('div', { className: 'text-xs', style: { color: '#000' } }, t('※ 공급가 인하 = 직전 단계 대비 · 수익 증가 = 공급가 인하분과 동일 · 마진율 증가 = %p')) : null);
 
   const opBtn = (sel2, colorCls, label, onClick, dis, key2) => h('button', {
     key: key2, onClick: dis ? undefined : onClick,
@@ -14310,13 +14643,13 @@ function SimGpPage({ lang }) {
       h('span', { className: 'text-xs text-slate-400 ml-2' }, t('등급 변경 시 자동 적용 · 수동 조정 가능'))),
     polRow('monthly', t('① 월목표달성(부품)'), [
       opBtn(presetOff('monthly'), OFFC, t('미적용'), () => setOnK('monthly', false), false, 'o1'),
-      opBtn(presetSel('monthly'), IND, '1% ' + t('적용'), () => setOnK('monthly', true), false, 'o2')]),
+      opBtn(presetSel('monthly'), IND, String(PVI.monthly) + '% ' + t('적용'), () => setOnK('monthly', true), false, 'o2')]),
     polRow('cashReb', t('② 특수정책(현금반리)'), [
       opBtn(presetOff('cashReb'), OFFC, t('미적용'), () => setOnK('cashReb', false), false, 'o1'),
-      opBtn(presetSel('cashReb'), IND, 'AO5·BD2.5·ST2%', () => setOnK('cashReb', true), false, 'o2')]),
+      opBtn(presetSel('cashReb'), IND, 'AO' + (PVI.cashReb.AO || 0) + '·BD' + (PVI.cashReb.BD || 0) + '·ST' + (PVI.cashReb.ST || 0) + '%', () => setOnK('cashReb', true), false, 'o2')]),
     polRow('cashPay', t('③ 현금결제(현금)'), [
       opBtn(presetOff('cashPay'), OFFC, t('미적용'), () => setOnK('cashPay', false), false, 'o1'),
-      opBtn(presetSel('cashPay'), IND, '3%', () => setOnK('cashPay', true), false, 'o2')]),
+      opBtn(presetSel('cashPay'), IND, String(PVI.cashPay) + '%', () => setOnK('cashPay', true), false, 'o2')]),
     polRow('dso', t('④ DSO 등급(제품 증정)'), [
       opBtn(dirNum('dso') === null && dsoSel === 'off', OFFC, t('미적용'), () => { setDsoSel('off'); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'o1'),
       ['S', 'A', 'BC'].map(g => opBtn(dirNum('dso') === null && dsoSel === g, IND, (g === 'BC' ? 'B/C' : g) + ' ' + (prod !== 'ALL' ? pct(dsoOf(prod, g)) + '%' : pct(dsoOf('BD', g)) + '%'), () => { setDsoSel(g); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'g' + g))
@@ -14327,13 +14660,13 @@ function SimGpPage({ lang }) {
     polRow('ann', t('⑥ 년간리베이트(현금)'), [
       opBtn(presetOff('ann'), OFFC, t('미적용'), () => setOnK('ann', false), false, 'o1'),
       opBtn(presetSel('ann'), AMB, pct(ar) + '%', () => setOnK('ann', true), false, 'o2')]),
-    polRow('bd', t('⑦ BD장려(현금)'), [
-      opBtn(presetOff('bd'), OFFC, t('미적용'), () => setOnK('bd', false), false, 'o1'),
-      opBtn(presetSel('bd'), AMB, '1%', () => setOnK('bd', true), false, 'o2')], true),
+    polRow('bd', t('⑦ BD장려(현금)') + (prod !== 'ALL' && bdModels.indexOf(prod) === -1 ? ' — ' + bdModels.join('·') + ' ' + t('전용') : ''), [
+      opBtn(presetOff('bd'), OFFC, t('미적용'), () => setOnK('bd', false), prod !== 'ALL' && bdModels.indexOf(prod) === -1, 'o1'),
+      opBtn(presetSel('bd'), AMB, String(PVI.bd || 0) + '%', () => setOnK('bd', true), prod !== 'ALL' && bdModels.indexOf(prod) === -1, 'o2')], true, prod !== 'ALL' && bdModels.indexOf(prod) === -1),
     h('div', { className: 'text-xs mt-3 px-3 py-2 border border-slate-200 bg-slate-50', style: { color: '#334155', whiteSpace: 'normal' } },
       '※ ', h('b', null, '%'), lang === 'zh'
-        ? ' 直接输入时该政策的默认选择视为不适用，按输入值计算。(清空输入恢复默认政策) · 季度返利以产品(返货)、年度·BD以现金返还 · ST不适用季度·年度返利'
-        : ' 직접 입력 시 해당 정책의 기본 선택은 미적용 처리되고 입력한 값으로 계산됩니다. (입력값을 지우면 기본 정책으로 복귀) · 분기는 제품(返货)·년간/BD는 현금 반환 · ST는 분기·년간 리베이트 제외'));
+        ? ' 直接输入时该政策的默认选择视为不适用，按输入值计算。(清空输入恢复默认政策) · 季度返利以产品(返货)、年度·BD以现金返还 · ST不适用季度·年度返利 · BD奖励仅适用于BD产品'
+        : ' 직접 입력 시 해당 정책의 기본 선택은 미적용 처리되고 입력한 값으로 계산됩니다. (입력값을 지우면 기본 정책으로 복귀) · 분기는 제품(返货)·년간/BD는 현금 반환 · ST는 분기·년간 리베이트 제외 · BD장려는 BD 제품에만 적용'));
 
   const confList = Object.keys(confirmed);
   const confCard = confList.length ? h('div', { className: 'bg-white border border-slate-200 px-5 py-4' },
@@ -14344,7 +14677,7 @@ function SimGpPage({ lang }) {
       h('button', { onClick: () => setConfirmed(o => { const n2 = Object.assign({}, o); delete n2[p]; return n2; }), className: 'absolute top-1 right-2 text-slate-300 hover:text-red-500 text-sm' }, '×'),
       h('div', { className: 'text-xs text-slate-500 mb-1 font-bold' }, p),
       h('div', { className: 'evi-num font-bold text-center', style: { fontSize: '21px' } }, money(cf.price)),
-      h('div', { className: 'text-[11px] text-slate-500 mt-1', style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, 'GP ' + cf.gp + '% · ' + cf.grade + (lang === 'zh' ? '级' : '급') + ' · ' + (cf.trade === 'MY' ? t('민영') : 'DSO ' + cf.dso) + ' · ' + cf.date)); }))) : null;
+      h('div', { className: 'text-[11px] text-slate-500 mt-1', style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, 'GP ' + cf.gp + '% · ' + cf.grade + (lang === 'zh' ? '级' : '급') + ' · ' + (cf.trade === 'MY' ? t('민영') : 'DSO ' + cf.dso) + (cf.ver ? ' · ' + cf.ver : '') + ' · ' + cf.date)); }))) : null;
 
   const memoCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4' },
     h('div', { className: 'flex items-center justify-between' },
@@ -14363,10 +14696,11 @@ function SimGpPage({ lang }) {
     kpiRow,
     topBar,
     confCard,
-    h('div', { className: 'flex gap-4 items-stretch max-lg:flex-col' },
-      h('div', { className: 'flex-1 min-w-0 space-y-4' }, resultCard, stageCard, profitCard),
+    page === 'profit' ? profitCard : h('div', { className: 'flex gap-4 items-stretch max-lg:flex-col' },
+      h('div', { className: 'flex-1 min-w-0 space-y-4' }, resultCard, stageCard),
       h('div', { className: 'w-full lg:w-[400px] flex-shrink-0' }, policyCard)),
-    memoCard);
+    page === 'profit' ? detailCard : null,
+    page === 'profit' ? null : memoCard);
 }
 
 function App() {
@@ -14879,7 +15213,7 @@ function App() {
     className: "text-xs text-slate-500 mb-3"
   }, appTr('정책(증정·리베이트)을 반영한 대리상 공급가와 GP를 시뮬레이션합니다. 江苏澍康 정책은 별도 탭에서 확인합니다.')), /*#__PURE__*/React.createElement("div", {
     className: "mb-4 border-b border-slate-200 flex gap-2"
-  }, [['sim-main', '대리상가격(GP)'], ['sim-history', '저장 이력']].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
+  }, [['sim-main', '대리상가격(GP)'], ['sim-profit', '대리상 수익성'], ['sim-history', '저장 이력']].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
     key: k,
     onClick: () => setSimTab(k),
     className: "px-4 py-2 text-sm font-semibold border-b-2 -mb-px " + (simTab === k ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500")
@@ -14887,6 +15221,9 @@ function App() {
     className: "-mx-6 -mb-6"
   }, simTab === 'sim-main' && /*#__PURE__*/React.createElement(SimGpPage, {
     lang: lang
+  }), simTab === 'sim-profit' && /*#__PURE__*/React.createElement(SimGpPage, {
+    lang: lang,
+    page: 'profit'
   }), simTab === 'sim-history' && /*#__PURE__*/React.createElement(SimulationHistoryPage, {
     simHistory: simHistory,
     setSimHistory: setSimHistory
@@ -14941,7 +15278,14 @@ function App() {
   }, appTr('제품별 수익성 분석')), /*#__PURE__*/React.createElement("p", {
     className: "px-6 pt-1 text-xs text-slate-500"
   }, appTr('제품·키트를 선택해 무상조건별 대리상판매가·마진율·법인/본사 GP를 비교합니다. 열을 클릭하면 기준 조건이 바뀝니다.')), /*#__PURE__*/React.createElement(GpAnalyzerPage, {
-    gpItems: gpItems
+    gpItems: gpItems,
+    lang: lang
+  })), activeMenu === 'policy-ver' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    className: "px-6 pt-4 text-lg font-bold text-slate-800"
+  }, appTr('정책 개정 이력')), /*#__PURE__*/React.createElement("p", {
+    className: "px-6 pt-1 text-xs text-slate-500"
+  }, appTr('수출가·무상조건·인센티브가 바뀔 때마다 버전으로 저장하고, 시뮬레이션·수익성 분석에서 기준 버전을 선택해 계산합니다.')), /*#__PURE__*/React.createElement(PolicyVersionPage, {
+    lang: lang
   }))));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
