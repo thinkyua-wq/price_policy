@@ -536,6 +536,15 @@ function xlsDownloadTable(el, fname, idx) {
     xlsDownloadRows(fname, rows);
   } catch (e) { alert('엑셀 저장 실패'); }
 }
+const LS_SYNC_KEYS = ['dealer_price_v4', 'simgp_confirmed_v1', 'simgp_confirm_log_v1', 'simgp_profconf_v1', 'simgp_profconf_log_v1', 'simgp_patient_v1', 'simgp_state_v2', 'simgp_memo_v1', 'polver_v1', 'evi_cost_confirmed_v1', 'evi_fixprice_v1', 'evi_tab_v1', 'simgp_profsel_v1'];
+function lsExtraCollect() { const o = {}; LS_SYNC_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v != null) o[k] = v; } catch (e) {} }); return o; }
+function lsExtraApply(o) {
+  if (!o || typeof o !== 'object') return false;
+  let n = 0;
+  Object.keys(o).forEach(k => { if (LS_SYNC_KEYS.indexOf(k) === -1) return; try { if (typeof o[k] === 'string') { localStorage.setItem(k, o[k]); n++; } } catch (e) {} });
+  if (n) { try { window.dispatchEvent(new Event('polver-change')); window.dispatchEvent(new Event('simgp-confirm')); window.dispatchEvent(new Event('ls-sync')); } catch (e) {} }
+  return n > 0;
+}
 function gasSavePricing(payload) {
   if (!GAS_URL) return Promise.resolve(false);
   return fetch(GAS_URL, {
@@ -14350,7 +14359,9 @@ function DealerPricePage({ lang, goSim }) {
   const t = s => (lang === 'zh' && DEALER_ZH[s]) || s;
   const PV = usePolver();
   const [st, setSt] = React.useState(dealerLoad);
-  React.useEffect(() => { try { localStorage.setItem('dealer_price_v4', JSON.stringify(st)); } catch (e) {} }, [st]);
+  const firstRef = React.useRef(true);
+  React.useEffect(() => { try { localStorage.setItem('dealer_price_v4', JSON.stringify(st)); } catch (e) {} if (firstRef.current) { firstRef.current = false; return; } try { window.dispatchEvent(new Event('dealer-change')); } catch (e) {} }, [st]);
+  React.useEffect(() => { const f = () => setSt(dealerLoad()); window.addEventListener('ls-sync', f); return () => window.removeEventListener('ls-sync', f); }, []);
   const rows = st.rows;
   const setRows = f => setSt(o => ({ rows: f(o.rows) }));
   const [openId, setOpenId] = React.useState(null);
@@ -15051,6 +15062,7 @@ function App() {
   const appTr = ko => (lang === 'zh' && APP_ZH[ko]) ? APP_ZH[ko] : ko;
   const [policyTab, setPolicyTab] = useState('export'); // 수출가 정책 / 수출가 변경이력
   const [simTab, setSimTab] = useState('sim-main'); // 대리상가격 / 이력 / 네고
+  const [lsTick, setLsTick] = useState(0);
   const [exportPrices, setExportPrices] = useState(INITIAL_EXPORT_PRICES);
   const [exchangeRate, setExchangeRate] = useState(DEFAULT_EXCHANGE_RATE);
   const [dentalPrices, setDentalPrices] = useState(DENTAL_RECOMMENDED_PRICES);
@@ -15218,6 +15230,7 @@ function App() {
           if (remote.kitQuote && typeof remote.kitQuote === 'object') setKitQuote({ ...KIT_QUOTE_SEED, ...remote.kitQuote });
           if (remote.mggKit) { const nm = normMgg(remote.mggKit); if (nm) setMggKit(nm); }
           if (remote.eviKit) setEviKit(eviMerge(remote.eviKit));
+          if (remote.lsExtra) lsExtraApply(remote.lsExtra);
         }
         setSaveStatus('☁ 클라우드 동기화됨');
         setTimeout(() => setSaveStatus(''), 2000);
@@ -15244,7 +15257,8 @@ function App() {
       kitComponents,
       kitQuote,
       mggKit,
-      eviKit
+      eviKit,
+      lsExtra: lsExtraCollect()
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -15256,7 +15270,9 @@ function App() {
     window.__pricingSaveTimer = setTimeout(() => {
       gasSavePricing(payload);
     }, 1200);
-  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory, gpItems, gpHistory, specialConfirmed, reverseScenarios, kitMaster, kitComponents, kitQuote, mggKit, eviKit]);
+  }, [loaded, exportPrices, exchangeRate, dentalPrices, history, simHistory, gpItems, gpHistory, specialConfirmed, reverseScenarios, kitMaster, kitComponents, kitQuote, mggKit, eviKit, lsTick]);
+  // 대리상 가격표·확정·정책버전 등 localStorage 기반 데이터가 바뀌면 자동저장 트리거
+  useEffect(() => { const f = () => setLsTick(x => x + 1); ['simgp-confirm', 'polver-change', 'dealer-change'].forEach(ev => window.addEventListener(ev, f)); return () => ['simgp-confirm', 'polver-change', 'dealer-change'].forEach(ev => window.removeEventListener(ev, f)); }, []);
 
   // ── 상단 툴바 핸들러 ──
   const curPayload = () => ({
@@ -15273,9 +15289,11 @@ function App() {
     kitComponents,
     kitQuote,
     mggKit,
-    eviKit
+    eviKit,
+    lsExtra: lsExtraCollect()
   });
   const applyData = d => {
+    if (d.lsExtra) lsExtraApply(d.lsExtra);
     if (Array.isArray(d.exportPrices)) setExportPrices(d.exportPrices);
     if (d.exchangeRate) setExchangeRate(d.exchangeRate);
     if (d.dentalPrices) setDentalPrices({
