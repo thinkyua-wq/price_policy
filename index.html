@@ -14383,7 +14383,8 @@ function EviTabsPage(props) {
 }
 
 const SIMGP_ZH = {
-  '대리상 등급': '经销商等级', '거래유형': '交易类型', '제품': '产品', '키트': '工具盒', '기준 버전': '基准版本', '전용': '专用',
+  '대리상 등급': '经销商等级', '거래유형': '交易类型', 'DSO 등급': 'DSO等级', 'DSO 등급-ST': 'DSO等级-ST', 'DSO 등급-ST이외': 'DSO等级-ST以外',
+  '④ DSO 등급-ST (제품 증정)': '④ DSO等级-ST (产品赠送)', '④ DSO 등급-ST이외 (제품 증정)': '④ DSO等级-ST以外 (产品赠送)', '제품': '产品', '키트': '工具盒', '기준 버전': '基准版本', '전용': '专用',
   '민영(일반치과)': '民营(一般牙科)', '모두': '全部', '표준(Standard)': '标准(Standard)', '풀(Full)': 'Full(全套)',
   '최종 공급가': '最终供货价', '최종 대리상GP': '最终经销商GP', '총 할인율(기준가 대비)': '累计折扣率(对比基准价)', '총 할인금액(실판매가 대비)': '折扣总额(对比实销价)',
   '총 할인금액': '折扣总额', '적용 정책 수': '应用政策数', '개': '个',
@@ -14391,7 +14392,7 @@ const SIMGP_ZH = {
   '기준가': '基准价', '실판매가': '常规价', '월반영가': '月返价', '분기반영가': '季度返价', '최종(년도반)': '最终(年度返)', '법인GP (%)': '公司GP(%)', '환자수가': '患者收费价', '치과GP (%)': '牙科GP(%)',
   '모두 보기': '查看全部', '정책 단계별 비교': '按政策阶段比较', '단계': '阶段', '공급가': '供货价', '적용요율(%)': '应用比率(%)', '적용 금액': '应用金额',
   '대리상 수익성 요약': '经销商收益性汇总', '판매가': '终端售价', '수익(최종)': '收益(最终)',
-  '법인GP': '公司GP', '치과GP': '牙科GP', '적용요율': '应用比率', '가격 동일': '价格不变', '단위: RMB': '单位: RMB', '행 클릭 시 단독 보기': '点击行单独查看',
+  '법인GP': '公司GP', '치과GP': '牙科GP', '적용요율': '应用比率', '요율': '比率', '가격 동일': '价格不变', '단위: RMB': '单位: RMB', '행 클릭 시 단독 보기': '点击行单独查看',
   '실판매가 = 기준가 ÷ (1 + 무상조건 증정비율) × (1 − 현금결제) · 이후 현금반리 차감 → 분기 증정 → 년간·BD 할인 순으로 적용 · 무상조건 10+X (X = 증정% ÷ 10, 예: 35% = 10+3.5) · 법인GP = 법인 도착원가(수출가×7.2×1.14)·키트원가·증정 기준수량 대비 대리상 공급가 GP · 환자수가 = 치과가 환자에게 받는 가격(입력) · 치과GP = (환자수가 − 대리상 판매가) ÷ 환자수가': '实销价 = 基准价 ÷ (1 + 赠送比例) × (1 − 现金结算) · 之后依次扣除现金返利 → 季度赠送 → 年度·BD折扣 · 赠送条件 10+X (X = 赠送% ÷ 10, 例: 35% = 10+3.5) · 公司GP = 相对于公司到岸成本(出口价×7.2×1.14)·工具盒成本·赠送基准数量的经销商供货价GP · 患者收费价 = 牙科向患者收取的价格(输入) · 牙科GP = (患者收费价 − 经销商售价) ÷ 患者收费价', 'GP 열 숨기기': '隐藏GP列', 'GP 열 보기': '显示GP列', '단계 (적용 정책)': '阶段(适用政策)',
   '실판매마진': '常规GP率', '월반': '月返', '분기반': '季度返', '최종': '最终',
   '인센티브 정책 선택': '激励政策选择', '등급 변경 시 자동 적용 · 수동 조정 가능': '等级变更时自动适用 · 可手动调整',
@@ -14403,7 +14404,7 @@ const SIMGP_ZH = {
   '조건을 바꿔 확정할 때마다 카드가 추가됩니다': '每次更改条件确认后会新增卡片', '확정한 카드를 모두 삭제할까요?': '删除全部已确认卡片?',
   '메모': '备注', '숨기기': '隐藏', '보기': '显示',
   '실판매가': '实销价', '무상조건': '赠送条件', 'BD 전용': 'BD专用', '구분': '区分', '단계': '阶段', '년간 (최종)': '年度(最终)', '월반영': '月返反映', '분기반영': '季度返反映', '최종 (년도반)': '最终(年度返)', '공급가': '供货价', '수익': '收益', '마진율': '利润率',
-  '단계별 수익 상세': '分阶段收益明细', '정책별 기여분 · 단위: RMB': '按政策贡献 · 单位: RMB', '단계 (적용 정책)': '阶段(适用政策)', '대리상 공급가': '经销商供货价', '공급가 인하': '供货价下调', '대리상 수익': '经销商收益', '수익 증가': '收益增加', '마진율 증가': '利润率增加', '증정': '赠送', '현금결제·월목표·특수정책': '现金结算·月目标·特殊政策', '분기리베이트': '季度返利', '년간·BD (최종)': '年度·BD(最终)',
+  '단계별 수익 상세': '分阶段收益明细', '인센티브 정책 숨기기': '隐藏激励政策', '인센티브 정책 보기': '显示激励政策', '정책별 기여분 · 단위: RMB': '按政策贡献 · 单位: RMB', '단계 (적용 정책)': '阶段(适用政策)', '대리상 공급가': '经销商供货价', '공급가 인하': '供货价下调', '대리상 수익': '经销商收益', '수익 증가': '收益增加', '마진율 증가': '利润率增加', '증정': '赠送', '현금결제·월목표·특수정책': '现金结算·月目标·特殊政策', '분기리베이트': '季度返利', '년간·BD (최종)': '年度·BD(最终)',
   '※ 수익 = 판매가 − 해당 단계 공급가 · 마진율 = 수익 ÷ 판매가 · 정책이 하나씩 적용될수록 공급가↓ 수익↑ 마진율↑ · 판매가는 표에서 직접 수정': '※ 收益 = 售价 − 该阶段供货价 · 利润率 = 收益 ÷ 售价 · 每叠加一项政策，供货价↓ 收益↑ 利润率↑ · 售价可在表中直接修改',
   '※ 대리상 수익 = 판매가 − 해당 단계 공급가 · 마진율 = 수익 ÷ 판매가 · 적용 금액 = 직전 단계 대비 공급가 변동(파랑 괄호 = 인하) · 적용요율 = 해당 단계 정책 요율': '※ 经销商收益 = 售价 − 该阶段供货价 · 利润率 = 收益 ÷ 售价 · 应用金额 = 相对上一阶段的供货价变动(蓝色括号 = 下调) · 应用比率 = 该阶段政策比率',
   '반영': '反映', '비교 모델': '比较型号', '초기화': '重置', '계산 방식': '计算方式', '특수정책 반영': '特殊政策反映', '분기리베이트 반영': '季度返利反映', '년간리베이트 (최종)': '年度返利(最终)', '현금결제': '现金结算', '판매가는 표에서 직접 수정 · 거래유형·DSO 등급별 기본값 자동 · 정책이 하나씩 적용될수록 공급가↓ 수익↑ 마진율↑': '售价可在表中直接修改 · 按交易类型·DSO等级自动默认 · 每叠加一项政策，供货价↓ 收益↑ 利润率↑',
@@ -14681,8 +14682,9 @@ function SimGpPage({ lang, page }) {
   const [prod, setProd] = React.useState(init.prod || 'ALL');
   const [kitSel, setKitSel] = React.useState(init.kitSel || 'Standard');
   const [dsoSel, setDsoSel] = React.useState(init.dsoSel || 'S');
+  const [dsoSelST, setDsoSelST] = React.useState(init.dsoSelST || 'S');
   const [on, setOn] = React.useState(Object.assign({ monthly: true, cashReb: true, cashPay: true, qtr: true, ann: true, bd: true }, init.on || {}));
-  const [dir, setDir] = React.useState(Object.assign({ monthly: '', cashReb: '', cashPay: '', dso: '', qtr: '', ann: '', bd: '' }, init.dir || {}));
+  const [dir, setDir] = React.useState(Object.assign({ monthly: '', cashReb: '', cashPay: '', dso: '', dsoST: '', qtr: '', ann: '', bd: '' }, init.dir || {}));
   const [sellEd, setSellEd] = React.useState(init.sellEd || {});
   const [patEd, setPatEd] = React.useState(() => { try { return JSON.parse(localStorage.getItem('simgp_patient_v1') || '{}') || {}; } catch (e) { return {}; } });
   React.useEffect(() => { try { localStorage.setItem('simgp_patient_v1', JSON.stringify(patEd)); } catch (e) {} }, [patEd]);
@@ -14690,7 +14692,7 @@ function SimGpPage({ lang, page }) {
   React.useEffect(() => { try { localStorage.setItem('simgp_hidegp_r', hideGpR ? '1' : '0'); } catch (e) {} }, [hideGpR]);
   const [hideGpS, setHideGpS] = React.useState(() => { try { return localStorage.getItem('simgp_hidegp_s') === '1'; } catch (e) { return false; } });
   React.useEffect(() => { try { localStorage.setItem('simgp_hidegp_s', hideGpS ? '1' : '0'); } catch (e) {} }, [hideGpS]);
-  React.useEffect(() => { try { localStorage.setItem(LSK, JSON.stringify({ grade, trade, prod, kitSel, dsoSel, on, dir, sellEd })); } catch (e) {} }, [grade, trade, prod, kitSel, dsoSel, on, dir, sellEd]);
+  React.useEffect(() => { try { localStorage.setItem(LSK, JSON.stringify({ grade, trade, prod, kitSel, dsoSel, dsoSelST, on, dir, sellEd })); } catch (e) {} }, [grade, trade, prod, kitSel, dsoSel, dsoSelST, on, dir, sellEd]);
   const [confirmed, setConfirmed] = React.useState(() => {
     try {
       const v2 = JSON.parse(localStorage.getItem('simgp_confirmed_v2') || 'null');
@@ -14708,6 +14710,8 @@ function SimGpPage({ lang, page }) {
 
   const dirNum = k => { const s0 = String(dir[k] == null ? '' : dir[k]).trim(); if (s0 === '') return null; const n = parseFloat(s0); return isNaN(n) ? null : n / 100; };
   const rateOf = (k, auto) => { const d0 = dirNum(k); if (d0 !== null) return d0; return on[k] ? auto : 0; };
+  const dsoSelOf = p => p === 'ST' ? dsoSelST : dsoSel;
+  const chKeyOf = p => trade === 'MY' ? 'MY' : (dsoSelOf(p) === 'off' ? 'S' : dsoSelOf(p));
   const chKey = trade === 'MY' ? 'MY' : (dsoSel === 'off' ? 'S' : dsoSel);
 
   const calc = p => {
@@ -14719,8 +14723,9 @@ function SimGpPage({ lang, page }) {
     const i = freeOf(p);
     const L = rateOf('monthly', monthlyRate);
     const O = d.base * rateOf('cashReb', cashRebOf(p));
-    const dDso = dirNum('dso');
-    const R = trade === 'DSO' ? (dDso !== null ? dDso : (dsoSel === 'off' ? 0 : dsoOf(p, dsoSel))) : 0;
+    const dDso = dirNum(p === 'ST' ? 'dsoST' : 'dso');
+    const gSel = dsoSelOf(p);
+    const R = trade === 'DSO' ? (dDso !== null ? dDso : (gSel === 'off' ? 0 : dsoOf(p, gSel))) : 0;
     const U = rateOf('qtr', qtrOf(p, grade));
     const X = rateOf('ann', annOf(p, grade)) + (bdModels.indexOf(p) !== -1 ? rateOf('bd', bdOf(p)) : 0);
     const den0 = d.base * (1 - y);
@@ -14753,7 +14758,7 @@ function SimGpPage({ lang, page }) {
   const pct = v => ((v || 0) * 100).toFixed(1);
   const gpBg = g => { const p0 = g * 100; return p0 < 35 ? '#FCE7E7' : p0 < 40 ? '#FCF3D7' : p0 < 50 ? '#DFF2E7' : '#C9E9D8'; };
   const mgBg = r => { const p0 = r * 100; return p0 < 10 ? '#FCE7E7' : p0 < 15 ? '#FCF3D7' : p0 < 20 ? '#DFF2E7' : '#C9E9D8'; };
-  const sellOf = p => { const k = p + '_' + chKey; if (sellEd[k] != null && sellEd[k] !== '') return Number(sellEd[k]); return SELL_DEF[p][chKey]; };
+  const sellOf = p => { const ck = chKeyOf(p); const k = p + '_' + ck; if (sellEd[k] != null && sellEd[k] !== '') return Number(sellEd[k]); return SELL_DEF[p][ck]; };
   const patOf = p => (patEd[p] != null && patEd[p] !== '') ? Number(patEd[p]) : PAT_DEF[p];
   const dentGp = p => { const pt = patOf(p); return pt > 0 ? (pt - sellOf(p)) / pt : 0; };
   const numFmt = v => { const s0 = String(v == null ? '' : v); if (s0 === '' || /\.$/.test(s0)) return s0; const n0 = Number(s0); return isNaN(n0) ? s0 : n0.toLocaleString('ko-KR'); };
@@ -14767,13 +14772,20 @@ function SimGpPage({ lang, page }) {
 
   const selCls = 'w-full px-3 py-2 border border-slate-300 text-sm bg-white';
   const fld = (label, el) => h('div', null, h('label', { className: 'block text-xs text-slate-500 mb-1' }, label), el);
-  const topBar = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 grid grid-cols-2 md:grid-cols-5 gap-3 items-end' },
+  const dsoRef = prod !== 'ALL' ? prod : (scope.length === 1 ? scope[0] : 'BD');
+  const topBar = h('div', { className: 'bg-white border border-slate-200 px-5 py-4 grid grid-cols-2 gap-3 items-end ' + (trade === 'DSO' ? 'md:grid-cols-7' : 'md:grid-cols-5') },
     fld(t('기준 버전'), h('select', { value: PV.activeId, onChange: e => PV.save({ list: PV.list, activeId: e.target.value }), className: selCls },
       PV.list.slice().sort((a, b) => (a.month > b.month ? -1 : 1)).map(v => h('option', { key: v.id, value: v.id }, v.ver + ' · ' + v.month + (v.memo ? ' · ' + v.memo : ''))))),
     fld(t('대리상 등급'), h('select', { value: grade, onChange: e => setGrade(e.target.value), className: selCls },
       ['A', 'B', 'C', 'D'].map(g => h('option', { key: g, value: g }, g)))),
     fld(t('거래유형'), h('select', { value: trade, onChange: e => setTrade(e.target.value), className: selCls },
       h('option', { value: 'MY' }, t('민영(일반치과)')), h('option', { value: 'DSO' }, 'DSO'))),
+    trade === 'DSO' ? fld(t('DSO 등급-ST이외'), h('select', {
+      value: dsoSel, onChange: e => { setDsoSel(e.target.value); setDir(o => Object.assign({}, o, { dso: '' })); }, className: selCls
+    }, [h('option', { key: 'off', value: 'off' }, t('미적용'))].concat(['S', 'A', 'BC'].map(g => h('option', { key: g, value: g }, (g === 'BC' ? 'B/C' : g) + ' · ' + pct(dsoOf('BD', g)) + '%'))))) : null,
+    trade === 'DSO' ? fld(t('DSO 등급-ST'), h('select', {
+      value: dsoSelST, onChange: e => { setDsoSelST(e.target.value); setDir(o => Object.assign({}, o, { dsoST: '' })); }, className: selCls
+    }, [h('option', { key: 'off', value: 'off' }, t('미적용'))].concat(['S', 'A', 'BC'].map(g => h('option', { key: g, value: g }, (g === 'BC' ? 'B/C' : g) + ' · ' + pct(dsoOf('ST', g)) + '%'))))) : null,
     fld(t('제품'), h('select', { value: prod, onChange: e => setProd(e.target.value), className: selCls },
       [h('option', { key: '__all', value: 'ALL' }, t('모두'))].concat(PRODUCTS.map(p => h('option', { key: p, value: p }, p))))),
     fld(t('키트'), h('select', { value: kitSel, onChange: e => setKitSel(e.target.value), className: selCls },
@@ -14830,7 +14842,7 @@ function SimGpPage({ lang, page }) {
   const doConfirm = () => {
     const d2 = new Date();
     const ds2 = d2.getFullYear() + '-' + String(d2.getMonth() + 1).padStart(2, '0') + '-' + String(d2.getDate()).padStart(2, '0');
-    const recs = scope.map((p, i2) => ({ id: 'g' + Date.now() + '_' + i2, p: p, price: Math.round(R0[p].p4), gp: +pct(R0[p].g4), base: Math.round(R0[p].base), p1: Math.round(R0[p].p1), grade, trade, dso: trade === 'DSO' ? dsoSel : '-', date: ds2, ver: PVA.ver }));
+    const recs = scope.map((p, i2) => ({ id: 'g' + Date.now() + '_' + i2, p: p, price: Math.round(R0[p].p4), gp: +pct(R0[p].g4), base: Math.round(R0[p].base), p1: Math.round(R0[p].p1), grade, trade, dso: trade === 'DSO' ? dsoSelOf(p) : '-', date: ds2, ver: PVA.ver }));
     const same = (a, b) => a.p === b.p && a.price === b.price && a.gp === b.gp && a.grade === b.grade && a.trade === b.trade && a.dso === b.dso && a.ver === b.ver;
     setConfirmed(l => l.concat(recs.filter(r => !l.some(x => same(x, r)))));
     try { const lg = JSON.parse(localStorage.getItem('simgp_confirm_log_v1') || '[]') || []; recs.forEach(r => lg.push(r)); localStorage.setItem('simgp_confirm_log_v1', JSON.stringify(lg.slice(-500))); } catch (e) {}
@@ -14876,7 +14888,7 @@ function SimGpPage({ lang, page }) {
       ['+ ' + t('② 현금결제(현금)') + ' → ' + t('실판매가'), c.p1, c.g1, pct(c.y) + '%', c.p1 - c.p0],
       ['+ ' + t('① 월목표달성(부품)') + ' (' + t('가격 동일') + ')', c.p1, c.gM, pct(c.L) + '%', 0],
       ['+ ' + t('③ 특수정책(현금반리)'), c.p2my, c.g2my, pct(c.base ? c.O / c.base : 0) + '%', c.p2my - c.p1]];
-    if (trade === 'DSO') rows.push(['+ ' + t('④ DSO 등급(제품 증정)'), c.pS, c.g2dso, pct(c.R) + '%', c.pS - c.p2my]);
+    if (trade === 'DSO') rows.push(['+ ' + t(sProd === 'ST' ? '④ DSO 등급-ST (제품 증정)' : '④ DSO 등급-ST이외 (제품 증정)'), c.pS, c.g2dso, pct(c.R) + '%', c.pS - c.p2my]);
     rows.push(['+ ' + t('⑤ 분기리베이트(제품 반환)'), c.p3, c.g3, pct(c.U) + '%', c.p3 - c.st2]);
     rows.push(['+ ' + (bdModels.indexOf(sProd) !== -1 ? t('⑥ 년간리베이트(현금)') + '·' + t('⑦ BD장려(현금)') : t('⑥ 년간리베이트(현금)')) + ' (' + t('최종') + ')', c.p4, c.g4, pct(c.X) + '%', c.p4 - c.p3]);
     return h('div', { className: 'bg-white border border-slate-200 px-5 py-4 space-y-3' },
@@ -14891,20 +14903,29 @@ function SimGpPage({ lang, page }) {
           }, p))) : null)),
       h('table', { className: 'kq-grid w-full', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap' } },
         h('thead', null, h('tr', null,
-          h('th', { className: 'px-2 py-2 text-left', style: { width: '34%' } }, t('단계')), th2(t('공급가')), hideGpS ? null : th2(t('법인GP')), th2(t('환자수가')), hideGpS ? null : th2(t('치과GP')), th2(t('적용 금액')), th2(t('적용요율')))),
+          h('th', { className: 'px-2 py-2 text-left', style: { width: '34%' } }, t('단계')), th2(t('공급가')), hideGpS ? null : th2(t('법인GP')), th2(t('적용 금액')), th2(t('적용요율')), th2(t('환자수가')), hideGpS ? null : th2(t('치과GP')))),
         h('tbody', null, rows.map((r, i2) => h('tr', { key: i2, className: i2 === rows.length - 1 ? 'font-bold' : '', style: i2 <= 2 ? { background: SKY } : undefined },
           h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, title: r[0] }, r[0]),
           h('td', { className: 'evi-num px-2 py-1.5' }, money(r[1])),
           hideGpS ? null : h('td', { className: 'evi-num px-2 py-1.5' }, r[2] === null ? '' : pct(r[2]) + '%'),
-          h('td', { className: 'evi-num px-2 py-1.5' }, money(patOf(sProd))),
-          hideGpS ? null : h('td', { className: 'evi-num px-2 py-1.5' }, pct(dentGp(sProd)) + '%'),
           h('td', { className: 'evi-num px-2 py-1.5', style: r[4] !== null && r[4] < 0 ? { color: '#1d4ed8' } : undefined }, r[4] === null ? '' : (r[4] === 0 ? '0' : (r[4] < 0 ? '(' + money(Math.abs(r[4])) + ')' : '+' + money(r[4])))),
-          h('td', { className: 'evi-num px-2 py-1.5' }, r[3] === '—' ? '' : r[3]))))));
+          h('td', { className: 'evi-num px-2 py-1.5' }, r[3] === '—' ? '' : r[3]),
+          h('td', { className: 'evi-num px-2 py-1.5' }, money(patOf(sProd))),
+          hideGpS ? null : h('td', { className: 'evi-num px-2 py-1.5' }, pct(dentGp(sProd)) + '%'))))));
   })();
 
+  const [lowTab, setLowTab] = React.useState(() => { try { return localStorage.getItem('simgp_lowtab_v1') || 'stage'; } catch (e) { return 'stage'; } });
+  React.useEffect(() => { try { localStorage.setItem('simgp_lowtab_v1', lowTab); } catch (e) {} }, [lowTab]);
+  const [polOpen, setPolOpen] = React.useState(() => { try { return localStorage.getItem('simgp_pol_open') !== '0'; } catch (e) { return true; } });
+  React.useEffect(() => { try { localStorage.setItem('simgp_pol_open', polOpen ? '1' : '0'); } catch (e) {} }, [polOpen]);
   const [detailOpen, setDetailOpen] = React.useState(() => { try { return localStorage.getItem('simgp_detail_open') === '1'; } catch (e) { return false; } });
   React.useEffect(() => { try { localStorage.setItem('simgp_detail_open', detailOpen ? '1' : '0'); } catch (e) {} }, [detailOpen]);
   const sepL = { borderLeft: '1px solid #cbd5e1' };
+  const stageRates = c => [
+    pct(c.y) + '%',
+    pct((c.base ? c.O / c.base : 0) + (trade === 'DSO' ? c.R : 0)) + '%',
+    pct(c.U) + '%',
+    pct(c.X) + '%'];
   const stageDefs = c => [
     [t('실판매가') + ' (' + t('무상조건') + '·' + t('② 현금결제(현금)').replace(/\(.*$/, '') + ')', c.p1],
     [t('③ 특수정책(현금반리)').replace(/\(.*$/, '') + ' ' + t('반영'), c.st2],
@@ -14917,7 +14938,7 @@ function SimGpPage({ lang, page }) {
       ['+ ' + t('② 현금결제(현금)') + ' → ' + t('실판매가'), c.p1, pct(c.y) + '%'],
       ['+ ' + t('① 월목표달성(부품)') + ' (' + t('가격 동일') + ')', c.p1, pct(c.L) + '%'],
       ['+ ' + t('③ 특수정책(현금반리)'), c.p2my, pct(c.base ? c.O / c.base : 0) + '%']];
-    if (trade === 'DSO') L.push(['+ ' + t('④ DSO 등급(제품 증정)'), c.pS, pct(c.R) + '%']);
+    if (trade === 'DSO') L.push(['+ ' + t(p === 'ST' ? '④ DSO 등급-ST (제품 증정)' : '④ DSO 등급-ST이외 (제품 증정)'), c.pS, pct(c.R) + '%']);
     L.push(['+ ' + t('⑤ 분기리베이트(제품 반환)'), c.p3, pct(c.U) + '%']);
     L.push(['+ ' + (bdModels.indexOf(p) !== -1 ? t('⑥ 년간리베이트(현금)') + '·' + t('⑦ BD장려(현금)') : t('⑥ 년간리베이트(현금)')) + ' (' + t('최종') + ')', c.p4, pct(c.X) + '%']);
     return L;
@@ -14935,7 +14956,7 @@ function SimGpPage({ lang, page }) {
   const doProfConfirm = () => {
     const d2 = new Date();
     const ds2 = d2.getFullYear() + '-' + String(d2.getMonth() + 1).padStart(2, '0') + '-' + String(d2.getDate()).padStart(2, '0');
-    const recs = profScope.map((p, i2) => { const c = R0[p], sp = sellOf(p); return { id: 'c' + Date.now() + '_' + i2, p: p, sell: Math.round(sp), supply: Math.round(c.p4), profit: Math.round(sp - c.p4), margin: +pct(sp > 0 ? (sp - c.p4) / sp : 0), grade, trade, dso: trade === 'DSO' ? dsoSel : '-', date: ds2, ver: PVA.ver }; });
+    const recs = profScope.map((p, i2) => { const c = R0[p], sp = sellOf(p); return { id: 'c' + Date.now() + '_' + i2, p: p, sell: Math.round(sp), supply: Math.round(c.p4), profit: Math.round(sp - c.p4), margin: +pct(sp > 0 ? (sp - c.p4) / sp : 0), grade, trade, dso: trade === 'DSO' ? dsoSelOf(p) : '-', date: ds2, ver: PVA.ver }; });
     const same = (a, b) => a.p === b.p && a.sell === b.sell && a.supply === b.supply && a.grade === b.grade && a.trade === b.trade && a.dso === b.dso && a.ver === b.ver;
     setProfConf(l => l.concat(recs.filter(r => !l.some(x => same(x, r)))));
     try { const lg = JSON.parse(localStorage.getItem('simgp_profconf_log_v1') || '[]') || []; recs.forEach(r => lg.push(r)); localStorage.setItem('simgp_profconf_log_v1', JSON.stringify(lg.slice(-500))); } catch (e) {}
@@ -14982,37 +15003,41 @@ function SimGpPage({ lang, page }) {
     h('div', { style: { width: '100%' } },
     h('table', { className: 'kq-grid w-full simgp-prof simgp-center', style: { fontSize: '13px', tableLayout: 'fixed', whiteSpace: 'nowrap' } },
       h('thead', null, h('tr', null,
-        h('th', { className: 'px-2 py-2 text-center', style: { width: profScope.length > 1 ? Math.max(16, 34 - profScope.length * 3) + '%' : '34%' } }, t('구분')),
-        profScope.map(p => h('th', { key: p, colSpan: 3, className: 'px-2 py-1.5 text-center', style: sepL }, p)))),
+        h('th', { className: 'px-2 py-2 text-center', style: { width: profScope.length > 1 ? Math.max(13, 30 - profScope.length * 3) + '%' : '28%' } }, t('구분')),
+        profScope.map(p => h('th', { key: p, colSpan: 4, className: 'px-2 py-1.5 text-center', style: sepL }, p)))),
       h('tbody', null, [
         h('tr', { key: 'hd' },
           h('td', { className: 'kq-txt px-2 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('단계')),
           profScope.map(p => [
             h('td', { key: p + 'a', className: 'kq-txt px-1 py-1.5 text-center', style: Object.assign({ background: '#f1f5f9', fontWeight: 700, color: '#334155' }, sepL) }, t('공급가')),
             h('td', { key: p + 'b', className: 'kq-txt px-1 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('수익')),
+            h('td', { key: p + 'r', className: 'kq-txt px-1 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' }, title: t('적용요율') }, t('요율')),
             h('td', { key: p + 'c', className: 'kq-txt px-1 py-1.5 text-center', style: { background: '#f1f5f9', fontWeight: 700, color: '#334155' } }, t('마진율'))])),
         h('tr', { key: 'base' },
           h('td', { className: 'kq-txt px-2 py-1.5' }, t('기준가')),
           profScope.map(p => [
             h('td', { key: p + 'a', className: 'evi-num px-1 py-1.5', style: sepL }, money(R0[p].base)),
             h('td', { key: p + 'b', className: 'px-1 py-1.5' }),
+            h('td', { key: p + 'r', className: 'px-1 py-1.5' }),
             h('td', { key: p + 'c', className: 'px-1 py-1.5' })])),
         h('tr', { key: 'free' },
           h('td', { className: 'kq-txt px-2 py-1.5' }, t('무상조건')),
           profScope.map(p => [
             h('td', { key: p + 'a', className: 'kq-txt px-1 py-1.5 text-center', style: sepL }, freeLbl(R0[p])),
             h('td', { key: p + 'b', className: 'px-1 py-1.5' }),
+            h('td', { key: p + 'r', className: 'kq-txt px-1 py-1.5 text-center' }, pct(R0[p].i) + '%'),
             h('td', { key: p + 'c', className: 'px-1 py-1.5' })])),
         h('tr', { key: 'sell' },
           h('td', { className: 'kq-txt px-2 py-1.5' }, t('판매가')),
           profScope.map(p => [
             h('td', { key: p + 'a', className: 'px-1 py-1.5', style: sepL }, h('input', {
-              value: numFmt(sellEd[p + '_' + chKey] != null ? sellEd[p + '_' + chKey] : SELL_DEF[p][chKey]),
-              onChange: e => { const v0 = e.target.value.replace(/[^0-9.]/g, ''); setSellEd(o => Object.assign({}, o, { [p + '_' + chKey]: v0 })); },
+              value: numFmt(sellEd[p + '_' + chKeyOf(p)] != null ? sellEd[p + '_' + chKeyOf(p)] : SELL_DEF[p][chKeyOf(p)]),
+              onChange: e => { const v0 = e.target.value.replace(/[^0-9.]/g, ''); const ck = chKeyOf(p); setSellEd(o => Object.assign({}, o, { [p + '_' + ck]: v0 })); },
               className: 'evi-num w-full bg-transparent focus:outline-none',
               style: { border: 'none', borderRadius: 0, textAlign: 'center' }
             })),
             h('td', { key: p + 'b', className: 'px-1 py-1.5' }),
+            h('td', { key: p + 'r', className: 'px-1 py-1.5' }),
             h('td', { key: p + 'c', className: 'px-1 py-1.5' })])),
         [0, 1, 2, 3].map(i2 => {
           const last = i2 === 3;
@@ -15027,6 +15052,7 @@ function SimGpPage({ lang, page }) {
               return [
                 h('td', { key: p + 'a', className: cls, style: Object.assign({}, sepL, stC) }, money(v)),
                 h('td', { key: p + 'b', className: cls, style: stC }, money(sp - v)),
+                h('td', { key: p + 'r', className: 'kq-txt px-1 py-1.5 text-center' + (last ? ' font-bold' : '') }, stageRates(c)[i2]),
                 h('td', { key: p + 'c', className: cls, style: stC }, pct(sp > 0 ? (sp - v) / sp : 0) + '%')];
             }));
         })]))),
@@ -15101,9 +15127,11 @@ function SimGpPage({ lang, page }) {
   const qaOff = prod !== 'ALL' && (qtrOf(prod, grade) === 0 && annOf(prod, grade) === 0);
   const qr = qtrOf(pRef, grade), ar = annOf(pRef, grade);
   const policyCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4' },
-    h('div', { className: 'mb-1' },
-      h('span', { className: 'text-sm font-bold text-slate-800' }, '🎯 ' + t('인센티브 정책 선택')),
-      h('span', { className: 'text-xs text-slate-400 ml-2' }, t('등급 변경 시 자동 적용 · 수동 조정 가능'))),
+    h('div', { className: 'mb-1 flex items-start justify-between gap-2' },
+      h('div', { className: 'min-w-0' },
+        h('span', { className: 'text-sm font-bold text-slate-800' }, '🎯 ' + t('인센티브 정책 선택')),
+        h('span', { className: 'text-xs text-slate-400 ml-2' }, t('등급 변경 시 자동 적용 · 수동 조정 가능'))),
+      h('button', { onClick: () => setPolOpen(false), title: t('인센티브 정책 숨기기'), className: 'flex-shrink-0 px-2 py-1 text-xs border border-slate-300 text-slate-500 bg-white hover:bg-slate-50', style: { borderRadius: 0 } }, t('숨기기'))),
     polRow('monthly', t('① 월목표달성(부품)'), [
       opBtn(presetOff('monthly'), OFFC, t('미적용'), () => setOnK('monthly', false), false, 'o1'),
       opBtn(presetSel('monthly'), IND, String(PVI.monthly) + '% ' + t('적용'), () => setOnK('monthly', true), false, 'o2')]),
@@ -15113,9 +15141,13 @@ function SimGpPage({ lang, page }) {
     polRow('cashReb', t('③ 특수정책(현금반리)'), [
       opBtn(presetOff('cashReb'), OFFC, t('미적용'), () => setOnK('cashReb', false), false, 'o1'),
       opBtn(presetSel('cashReb'), IND, 'AO' + (PVI.cashReb.AO || 0) + '·BD' + (PVI.cashReb.BD || 0) + '·ST' + (PVI.cashReb.ST || 0) + '%', () => setOnK('cashReb', true), false, 'o2')]),
-    polRow('dso', t('④ DSO 등급(제품 증정)'), [
+    polRow('dso', t('④ DSO 등급-ST이외 (제품 증정)') + (prod === 'ST' ? ' — ST ' + t('제외') : ''), [
       opBtn(dirNum('dso') === null && dsoSel === 'off', OFFC, t('미적용'), () => { setDsoSel('off'); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'o1'),
-      ['S', 'A', 'BC'].map(g => opBtn(dirNum('dso') === null && dsoSel === g, IND, (g === 'BC' ? 'B/C' : g) + ' ' + (prod !== 'ALL' ? pct(dsoOf(prod, g)) + '%' : pct(dsoOf('BD', g)) + '%'), () => { setDsoSel(g); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'g' + g))
+      ['S', 'A', 'BC'].map(g => opBtn(dirNum('dso') === null && dsoSel === g, IND, (g === 'BC' ? 'B/C' : g) + ' ' + pct(dsoOf('BD', g)) + '%', () => { setDsoSel(g); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'g' + g))
+    ], false, trade !== 'DSO'),
+    polRow('dsoST', t('④ DSO 등급-ST (제품 증정)') + (prod !== 'ALL' && prod !== 'ST' ? ' — ST ' + t('전용') : ''), [
+      opBtn(dirNum('dsoST') === null && dsoSelST === 'off', OFFC, t('미적용'), () => { setDsoSelST('off'); setDir(o => Object.assign({}, o, { dsoST: '' })); }, trade !== 'DSO', 'o1'),
+      ['S', 'A', 'BC'].map(g => opBtn(dirNum('dsoST') === null && dsoSelST === g, IND, (g === 'BC' ? 'B/C' : g) + ' ' + pct(dsoOf('ST', g)) + '%', () => { setDsoSelST(g); setDir(o => Object.assign({}, o, { dsoST: '' })); }, trade !== 'DSO', 'g' + g))
     ], false, trade !== 'DSO'),
     polRow('qtr', t('⑤ 분기리베이트(제품 반환)') + (qaOff ? ' — ' + prod + ' ' + t('미적용') : ''), [
       opBtn(qaOff || presetOff('qtr'), OFFC, t('미적용'), () => setOnK('qtr', false), qaOff, 'o1'),
@@ -15156,13 +15188,22 @@ function SimGpPage({ lang, page }) {
       style: { resize: 'none', overflow: 'hidden', whiteSpace: 'pre-wrap', borderRadius: 0 }
     }) : null);
 
+  const lowTabDefs = [['stage', sProd + ' · ' + t('정책 단계별 비교')], ['prof', t('대리상 수익성 요약')], ['detail', t('단계별 수익 상세')]];
+  const lowCard = h('div', { className: 'space-y-3' },
+    h('div', { className: 'flex items-end justify-between gap-2 border-b border-slate-200' },
+      h('div', { className: 'flex gap-2' }, lowTabDefs.map(([k, label]) => h('button', {
+        key: k, onClick: () => { setLowTab(k); if (k === 'detail') setDetailOpen(true); },
+        className: 'px-4 py-2 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap ' + (lowTab === k ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700')
+      }, label))),
+      h('button', { onClick: () => setPolOpen(v => !v), className: 'mb-1 px-2.5 py-1 text-xs border border-slate-300 text-slate-600 bg-white hover:bg-slate-50', style: { borderRadius: 0 } }, polOpen ? t('인센티브 정책 숨기기') : t('인센티브 정책 보기'))),
+    lowTab === 'prof' ? profitCard : (lowTab === 'detail' ? detailCard : stageCard));
   return h('div', { className: 'p-6 space-y-4 bg-slate-50 min-h-full' },
     kpiRow,
     topBar,
     page === 'profit' ? profConfCard : confCard,
     page === 'profit' ? profitCard : h('div', { className: 'flex gap-4 items-stretch max-lg:flex-col' },
-      h('div', { className: 'flex-1 min-w-0 space-y-4' }, resultCard, stageCard),
-      h('div', { className: 'w-full lg:w-[400px] flex-shrink-0' }, policyCard)),
+      h('div', { className: 'flex-1 min-w-0 space-y-4' }, resultCard, lowCard),
+      polOpen ? h('div', { className: 'w-full lg:w-[400px] flex-shrink-0' }, policyCard) : null),
     page === 'profit' ? detailCard : null,
     page === 'profit' ? null : memoCard);
 }
