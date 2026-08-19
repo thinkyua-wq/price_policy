@@ -15097,7 +15097,9 @@ function SimGpPage({ lang, page }) {
       key2 ? h('span', { className: 'text-xs text-slate-400 flex-shrink-0' }, '%') : null));
   const presetSel = k => dirNum(k) === null && on[k];
   const presetOff = k => dirNum(k) === null && !on[k];
-  const qr = qtrOf('BD', grade), ar = annOf('BD', grade);
+  const pRef = prod !== 'ALL' ? prod : 'BD';
+  const qaOff = prod !== 'ALL' && (qtrOf(prod, grade) === 0 && annOf(prod, grade) === 0);
+  const qr = qtrOf(pRef, grade), ar = annOf(pRef, grade);
   const policyCard = h('div', { className: 'bg-white border border-slate-200 px-5 py-4' },
     h('div', { className: 'mb-1' },
       h('span', { className: 'text-sm font-bold text-slate-800' }, '🎯 ' + t('인센티브 정책 선택')),
@@ -15115,12 +15117,12 @@ function SimGpPage({ lang, page }) {
       opBtn(dirNum('dso') === null && dsoSel === 'off', OFFC, t('미적용'), () => { setDsoSel('off'); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'o1'),
       ['S', 'A', 'BC'].map(g => opBtn(dirNum('dso') === null && dsoSel === g, IND, (g === 'BC' ? 'B/C' : g) + ' ' + (prod !== 'ALL' ? pct(dsoOf(prod, g)) + '%' : pct(dsoOf('BD', g)) + '%'), () => { setDsoSel(g); setDir(o => Object.assign({}, o, { dso: '' })); }, trade !== 'DSO', 'g' + g))
     ], false, trade !== 'DSO'),
-    polRow('qtr', t('⑤ 분기리베이트(제품 반환)'), [
-      opBtn(presetOff('qtr'), OFFC, t('미적용'), () => setOnK('qtr', false), false, 'o1'),
-      opBtn(presetSel('qtr'), AMB, pct(qr) + '%', () => setOnK('qtr', true), false, 'o2')]),
-    polRow('ann', t('⑥ 년간리베이트(현금)'), [
-      opBtn(presetOff('ann'), OFFC, t('미적용'), () => setOnK('ann', false), false, 'o1'),
-      opBtn(presetSel('ann'), AMB, pct(ar) + '%', () => setOnK('ann', true), false, 'o2')]),
+    polRow('qtr', t('⑤ 분기리베이트(제품 반환)') + (qaOff ? ' — ' + prod + ' ' + t('미적용') : ''), [
+      opBtn(qaOff || presetOff('qtr'), OFFC, t('미적용'), () => setOnK('qtr', false), qaOff, 'o1'),
+      opBtn(!qaOff && presetSel('qtr'), AMB, pct(qr) + '%', () => setOnK('qtr', true), qaOff, 'o2')], false, qaOff),
+    polRow('ann', t('⑥ 년간리베이트(현금)') + (qaOff ? ' — ' + prod + ' ' + t('미적용') : ''), [
+      opBtn(qaOff || presetOff('ann'), OFFC, t('미적용'), () => setOnK('ann', false), qaOff, 'o1'),
+      opBtn(!qaOff && presetSel('ann'), AMB, pct(ar) + '%', () => setOnK('ann', true), qaOff, 'o2')], false, qaOff),
     polRow('bd', t('⑦ BD장려(현금)') + (prod !== 'ALL' && bdModels.indexOf(prod) === -1 ? ' — ' + bdModels.join('·') + ' ' + t('전용') : ''), [
       opBtn(presetOff('bd'), OFFC, t('미적용'), () => setOnK('bd', false), prod !== 'ALL' && bdModels.indexOf(prod) === -1, 'o1'),
       opBtn(presetSel('bd'), AMB, String(PVI.bd || 0) + '%', () => setOnK('bd', true), prod !== 'ALL' && bdModels.indexOf(prod) === -1, 'o2')], true, prod !== 'ALL' && bdModels.indexOf(prod) === -1),
