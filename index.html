@@ -536,7 +536,7 @@ function xlsDownloadTable(el, fname, idx) {
     xlsDownloadRows(fname, rows);
   } catch (e) { alert('엑셀 저장 실패'); }
 }
-const LS_SYNC_KEYS = ['dealer_price_v4', 'simgp_confirmed_v1', 'simgp_confirm_log_v1', 'simgp_profconf_v1', 'simgp_profconf_log_v1', 'simgp_patient_v1', 'simgp_state_v2', 'simgp_memo_v1', 'polver_v1', 'evi_cost_confirmed_v1', 'evi_fixprice_v1', 'evi_tab_v1', 'simgp_profsel_v1'];
+const LS_SYNC_KEYS = ['dealer_price_v4', 'evi_fixprice_saved_v1', 'simgp_confirmed_v1', 'simgp_confirm_log_v1', 'simgp_profconf_v1', 'simgp_profconf_log_v1', 'simgp_patient_v1', 'simgp_state_v2', 'simgp_memo_v1', 'polver_v1', 'evi_cost_confirmed_v1', 'evi_fixprice_v1', 'evi_tab_v1', 'simgp_profsel_v1'];
 function lsExtraCollect() { const o = {}; LS_SYNC_KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v != null) o[k] = v; } catch (e) {} }); return o; }
 function lsExtraApply(o) {
   if (!o || typeof o !== 'object') return false;
@@ -975,6 +975,7 @@ function Sidebar({
     "江苏澍康 대리상정책": "江苏澍康 经销商政策",
     "원가 시뮬레이션": "成本模拟",
     "대리상 가격표": "经销商价格表",
+    "가격(대리상GP고정)": "价格(经销商GP固定)",
     "저장 이력": "保存记录",
     "법인가격시뮬레이션": "公司价格模拟",
     "법인 대리상가격": "公司经销商价格",
@@ -1041,6 +1042,9 @@ function Sidebar({
     }, {
       key: 'cost-sim',
       label: tr('원가 시뮬레이션')
+    }, {
+      key: 'evi-dso',
+      label: tr('가격(대리상GP고정)')
     }, {
       key: 'sim-history',
       label: tr('저장 이력')
@@ -14168,6 +14172,12 @@ const EVIFIX_ZH = {
   '③ 지정가 역산 — 대리상GP ': '③ 指定价倒算 — 经销商GP ', '% 고정': '% 固定',
   '원가(도착원가)까지는 공통 → 이후 ② GP 설정으로 산출한 기준가와 ③ 지정가 역산이 나란히 비교됩니다.': '到岸成本为共通 → 之后并列比较 ② 按GP设置计算的基准价 和 ③ 指定价倒算。',
   '※ ② 기준가: 도착원가 ÷ (1−법인GP) = 납품가 → ÷ (1−대리상GP) = 최종 DSO · ③ 지정가: 지정가 × 대리상GP = 대리상 이익 → 지정가 − 이익 = 납품가 → 납품가 − 도착원가 = 법인 이익 → 이익 ÷ 납품가 = 법인GP': '※ ② 基准价: 到岸成本 ÷ (1−公司GP) = 供货价 → ÷ (1−经销商GP) = 最终DSO · ③ 指定价: 指定价 × 经销商GP = 经销商利润 → 指定价 − 利润 = 供货价 → 供货价 − 到岸成本 = 公司利润 → 利润 ÷ 供货价 = 公司GP',
+  '키트 수량 0 = 키트 미포함 · ②와 ③의 납품가 차이가 곧 법인GP 차이 · 행 오른쪽 [저장]을 누르면 그 옵션만 아래 가격 리스트에 저장됩니다': '套装数量 0 = 不含套装 · ②与③的供货价之差即公司GP之差 · 点击行右侧[保存]仅将该选项保存到下方价格清单',
+  '가격 리스트 (저장본)': '价格清单(已保存)', '키트': '工具盒', '지정가': '指定价', '납품가': '供货价', '법인GP': '公司GP', '대리상GP': '经销商GP', '옵션별로 저장한 지정가 · [적용] = 그 줄을 위 표에 다시 불러오기': '按选项保存的指定价 · [适用] = 将该行重新加载到上表',
+  '저장': '保存', '완료': '完成', '적용': '适用', '전체 삭제': '全部删除', '中文 엑셀': '中文Excel', '저장일': '保存日', '비고': '备注',
+  '이 옵션을 가격리스트에 저장': '将该选项保存到价格清单', '위 표에 다시 불러오기': '重新加载到上表',
+  '저장한 가격 리스트를 모두 삭제할까요?': '删除全部已保存的价格清单?',
+  '아직 저장된 가격 리스트가 없습니다 · 위 표 오른쪽 [저장]을 누르면 그 옵션만 여기에 쌓입니다': '尚无已保存的价格清单 · 点击上表右侧[保存]后该选项将累积在此',
   '키트 수량 0 = 키트 미포함 · ②와 ③의 납품가 차이가 곧 법인GP 차이': '套装数量 0 = 不含套装 · ②与③的供货价之差即公司GP之差'
 };
 function EviFixPricePage({ lang }) {
@@ -14188,6 +14198,9 @@ function EviFixPricePage({ lang }) {
   const setI = (k, v) => setInp(o => Object.assign({}, o, { [k]: v }));
   const setR = (i, k, v) => setRows(l => l.map((r, j) => j === i ? Object.assign({}, r, { [k]: v }) : r));
   const addRow = () => setRows(l => l.concat([{ name: t('신규 옵션'), kitQty: 0, target: 100 }]));
+  const [saved, setSaved] = React.useState(() => { try { const d = JSON.parse(localStorage.getItem('evi_fixprice_saved_v1') || 'null'); if (Array.isArray(d)) return d; } catch (e) { } return []; });
+  React.useEffect(() => { try { localStorage.setItem('evi_fixprice_saved_v1', JSON.stringify(saved)); } catch (e) {} }, [saved]);
+  const [justSaved, setJustSaved] = React.useState(-1);
   const delRow = i => setRows(l => l.filter((_, j) => j !== i));
 
   const nf = (v, d) => Number(v || 0).toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -14206,6 +14219,21 @@ function EviFixPricePage({ lang }) {
     return { sum, arrival, supply, corpBase, dso, tg, dealer, supRev, corpP, gp };
   };
 
+  const saveRow = i2 => {
+    const r = rows[i2], c = calc(r);
+    const d2 = new Date();
+    const ds = d2.getFullYear() + '-' + String(d2.getMonth() + 1).padStart(2, '0') + '-' + String(d2.getDate()).padStart(2, '0');
+    const rec = { date: ds, name: r.name, kitQty: num(r.kitQty), arrival: +c.arrival.toFixed(1), target: +c.tg.toFixed(1), dgp: num(inp.dgp), dealer: +c.dealer.toFixed(1), supply: +c.supRev.toFixed(1), corpP: +c.corpP.toFixed(1), gp: +(c.gp * 100).toFixed(1), memo: '' };
+    setSaved(l => [rec].concat(l).slice(0, 300));
+    setJustSaved(i2); setTimeout(() => setJustSaved(-1), 1200);
+  };
+  const applySaved = rec => setRows(l => l.concat([{ name: rec.name, kitQty: rec.kitQty, target: rec.target }]));
+  const dlSaved = zh => {
+    const z = s2 => zh ? (EVIFIX_ZH[s2] || s2) : t(s2);
+    const R = [[z('저장일'), z('옵션 / 구성'), z('키트 수량'), z('도착원가'), z('지정DSO 가격'), z('대리상GP(%)'), z('대리상 이익'), z('대리상 납품가'), z('법인 이익'), '법인GP(%)', z('비고')]];
+    saved.forEach(s2 => R.push([s2.date, s2.name, { v: s2.kitQty }, { v: s2.arrival }, { v: s2.target }, { v: s2.dgp }, { v: s2.dealer }, { v: s2.supply }, { v: s2.corpP }, { v: s2.gp }, s2.memo || '']));
+    xlsDownloadRows(zh ? '价格清单_指定价' : '가격리스트_지정가', R);
+  };
   const inCls = 'kq-cell evi-num px-2 py-1';
   const comIn = k => h('input', { value: Number(num(inp[k])).toLocaleString('ko-KR'), onChange: e => setI(k, e.target.value.replace(/[^0-9.]/g, '')), className: inCls, style: { textAlign: 'center' } });
   const numIn = (k, step) => h('input', { type: 'number', step: step, value: inp[k], onChange: e => setI(k, e.target.value), className: inCls, style: { textAlign: 'center' } });
@@ -14264,7 +14292,7 @@ function EviFixPricePage({ lang }) {
           h('th', { className: 'px-2 py-2 text-center' }, t('대리상 납품가')),
           h('th', { className: 'px-2 py-2 text-center' }, t('법인 이익')),
           h('th', { className: 'px-2 py-2 text-center' }, '법인GP(%)'),
-          h('th', { className: 'px-2 py-2', style: Object.assign({ width: '3.5%' }, sep) }))),
+          h('th', { className: 'px-2 py-2', style: Object.assign({ width: '8%' }, sep) }))),
       h('tbody', null, rows.map((r, i) => {
         const c = calc(r);
         return h('tr', { key: i, className: 'hover:bg-slate-50' },
@@ -14280,31 +14308,64 @@ function EviFixPricePage({ lang }) {
           h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(c.supRev, 1)),
           h('td', { className: 'evi-num px-2 py-1.5' }, nf(c.corpP, 1)),
           h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(c.gp * 100, 1) + '%'),
-          h('td', { className: 'px-2 py-1.5 text-center', style: sep }, h('button', { onClick: () => delRow(i), title: t('삭제'), className: 'px-1 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm' }, '🗑')));
+          h('td', { className: 'px-1 py-1.5 text-center', style: sep },
+            h('button', { onClick: () => saveRow(i), title: t('이 옵션을 가격리스트에 저장'), className: 'px-1.5 py-0.5 text-xs font-semibold border ' + (justSaved === i ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-indigo-600 text-indigo-600 bg-white hover:bg-indigo-50'), style: { borderRadius: 0 } }, justSaved === i ? t('완료') : t('저장')),
+            h('button', { onClick: () => delRow(i), title: t('삭제'), className: 'px-1 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm ml-1' }, '🗑')));
       }))),
     h('div', { className: 'text-xs', style: { color: '#000' } }, t('※ ② 기준가: 도착원가 ÷ (1−법인GP) = 납품가 → ÷ (1−대리상GP) = 최종 DSO · ③ 지정가: 지정가 × 대리상GP = 대리상 이익 → 지정가 − 이익 = 납품가 → 납품가 − 도착원가 = 법인 이익 → 이익 ÷ 납품가 = 법인GP')),
-    h('div', { className: 'text-xs text-slate-500' }, t('키트 수량 0 = 키트 미포함 · ②와 ③의 납품가 차이가 곧 법인GP 차이')));
+    h('div', { className: 'text-xs text-slate-500' }, t('키트 수량 0 = 키트 미포함 · ②와 ③의 납품가 차이가 곧 법인GP 차이 · 행 오른쪽 [저장]을 누르면 그 옵션만 아래 가격 리스트에 저장됩니다')));
 
-  return h('div', { className: 'p-6 space-y-4' }, inputCard, listCard);
+  const thS = (label, w, extra) => h('th', { className: 'px-2 py-2 text-center', style: Object.assign({ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, w ? { width: w } : {}, extra || {}), title: label }, label);
+  const savedCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-2' },
+    h('div', { className: 'flex items-center justify-between flex-wrap gap-2' },
+      h('div', null, h('span', { className: 'text-sm font-bold text-slate-800' }, t('가격 리스트 (저장본)')),
+        h('span', { className: 'text-xs text-slate-400 font-normal ml-2' }, t('옵션별로 저장한 지정가 · [적용] = 그 줄을 위 표에 다시 불러오기'))),
+      h('div', { className: 'flex gap-2' },
+        h('button', { onClick: () => dlSaved(false), className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('⬇ 엑셀')),
+        h('button', { onClick: () => dlSaved(true), className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('中文 엑셀')),
+        saved.length ? h('button', { onClick: () => { if (confirm(t('저장한 가격 리스트를 모두 삭제할까요?'))) setSaved([]); }, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-400 hover:bg-slate-50' }, t('전체 삭제')) : null)),
+    saved.length ? h('table', { className: 'kq-grid w-full evifix-tbl', style: { fontSize: '13px', tableLayout: 'fixed' } },
+      h('thead', null, h('tr', null,
+        thS(t('저장일'), '9%'), thS(t('옵션 / 구성'), '21%'), thS(t('키트'), '5%'), thS(t('도착원가'), '8%'),
+        thS(t('지정가'), '9%', sep), thS(t('대리상GP'), '8%'), thS(t('대리상 이익'), '9%'), thS(t('납품가'), '9%'),
+        thS(t('법인 이익'), '8%', sep), thS(t('법인GP'), '7%'), thS(t('비고'), '11%'), thS('', '8%', sep))),
+      h('tbody', null, saved.map((s2, i2) => h('tr', { key: i2, className: 'hover:bg-slate-50' },
+        h('td', { className: 'kq-txt px-2 py-1.5 text-center' }, String(s2.date).slice(2)),
+        h('td', { className: 'kq-txt px-2 py-1.5', style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, title: s2.name }, s2.name),
+        h('td', { className: 'evi-num px-2 py-1.5 text-center' }, s2.kitQty),
+        h('td', { className: 'evi-num px-2 py-1.5' }, nf(s2.arrival, 1)),
+        h('td', { className: 'evi-num px-2 py-1.5', style: sep }, nf(s2.target, 1)),
+        h('td', { className: 'evi-num px-2 py-1.5' }, nf(s2.dgp, 0) + '%'),
+        h('td', { className: 'evi-num px-2 py-1.5' }, nf(s2.dealer, 1)),
+        h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(s2.supply, 1)),
+        h('td', { className: 'evi-num px-2 py-1.5', style: sep }, nf(s2.corpP, 1)),
+        h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, nf(s2.gp, 1) + '%'),
+        h('td', { className: 'px-2 py-1.5' }, h('input', { value: s2.memo || '', onChange: e => { const v = e.target.value; setSaved(l => l.map((x, j) => j === i2 ? Object.assign({}, x, { memo: v }) : x)); }, className: 'kq-txt w-full px-1 py-0.5 bg-transparent focus:outline-none', style: { border: 'none', fontSize: '13px' } })),
+        h('td', { className: 'px-1 py-1.5 text-center', style: sep },
+          h('button', { onClick: () => applySaved(s2), title: t('위 표에 다시 불러오기'), className: 'px-1.5 py-0.5 text-xs font-semibold border border-slate-300 text-slate-600 bg-white hover:bg-slate-50', style: { borderRadius: 0 } }, t('적용')),
+          h('button', { onClick: () => setSaved(l => l.filter((_, j) => j !== i2)), className: 'px-1 py-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-50 text-sm ml-1' }, '🗑')))))
+    ) : h('div', { className: 'text-xs text-slate-400 py-6 text-center' }, t('아직 저장된 가격 리스트가 없습니다 · 위 표 오른쪽 [저장]을 누르면 그 옵션만 여기에 쌓입니다')));
+
+  return h('div', { className: 'p-6 space-y-4' }, inputCard, listCard, savedCard);
 }
 function EviTabsPage(props) {
   const h = React.createElement;
   const lang = props.lang;
   const t = s => (lang === 'zh' && EVIFIX_ZH[s]) ? EVIFIX_ZH[s] : s;
-  const [tab, setTab] = React.useState(() => { try { return localStorage.getItem('evi_tab_v1') || 'fix'; } catch (e) { return 'fix'; } });
+  const [tab, setTab] = React.useState(() => { try { const v = localStorage.getItem('evi_tab_v1') || 'fix'; return (v === 'dso' || v === 'dgp') ? 'fix' : v; } catch (e) { return 'fix'; } });
   React.useEffect(() => { try { localStorage.setItem('evi_tab_v1', tab); } catch (e) {} }, [tab]);
   return h('div', { className: 'p-6' },
     h('h2', { className: 'text-lg font-bold text-slate-800' }, 'Evidence_BLT II OS'),
-    h('p', { className: 'text-xs text-slate-500 mb-3' }, t('매입단가·환율·GP 설정을 공유하며, 세 가지 방식으로 DSO 가격을 계산합니다.')),
+    h('p', { className: 'text-xs text-slate-500 mb-3' }, t('매입단가·환율·GP 설정을 공유하며, 두 가지 방식으로 DSO 가격을 계산합니다.')),
     h('div', { className: 'mb-4 border-b border-slate-200 flex gap-2' },
-      [['fix', '가격(지정가)'], ['cost', '가격(원가선택)'], ['dso', '가격(대리상GP고정)']].map(([k, label]) => h('button', {
+      [['fix', '가격(지정가)'], ['cost', '가격(원가선택)']].map(([k, label]) => h('button', {
         key: k, onClick: () => setTab(k),
         className: 'px-4 py-2 text-sm font-semibold border-b-2 -mb-px ' + (tab === k ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700')
       }, t(label)))),
     h('div', { className: '-mx-6 -mb-6' },
       tab === 'fix' ? h(EviFixPricePage, { lang: lang }) : null,
       tab === 'cost' ? h(EvidenceSimPage, { eviKit: props.eviKit, setEviKit: props.setEviKit, onCloudSave: props.onCloudSave, saveStatus: props.saveStatus, lang: lang, costMode: true, hideTitle: true }) : null,
-      tab === 'dso' ? h(EvidenceSimPage, { eviKit: props.eviKit, setEviKit: props.setEviKit, onCloudSave: props.onCloudSave, saveStatus: props.saveStatus, lang: lang, hideTitle: true }) : null));
+      null));
 }
 
 const SIMGP_ZH = {
@@ -15647,6 +15708,12 @@ function App() {
     saveStatus: saveStatus,
     lang: lang
   }), activeMenu === 'kit-evi' && /*#__PURE__*/React.createElement(EviTabsPage, {
+    eviKit: eviKit,
+    setEviKit: setEviKit,
+    onCloudSave: onCloudSave,
+    saveStatus: saveStatus,
+    lang: lang
+  }), activeMenu === 'evi-dso' && /*#__PURE__*/React.createElement(EvidenceSimPage, {
     eviKit: eviKit,
     setEviKit: setEviKit,
     onCloudSave: onCloudSave,
