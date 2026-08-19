@@ -14761,7 +14761,7 @@ function SimGpPage({ lang, page }) {
     const impl = expOf(p) * FX * FACTOR, kitC = K.usd * FX * FACTOR, qty = K.qty;
     const y = rateOf('cashPay', cashPayRate);
     const i = freeOf(p);
-    const L = p === 'ST' ? 0 : rateOf('monthly', monthlyRate);
+    const L = rateOf('monthly', monthlyRate);
     const crOv = (crEd[p] != null && crEd[p] !== '') ? Number(crEd[p]) / 100 : null;
     const O = d.base * (crOv !== null ? crOv : rateOf('cashReb', cashRebOf(p)));
     const dDso = dirNum(p === 'ST' ? 'dsoST' : 'dso');
@@ -15190,9 +15190,9 @@ function SimGpPage({ lang, page }) {
         h('span', { className: 'text-sm font-bold text-slate-800' }, '🎯 ' + t('인센티브 정책 선택')),
         h('span', { className: 'text-xs text-slate-400 ml-2' }, t('등급 변경 시 자동 적용 · 수동 조정 가능'))),
       h('button', { onClick: () => setPolOpen(false), title: t('인센티브 정책 숨기기'), className: 'flex-shrink-0 px-2 py-1 text-xs border border-slate-300 text-slate-500 bg-white hover:bg-slate-50', style: { borderRadius: 0 } }, t('숨기기'))),
-    polRow('monthly', t('① 월목표달성(부품)') + (stOnly ? ' — ST ' + t('미적용') : ''), [
-      opBtn(stOnly || presetOff('monthly'), OFFC, t('미적용'), () => setOnK('monthly', false), stOnly, 'o1'),
-      opBtn(!stOnly && presetSel('monthly'), IND, String(PVI.monthly) + '% ' + t('적용'), () => setOnK('monthly', true), stOnly, 'o2')], false, stOnly),
+    polRow('monthly', t('① 월목표달성(부품)'), [
+      opBtn(presetOff('monthly'), OFFC, t('미적용'), () => setOnK('monthly', false), false, 'o1'),
+      opBtn(presetSel('monthly'), IND, String(PVI.monthly) + '% ' + t('적용'), () => setOnK('monthly', true), false, 'o2')]),
     polRow('cashPay', t('② 현금결제(현금)'), [
       opBtn(presetOff('cashPay'), OFFC, t('미적용'), () => setOnK('cashPay', false), false, 'o1'),
       opBtn(presetSel('cashPay'), IND, String(PVI.cashPay) + '%', () => setOnK('cashPay', true), false, 'o2')]),
@@ -15329,12 +15329,15 @@ function SimGpPage({ lang, page }) {
           h('td', { className: 'evi-num px-2 py-1.5' }, money(c.base)),
           h('td', { className: 'evi-num px-2 py-1.5' }, money(c.p1)),
           h('td', { className: 'evi-num px-2 py-1.5 text-slate-500' }, nf1(crBase(p2)) + '%'),
-          h('td', { className: 'evi-num px-2 py-1.5', onClick: e => { const i3 = e.currentTarget.querySelector('input'); if (i3) { i3.focus(); i3.select && i3.select(); } } }, h('input', {
-            value: crEd[p2] != null ? crEd[p2] : nf1(crBase(p2)),
-            onChange: e => { const v0 = e.target.value.replace(/[^0-9.]/g, ''); setCrEd(o => Object.assign({}, o, { [p2]: v0 })); },
-            className: 'evi-num dealer-sp-in w-full',
-            style: { border: 'none', borderBottom: '1px dashed #94a3b8', borderRadius: 0, background: 'transparent', textAlign: 'right', fontSize: '13.5px', padding: '2px 4px' }
-          })),
+          h('td', { className: 'evi-num px-2 py-1.5', onClick: e => { const i3 = e.currentTarget.querySelector('input'); if (i3) { i3.focus(); i3.select && i3.select(); } } },
+            h('div', { className: 'flex items-center gap-1' },
+              h('input', {
+                value: crEd[p2] != null ? crEd[p2] : nf1(crBase(p2)),
+                onChange: e => { const v0 = e.target.value.replace(/[^0-9.]/g, ''); setCrEd(o => Object.assign({}, o, { [p2]: v0 })); },
+                className: 'evi-num dealer-sp-in w-full',
+                style: { border: 'none', borderBottom: '1px dashed #94a3b8', borderRadius: 0, background: 'transparent', textAlign: 'right', fontSize: '13.5px', padding: '2px 4px' }
+              }),
+              h('span', { className: 'text-slate-400 flex-shrink-0', style: { fontSize: '12px' } }, '%'))),
           h('td', { className: 'evi-num px-2 py-1.5 font-bold' }, money(c.p4)),
           h('td', { className: 'evi-num px-2 py-1.5' }, money(sp0)),
           h('td', { className: 'evi-num px-2 py-1.5' }, pct(sp0 > 0 ? (sp0 - c.p4) / sp0 : 0) + '%'),
@@ -15349,7 +15352,7 @@ function SimGpPage({ lang, page }) {
         key: k, onClick: () => { setLowTab(k); if (k === 'detail') setDetailOpen(true); },
         className: 'px-4 py-2 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap ' + (lowTab === k ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700')
       }, label))),
-      h('button', { onClick: () => setPolOpen(v => !v), className: 'mb-1 px-2.5 py-1 text-xs border border-slate-300 text-slate-600 bg-white hover:bg-slate-50', style: { borderRadius: 0 } }, polOpen ? t('인센티브 정책 숨기기') : t('인센티브 정책 보기'))),
+      polOpen ? null : h('button', { onClick: () => setPolOpen(true), className: 'mb-1 px-2.5 py-1 text-xs border border-slate-300 text-slate-600 bg-white hover:bg-slate-50 whitespace-nowrap flex-shrink-0', style: { borderRadius: 0 } }, t('인센티브 정책 보기'))),
     lowTab === 'prof' ? profitCard : (lowTab === 'detail' ? detailCard : (lowTab === 'sell' ? sellCard : stageCard)));
   if (page === 'dealer') return h('div', { className: 'p-6 space-y-4 bg-slate-50 min-h-full' },
     kpiRow, topBar, dealerCard,
