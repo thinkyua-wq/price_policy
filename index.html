@@ -14345,6 +14345,31 @@ function polverLoad() {
     }
   } catch (e) {}
 })();
+(function () {
+  try {
+    if (!localStorage.getItem('evi_fixprice_saved_fix_v1_done')) {
+      const raw = localStorage.getItem('evi_fixprice_saved_v1');
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          const fixed = arr.map(function (s2) {
+            const tg = Number(s2.target) || 0;
+            const trueDgp = (tg && s2.dealer != null && !isNaN(s2.dealer)) ? Math.round(s2.dealer / tg * 100) : ((s2.dgp == null || isNaN(s2.dgp)) ? null : Number(s2.dgp));
+            const arrival = (s2.arrival == null || isNaN(s2.arrival)) ? s2.arrival : Math.round(s2.arrival);
+            const dealer = (s2.dealer == null || isNaN(s2.dealer)) ? s2.dealer : Math.round(s2.dealer);
+            const supply = (s2.supply == null || isNaN(s2.supply)) ? s2.supply : Math.round(s2.supply);
+            const corpP = (supply != null && arrival != null && !isNaN(supply) && !isNaN(arrival)) ? (supply - arrival) : ((s2.corpP == null || isNaN(s2.corpP)) ? s2.corpP : Math.round(s2.corpP));
+            const gp = (supply && !isNaN(supply) && supply !== 0 && corpP != null && !isNaN(corpP)) ? +(corpP / supply * 100).toFixed(1) : s2.gp;
+            const fixName = nm => (nm && trueDgp != null && /\d+(\.\d+)?%\s*$/.test(nm)) ? nm.replace(/\d+(\.\d+)?%\s*$/, trueDgp + '%') : nm;
+            return Object.assign({}, s2, { dgp: trueDgp == null ? s2.dgp : trueDgp, arrival: arrival, dealer: dealer, supply: supply, corpP: corpP, gp: gp, name: fixName(s2.name), nameZh: fixName(s2.nameZh) });
+          });
+          localStorage.setItem('evi_fixprice_saved_v1', JSON.stringify(fixed));
+        }
+      }
+      localStorage.setItem('evi_fixprice_saved_fix_v1_done', '1');
+    }
+  } catch (e) {}
+})();
 function polverSave(d) { try { localStorage.setItem('polver_v1', JSON.stringify(d)); } catch (e) {} window.dispatchEvent(new Event('polver-change')); }
 function usePolver() {
   const [st, setSt] = React.useState(polverLoad);
