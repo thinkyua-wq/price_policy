@@ -401,9 +401,15 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   table.kq-grid thead th { white-space: nowrap; }
   .kq-num, .kq-cell, .kq-txt, .kq-ta { color: #000; font-family: "Malgun Gothic","맑은 고딕",Arial,sans-serif; }
   table.kq-tbl th, table.kq-tbl td, table.kq-grid th, table.kq-grid td { vertical-align: middle; }
+  /* 모바일: 표가 좁아져 안 보이지 않도록, 컬럼을 억지로 구겨넣는 대신 좌우 스크롤로 전환 */
+  @media (max-width: 820px) {
+    table { display: block !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch; table-layout: auto !important; width: auto !important; min-width: 100%; }
+    table thead, table tbody, table tfoot { width: max-content; min-width: 100%; }
+  }
   /* Evidence 표 숫자: 검정 + 맑은 고딕 + 동일 크기 */
   .evi-num, .evi-num input { color: #000; font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; font-size: 14px; font-variant-numeric: tabular-nums; }
   html.lang-zh body, html.lang-zh button, html.lang-zh input, html.lang-zh select, html.lang-zh textarea, html.lang-zh table { font-family: "Microsoft YaHei", "微软雅黑", "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
+  html.lang-zh body, html.lang-zh button, html.lang-zh input, html.lang-zh select, html.lang-zh textarea { font-size: 90%; }
   .dealer-sp-in::placeholder { color: #94a3b8; }
   .dealer-sp-in:focus { outline: none; background: #f8fafc; border-bottom-color: #4f46e5 !important; }
   .zh-txt, .zh-txt input, .zh-txt select { font-family: "Microsoft YaHei", "微软雅黑", "Malgun Gothic", "맑은 고딕", Arial, sans-serif !important; }
@@ -14345,31 +14351,28 @@ function polverLoad() {
     }
   } catch (e) {}
 })();
-(function () {
+const SAVED_NAME_KO_ZH_TERMS = [['월결제', '月结'], ['현금결제', '现金结算']];
+function autoZhSavedName(nm) {
+  if (!nm) return nm;
+  let out = nm;
+  SAVED_NAME_KO_ZH_TERMS.forEach(function (p) { out = out.split(p[0]).join(p[1]); });
+  return out;
+}
+function fixSavedRow(s2) {
   try {
-    if (!localStorage.getItem('evi_fixprice_saved_fix_v1_done')) {
-      const raw = localStorage.getItem('evi_fixprice_saved_v1');
-      if (raw) {
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr)) {
-          const fixed = arr.map(function (s2) {
-            const tg = Number(s2.target) || 0;
-            const trueDgp = (tg && s2.dealer != null && !isNaN(s2.dealer)) ? Math.round(s2.dealer / tg * 100) : ((s2.dgp == null || isNaN(s2.dgp)) ? null : Number(s2.dgp));
-            const arrival = (s2.arrival == null || isNaN(s2.arrival)) ? s2.arrival : Math.round(s2.arrival);
-            const dealer = (s2.dealer == null || isNaN(s2.dealer)) ? s2.dealer : Math.round(s2.dealer);
-            const supply = (s2.supply == null || isNaN(s2.supply)) ? s2.supply : Math.round(s2.supply);
-            const corpP = (supply != null && arrival != null && !isNaN(supply) && !isNaN(arrival)) ? (supply - arrival) : ((s2.corpP == null || isNaN(s2.corpP)) ? s2.corpP : Math.round(s2.corpP));
-            const gp = (supply && !isNaN(supply) && supply !== 0 && corpP != null && !isNaN(corpP)) ? +(corpP / supply * 100).toFixed(1) : s2.gp;
-            const fixName = nm => (nm && trueDgp != null && /\d+(\.\d+)?%\s*$/.test(nm)) ? nm.replace(/\d+(\.\d+)?%\s*$/, trueDgp + '%') : nm;
-            return Object.assign({}, s2, { dgp: trueDgp == null ? s2.dgp : trueDgp, arrival: arrival, dealer: dealer, supply: supply, corpP: corpP, gp: gp, name: fixName(s2.name), nameZh: fixName(s2.nameZh) });
-          });
-          localStorage.setItem('evi_fixprice_saved_v1', JSON.stringify(fixed));
-        }
-      }
-      localStorage.setItem('evi_fixprice_saved_fix_v1_done', '1');
-    }
-  } catch (e) {}
-})();
+    const tg = Number(s2.target) || 0;
+    const trueDgp = (tg && s2.dealer != null && !isNaN(s2.dealer)) ? Math.round(s2.dealer / tg * 100) : ((s2.dgp == null || isNaN(s2.dgp)) ? null : Number(s2.dgp));
+    const arrival = (s2.arrival == null || isNaN(s2.arrival)) ? s2.arrival : Math.round(s2.arrival);
+    const dealer = (s2.dealer == null || isNaN(s2.dealer)) ? s2.dealer : Math.round(s2.dealer);
+    const supply = (s2.supply == null || isNaN(s2.supply)) ? s2.supply : Math.round(s2.supply);
+    const corpP = (supply != null && arrival != null && !isNaN(supply) && !isNaN(arrival)) ? (supply - arrival) : ((s2.corpP == null || isNaN(s2.corpP)) ? s2.corpP : Math.round(s2.corpP));
+    const gp = (supply && !isNaN(supply) && supply !== 0 && corpP != null && !isNaN(corpP)) ? +(corpP / supply * 100).toFixed(1) : s2.gp;
+    const fixName = nm => (nm && trueDgp != null && /\d+(\.\d+)?%\s*$/.test(nm)) ? nm.replace(/\d+(\.\d+)?%\s*$/, trueDgp + '%') : nm;
+    const fixedName = fixName(s2.name);
+    const fixedNameZh = (s2.nameZh && String(s2.nameZh).trim()) ? fixName(s2.nameZh) : autoZhSavedName(fixedName);
+    return Object.assign({}, s2, { dgp: trueDgp == null ? s2.dgp : trueDgp, arrival: arrival, dealer: dealer, supply: supply, corpP: corpP, gp: gp, name: fixedName, nameZh: fixedNameZh });
+  } catch (e) { return s2; }
+}
 function polverSave(d) { try { localStorage.setItem('polver_v1', JSON.stringify(d)); } catch (e) {} window.dispatchEvent(new Event('polver-change')); }
 function usePolver() {
   const [st, setSt] = React.useState(polverLoad);
@@ -14700,7 +14703,7 @@ function EviFixPricePage({ lang }) {
   const setI = (k, v) => setInp(o => Object.assign({}, o, { [k]: v }));
   const setR = (i, k, v) => setRows(l => l.map((r, j) => j === i ? Object.assign({}, r, { [k]: v }) : r));
   const addRow = () => setRows(l => l.concat([{ name: t('신규 옵션'), kitQty: 0, target: 100 }]));
-  const [saved, setSaved] = React.useState(() => { try { const d = JSON.parse(localStorage.getItem('evi_fixprice_saved_v1') || 'null'); if (Array.isArray(d)) return d; } catch (e) { } return []; });
+  const [saved, setSaved] = React.useState(() => { try { const d = JSON.parse(localStorage.getItem('evi_fixprice_saved_v1') || 'null'); if (Array.isArray(d)) return d.map(fixSavedRow); } catch (e) { } return []; });
   React.useEffect(() => { try { localStorage.setItem('evi_fixprice_saved_v1', JSON.stringify(saved)); } catch (e) {} }, [saved]);
   const [justSaved, setJustSaved] = React.useState(-1);
   const delRow = i => setRows(l => l.filter((_, j) => j !== i));
