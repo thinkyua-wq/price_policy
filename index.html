@@ -15136,20 +15136,19 @@ const EVIFIX_ZH = {
   '매입단가·환율·GP 설정을 공유하며, 세 가지 방식으로 DSO 가격을 계산합니다.': '共享采购单价·汇率·GP设置，以三种方式计算DSO价格。',
   '기본 입력값': '基本输入值', '임플란트 매입단가(원)': '种植体采购单价(韩元)', 'Surgical Kit 매입단가(원)': 'Surgical Kit采购单价(韩元)',
   '환율(원/USD)': '汇率(韩元/USD)', '수출비용': '出口费用', '법인GP(%)': '公司GP(%)', '대리상GP(%)': '经销商GP(%)',
-  '마케팅물품지원(%)': '市场物料支持(%)', '실패임플지원(%)': '失败种植体支持(%)',
-  '마케팅물품지원': '市场物料支持', '실패임플지원': '失败种植体支持', '실질 법인이익': '实际公司利润', '실질 법인GP(%)': '实际公司GP(%)', '작업': '操作',
+  '마케팅 지원(%)': '市场支持(%)', '실패임플지원(%)': '失败种植体支持(%)',
+  '실패임플지원': '失败种植体支持', '실질 법인이익': '实际公司利润', '실질 법인GP(%)': '实际公司GP(%)', '작업': '操作',
   '마케팅물품': '市场物料', '커스회의': '客户会议', '실패임플': '失败种植体',
   '대리상공급가(지정)': '经销商供货价(指定)', '지정DSO가격': '指定DSO价格', '실질법인이익': '实际公司利润', '실질법인GP(%)': '实际公司GP(%)',
-  'DSO공급가': 'DSO供货价', '대리상 공급가': '经销商供货价',
+  'DSO공급가': 'DSO供货价', '대리상 공급가': '经销商供货价', '(예상)': '(预计)',
   '정책 변경 영향 · 임플란트 1개 기준 법인GP 변화': '政策变更影响 · 以种植体1个为基准的公司GP变化',
   '법인GP (환율 1,460 기준)': '公司GP(汇率1,460基准)', '실질법인GP (환율 1,420 기준)': '实际公司GP(汇率1,420基准)', '법인GP 변화(Δ)': '公司GP变化(Δ)',
-  '환율(원/USD) 1,460 · 환율(USD→RMB) 7 · 지정DSO가격 125 · 대리상GP 15% · 지원 없음': '汇率(韩元/USD)1,460 · 汇率(USD→RMB)7 · 指定DSO价格125 · 经销商GP15% · 无支持',
-  '환율(원/USD) 1,420 · 지정DSO가격 125 · 대리상GP': '汇率(韩元/USD)1,420 · 指定DSO价格125 · 经销商GP', '마케팅지원': '市场支持',
+  '지원 없음': '无支持', '마케팅 지원': '市场支持',
   '환율 1,460→1,420 및 마케팅/실패임플 지원 도입 영향': '汇率1,460→1,420及引入市场/失败种植体支持的影响',
   '임플란트 1개 DSO공급가': '种植体1个DSO供货价', '임플란트 1개 법인공급가': '种植体1个公司供货价', '수출가산정 기준': '以出口价核算为准',
   '임플란트 1개 대리점공급가': '种植体1个经销商供货价', '공급가격 기준': '以供货价格为准', '인력/비용지원필요 ★': '需人力/费用支持 ★',
   '커스회의지원': '客户会议支持', '커스회의지원(%)': '客户会议支持(%)',
-  '※ 실질 법인이익 = 법인 이익 − (지정 DSO 가격 × 마케팅물품지원%) − (지정 DSO 가격 × 실패임플지원%) · 두 지원금은 지정 DSO 판매가 기준으로 계산됩니다': '※ 实际公司利润 = 公司利润 − (指定DSO价格 × 市场物料支持%) − (指定DSO价格 × 失败种植体支持%) · 两项支持金额均以指定DSO售价为基准计算',
+  '※ 실질 법인이익 = 법인 이익 − (지정 DSO 가격 × 마케팅 지원%) − (지정 DSO 가격 × 실패임플지원%) · 두 지원금은 지정 DSO 판매가 기준으로 계산됩니다': '※ 实际公司利润 = 公司利润 − (指定DSO价格 × 市场物料支持%) − (指定DSO价格 × 失败种植体支持%) · 两项支持金额均以指定DSO售价为基准计算',
   '환율 민감도': '汇率敏感度分析', '환율(원/USD) 변동에 따라 공급가격산정의 도착원가·법인이익·법인GP가 어떻게 달라지는지 시나리오별로 비교합니다. 다른 입력값(환율 제외)은 공급가격산정 탭의 현재 설정을 그대로 사용합니다.': '按情景比较汇率(韩元/USD)变动时,供货价格核算的到岸成本·公司利润·公司GP如何变化。除汇率外的其他输入值均沿用"供货价格核算"标签页的当前设置。',
   '환율 시나리오 (원/USD)': '汇率情景(韩元/USD)', '+ 시나리오 추가': '+ 添加情景', '현재 설정': '当前设置',
   '도착원가': '到岸成本', '법인 이익 (②기준가)': '公司利润(②基准价)', '법인GP(%) (②기준가)': '公司GP(%)(②基准价)',
@@ -15223,7 +15222,7 @@ function EviFixPricePage({ lang, eviKit, setEviKit }) {
   const rUsd = v => Math.round(v * 10) / 10;
   const rRmb = v => Math.round(v);
   const r1 = v => Math.round(v * 10) / 10;
-  /* 마케팅물품지원/커스회의지원/실패임플지원의 기준액: 수출가산정의 "임플란트 1개(BLT II OS Tapered Implant)" 법인공급가 (키트 매출 미포함) */
+  /* 마케팅 지원/커스회의지원/실패임플지원의 기준액: 수출가산정의 "임플란트 1개(BLT II OS Tapered Implant)" 법인공급가 (키트 매출 미포함) */
   const implItem = (eviData.items || []).find(it => it.id === 'e1') || (eviData.items || []).find(it => it.cat === 'main' && it.g === '임플란트');
   const implCgp = ((sharedRates.corpGpPct != null ? Number(sharedRates.corpGpPct) : 35)) / 100;
   const implDgp = ((sharedRates.dsoGpPct != null ? Number(sharedRates.dsoGpPct) : 20)) / 100;
@@ -15232,7 +15231,7 @@ function EviFixPricePage({ lang, eviKit, setEviKit }) {
   const implArrival = rRmb(implUsd * num(sharedRates.imp) * num(sharedRates.usdRmb));
   const implCorp = implCgp < 1 ? rRmb(implArrival / (1 - implCgp)) : 0;
   const implDso = implDgp < 1 ? rRmb(implCorp / (1 - implDgp)) : 0;
-  /* 마케팅물품지원 기준액: "임플란트 1개" 옵션(키트수량 0)의 대리상공급가(지정) · 실패임플지원 기준액: 임플란트 1개 도착원가(수출가산정 기준) · 커스회의지원: 별도 산식 없음(인력/비용지원필요) */
+  /* 마케팅 지원 기준액: "임플란트 1개" 옵션(키트수량 0)의 대리상공급가(지정) · 실패임플지원 기준액: 임플란트 1개 도착원가(수출가산정 기준) · 커스회의지원: 별도 산식 없음(인력/비용지원필요) */
   const refRow0 = rows.find(rr => num(rr.kitQty) === 0) || rows[0];
   const refDealer0 = rRmb(num(refRow0.target) * (num(inp.dgp) / 100));
   const refSupRev0 = rRmb(num(refRow0.target) - refDealer0);
@@ -15269,7 +15268,13 @@ function EviFixPricePage({ lang, eviKit, setEviKit }) {
     const supply = rRmb(tg - dealer);
     const corpP = supply - arrival;
     const gp = supply > 0 ? +(corpP / supply * 100).toFixed(1) : 0;
-    return { dgp: dgpPct, dealer, supply, corpP, gp };
+    const mktPct = num(inp.mktPct) / 100, custPct = num(inp.custPct) / 100, failPct = num(inp.failPct) / 100;
+    const mktCost = r1(refSupRev0 * mktPct);
+    const custCost = 0;
+    const failCost = r1(implArrival * failPct);
+    const realCorpP = r1(corpP - mktCost - custCost - failCost);
+    const realGp = supply > 0 ? +(realCorpP / supply * 100).toFixed(1) : 0;
+    return { dgp: dgpPct, dealer, supply, corpP, gp, realCorpP, realGp };
   };
 
   const saveRow = i2 => {
@@ -15296,16 +15301,21 @@ function EviFixPricePage({ lang, eviKit, setEviKit }) {
     h('input', { type: 'number', step: 1, value: inp[k], onChange: e => setI(k, e.target.value), className: inCls, style: { textAlign: 'center', width: '3.2rem' } }),
     h('span', { className: 'text-slate-400' }, '%'));
   const inpDef = [
-    ['cgp', t('법인GP(%)'), 'pct', '20%', false], ['dgp', t('대리상GP(%)'), 'pct', '20%', false],
-    ['mktPct', t('마케팅물품지원(%)'), 'pct', '20%', false], ['custPct', t('커스회의지원(%)'), 'pct', '20%', false], ['failPct', t('실패임플지원(%)'), 'pct', '20%', false]
+    ['cgp', t('법인GP(%)'), 'pct', '16.6%', false], ['dgp', t('대리상GP(%)'), 'pct', '16.6%', false],
+    ['mktPct', t('마케팅 지원(%)'), 'pct', '16.6%', false], ['custPct', t('커스회의지원(%)'), 'pct', '16.6%', false], ['failPct', t('실패임플지원(%)'), 'pct', '16.6%', false],
+    ['realGp', t('실질법인GP(%)'), 'calc', '16.6%', false]
   ];
+  /* 실질법인GP(%): 기본 입력값 기준 첫 옵션(rows[0], 보통 "임플란트 1개")의 실질법인GP를 그대로 보여준다 — 입력값을 바꾸면 즉시 재계산된다. */
+  const realGp0 = rows[0] ? calc(rows[0]).realGp : 0;
   const inputCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-2' },
     h('div', { className: 'text-[10px] text-slate-400' }, t('단위: RMB')),
     h('div', { className: 'text-sm font-bold text-slate-800' }, t('기본 입력값')),
     h('table', { className: 'kq-grid w-full', style: { tableLayout: 'fixed', fontSize: '12.5px' } },
       h('thead', null, h('tr', null, inpDef.map(d => h('th', { key: d[0], className: 'px-1.5 py-2 text-center', style: { width: d[3], whiteSpace: 'normal', wordBreak: 'keep-all', lineHeight: 1.25 } }, d[1])))),
       h('tbody', null, h('tr', null, inpDef.map(d => h('td', { key: d[0], className: 'evi-num px-1.5 py-1.5' },
-        d[4] ? (d[2] === 'c' ? comInShared(d[0]) : numInShared(d[0], d[2])) : (d[2] === 'c' ? comIn(d[0]) : d[2] === 'pct' ? pctIn(d[0]) : numIn(d[0], d[2]))))))));
+        d[2] === 'calc' ? h('span', { className: 'font-bold text-teal-700' }, nf(realGp0 * 100, 1) + '%')
+          : d[4] ? (d[2] === 'c' ? comInShared(d[0]) : numInShared(d[0], d[2])) : (d[2] === 'c' ? comIn(d[0]) : d[2] === 'pct' ? pctIn(d[0]) : numIn(d[0], d[2]))))))),
+    h('div', { className: 'text-[10px] text-slate-400' }, '※ ' + t('실질법인GP(%)') + ' = ' + ((lang === 'zh' && rows[0] && rows[0].nameZh) ? rows[0].nameZh : (rows[0] ? rows[0].name : '')) + ' ' + t('기준')));
 
   const card = (label, value, sub, cls, bg) =>
     h('div', { className: (bg || 'bg-white') + ' border border-slate-200 rounded-xl px-5 py-4' },
@@ -15316,17 +15326,17 @@ function EviFixPricePage({ lang, eviKit, setEviKit }) {
   const kpiSubKr = saved.length ? (t('가격 리스트 (저장본)') + ' · ' + ((lang === 'zh' && saved[0].nameZh) ? saved[0].nameZh : saved[0].name)) : ((lang === 'zh' && rows[0].nameZh ? rows[0].nameZh : rows[0].name) + ' ' + t('기준'));
   const kpiCards = kpiRow0 ? h('div', { className: 'grid grid-cols-2 lg:grid-cols-4 gap-3' },
     card(t('도착원가') + ' (RMB)', '¥ ' + nf(kpiRow0.arrival, 0), 'USD×' + t('수출비용') + '×' + t('환율(원/USD)'), 'text-slate-800'),
-    card(t('최종DSO 견적가'), '¥ ' + nf(kpiRow0.tg, 0), t('대리상공급가(지정)') + ' ¥ ' + nf(kpiRow0.supRev, 0), 'text-slate-800', 'bg-pink-50'),
-    card(t('법인GP'), saved.length ? (nf(liveSaved(saved[0]).gp, 1) + '%') : (nf(kpiRow0.gp * 100, 1) + '%'), t('법인 이익') + ' ¥ ' + nf(saved.length ? liveSaved(saved[0]).corpP : kpiRow0.corpP, 0), 'text-teal-700'),
+    card(t('대리상 공급가'), '¥ ' + nf(kpiRow0.supRev, 0), t('최종DSO 견적가') + ' ¥ ' + nf(kpiRow0.tg, 0) + t('(예상)'), 'text-slate-800', 'bg-pink-50'),
+    card(t('법인GP'), saved.length ? (nf(liveSaved(saved[0]).realGp, 1) + '%') : (nf(kpiRow0.realGp * 100, 1) + '%'), t('실질법인이익') + ' ¥ ' + nf(saved.length ? liveSaved(saved[0]).realCorpP : kpiRow0.realCorpP, 0), 'text-teal-700'),
     card(t('대리상GP'), saved.length ? (nf(num(liveSaved(saved[0]).dgp), 0) + '%') : (nf(num(inp.dgp), 0) + '%'), t('대리상 이익') + ' ¥ ' + nf(saved.length ? liveSaved(saved[0]).dealer : kpiRow0.dealer, 0), 'text-teal-700')) : null;
 
   const dlExcel = () => {
     const R = [];
     R.push([t('임플란트 매입단가(원)'), { v: num(inp.implWon) }, t('환율(원/USD)'), { v: num(sharedRates.krwUsd) }, t('법인GP(%)'), { v: num(inp.cgp) }]);
     R.push([t('Surgical Kit 매입단가(원)'), { v: num(inp.kitWon) }, 'USD→RMB', { v: num(sharedRates.usdRmb) }, t('대리상GP(%)'), { v: num(inp.dgp) }]);
-    R.push([t('수출비용'), { v: num(sharedRates.imp) }, t('마케팅물품지원(%)'), { v: num(inp.mktPct) }, t('커스회의지원(%)'), { v: num(inp.custPct) }, t('실패임플지원(%)'), { v: num(inp.failPct) }]);
+    R.push([t('수출비용'), { v: num(sharedRates.imp) }, t('마케팅 지원(%)'), { v: num(inp.mktPct) }, t('커스회의지원(%)'), { v: num(inp.custPct) }, t('실패임플지원(%)'), { v: num(inp.failPct) }]);
     R.push([]);
-    R.push([t('옵션 / 구성'), t('키트 수량'), t('합산 매입원가$'), t('도착원가'), t('법인 이익'), t('대리상 납품가'), t('최종 DSO 가격'), t('지정 DSO 가격(입력)'), t('대리상 이익'), t('대리상 납품가'), t('법인 이익'), '법인GP(%)', t('마케팅물품지원'), t('커스회의지원'), t('실패임플지원'), t('실질 법인이익'), t('실질 법인GP(%)')]);
+    R.push([t('옵션 / 구성'), t('키트 수량'), t('합산 매입원가$'), t('도착원가'), t('법인 이익'), t('대리상 납품가'), t('최종 DSO 가격'), t('지정 DSO 가격(입력)'), t('대리상 이익'), t('대리상 납품가'), t('법인 이익'), '법인GP(%)', t('마케팅 지원'), t('커스회의지원'), t('실패임플지원'), t('실질 법인이익'), t('실질 법인GP(%)')]);
     rows.forEach(r => { const c = calc(r); R.push([r.name, { v: num(r.kitQty) }, { v: c.sum }, { v: c.arrival }, { v: c.corpBase }, { v: c.supply }, { v: c.dso }, { v: c.tg }, { v: c.dealer }, { v: c.supRev }, { v: c.corpP }, { v: +(c.gp * 100).toFixed(1) }, { v: c.mktCost }, { v: c.custCost }, { v: c.failCost }, { v: c.realCorpP }, { v: +(c.realGp * 100).toFixed(1) }]); });
     xlsDownloadRows('가격_지정가_역산', R);
   };
@@ -15371,7 +15381,7 @@ function EviFixPricePage({ lang, eviKit, setEviKit }) {
     h('th', { className: 'px-2 py-2 text-center' }, t('대리상공급가(지정)')),
     h('th', { className: 'px-2 py-2 text-center' }, t('지정DSO가격')),
     h('th', { className: 'px-2 py-2 text-center' }, t('법인GP(%)')),
-    h('th', { className: 'px-2 py-2 text-center', style: sep }, t('마케팅물품지원')),
+    h('th', { className: 'px-2 py-2 text-center', style: sep }, t('마케팅 지원')),
     h('th', { className: 'px-2 py-2 text-center' }, t('커스회의지원')),
     h('th', { className: 'px-2 py-2 text-center' }, t('실패임플지원')),
     h('th', { className: 'px-2 py-2 text-center font-bold' }, t('실질법인이익')),
@@ -15393,7 +15403,7 @@ function EviFixPricePage({ lang, eviKit, setEviKit }) {
         h('button', { onClick: dlExcel, className: 'px-2 py-1.5 text-sm rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50' }, t('⬇ 엑셀')))),
     h('div', { className: 'overflow-x-auto' }, listTable),
     h('div', { className: 'text-xs text-slate-400 space-y-0.5' },
-      h('div', null, '※ ' + t('마케팅물품지원') + ' = ' + t('임플란트 1개 대리점공급가') + '(¥' + nf(refSupRev0, 0) + ', ' + t('공급가격 기준') + ') × ' + t('마케팅물품지원(%)')),
+      h('div', null, '※ ' + t('마케팅 지원') + ' = ' + t('임플란트 1개 대리점공급가') + '(¥' + nf(refSupRev0, 0) + ', ' + t('공급가격 기준') + ') × ' + t('마케팅 지원(%)')),
       h('div', null, '※ ' + t('커스회의지원') + ' = ' + t('인력/비용지원필요 ★')),
       h('div', null, '※ ' + t('실패임플지원') + ' = ' + t('임플란트 1개 법인공급가') + '(¥' + nf(implArrival, 0) + ', ' + t('수출가산정 기준') + ') × ' + t('실패임플지원(%)'))));
 
@@ -15450,38 +15460,37 @@ function EviFxSensitivityPage({ lang, eviKit }) {
   const sharedRates = eviData.rates;
   const inp = Object.assign({}, src.inp, { usdRmb: sharedRates.usdRmb, exp: sharedRates.imp }), rows = src.rows;
 
-  /* 정책 변경 영향: 환율 1,460(대리상GP15%·마케팅/실패임플 지원 없음) → 1,420(마케팅2%·실패임플3% 지원 도입) 시 임플란트 1개 기준 법인GP 변화 */
+  /* 지정 DSO 가격(환율민감도 탭 자체 오버라이드): 예전엔 모든 행이 무조건 125로 시작해 공급가격산정 탭의 실제 지정가와 어긋났다.
+     이제 처음 열 때는 각 행의 실제 지정가로 시작하고, 예전 방식대로 저장돼 있던(값이 그대로 125인) 항목만 실제 지정가로 재보정한다. */
+  const [tgOv, setTgOv] = React.useState(() => {
+    const real = {}; rows.forEach((r2, ri2) => { real[ri2] = num(r2.target); });
+    try {
+      const d = JSON.parse(localStorage.getItem('evi_fx_tgov_v1') || 'null');
+      if (d && typeof d === 'object') {
+        const merged = Object.assign({}, real, d);
+        Object.keys(merged).forEach(k => { if (Math.abs(num(d[k]) - 125) < 0.5 && real[k] != null && Math.abs(real[k] - 125) >= 0.5) merged[k] = real[k]; });
+        return merged;
+      }
+    } catch (e) {}
+    return real;
+  });
+  React.useEffect(() => { try { localStorage.setItem('evi_fx_tgov_v1', JSON.stringify(tgOv)); } catch (e) {} }, [tgOv]);
+
+  /* 정책 변경 영향: 환율 1,460 vs 1,420 시나리오를 "현재 실제 설정값"(대리상GP·마케팅/커스회의/실패임플 지원%)으로 동일하게 계산해서 비교한다.
+     예전엔 1,460 카드가 지원 도입 이전 상황(지원 0%, 환율 7 고정)을 가정한 별도 계산식(gpCompareCalc)을 썼는데, 이러면 아래 옵션 표(같은 환율 컬럼)의 법인GP(%)와 숫자가 달라지는 문제가 있었다.
+     이제는 아래 옵션 표와 완전히 같은 calcAt() 함수를 그대로 재사용해서, 환율만 다르고 나머지 조건은 모두 표와 100% 일치시킨다. */
   const implItemPc = (eviData.items || []).find(it => it.id === 'e1') || (eviData.items || []).find(it => it.cat === 'main' && it.g === '임플란트');
-  const implWonPc = implItemPc ? (Number(implItemPc.won) || 0) : 0;
-  /* 마케팅물품지원/커스회의지원/실패임플지원의 기준액: 공급가격산정 탭과 동일하게, 수출가산정의 "임플란트 1개" 법인공급가(키트 매출 미포함, 현재 환율 기준 고정값) */
-  const implCgpFx = ((sharedRates.corpGpPct != null ? Number(sharedRates.corpGpPct) : 35)) / 100;
+  /* 실패임플지원 기준액: 공급가격산정 탭과 동일하게, 수출가산정의 "임플란트 1개" 법인공급가(키트 매출 미포함, 현재 환율 기준 고정값) */
   const implUsd0Fx = implItemPc ? (((implItemPc.won !== null && implItemPc.won !== undefined && implItemPc.won !== '') && sharedRates.krwUsd) ? implItemPc.won / sharedRates.krwUsd : (implItemPc.usd || 0)) : 0;
   const implUsdFx = rUsd(implUsd0Fx);
   const implArrivalFx = rRmb(implUsdFx * num(sharedRates.imp) * num(sharedRates.usdRmb));
-  const implCorpFx = implCgpFx < 1 ? rRmb(implArrivalFx / (1 - implCgpFx)) : 0;
-  /* 마케팅물품지원 기준액: 공급가격산정 탭과 동일한 "임플란트 1개"(키트수량 0) 옵션의 대리상공급가(지정) · 실패임플지원 기준액: 임플란트 1개 도착원가 · 커스회의지원: 별도 산식 없음 */
+  /* 마케팅 지원 기준액: 공급가격산정 탭과 동일한 "임플란트 1개"(키트수량 0) 옵션의 대리상공급가(지정) · 실패임플지원 기준액: 임플란트 1개 도착원가 · 커스회의지원: 별도 산식 없음
+     지정 DSO 가격은 아래 옵션 표(임플란트 1개 카드)와 완전히 같은 값(tgOv 우선, 없으면 저장된 target)을 써서 "정책 변경 영향" 카드와 옵션 표 숫자가 항상 일치하도록 한다. 하드코딩된 125는 쓰지 않는다. */
   const refRowFx = rows.find(rr => num(rr.kitQty) === 0) || rows[0];
-  const refDealerFx = rRmb(num(refRowFx.target) * (num(inp.dgp) / 100));
-  const refSupRevFx = rRmb(num(refRowFx.target) - refDealerFx);
-  const gpCompareCalc = (fx, usdRmb, mktPct, failPct, custPct) => {
-    const cgp = num(inp.cgp) / 100, dgp = num(inp.dgp) / 100;
-    const usd = rUsd(implWonPc && fx ? implWonPc / fx : 0);
-    const arrival = rRmb(usd * num(sharedRates.imp) * usdRmb);
-    const tg = 125;
-    const dealer = rRmb(tg * dgp);
-    const supRev = rRmb(tg - dealer);
-    const corpP = supRev - arrival;
-    const mktCost = r1(refSupRevFx * mktPct / 100);
-    const custCost = 0;
-    const failCost = r1(implArrivalFx * failPct / 100);
-    const realCorpP = corpP - mktCost - custCost - failCost;
-    const gp = supRev > 0 ? corpP / supRev : 0;
-    const realGp = supRev > 0 ? realCorpP / supRev : 0;
-    return { arrival, corpP, gp, realCorpP, realGp };
-  };
-  const gpPcBefore = gpCompareCalc(1460, 7, 0, 0, 0);
-  const gpPcAfter = gpCompareCalc(1420, num(sharedRates.usdRmb), num(inp.mktPct), num(inp.failPct), num(inp.custPct));
-  const gpPcDelta = (gpPcAfter.realGp - gpPcBefore.gp) * 100;
+  const refIdxFx = (() => { const i2 = rows.findIndex(rr => num(rr.kitQty) === 0); return i2 >= 0 ? i2 : 0; })();
+  const refTargetFx = tgOv[refIdxFx] != null ? num(tgOv[refIdxFx]) : num(refRowFx.target);
+  const refDealerFx = rRmb(refTargetFx * (num(inp.dgp) / 100));
+  const refSupRevFx = rRmb(refTargetFx - refDealerFx);
 
   const [fxList, setFxList] = React.useState(() => { try { const d = JSON.parse(localStorage.getItem('evi_fx_scenarios_v1') || 'null'); if (Array.isArray(d) && d.length) return d; } catch (e) {} return [1250, 1300, 1350, 1420, 1450, 1460, 1500]; });
   React.useEffect(() => { try { localStorage.setItem('evi_fx_scenarios_v1', JSON.stringify(fxList)); } catch (e) {} }, [fxList]);
@@ -15508,18 +15517,20 @@ function EviFxSensitivityPage({ lang, eviKit }) {
     const realGp = supRev > 0 ? realCorpP / supRev : 0;
     return { sum, arrival, supply, dso, tg, dealer, supRev, corpP, gp, mktCost, custCost, failCost, realCorpP, realGp };
   };
+  /* "정책 변경 영향" 카드도 옵션 표와 똑같은 calcAt()을 재사용 — 환율만 1,460/1,420으로 다르고 나머지(대리상GP·마케팅/커스회의/실패임플 지원%)는 현재 실제 설정 그대로라, 아래 옵션 표의 해당 환율 컬럼 법인GP(%)와 항상 일치한다. */
+  const gpPcBefore = calcAt(refRowFx, 1460);
+  const gpPcAfter = calcAt(refRowFx, 1420);
+  const gpPcDelta = (gpPcAfter.realGp - gpPcBefore.realGp) * 100;
 
   const nf = (v, d) => Number(v || 0).toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d });
   const fxSorted = fxList.slice().map(v => num(v)).sort((a, b) => a - b);
-  /* "현재 설정" 기준값은 공급가격산정 탭에 저장된(옛 버전 기본값 1,460이 남아있을 수 있는) inp.fx가 아니라, 이 화면의 실제 현재 정책 기준인 1,420(DEF_INP.fx)을 그대로 사용한다. */
-  const curFxBase = DEF_INP.fx;
+  /* "현재 설정" 기준값은 공급가격산정 탭에 저장된(옛 버전 기본값이 남아있을 수 있는) inp.fx가 아니라, 수출가산정/공급가격산정 탭에서 실제로 쓰고 있는 살아있는 환율(sharedRates.krwUsd)을 그대로 따라간다.
+     이렇게 해야 ★(현재 설정) 컬럼의 대리상공급가격·법인GP가 공급가격산정 탭 숫자와 항상 정확히 일치한다. */
+  const curFxBase = num(sharedRates.krwUsd) || DEF_INP.fx;
 
   const [curFxOv, setCurFxOv] = React.useState(() => { try { const d = JSON.parse(localStorage.getItem('evi_fx_curfxov_v1') || 'null'); if (d === null || isNaN(Number(d))) return null; const n = Number(d); return Math.abs(n - 1460) < 0.5 ? null : n; /* 구버전 기본값 1,460이 저장돼 있으면 초기화 → 1,420 기준으로 복귀 */ } catch (e) { return null; } });
   React.useEffect(() => { try { localStorage.setItem('evi_fx_curfxov_v1', JSON.stringify(curFxOv)); } catch (e) {} }, [curFxOv]);
   const curFx = curFxOv != null ? curFxOv : curFxBase;
-
-  const [tgOv, setTgOv] = React.useState(() => { try { const d = JSON.parse(localStorage.getItem('evi_fx_tgov_v1') || 'null'); if (d && typeof d === 'object') return d; } catch (e) {} const o = {}; rows.forEach((r2, ri2) => { o[ri2] = 125; }); return o; });
-  React.useEffect(() => { try { localStorage.setItem('evi_fx_tgov_v1', JSON.stringify(tgOv)); } catch (e) {} }, [tgOv]);
 
   const [editing, setEditing] = React.useState(null);
   const [toast, setToast] = React.useState('');
@@ -15549,17 +15560,22 @@ function EviFxSensitivityPage({ lang, eviKit }) {
       h('button', { onClick: doSaveFx, className: 'px-2 py-1.5 text-xs rounded-lg bg-indigo-600 text-white hover:bg-indigo-700' }, t('저장')),
       h('span', { className: 'text-xs text-slate-400 ml-2 inline-flex items-center gap-1' }, t('현재 설정') + ':', clickEdit('curFx', curFx, v => setCurFxOv(num(v))))));
 
-  const pcCard = (label, value, sub, cls, bg) =>
-    h('div', { className: (bg || 'bg-white') + ' border border-slate-200 rounded-xl px-5 py-4' },
+  /* 카드 색상: 환율민감도 표의 ★현재(isCur)/◆기준(isRef) 컬럼 강조색과 동일하게 맞춘다 */
+  const pcCardStyleCur = { color: '#2563eb', backgroundColor: '#eff6ff', borderColor: '#2563eb', borderWidth: '2px' };
+  const pcCardStyleRef = { color: '#b45309', backgroundColor: '#fffbeb', borderColor: '#d97706', borderWidth: '2px' };
+  const pcCard = (label, value, sub, style) => {
+    const st = Object.assign({ backgroundColor: '#fff', borderColor: '#e2e8f0', borderWidth: '1px' }, style || {});
+    return h('div', { className: 'rounded-xl px-5 py-4', style: Object.assign({ borderStyle: 'solid' }, st) },
       h('div', { className: 'text-xs text-slate-500 mb-1' }, label),
-      h('div', { className: 'text-2xl font-bold ' + (cls || 'text-slate-800') }, value),
+      h('div', { className: 'text-2xl font-bold', style: { color: st.color || '#1e293b' } }, value),
       sub ? h('div', { className: 'text-xs text-slate-400 mt-0.5' }, sub) : null);
+  };
   const gpCompareCard = h('div', { className: 'bg-white border border-slate-200 rounded-xl px-5 py-4 space-y-3' },
     h('div', { className: 'text-sm font-bold text-slate-800' }, t('정책 변경 영향 · 임플란트 1개 기준 법인GP 변화')),
     h('div', { className: 'grid grid-cols-2 lg:grid-cols-3 gap-3' },
-      pcCard(t('법인GP (환율 1,460 기준)'), nf(gpPcBefore.gp * 100, 1) + '%', t('환율(원/USD) 1,460 · 환율(USD→RMB) 7 · 지정DSO가격 125 · 대리상GP 15% · 지원 없음'), 'text-slate-700'),
-      pcCard(t('실질법인GP (환율 1,420 기준)'), nf(gpPcAfter.realGp * 100, 1) + '%', t('환율(원/USD) 1,420 · 지정DSO가격 125 · 대리상GP') + ' ' + nf(num(inp.dgp), 0) + '% · ' + t('마케팅지원') + ' ' + nf(num(inp.mktPct), 1) + '% · ' + t('커스회의지원') + ' ' + nf(num(inp.custPct), 1) + '% · ' + t('실패임플지원') + ' ' + nf(num(inp.failPct), 1) + '%', 'text-slate-700'),
-      pcCard(t('법인GP 변화(Δ)'), (gpPcDelta >= 0 ? '+' : '') + nf(gpPcDelta, 1) + '%p', null, gpPcDelta < 0 ? 'text-red-600' : 'text-emerald-600', gpPcDelta < 0 ? 'bg-red-50' : 'bg-emerald-50')));
+      pcCard(t('법인GP (환율 1,460 기준)'), nf(gpPcBefore.realGp * 100, 1) + '%', t('환율(원/USD)') + ' 1,460 · ' + t('지정DSO가격') + ' ' + nf(refTargetFx, 0) + ' · ' + t('대리상GP') + ' ' + nf(num(inp.dgp), 0) + '% · ' + t('마케팅 지원') + ' ' + nf(num(inp.mktPct), 1) + '% · ' + t('커스회의지원') + ' ' + nf(num(inp.custPct), 1) + '% · ' + t('실패임플지원') + ' ' + nf(num(inp.failPct), 1) + '%', pcCardStyleRef),
+      pcCard(t('실질법인GP (환율 1,420 기준)'), nf(gpPcAfter.realGp * 100, 1) + '%', t('환율(원/USD)') + ' 1,420 · ' + t('지정DSO가격') + ' ' + nf(refTargetFx, 0) + ' · ' + t('대리상GP') + ' ' + nf(num(inp.dgp), 0) + '% · ' + t('마케팅 지원') + ' ' + nf(num(inp.mktPct), 1) + '% · ' + t('커스회의지원') + ' ' + nf(num(inp.custPct), 1) + '% · ' + t('실패임플지원') + ' ' + nf(num(inp.failPct), 1) + '%', pcCardStyleCur),
+      pcCard(t('법인GP 변화(Δ)'), (gpPcDelta >= 0 ? '+' : '') + nf(gpPcDelta, 1) + '%p', null, null)));
 
   const gTh = (label, w) => h('th', { className: 'px-2 py-2 text-center', style: w ? { width: w } : undefined }, label);
   const optionCard = (r, ri) => {
@@ -15571,9 +15587,9 @@ function EviFxSensitivityPage({ lang, eviKit }) {
     const metricRows = [
       ['sum', t('합산매입원가$'), v => nf(v, 1)],
       ['arrival', t('도착원가'), v => nf(v, 0)],
-      ['supply', t('대리상 공급가격'), v => nf(v, 0)],
+      ['supRev', t('대리상 공급가격'), v => nf(v, 0)],
       ['dso', t('DSO 공급가격'), v => nf(v, 0)],
-      ['mktCost', t('마케팅물품지원') + '(' + nf(num(inp.mktPct), 1) + '%)', v => (v ? '−' : '') + nf(v, 1)],
+      ['mktCost', t('마케팅 지원') + '(' + nf(num(inp.mktPct), 1) + '%)', v => (v ? '−' : '') + nf(v, 1)],
       ['custCost', t('커스회의지원') + '(' + nf(num(inp.custPct), 1) + '%)', v => (v ? '−' : '') + nf(v, 1)],
       ['failCost', t('실패임플지원') + '(' + nf(num(inp.failPct), 1) + '%)', v => (v ? '−' : '') + nf(v, 1)],
       ['realCorpP', t('법인 이익'), v => nf(v, 0)],
